@@ -1,4 +1,4 @@
-pragma solidity ^0.4.0;
+pragma solidity ^0.4.19;
 
 // Holds the house tokens, receives dividends.
 // Cannot ever transfer or burn the tokens.
