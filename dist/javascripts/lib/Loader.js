@@ -44,8 +44,8 @@
 
 		this.promise = Promise.all([
 			new Promise((res, rej)=>{ window.addEventListener('load', res); }),
-			addScript("https://code.jquery.com/jquery-3.2.1.slim.min.js"),
-			addScript("https://unpkg.com/tippy.js@2.0.8/dist/tippy.all.min.js"),
+			addScript("/javascripts/lib/external/jquery-3.2.1.slim.min.js"),
+			addScript("/javascripts/lib/external/tippy.all.min.js"),
 			addScript("/javascripts/lib/external/web3.min.js"),
 			addScript("/javascripts/lib/external/EthAbi.js"),
 			addScript("/javascripts/lib/EthUtil.js"),
