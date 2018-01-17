@@ -1,92 +1,65 @@
-PennyEth.
+# Penny Ether UI
 
-/app contains the front-end code. See readme for more info.
+Our UI is fully open source, with no external dependancies other than jQuery and Tippy.
 
-General architecture:
+## Running the UI
 
+The UI is just standard html files. There's no build process at all.
 
-COMPTROLLER / DIVIDENDTOKEN / LOCKER
+Simply run a webserver whose root directory is `/dist`:
 
-	For security, are unaware of the registry.
-	Comptroller:
-		- Does nothing until .initSale() is called.
-			- Requires a treasury to be set
-			- Requires a token locker to be initialized
-		- Mints/Burns tokens, keeps PennyEther ownership at 20%
-	Token:
-		- Token that splits up deposits to token holders
-	TokenLocker:
-		- Holds the tokens so they cannot be burnt
-		- Allows dividends to be collected to the TokenLockerOwner
-			- The owner is set via .initTokenLocker()
+You can run a simple http server in node quite easily:
 
+- Install `node` and `npm`
+- `npm install -g http-server`
+- `http-server /path/to/pennyether-ui/dist`
 
-REGISTRY
+## Architecture
 
-	A contract that holds all entries to important addresses. This is set-up on deploy.
-	If a contract is ever redeployed, the address should be updated here.
-	Only the owner can change entries.
+- Loader.js loads all scripts that are needed on every page
+	- `ABI.js`
+	- web3 (either browser or infura)
+	- dependancies (jQuery, tippy, internal libs)
+- Page scripts:
+	- Automatically load singleton contract instances:
+	  ```
+		Loader.require("tr","comp").then((tr,comp)=>{
+			// All required JS files loaded.
+			// Treasury and Comptroller loaded from Registry.
+			// do stuff here...
+		});
+	  ```
+	- When blockchain state changes:
+	  ```
+		ethUtil.onStateChanged((state)=>{
+			if (!state.isConnected) return;
+			// user, network, or block changed. do stuff.
+		});
+	  ```
+- `NiceWeb3` wraps Web3. It's a lot nicer than web3.
+	- Promisifies everything
+	- Decodes events nicely
+	- Makes getting logs easy and compatible with MetaMask
+- `EthUtil` monitors the current web3 connection
+	- Notifies subscribers when state changes (isConnected, account, network, block)
+	- Allows promisified calls to web3.eth
+	- Allows promisified transactions (resolved when receipt received)
+	- Some other goodies
+- `EthStatus` shows the status of web3, and any pending transactions.
+	- A nice UI to show current Ethereum connection status
+	- Shows pending transactions, with lots of details
 
-	Holds:
-		- Owner
-			- Controls registry
-			- Can call Treasury.initToken() and Treasury.initComptroller()
-			- Can swap in/out contracts (excluding Comp/Treasury/TokenLocker)
-		- Admin
-			- Can alter settings of MainController
-			- Can alter settings of PennyAuctionController
-		- Treasury
-		- MainController
-		- GameControllers
-		- PennyAuctionFactory
+## Developer Notes
 
-	At some point, the owner of the registry should be changed to a Custodial Wallet
-	to ensure nobody can own the whole system.
+- Anytime contracts are changed:
+	- Execute `scripts/generate_abis.js /path/to/build`
+	- This will update ABIs.js
+- **When running with a local Ganache**:
+	- anytime you restart Ganache, log out of MetaMask, log back in.
+	- select main network, then select private network.
+	- otherwise there may be silent nonce issues (Ganache won't mine)
 
-TREASURY
+## Todo
 
-	Holds all the funds, all the time.  All fees get collected here.  Only pays
-	out to MainController and Token (if set).
-
-MAIN CONTROLLER
-
-	Interfaces with game controllers to:
-		- refresh statuses of games
-		- reward users for the above
-
-GAME CONTROLLER (eg: PENNYAUCTIONCONTROLLER)
-
-	- manages instances of games
-	- allows games to be started, stopped, have feescollected
-	- everything is callable by everyone
-
-GAMES
-	FACTORY
-		Contains code to create a new instance of the game.
-		Will use getTreasury() to determine where funds go.
-	GAME
-		Code for the game itself.
-
-------------------------------------
-
-To develop:
-
-	- Set up truffle... good luck with that.  I've been using an old version of truffle.
-		- I've edited some truffle files to work with smocha... you can search truffle-test
-		  codebase to replease "Mocha" with "Smocha" and you should be fine.
-	- npm install -g ganache-cli
-	- ganache-cli
-	- probably need to install other things... I've polluted my global NPM at this point
-	- truffle test test/PathToTest.js
-	- Front-end development is more complicated... see the readme in "/app"
-
-Notes:
-
-	- truffle compiles by passing a "runs" paramater to solcjs. This parameter tells the
-	  optimizer to optimize against a certain number of "runs" of the contract... 0
-	  represents never running the contract, 1000 represents calling it 1,000 times, etc.
-	  Now, etherscan validates against a value of 200.  There's a separate page that
-	  can allow you to enter a custom value here: (etherscanio.veryify2)
-	  Anyway, you can change truffle's default by finding wherever the fuck it is
-	  installed (/usr/local/bin/lib/node_modules/trufflesuit/node_modules/truffle-compile)
-	  and changing the value there.
+- At some point we plan on running this entirely on IPFS.
+- Versioning may become an issue in the future. For now, we instruct users to do a hard refresh (cmd+shift+r) if anything is acting up.
