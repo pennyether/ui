@@ -140,9 +140,15 @@ Loader.require("pac")
 			.click(function(){
 				this._tippy.hide(0);
 				_self.bid();
+			});		
+		const _$sendPrizeTip = _$e.find(".sendPrizeTip");
+		const _$sendPrizeIcon = _$sendPrizeTip.find(".sendPrizeIcon");
+		const _$sendPrizeBtn = _$sendPrizeTip.find(".sendPrizeBtn")
+			.click(function(){
+				_$sendPrizeIcon[0]._tippy.hide(0);
+				_self.sendPrize();
 			});
 
-		
 		const _$alertsTip = _$e.find(".alertsTip");
 		const _$alertsIcon = _$e.find(".alertsIcon").hide();
 		function _initAlertsTip(){
@@ -163,7 +169,7 @@ Loader.require("pac")
 			const $alertBtn = _$alertsTip.find("button").click(function(){
 				Notification.requestPermission(_self.refreshAlertsTip);
 			});
-			// hook up all the checkboxes
+			// hook up all the checkboxes and dropdowns
 			_$alertsTip.find("input").change(function(){
 				const $sel = $(this).parent().find("select");
 				const name = $(this).data("alert-name");
@@ -354,7 +360,14 @@ Loader.require("pac")
 			}
 		}
 
-		this.updateIsPaidStatus = function(){
+		this.updateEndedStatus = function(){
+			_$status.empty();
+			// display who won.
+			const $winnerLink = util.$getShortAddrLink(_curCurrentWinner);
+			if (_curAmWinner) $winnerLink.text("You");
+			const $curWinner = $("<div></div>").append($winnerLink).append(_curAmWinner ? " won!" : " won.");
+			_$status.append($curWinner);
+
 			Promise.resolve().then(()=>{
 				// maybe load isPaid
 				if (_isPaid) return;
@@ -367,15 +380,33 @@ Loader.require("pac")
 					_paymentEvent = evs[0];
 				});
 			}).then(()=>{
-				// update status.
-				if (!_isPaid) return;
-				if (_paymentEvent){
-					const txHash = _paymentEvent.transactionHash;
-					const $link = util.$getTxLink("✓ Winner has been paid.", txHash);
-					_$status.append($("<div></div>").append($link));
-				} else {
-					const $paid = $("<div>✓ Winner has been paid.</div>");
-					_$status.append($paid);
+				// clear status again, since .updateEndedStatus() may be backlogged.
+				_$status.empty().append($curWinner);
+				// display whether or not they've been paid
+				if (_curAmWinner) {
+					if (_isPaid){
+						if (_paymentEvent){
+							const txHash = _paymentEvent.transactionHash;
+							const $link = util.$getTxLink("✓ You have been paid.", txHash);
+							_$status.append($("<div></div>").append($link));
+						}else{
+							_$status.append($("<div></div>").append("✓ You have been paid."));
+						}
+					} else {
+						_$status.append(_$sendPrizeIcon);
+					}
+					return;
+				}
+				// display `winner has been paid` as event or text.
+				if (_isPaid){
+					if (_paymentEvent) {
+						const txHash = _paymentEvent.transactionHash;
+						const $link = util.$getTxLink("✓ Winner has been paid.", txHash);
+						_$status.append($("<div></div>").append($link));
+					} else {
+						const $paid = $("<div>✓ Winner has been paid.</div>");
+						_$status.append($paid);
+					}
 				}
 			})
 		}
@@ -409,7 +440,7 @@ Loader.require("pac")
 				const amNowWinner = !_curAmWinner && amWinner;
 				const amNowLoser = _curAmWinner && !amWinner;
 				const isNewWinner = _curCurrentWinner && currentWinner != _curCurrentWinner;
-				const isEnded = blocksLeft < 1;
+				const isEnded = blocksLeft < 1 || true;
 				const isNewEnded = isEnded && !_isEnded;
 				_isEnded = isEnded;
 				_curPrize = prize;
@@ -421,8 +452,8 @@ Loader.require("pac")
 				// update DOM, currentWinner, and prize
 				_$e.removeClass("winner");
 				if (amWinner) _$e.addClass("winner");
-				const addrName = amWinner ? "You" : currentWinner.slice(0,6) + "..." + currentWinner.slice(-4);
-				const $curWinner = util.$getAddrLink(addrName, currentWinner);
+				const $curWinner = util.$getShortAddrLink(currentWinner);
+				if (amWinner) $curWinner.text("You");
 				_$currentWinner.empty().append($curWinner);
 				_$prize.text(`${ethUtil.toEth(prize)}`);
 				
@@ -433,9 +464,7 @@ Loader.require("pac")
 					_$btn.attr("disabled", "disabled").addClass("disabled");
 					_$blocksLeft.text("Ended");
 					_$currentWinnerCell.find(".label").text("Winner");
-					_$status.empty()
-						.append($curWinner.clone()).append(" won!");
-					_self.updateIsPaidStatus();
+					_self.updateEndedStatus();
 				} else {
 					_$alertsIcon.show();
 					_$blocksLeft.text(blocksLeft);
@@ -495,6 +524,71 @@ Loader.require("pac")
 				}
 				_triggerAlerts(blocksLeft, amNowLoser, isNewWinner);
 				if (isNewEnded) _clearAlerts();
+			});
+		}
+
+		this.sendPrize = function(){
+			_$txStatus.show();
+			_$status.hide();
+			
+			var p;
+			try {
+				const gasPrice = _GAS_PRICE_SLIDER.getValue();
+				p = _auction.sendPrize([0], {gas: 40000, gasPrice: gasPrice});
+			} catch (e) {
+				ethStatus.open();
+				_$clearTxStatus.show();
+				_$statusCell.addClass("error");
+				_$txStatus.text(`Error: ${e.message}`);
+				return;
+			}
+			var txId;
+
+			_$statusCell
+				.removeClass("prepending pending refunded error current-winner")
+				.addClass("prepending");
+			_$txStatus.text("Waiting for signature...");
+
+			var loadingBar;
+			p.getTxHash.then(function(tId){
+				txId = tId;
+				const $txLink = util.$getTxLink("Your prize is being sent...", txId);
+				_$statusCell.removeClass("prepending").addClass("pending");
+				loadingBar = util.$getLoadingBar(_blocktime*1000*2, .75);
+				loadingBar.$e.attr("title", "This is an estimate of time remaining, based on the average blocktime.");
+				tippy(loadingBar.$e[0], {
+					trigger: "mouseenter",
+					placement: "top",
+					animation: "fade"
+				});
+				_$txStatus.empty().append($txLink).append(loadingBar.$e);
+			});
+			p.then(function(res){
+				_$clearTxStatus.show();
+				loadingBar.finish(500).then(()=>res);
+				if (res.events.length!=1){
+					throw new Error("Did not get back expected events. Please check your balance to see if you got paid.");
+				}
+				const ev = res.events[0];
+				if (!ev.name)
+					throw new Error("We received an unknown event. You may or may not have been paid.");
+				if (ev.name == "SendPrizeError")
+					throw new Error(`SendPrizeError: ${ev.args.msg}`);
+				if (ev.name == "SendPrizeFailure")
+					throw new Error(`Sending prize failed. You may need to use more gas.`);
+				if (ev.name != "SendPrizeSuccess") 
+					throw new Error(`Unexpected Event (${ev.name}): You may or may not have been paid.`);
+				const $link = util.$getTxLink("Your prize was successfully sent!", txId);
+				_$txStatus.empty().append($link)
+			}).catch((e)=>{
+				_$clearTxStatus.show();
+				_$statusCell.removeClass("prepending pending").addClass("error");
+				if (txId) {
+					const $txLink = util.$getTxLink("Your tx failed.", txId);
+					_$txStatus.empty().append($txLink).append(`<br>${e.message}`);
+				} else {
+					_$txStatus.text(`Error: ${e.message}`);	
+				}
 			});
 		}
 
@@ -606,7 +700,7 @@ Loader.require("pac")
 				_$clearTxStatus.show();
 				_$statusCell.removeClass("prepending pending").addClass("error");
 				if (bidTxId) {
-					const $txLink = util.$getTxLink("Your Bid failed.");
+					const $txLink = util.$getTxLink("Your Bid failed.", bidTxId);
 					_$txStatus.empty().append($txLink).append(`<br>${e.message}`);
 				} else {
 					_$txStatus.text(`Error: ${e.message}`);	
@@ -662,39 +756,59 @@ Loader.require("pac")
 				}
 			});
 
-			// bidTip is more substantial
-			const $bidTip = _$e.find(".bidTip");
-			const $bidPrice = $bidTip.find(".bidPrice");
-			const $prize = $bidTip.find(".prize");
-			const $prizeIncr = $bidTip.find(".prizeIncr");
-			const $addBlocks = $bidTip.find(".addBlocks");
-			const $gasPrice = $bidTip.find(".gasPrice")
+			// init sendPrizeTip
+			(function initSendPrizeTip(){
+				const $gasPrice = _$sendPrizeTip.find(".gasPrice");
+				const $prize = _$sendPrizeTip.find(".prize");
+				tippy(_$sendPrizeIcon[0], {
+					theme: "light",
+					animation: "scale",
+					placement: "top",
+					trigger: "mouseenter",
+					html: _$sendPrizeTip.show()[0],
+					onShow: function(){
+						_GAS_PRICE_SLIDER.refresh();
+						$gasPrice.append(_GAS_PRICE_SLIDER.$e);
+						$prize.text(ethUtil.toEthStr(_curPrize));
+					}
+				})
+			}());
 
-			const bidIncrEthStr = ethUtil.toEthStr(_bidIncr.abs());
-			const bidIncrStr = _bidIncr.equals(0)
-				? ""
-				: _bidIncr.gt(0)
-					? `The prize will go up by ${bidIncrEthStr}`
-					: `The prize will go down by ${bidIncrEthStr}`;
-			const addBlocksStr = `${_bidAddBlocks} blocks`;
-			const addBlocksTime = util.toTime(_blocktime.mul(_bidAddBlocks));
+			// init bidTip
+			(function initBidTip(){
+				const $bidTip = _$e.find(".bidTip");
+				const $bidPrice = $bidTip.find(".bidPrice");
+				const $prize = $bidTip.find(".prize");
+				const $prizeIncr = $bidTip.find(".prizeIncr");
+				const $addBlocks = $bidTip.find(".addBlocks");
+				const $gasPrice = $bidTip.find(".gasPrice")
 
-			$prizeIncr.text(bidIncrStr);
-			$addBlocks.text(addBlocksStr).attr("title", `~${addBlocksTime}`);
-			tippy(_$btn[0], {
-				// arrow: false,
-				theme: "light",
-				animation: "fade",
-				placement: "top",
-				html: $bidTip.show()[0],
-				trigger: "mouseenter",
-				onShow: function(){
-					_GAS_PRICE_SLIDER.refresh();
-					$gasPrice.append(_GAS_PRICE_SLIDER.$e);
-					$bidPrice.text(ethUtil.toEthStr(_bidPrice));
-					$prize.text(ethUtil.toEthStr(_curPrize));
-				}
-			});
+				const bidIncrEthStr = ethUtil.toEthStr(_bidIncr.abs());
+				const bidIncrStr = _bidIncr.equals(0)
+					? ""
+					: _bidIncr.gt(0)
+						? `The prize will go up by ${bidIncrEthStr}`
+						: `The prize will go down by ${bidIncrEthStr}`;
+				const addBlocksStr = `${_bidAddBlocks} blocks`;
+				const addBlocksTime = util.toTime(_blocktime.mul(_bidAddBlocks));
+
+				$prizeIncr.text(bidIncrStr);
+				$addBlocks.text(addBlocksStr).attr("title", `~${addBlocksTime}`);
+				tippy(_$btn[0], {
+					// arrow: false,
+					theme: "light",
+					animation: "fade",
+					placement: "top",
+					trigger: "mouseenter",
+					html: $bidTip.show()[0],
+					onShow: function(){
+						_GAS_PRICE_SLIDER.refresh();
+						$gasPrice.append(_GAS_PRICE_SLIDER.$e);
+						$bidPrice.text(ethUtil.toEthStr(_bidPrice));
+						$prize.text(ethUtil.toEthStr(_curPrize));
+					}
+				});
+			}());
 		});
 	}
 });

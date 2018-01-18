@@ -592,7 +592,8 @@
 			display: none;
 		}
 
-		.bidTip {
+		.bidTip,
+		.sendPrizeTip {
 			font-size: 90%;
 			color: black;
 			width: 380px;
@@ -600,7 +601,8 @@
 			padding: 10px;
 			text-align: left;
 		}
-		.bidTip .content .info {
+		.bidTip .content .info,
+		.sendPrizeTip .content .info {
 			margin-top: 5px;
 			padding: 2px 4px;
 			background: rgba(0,128,0,.2);
@@ -637,6 +639,35 @@
 			padding-top: 5px;
 			padding-bottom: 5px;
 			text-align: center;
+		}
+
+		.sendPrizeTip {
+			text-align: center;
+		}
+		.sendPrizeTip .msg {
+			margin-top: -5px;
+			padding: 8px 0px;
+		}
+		.sendPrizeTip .manual {
+			margin-top: 10px;
+			padding: 5px;
+			border: 1px dotted #AAA;
+			background: #DDD;
+			border-radius: 5px;
+		}
+		.sendPrizeTip .sendPrizeBtn {
+			margin: 5px 0px;
+			background: green;
+			color: white;
+			font-size: 120%;
+			cursor: pointer;
+		}
+		.auction .sendPrizeIcon {
+			margin: 4px;
+			display: inline-block;
+			color: green;
+			font-weight: bold;
+			border-bottom: 1px dotted green;
 		}
 
 
@@ -699,6 +730,21 @@
 					<div class="bullet">You'll become the current winner!</div>
 				</div>
 				<div class="gasPrice"></div>
+			</div>
+			<div class="sendPrizeTip" style="display: none;">
+				<div class="content">
+					<div class="info">Congratulations! You won <span class='prize'></span>!</div>
+					<div class="msg">
+						<b>You will be sent the prize automatically when another auction is started via the <a href="/games/rewards" target="_blank">rewards</a> page.</b>
+						<br>
+						Or, you can claim the prize now by clicking below.
+					</div>
+					<div class="manual">
+						<div class="gasPrice"></div>
+						<button class="sendPrizeBtn">Claim Prize</button>
+					</div>
+				</div>
+				<div class="sendPrizeIcon">Now what?</div>
 			</div>
 			<style>
 				.alertsTip .title {
