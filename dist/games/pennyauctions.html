@@ -368,7 +368,8 @@
 			box-shadow: 3px 3px 10px 0px rgba(0,0,0,.2);
 			margin: 10px 30px;
 		}
-		.auction.ended {
+		.auction.ended,
+		.auction.initializing {
 			opacity: .6;
 		}
 
@@ -559,7 +560,7 @@
 			padding: 0px 3px;
 			bottom: 0px;
 			right: 0px;
-			opacity: .3;
+			opacity: .5;
 		}
 		.auction .statusCell .viewLink a {
 			text-decoration: none;
@@ -776,7 +777,7 @@
 					<td class="prizeCell">
 						<div class="label prizeLabel dontTip infoLeft" title="The prize that the winner will receive.">Auction Prize</div>
 						<div class="field prize">
-							<div class="value">.05</div>
+							<div class="value"></div>
 							<div class="eth">eth</div>
 						</div>
 					</td>
@@ -784,23 +785,23 @@
 						<div class="label dontTip infoLeft" title=" ">Blocks Remaining</div>
 						<div class="alertsIcon">🔔</div>
 						<div class="field">
-							<div class="blocksLeft">5</div><br>
-							<div class="timeLeft">(~3:22)</div>
+							<div class="blocksLeft"></div><br>
+							<div class="timeLeft"></div>
 						</div>
 					</td>
 				</tr>
 				<tr class="middle">
 					<td class="bidPriceCell">
-						<div class="label dontTip infoLeft" title="The amount it costs to become the current winner.">Bid Fee</div>
+						<div class="label dontTip infoLeft" title="The amount it costs to become the current winner.">Bid Price</div>
 						<div class="field">
-							<div class="bidPrice">.0001</div>
+							<div class="bidPrice"></div>
 							<div class="eth">eth</div>
 						</div>
 					</td>
 					<td class="currentWinnerCell">
 						<div class="label dontTip infoLeft" title="The winner that will receive the prize if the auction ends.">Current Winner</div>
 						<div class="field currentWinner">
-							<div class="value">0x38432908</div>
+							<div class="value"></div>
 						</div>
 					</td>
 					<td>

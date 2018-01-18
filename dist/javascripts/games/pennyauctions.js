@@ -92,7 +92,7 @@ Loader.require("pac")
 	}
 
 	(function refreshTimes(){
-		getAllAuctions().forEach(a=>a.updateTimeLeft(2));
+		getAllAuctions().forEach(a=>a.updateTimeLeft());
 		setTimeout(refreshTimes, 1000);
 	}());
 
@@ -106,6 +106,10 @@ Loader.require("pac")
 		const _auction = auction;
 		const _lsKey = `${_auction.address}-alerts`;
 		var _initialized;
+		var _isInitialized;
+		var _isEnded;
+		var _isPaid;
+
 		var _blocktime;
 		var _bidPrice;
 		var _bidIncr;
@@ -130,7 +134,7 @@ Loader.require("pac")
 		const _$blocksLeftCtnr = _$e.find(".blocksLeftCtnr");
 		const _$blocksLeft = _$e.find(".blocksLeft");
 		const _$timeLeft = _$e.find(".timeLeft");
-		const _$bidPrice = _$e.find(".bidPrice .value");
+		const _$bidPrice = _$e.find(".bidPrice");
 		const _$currentWinner = _$e.find(".currentWinner .value");
 		const _$btn = _$e.find(".bid button")
 			.click(function(){
@@ -140,7 +144,7 @@ Loader.require("pac")
 
 		
 		const _$alertsTip = _$e.find(".alertsTip");
-		const _$alertsIcon = _$e.find(".alertsIcon");
+		const _$alertsIcon = _$e.find(".alertsIcon").hide();
 		function _initAlertsTip(){
 			_loadAlerts();
 
@@ -324,6 +328,8 @@ Loader.require("pac")
 		// updates the _$timeLeft string according to how
 		// much time has elapsed since the last estimate was recorded.
 		this.updateTimeLeft = function(){
+			if (!_isInitialized) return;
+
 			const timeElapsed = (+new Date()/1000) - _estTimeLeftAt;
 			const newTimeLeft = Math.round(_estTimeLeft - timeElapsed);
 			if (newTimeLeft < 0) {
@@ -348,7 +354,26 @@ Loader.require("pac")
 			}
 		}
 
+		this.refreshIsPaid = function(){
+			if (_isPaid) return;
+			return _auction.isPaid().then((res)=>{
+				_isPaid = res;
+				if (_isPaid) {
+					const $paid = $("<div>✓ Winner has been paid.</div>");
+					_$status.append($paid);
+					_auction.getEvents("SendPrizeSuccess").then(evs=>{
+						if (evs.length!==1) return;
+						const txHash = evs[0].transactionHash;
+						const $link = util.$getTxLink("✓ Winner has been paid.", txHash);
+						$paid.replaceWith($("<div></div>").append($link));
+					});
+				}
+			});
+		}
+
 		this.refresh = function() {
+			if (_isEnded) { return _self.refreshIsPaid(); }
+
 			function flashClass(className) {
 				_$e.removeClass(className);
 				setTimeout(()=>_$e.addClass(className), 30);
@@ -370,7 +395,7 @@ Loader.require("pac")
 				_estTimeLeftAt = (+new Date()/1000);
 				_self.updateTimeLeft();
 
-				// compute useful things, and update
+				// compute useful things
 				_$e.removeClass("winner");
 				const isNewBlock = _curBlocksLeft && blocksLeft < _curBlocksLeft;
 				const amWinner = currentWinner === ethUtil.getCurrentAccount();
@@ -381,6 +406,8 @@ Loader.require("pac")
 				const addrName = amWinner ? "You" : currentWinner.slice(0,6) + "..." + currentWinner.slice(-4);
 				const $curWinner = util.$getAddrLink(addrName, currentWinner);
 				const isEnded = blocksLeft < 1;
+				const isNewEnded = isEnded && !_isEnded;
+				_isEnded = isEnded;
 				_curPrize = prize;
 				_curAmWinner = amWinner;
 				_curBlocksLeft = blocksLeft;
@@ -396,10 +423,9 @@ Loader.require("pac")
 					_$btn.attr("disabled", "disabled").addClass("disabled");
 					_$blocksLeft.text("Ended");
 					_$status.empty()
-						.append("The auction has ended.<br>")
-						.append($curWinner.clone())
-						.append(" won!");
+						.append($curWinner.clone()).append(" won!");
 				} else {
+					_$alertsIcon.show();
 					_$blocksLeft.text(blocksLeft);
 					if (amNowLoser){
 						_$status.empty()
@@ -454,7 +480,10 @@ Loader.require("pac")
 					if (isNewPrize) flashClass("new-prize");
 				}
 				_triggerAlerts(blocksLeft, amNowLoser, isNewWinner);
-				if (isEnded) _clearAlerts();
+				if (isNewEnded) {
+					_self.refreshIsPaid();
+					_clearAlerts();
+				}
 			});
 		}
 
@@ -581,11 +610,15 @@ Loader.require("pac")
 			.attr("href", `/games/viewpennyauction.html#${_auction.address}`);
 
 		// initialize this auction
+		_$e.addClass("initializing");
+		_$blocksLeft.text("Loading");
 		_initialized = Promise.all([
 			_auction.bidPrice(),
 			_auction.bidIncr(),
-			_auction.bidAddBlocks(),
+			_auction.bidAddBlocks()
 		]).then(arr=>{
+			_$e.removeClass("initializing");
+			_isInitialized = true;
 			_bidPrice = arr[0];
 			_bidIncr = arr[1];
 			_bidAddBlocks = arr[2];
