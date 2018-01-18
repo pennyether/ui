@@ -106,9 +106,9 @@ Loader.require("pac")
 		const _auction = auction;
 		const _lsKey = `${_auction.address}-alerts`;
 		var _initialized;
-		var _isInitialized;
 		var _isEnded;
 		var _isPaid;
+		var _paymentEvent;
 
 		var _blocktime;
 		var _bidPrice;
@@ -328,7 +328,7 @@ Loader.require("pac")
 		// updates the _$timeLeft string according to how
 		// much time has elapsed since the last estimate was recorded.
 		this.updateTimeLeft = function(){
-			if (!_isInitialized) return;
+			if (!_curBlocksLeft) return;
 
 			const timeElapsed = (+new Date()/1000) - _estTimeLeftAt;
 			const newTimeLeft = Math.round(_estTimeLeft - timeElapsed);
@@ -354,26 +354,33 @@ Loader.require("pac")
 			}
 		}
 
-		this.refreshIsPaid = function(){
-			if (_isPaid) return;
-			return _auction.isPaid().then((res)=>{
-				_isPaid = res;
-				if (_isPaid) {
+		this.updateIsPaidStatus = function(){
+			Promise.resolve().then(()=>{
+				// maybe load isPaid
+				if (_isPaid) return;
+				return _auction.isPaid().then(isPaid=>{ _isPaid = isPaid });
+			}).then(()=>{
+				// maybe load paymentEvent
+				if (!_isPaid || _paymentEvent) return;
+				return _auction.getEvents("SendPrizeSuccess").then(evs=>{
+					if (evs.length!==1) return;
+					_paymentEvent = evs[0];
+				});
+			}).then(()=>{
+				// update status.
+				if (!_isPaid) return;
+				if (_paymentEvent){
+					const txHash = _paymentEvent.transactionHash;
+					const $link = util.$getTxLink("✓ Winner has been paid.", txHash);
+					_$status.append($("<div></div>").append($link));
+				} else {
 					const $paid = $("<div>✓ Winner has been paid.</div>");
 					_$status.append($paid);
-					_auction.getEvents("SendPrizeSuccess").then(evs=>{
-						if (evs.length!==1) return;
-						const txHash = evs[0].transactionHash;
-						const $link = util.$getTxLink("✓ Winner has been paid.", txHash);
-						$paid.replaceWith($("<div></div>").append($link));
-					});
 				}
-			});
+			})
 		}
 
 		this.refresh = function() {
-			if (_isEnded) { return _self.refreshIsPaid(); }
-
 			function flashClass(className) {
 				_$e.removeClass(className);
 				setTimeout(()=>_$e.addClass(className), 30);
@@ -381,13 +388,15 @@ Loader.require("pac")
 
 			return Promise.all([
 				_initialized,
-				_auction.prize(),
-				_auction.currentWinner(),
-				_auction.blockEnded()
+				_isEnded && !_isPaid ? _auction.isPaid() : null,
+				_isEnded ? _curPrize : _auction.prize(),
+				_isEnded ? _curCurrentWinner : _auction.currentWinner(),
+				_isEnded ? new BigNumber(_curBlockEnded) : _auction.blockEnded()
 			]).then(arr => {
-				const prize = arr[1];
-				const currentWinner = arr[2];
-				const blockEnded = arr[3].toNumber();
+				const isPaid = arr[1];
+				const prize = arr[2];
+				const currentWinner = arr[3];
+				const blockEnded = arr[4].toNumber();
 
 				// update most recent estimate of time left
 				const blocksLeft = blockEnded - ethUtil.getCurrentBlockHeight();
@@ -395,16 +404,11 @@ Loader.require("pac")
 				_estTimeLeftAt = (+new Date()/1000);
 				_self.updateTimeLeft();
 
-				// compute useful things
-				_$e.removeClass("winner");
-				const isNewBlock = _curBlocksLeft && blocksLeft < _curBlocksLeft;
+				// compute useful things, store state
 				const amWinner = currentWinner === ethUtil.getCurrentAccount();
 				const amNowWinner = !_curAmWinner && amWinner;
 				const amNowLoser = _curAmWinner && !amWinner;
 				const isNewWinner = _curCurrentWinner && currentWinner != _curCurrentWinner;
-				const isNewPrize = _curPrize && !_curPrize.equals(prize);
-				const addrName = amWinner ? "You" : currentWinner.slice(0,6) + "..." + currentWinner.slice(-4);
-				const $curWinner = util.$getAddrLink(addrName, currentWinner);
 				const isEnded = blocksLeft < 1;
 				const isNewEnded = isEnded && !_isEnded;
 				_isEnded = isEnded;
@@ -414,16 +418,24 @@ Loader.require("pac")
 				_curCurrentWinner = currentWinner;
 				_curBlockEnded = blockEnded;
 
-				// update DOM and classes
+				// update DOM, currentWinner, and prize
+				_$e.removeClass("winner");
 				if (amWinner) _$e.addClass("winner");
+				const addrName = amWinner ? "You" : currentWinner.slice(0,6) + "..." + currentWinner.slice(-4);
+				const $curWinner = util.$getAddrLink(addrName, currentWinner);
 				_$currentWinner.empty().append($curWinner);
 				_$prize.text(`${ethUtil.toEth(prize)}`);
+				
+				// update everything else
+				// button, blocksleft, flashing classes
 				if (isEnded) {
 					_$e.addClass("ended");
 					_$btn.attr("disabled", "disabled").addClass("disabled");
 					_$blocksLeft.text("Ended");
+					_$currentWinnerCell.find(".label").text("Winner");
 					_$status.empty()
 						.append($curWinner.clone()).append(" won!");
+					_self.updateIsPaidStatus();
 				} else {
 					_$alertsIcon.show();
 					_$blocksLeft.text(blocksLeft);
@@ -476,14 +488,13 @@ Loader.require("pac")
 								.append(" is the current winner.");
 						}
 					}
+					const isNewBlock = _curBlocksLeft && blocksLeft < _curBlocksLeft;
+					const isNewPrize = _curPrize && !_curPrize.equals(prize);
 					if (isNewBlock) flashClass("new-block");
 					if (isNewPrize) flashClass("new-prize");
 				}
 				_triggerAlerts(blocksLeft, amNowLoser, isNewWinner);
-				if (isNewEnded) {
-					_self.refreshIsPaid();
-					_clearAlerts();
-				}
+				if (isNewEnded) _clearAlerts();
 			});
 		}
 
@@ -618,7 +629,6 @@ Loader.require("pac")
 			_auction.bidAddBlocks()
 		]).then(arr=>{
 			_$e.removeClass("initializing");
-			_isInitialized = true;
 			_bidPrice = arr[0];
 			_bidIncr = arr[1];
 			_bidAddBlocks = arr[2];
