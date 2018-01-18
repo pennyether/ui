@@ -32,7 +32,8 @@ of the fees collected, as well as a fixed amount per auction ended.`,
     },
     PennyAuction: {
         fallback: `Places a bid on a Penny Auction. Refunds the bid if for any reason sender \
-is not set to the currentWinner.`
+is not set to the currentWinner.`,
+        sendPrize: `Sends the prize money to the winner of the auction.`
     },
     InstaDice: {
         roll: `Rolls the dice, if number lands <= number, you win.`

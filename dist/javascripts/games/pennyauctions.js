@@ -440,7 +440,7 @@ Loader.require("pac")
 				const amNowWinner = !_curAmWinner && amWinner;
 				const amNowLoser = _curAmWinner && !amWinner;
 				const isNewWinner = _curCurrentWinner && currentWinner != _curCurrentWinner;
-				const isEnded = blocksLeft < 1 || true;
+				const isEnded = blocksLeft < 1;
 				const isNewEnded = isEnded && !_isEnded;
 				_isEnded = isEnded;
 				_curPrize = prize;

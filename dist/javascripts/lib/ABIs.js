@@ -2121,7 +2121,8 @@
         ],
         "payable": false,
         "stateMutability": "nonpayable",
-        "type": "function"
+        "type": "function",
+        "comment": "Sends the prize money to the winner of the auction."
       },
       {
         "constant": true,
