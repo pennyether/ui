@@ -442,6 +442,8 @@ Loader.require("pac")
 				const isNewWinner = _curCurrentWinner && currentWinner != _curCurrentWinner;
 				const isEnded = blocksLeft < 1;
 				const isNewEnded = isEnded && !_isEnded;
+				const isNewBlock = _curBlocksLeft && blocksLeft != _curBlocksLeft;
+				const isNewPrize = _curPrize && !_curPrize.equals(prize);
 				_isEnded = isEnded;
 				_curPrize = prize;
 				_curAmWinner = amWinner;
@@ -517,8 +519,6 @@ Loader.require("pac")
 								.append(" is the current winner.");
 						}
 					}
-					const isNewBlock = _curBlocksLeft && blocksLeft < _curBlocksLeft;
-					const isNewPrize = _curPrize && !_curPrize.equals(prize);
 					if (isNewBlock) flashClass("new-block");
 					if (isNewPrize) flashClass("new-prize");
 				}
