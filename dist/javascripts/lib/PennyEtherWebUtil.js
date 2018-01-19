@@ -40,8 +40,8 @@
 			return lv.$e;
 		}
 
-		this.getGasPriceSlider = function(){
-			return new GasPriceSlider();
+		this.getGasPriceSlider = function(defaultGWei, chooseInitialValue){
+			return new GasPriceSlider(defaultGWei, chooseInitialValue);
 		}
 
 		this.$getShortAddrLink = function(addr) {
@@ -361,10 +361,12 @@
 	}
 
 	// A slider to help the user choose a gas price.
-	// Pulls data from EthGasStatus, sets default to lowest
-	// cost for 60 second mining.
-	function GasPriceSlider(defaultValue){
-		const DEFAULT_WAIT_TIME_S = 60;
+	// When .refresh() is called:
+	//   - Pulls data from EthGasStatus, sets default to lowest cost for <=60 second mining.
+	// .getValue() returns BigNumber of 0
+	function GasPriceSlider(defaultGWei, autoChoose){
+		const CHOOSEN_WAIT_TIME_S = 60;
+		if (autoChoose===undefined) autoChoose = true;
 		
 		const _$e = $(`
 			<div class="GasPriceSlider">
@@ -385,7 +387,7 @@
 		const _$wait = _$e.find(".wait");
 		const _$slider = _$e.find("input").on("input", _onSliderChanged);
 		var _gasData = {};
-		var _value = defaultValue;
+		var _value = defaultGWei || new BigNumber(0);
 		var _waitTimeS = null;
 		var _hasValue = false;
 		var _onChangeCb;
@@ -397,13 +399,17 @@
 				// get min and max, populate gasData
 				var min = null;
 				var max = null;
+				var auto = Infinity;
 				_gasData = {};
 				data.forEach(d=>{
 					_gasData[d.gasPrice] = d;
-					if (!min && d.waitTimeS <= 4*60*60) min = d.gasPrice;
+					// set min/max to first value that meets criteria
+					if (!min && d.waitTimeS <= 2*60*60) min = d.gasPrice;
 					if (!max && d.waitBlocks <= 2) max = d.gasPrice;
-					if (!_value && d.waitTimeS <= DEFAULT_WAIT_TIME_S) _value = d.gasPrice;
+					// autochoose value to smallest value that meets criteria
+					if (autoChoose && d.waitTimeS <= CHOOSEN_WAIT_TIME_S) auto = Math.min(auto, d.gasPrice);
 				});
+				if (auto!==Infinity) _value = auto;
 				_$slider.attr("min", min);
 				_$slider.attr("max", max);
 				_$slider.val(_value);
@@ -411,10 +417,8 @@
 				if (_$slider.val() < min) _$slider.val(min);
 				_$loading.hide();
 				_$content.show();
-				_hasValue = true;
 				_onSliderChanged();
 			}, (e)=>{
-				_hasValue = false;
 				_$loading.show().text(`Error: ${e}`);
 				_$content.hide();
 			});
@@ -439,12 +443,10 @@
 		this.onChange = function(fn) {
 			_onChangeCb = fn;
 		};
-		this.getValue = function(){
-			if (!_hasValue) throw new Error("No gas price chosen.");
+		this.getValue = function(defaultValue){
 			return (new BigNumber(_value)).mul(1e9);
 		};
 		this.getWaitTimeS = function(){
-			if (!_hasValue) throw new Error("No gas price chosen.");
 			return _waitTimeS;
 		};
 		this.refresh = _refresh;

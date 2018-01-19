@@ -100,7 +100,7 @@ Loader.require("tr", "mc", "pac")
 		const $profit = $e.find(".profit .value").text("Loading...");
 		const $risk = $e.find(".risk .value").text("Loading...");
 		const $btn = $e.find(".execute button").unbind("click").attr("disabled","disabled");
-		const gasPrice = _paRefreshGps.getValue();
+		const gasPrice = _paRefreshGps.getValue(0);
 
 		Promise.all([
 			mc.paEndReward(),
@@ -168,7 +168,7 @@ Loader.require("tr", "mc", "pac")
 		const $profit = $e.find(".profit .value").text("Loading...");
 		const $risk = $e.find(".risk .value").text("Loading...");
 		const failGasVal = new BigNumber($e.find(".failGasPrice").val());
-		const gasPrice = _trDivGps.getValue();
+		const gasPrice = _trDivGps.getValue(0);
 
 		Promise.all([
 			tr.getAmountToDistribute(),

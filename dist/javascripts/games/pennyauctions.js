@@ -6,7 +6,7 @@ Loader.require("pac")
 		refreshAllAuctions();
 	});
 
-	const _GAS_PRICE_SLIDER = util.getGasPriceSlider();
+	const _GAS_PRICE_SLIDER = util.getGasPriceSlider(20);
 	const _activeAuctions = {};
 	const _endedAuctions = {};
 	const _$activeAuctions = $(".activeAuctions .auctions").empty();
@@ -533,7 +533,7 @@ Loader.require("pac")
 			
 			var p;
 			const gasPrice = _GAS_PRICE_SLIDER.getValue();
-			const waitTimeMs = _GAS_PRICE_SLIDER.getWaitTimeS()*1000;
+			const waitTimeMs = (_GAS_PRICE_SLIDER.getWaitTimeS() || _blocktime*3) * 1000;
 			try {
 				p = _auction.sendPrize([0], {gas: 40000, gasPrice: gasPrice});
 			} catch (e) {
@@ -599,7 +599,7 @@ Loader.require("pac")
 
 			var p;
 			const gasPrice = _GAS_PRICE_SLIDER.getValue();
-			const waitTimeMs = _GAS_PRICE_SLIDER.getWaitTimeS()*1000;
+			const waitTimeMs = (_GAS_PRICE_SLIDER.getWaitTimeS() || _blocktime*3) * 1000;
 			try {
 				p = _auction.sendTransaction({gas: 59000, value: _bidPrice, gasPrice: gasPrice});
 			} catch (e) {

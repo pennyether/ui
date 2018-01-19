@@ -235,7 +235,7 @@
 					throw new Error(`${callName} Validation Error: ${e.message}`);
 				}
 				if (isImmediate) {
-					return oldCallFn.apply(null, inputs);
+					return oldCallFn.apply(null, inputsArr);
 				}
 
 				const metadata = {
