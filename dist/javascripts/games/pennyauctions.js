@@ -532,8 +532,9 @@ Loader.require("pac")
 			_$status.hide();
 			
 			var p;
+			const gasPrice = _GAS_PRICE_SLIDER.getValue();
+			const waitTimeMs = _GAS_PRICE_SLIDER.getWaitTimeS()*1000;
 			try {
-				const gasPrice = _GAS_PRICE_SLIDER.getValue();
 				p = _auction.sendPrize([0], {gas: 40000, gasPrice: gasPrice});
 			} catch (e) {
 				ethStatus.open();
@@ -554,7 +555,7 @@ Loader.require("pac")
 				txId = tId;
 				const $txLink = util.$getTxLink("Your prize is being sent...", txId);
 				_$statusCell.removeClass("prepending").addClass("pending");
-				loadingBar = util.$getLoadingBar(_blocktime*1000*2, .75);
+				loadingBar = util.$getLoadingBar(waitTimeMs, .75);
 				loadingBar.$e.attr("title", "This is an estimate of time remaining, based on the average blocktime.");
 				tippy(loadingBar.$e[0], {
 					trigger: "mouseenter",
@@ -597,8 +598,9 @@ Loader.require("pac")
 			_$status.hide();
 
 			var p;
+			const gasPrice = _GAS_PRICE_SLIDER.getValue();
+			const waitTimeMs = _GAS_PRICE_SLIDER.getWaitTimeS()*1000;
 			try {
-				const gasPrice = _GAS_PRICE_SLIDER.getValue();
 				p = _auction.sendTransaction({gas: 59000, value: _bidPrice, gasPrice: gasPrice});
 			} catch (e) {
 				ethStatus.open();
@@ -620,7 +622,7 @@ Loader.require("pac")
 				bidTxId = txId;
 				const $txLink = util.$getTxLink("Your Bid is being mined.", bidTxId);
 				_$statusCell.removeClass("prepending").addClass("pending");
-				loadingBar = util.$getLoadingBar(_blocktime*1000*2, .75);
+				loadingBar = util.$getLoadingBar(waitTimeMs, .75);
 				loadingBar.$e.attr("title", "This is an estimate of time remaining, based on the average blocktime.");
 				tippy(loadingBar.$e[0], {
 					trigger: "mouseenter",

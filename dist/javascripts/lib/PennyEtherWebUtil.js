@@ -386,6 +386,7 @@
 		const _$slider = _$e.find("input").on("input", _onSliderChanged);
 		var _gasData = {};
 		var _value = defaultValue;
+		var _waitTimeS = null;
 		var _hasValue = false;
 		var _onChangeCb;
 
@@ -426,11 +427,12 @@
 			const timeStr = util.toTime(Math.round(data.waitTimeS));
 
 			_value = val;
+			_waitTimeS = data.waitTimeS;
 			_$gasPrice.text(`${val} GWei`);
+			_$wait.text(`~${blocks} Blocks (${timeStr})`);
 			_$wait.removeClass("fast slow");
 			if (data.waitTimeS <= 60) _$wait.addClass("fast");
 			else if (data.waitTimeS > 60*15) _$wait.addClass("slow");
-			_$wait.text(`~${blocks} Blocks (${timeStr})`);
 			if (_onChangeCb) _onChangeCb(val);
 		}
 
@@ -438,9 +440,13 @@
 			_onChangeCb = fn;
 		};
 		this.getValue = function(){
-			if (!_hasValue) return;
+			if (!_hasValue) throw new Error("No gas price chosen.");
 			return (new BigNumber(_value)).mul(1e9);
-		}
+		};
+		this.getWaitTimeS = function(){
+			if (!_hasValue) throw new Error("No gas price chosen.");
+			return _waitTimeS;
+		};
 		this.refresh = _refresh;
 		this.$e = _$e;
 	}
