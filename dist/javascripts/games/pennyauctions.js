@@ -73,21 +73,31 @@ Loader.require("pac")
 
 	function refreshAllAuctions(){
 		$("body").addClass("refreshing");
-		Promise.all([
-			getActiveAuctionContracts(),
-			getEndedAuctionContracts(),
-			ethUtil.getAverageBlockTime()
-		]).then(arr => {
-			$("body").removeClass("refreshing");
-			const activeAuctionCs = arr[0];
-			const endedAuctionCs = arr[1];
-			const blocktime = arr[2];
-			getOrCreateAuctions(_activeAuctions, activeAuctionCs, _$activeAuctions);
-			getOrCreateAuctions(_endedAuctions, endedAuctionCs, _$endedAuctions);
-			getAllAuctions().forEach((a)=>{
-				a.setBlocktime(blocktime);
-				a.refresh();
+		var blocktime;
+		Promise.resolve().then(()=>{
+			// first refresh all active auctions.
+			return getActiveAuctionContracts().then(arr => {
+				return getOrCreateAuctions(_activeAuctions, arr, _$activeAuctions)
+					.map(a=> a.refresh());
 			});
+		}).then(()=>{
+			// next update the blocktime on active auctions
+			return ethUtil.getAverageBlockTime().then(b=>{
+				blocktime = b;
+				Object.values(_activeAuctions)
+					.forEach(a=>a.setBlocktime(blocktime));
+			});
+		}).then(()=>{
+			// lastly, refresh all ended auctions.
+			return getEndedAuctionContracts().then(arr => {
+				return getOrCreateAuctions(_endedAuctions, arr, _$endedAuctions)
+					.map(a => {
+						a.setBlocktime(blocktime);
+						return a.refresh();
+					});
+			});
+		}).then(()=>{
+			$("body").removeClass("refreshing");
 		});
 	}
 
@@ -110,7 +120,7 @@ Loader.require("pac")
 		var _isPaid;
 		var _paymentEvent;
 
-		var _blocktime;
+		var _blocktime = new BigNumber(15);
 		var _bidPrice;
 		var _bidIncr;
 		var _bidAddBlocks;
