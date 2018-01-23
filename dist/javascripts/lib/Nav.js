@@ -29,7 +29,7 @@
 		const _siteMap = [
 			{
 				name: "Win Ether!",
-				url: "/games.html",
+				url: "/games/pennyauctions.html",
 				children: [{
 					name: "Penny Auctions",
 					url: "/games/pennyauctions.html"
@@ -43,13 +43,19 @@
 			},
 			{
 				name: "About",
-				url: "/about.html",
+				url: "/about/mission.html",
 				children: [{
 					name: "Our Mission",
 					url: "/about/mission.html"
 				},{
+					name: "How to Play",
+					url: "/about/howtoplay.html"
+				},{
 					name: "Fairness",
 					url: "/about/fairness.html"
+				},{
+					name: "Contact",
+					url: "/about/contact.html"
 				}]
 			},
 			{
@@ -67,29 +73,24 @@
 				},{
 					name: "Dividends",
 					url: "/status/dividends.html"
+				},{
+					name: "Admin",
+					url: "/status/admin.html",
 				}]
 			},
 			{
-				name: "Tokens",
-				url: "/tokens/index.html",
+				name: "ICO",
+				url: "/ico/intro.html",
 				children: [{
-					name: "Learn",
-					url: "/tokens/learn.html"
+					name: "Whitepaper",
+					url: "/ico/whitepaper.html"
 				},{
 					name: "FAQs",
-					url: "/tokens/faqs.html"
-				},{
-					name: "Contracts",
-					url: "/tokens/contracts.html"
+					url: "/ico/faqs.html"
 				},{
 					name: "Buy",
-					url: "/tokens/buy.html"
+					url: "/ico/buy.html"
 				}]
-			},
-			{
-				name: "Admin",
-				url: "/admin.html",
-				children: []
 			}
 		];
 

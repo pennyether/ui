@@ -200,6 +200,7 @@ function AJAX(url){
 
 function doScrolling(element, duration) {
 	function getElementY(query) {
+		if (typeof query == "number") return query;
 		return window.pageYOffset + document.querySelector(query).getBoundingClientRect().top
 	}
 	var startingY = window.pageYOffset

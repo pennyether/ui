@@ -11,6 +11,7 @@ body {
 }
 
 #Content {
+	position: relative;
 	box-sizing: border-box;
 	min-height: 100%;
 	width: 975px;
@@ -289,16 +290,19 @@ body {
 			.EthStatus .account.none > .balance {
 				display: none;
 			}
-		.EthStatus .getAccount {
+		.EthStatus .noAccount,
+		.EthStatus .notConnected {
 			text-align: center;
 			font-size: 90%;
 			padding: 5px;
 		}
-			.EthStatus .getAccount .head {
+			.EthStatus .noAccount .head,
+			.EthStatus .notConnected .head {
 				font-weight: bold;
 				margin-top: 10px;
 			}
-			.EthStatus .getAccount .body {
+			.EthStatus .noAccount .body,
+			.EthStatus .notConnected .body {
 				padding: 10px;
 			}
 

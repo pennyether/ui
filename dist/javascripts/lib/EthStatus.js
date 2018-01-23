@@ -20,11 +20,18 @@
 							<span class="blockTimeAgo"></span>
 						</div>
 					</div>
+					<div class="notConnected">
+						<div class="head">Not Connected</div>
+						<div class="body">
+							PennyEther is unable to reach an Ethereum provider. You may have lost your
+							internet connection, or your provider is temporarily down.
+						</div>
+					</div>
 					<div class="account">
 						<div class="address"></div>
 						<div class="balance"></div>
 					</div>
-					<div class="getAccount">
+					<div class="noAccount">
 						<div class="web3" style="display: none;">
 							<div class="head">Please Unlock Account</div>
 							<div class="body">
@@ -82,10 +89,11 @@
 		const _$blockTimeAgo = _$e.find(".network .blockTimeAgo");
 		const _$networkConnected = _$e.find(".network .connected");
 		const _$networkName = _$e.find(".network .name");
-		const _$getAccount = _$e.find(".getAccount");
+		const _$notConnected = _$e.find(".notConnected").show();
+		const _$noAccount = _$e.find(".noAccount").hide();
 		window.hasWeb3
-			? _$getAccount.find(".web3").show()
-			: _$getAccount.find(".noWeb3").show();
+			? _$noAccount.find(".web3").show()
+			: _$noAccount.find(".noWeb3").show();
 		const _$acctCtnr = _$e.find(".account");
 		const _$acctAddr = _$e.find(".account .address");
 		const _$acctBal = _$e.find(".account .balance");
@@ -123,7 +131,7 @@
 
 		function _refreshAll(){
 			_refreshNetwork();
-			_refreshAddress();
+			_refreshAccount();
 			_refreshBlock();
 		}
 
@@ -143,31 +151,42 @@
 				.removeClass("false")
 				.addClass(isConnected ? "true" : "false");
 			if (isConnected){
-				_$networkName.text(networkName);	
+				_$networkName.text(networkName);
+				_$notConnected.hide();
 			} else {
 				_$networkName.text("Not Connected");
+				_$notConnected.show();
 			}
 			_$e.removeClass("no-connection off");
 			if (!_curState.account) _$e.addClass("off");
 			if (!isConnected) {
 				_$e.addClass("no-connection");
+				_$pendingTxs.hide();
+				_$noAccount.hide();
 				_self.open();
 			}
 		}
 
-		function _refreshAddress(){
+		function _refreshAccount(){
+			if (!_curState.isConnected) {
+				_$acctCtnr.hide();
+				return;
+			}
+
+			_$acctCtnr.show();
 			const acctAddr = _curState.account;
 			if (!acctAddr) {
 				_$acctCtnr.addClass("none");
 				_$acctAddr.text("⚠ No Ethereum Account");
 				_$pendingTxs.hide();
-				_$getAccount.show();
+				_$noAccount.show();
 				return;
 			} else {
+				_$pendingTxs.show();
+				_$noAccount.hide();
+
 				const acctStr = acctAddr.slice(0,6) + "..." + acctAddr.slice(-4);
 				const $link = _ethUtil.$getLink(acctStr, acctAddr, "address")
-				_$pendingTxs.show();
-				_$getAccount.hide();
 				_$acctCtnr.removeClass("none");
 				_$acctAddr.empty().append("Account: ").append($link);
 				_$acctBal.text("...");
@@ -337,7 +356,7 @@
 			(function _poll() {
 				_refreshBlockTimeAgo();
 				setTimeout(_poll, 1000);
-			}());	
+			}());
 		}
 	}
 	window.EthStatus = EthStatus;
