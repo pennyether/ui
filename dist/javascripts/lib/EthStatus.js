@@ -113,6 +113,7 @@
 		// Keep track of latest block. Init to empty block.
 		var _curState = {latestBlock: {}};
 		var _timeOfLatestBlock = 0;
+		var _openOnDisconnect = true;
 
 		// on state change, maybe update block - always refresh all.
 		_ethUtil.onStateChanged(newState => {
@@ -163,7 +164,7 @@
 				_$e.addClass("no-connection");
 				_$pendingTxs.hide();
 				_$noAccount.hide();
-				//_self.open();
+				if (_openOnDisconnect) _self.open();
 			}
 		}
 
@@ -350,6 +351,8 @@
 
 		this.$e = _$e;
 		this.open = function(){ _$e.addClass("open"); }
+		this.close = function(){ _$e.removeClass("open"); }
+		this.setOpenOnDisconnect = function(val){ _openOnDisconnect = val; }
 
 		_init();
 		function _init(){

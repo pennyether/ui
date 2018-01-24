@@ -99,6 +99,11 @@
 		var loadedHash = window.location.hash;
 		window.location.hash = "";
 
+		Loader.promise.then(()=>{
+			ethStatus.close();
+			ethStatus.setOpenOnDisconnect(false);
+		});
+
 		Loader.onPageLoad.then(()=>{
 			if (loadedHash) goToHash(loadedHash);
 
@@ -414,7 +419,7 @@
 							<div class="head">Introduction</div>
 							<div class="body">
 							<p>
-								PennyEther is an Ethereum-based distributed application that autonomously runs any number of gambling related games. PennyEther is already deployed, tested, audited, and currently runs two innovative games that are best-in-breed, and profitable: <a href="/games/pennyauctions.html">Penny Auctions</a>, and <a href="/games/instadice.html">InstaDice</a>.
+								PennyEther is an Ethereum-based distributed application that autonomously runs any number of gambling related games. PennyEther is already deployed, tested, audited, and currently runs two innovative games that are best-in-breed, and profitable: <a href="/games/pennyauctions.html">Penny Auctions</a>, and <a href="/games/instadice.html">InstaDice</a>. <a href="#roadmap-future">We have more on the way.</a>
 							</p>
 							<p>
 								PennyEther runs on top of <a href="#core-contracts">Core</a> that is <a href="#scalability">scalable</a>, <a href="#security">secure</a>, <a href="#token-contract">distributes 100% of profits</a>, and <a href="#burning">allows token holders to exit their investment</a> by burning tokens for a 50% refund. Everthing has been <a href="">thoroughly tested</a> and <a href="">independantly audited</a>.
@@ -426,10 +431,10 @@
 										Distributing ownership is a value-add to our customers, as it insures there can be no shill bidding in <a href="#penny-auctions">penny auctions</a>. Customers can be sure there is no insider that can participate for free since all revenue gets distributed to token holders.
 									</li>
 									<li>
-										Our UI and contracts are open-sourced. By distributing ownership, we provide a financial incentive for developers to contribute to the project.
+										Our <a href="github.com">UI</a> and <a href="github.com">contracts</a> are open-sourced. By distributing ownership, we provide a financial incentive for developers to contribute to the project.
 									</li>
 									<li>
-										By obtaining capital, we can focus on dominating the Ethereum gambling market by further branding, designing, marketing, advertising, and developing.
+										By obtaining capital, we can focus on dominating the <a href="#the-market">Ethereum gambling market</a> by further branding, designing, marketing, advertising, and developing.
 									</li>
 								</ol>
 							</p>
@@ -496,11 +501,97 @@
 							<div class="body">
 								<p>
 									We realize the skepticism that is incurred by remaining anonymous and want to address it directly.
+								</p>
+
+								<h3>Foreword</h3>
+								<p>
+									Firstly, we'd like to note we've done <i>everything</i> possible to make our anonymity as irrelevant as possible. To date:
 									<ul>
-										<li>Why anonymous?</li>
-										<li>What's the incentive to scam?</li>
-										<li>What are you trusting instead?</li>
-										<li>What's the worst case?</li>
+										<li>
+											We've already coded, open-sourced, deployed, tested, and audited the Core product as well as our first two games. We're not raising funds on promises.
+										</li>
+										<li>
+											Our contracts and source code have been audited and verified by well respected third parties.
+										</li>
+										<li>
+											We're foregoing more than half of the ICO proceeds to provide investors with a way to limit downside risk: Tokens directly own the bankroll. All purchased Tokens are burnable for <span class='code'>.5 Ether</span> each, and we've gone through great lengths to ensure that.
+										</li>
+										<li>
+											The entire project was coded to run autonomously, and without having to fully trust the owners. All Ether is kept in the Treasury, and cannot ever leave it other than to pay for investors burning tokens, or to fund games (limited by a daily amount). All revenues go directly to the Treasury.
+										</li>
+										<li>
+											We're still keeing 20% ownership of the application, and as such are deeply incentivized to increase its profits through development, marketing, advertising, etc.
+										</li>
+										<li>
+											As evidence by our no-frills whitepaper and lack of ICO marketing, our technical documentation, and all the protections against owner malevolence we've put in place in the application itself, we hope it's clear we're not in this for a quick buck.
+										</li>
+									</ul>
+								</p>
+
+								<h3>Why Anonymous?</h3>
+								<p>
+									We're remaining anonymous for three reasons:
+									<ul>
+										<li>Decentralization, and true autonomy.</li>
+										<li>The complicated international regulations of online gaming.</li>
+										<li>The complicated international regulations of blockchain tokenization.</li>
+									</ul>
+
+									<h4>Decentralization and True Autonomy</h4>
+									<p>
+										Truth be told, we're much more interested in technology than we are about legal frameworks and regulations. Part of <a href="#mission">our mission</a> is to create a <i>truly</i> decentralized, censorship-free application. This is, in fact, a key reason we chose gaming -- it's all on the blockchain.
+									</p>
+									<p>
+										We're pretty much already to the point of full decentralization. Our Application is on the blockchain, and our UI is open sourced -- anyone, anywhere in the world, can already participate in our games. (We're looking forward to better ways to securely distribute our UI other than having the source code on GitHub and a deployed version on a website.)
+									</p>
+									<p>
+										<b>If the goal is to create a distributed and autonomous application that cannot ever be shut down or censored, then the ability to obtain the private keys which could harm it should be limited as much as possible.</b> Third party access to the ownership keys, domains, accounts, and other assets, could severely limit PennyEther's decentralization.
+									</p>
+									<p>
+										Unfortunately, the weakest link in the decentralization of PennyEther is us, the owners. Even though our team <i>knows</i> being anonymous is not good for an ICO, we're doing it anyway because we know it is best for PennyEther.
+									</p>
+
+									<h4>Online Gambling</h4>
+									<p>
+										PennyEther's target market is international.
+										<br><br>
+										<i>Not</i> being anonymous would:
+										<ul>
+											<li>Require development time and legal resources to abide by <i>every</i> region's own rules and regulations.</li>
+											<li>Expose the team to personal liability from virtually everywhere in the world.</li>
+										</ul>
+										Being anonymous:
+										<ul>
+											<li>Allows us to focus strictly on the technology.</li>
+											<li>Allows anyone in the world to participate.</li>
+										</ul>
+									</p>
+
+									<h4>Tokenization and ICOs</h4>
+									<p>
+										As with the above, we're not interested in every specific region's rules and regulations regarding ICOs. We feel confident that this no-frills whitepaper, our open sourced code, and all of our other materials provide <i>you</i> with the information <i>you</i> need to make an informed decision about whether or not <i>you</i> want to invest <i>your</i> Ether into this project.
+									</p>
+									<p>
+										We want to limit our own liability to current or retroactive regulations regarding ICOs as much as possible. We <i>strongly</i> urge you to make an informed decision about whether or not you want to invest.
+									</p>
+								</p>
+
+								<h3>The Worst Case</h3>
+								<p>
+									Lastly, we'd like you to consider the worst-case scenario: that our team is, in fact, purely evil. The worst we could possibly do is shut down the website and the games. PennyEther would stop earning revenue. <b>There is nothing we could do to prevent you from getting a 50% refund.</b>
+								</p>
+								<p>
+									That's still pretty bad for you, but even worse for us:
+									<ul>
+										<li>
+											We would have gone from "being anonymous for the decentralization of a blockchain gaming app" to "being anonymous for committing fraud", which raises the stakes <i>a lot</i>.
+										</li>
+										<li>
+											We would have destroyed any value that our 20% ownership has.
+										</li>
+										<li>
+											There is virtually zero cost of keeping PennyEther running, so we'd be throwing away profits only to enrage a very large group. While that would certainly be evil, it would also be masochistic.
+										</li>
 									</ul>
 								</p>
 							</div>
