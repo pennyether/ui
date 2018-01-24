@@ -1143,15 +1143,14 @@
 								</p>
 							</div>
 						</div>
-
 						<style>
-							.demo {
+							#demo {
 								position: relative;
 								width: 700px;
 								height: 450px;
 								background: #FAFAFA;
 							}
-							.demo > div {
+							#demo > div {
 								position: absolute;
 								text-align: center;
 								top: 0px;
@@ -1160,7 +1159,7 @@
 								border: 1px solid black;
 								font-size: 80%
 							}
-							.demo > div > .title {
+							#demo > div > .title {
 								font-weight: bold;
 								border-bottom: 1px solid gray;
 								background: #DDD;
@@ -1168,7 +1167,7 @@
 								padding: 2px;
 								margin-bottom: 5px
 							}
-							.demo > div > .status {
+							#demo > div > .status {
 								box-sizing: border-box;
 								position: absolute;
 								bottom: 0px;
@@ -1178,73 +1177,96 @@
 								border-top: 1px dotted #CCC;
 								background: #FAFAFA;
 							}
-							.demo .token {
+								#demo > div > .status.try {
+									background: #88FF88;
+								}
+								#demo > div > .status.error {
+									background: #FF8888;
+								}
+								#demo button.try {
+									background: #88FF88;
+								}
+								#demo button {
+									margin-top: 2px;
+								}
+							#demo div.changed {
+								border-radius: 3px;
+								background: rgba(0,0,200,.3);
+								transition: background .5s;
+							}
+							#demo .token {
 								top: 10px;
 								left: 10px;
 								width: 260px;
 								height: 100px;
 							}
-							.demo .treasury {
+							#demo .treasury {
 								top: 10px;
 								left: 320px;
 								width: 350px;
 								height: 100px;
 							}
-							.demo .token-holder-one {
+							#demo .token-holder-one {
 								top: 130px;
 								left: 10px;
 								height: 145px;
 								width: 120px;
 							}
-							.demo .token-holder-two {
+							#demo .token-holder-two {
 								top: 130px;
 								left: 150px;
 								height: 145px;
 								width: 120px;
 							}
-							.demo .token-holder-three {
+							#demo .token-holder-three {
 								top: 295px;
 								left: 10px;
 								height: 145px;
 								width: 120px;
 							}
-							.demo .token-locker {
+							#demo .token-locker {
 								top: 295px;
 								left: 150px;
 								height: 145px;
 								width: 120px;
 							}
-							.demo .main-controller {
+							#demo .main-controller {
 								top: 130px;
 								left: 320px;
 								width: 350px;
 								height: 100px;
 							}
-							.demo .penny-auction {
+							#demo .penny-auction {
 								top: 250px;
 								left: 320px;
 								width: 165px;
 								height: 100px;
 							}
-							.demo .insta-dice {
+								#demo .penny-auction.ended {
+									opacity: .4;
+								}
+							#demo .insta-dice {
 								top: 250px;
 								left: 505px;
 								width: 165px;
 								height: 100px;
 							}
-							.demo .player-one {
+								#demo .insta-dice.unfunded {
+									opacity: .4;
+								}
+							#demo .player-one {
 								top: 370px;
 								left: 320px;
 								width: 110px;
 								height: 70px;
 							}
-							.demo .player-two {
+							#demo .player-two {
 								top: 370px;
 								left: 440px;
 								width: 110px;
 								height: 70px;
 							}
-							.demo .player-three {
+							#demo .player-three {
 								top: 370px;
 								left: 560px;
 								width: 110px;
@@ -1255,18 +1277,18 @@
 						<div class="subsection">
 							<div class="head">Interactive Demo</div>
 							<div class="body">
-								<div class="demo">
+								<div id="demo">
 									<div class="token">
 										<div class="title">Token</div>
-										<div>Dividends: 0 Eth</div>
-										<div>Total Supply: 100 Tokens</div>
+										<div>Dividends Received: <span class="divs"></span> Eth</div>
+										<div>Total Supply: <span class="supply"></span> Tokens</div>
 										<div class="status"></div>
 									</div>
 									<div class="token-holder-one">
 										<div class="title">Token Holder 1</div>
-										<div>Tokens: 40 (40%)</div>
-										<div>Owed: 0 Eth</div>
-										<div>Collected: 0 Eth</div>
+										<div>Tokens: <span class="tokens"></span> (<span class="tPct"></span>%)</div>
+										<div>Owed: <span class="owed"></span> Eth</div>
+										<div>Collected: <span class="collected"></span> Eth</div>
 										<br>
 										<button class="btn-collect-divs">Collect Dividends</button><br>
 										<button class="btn-burn">Burn Tokens</button>
@@ -1274,9 +1296,9 @@
 									</div>
 									<div class="token-holder-two">
 										<div class="title">Token Holder 2</div>
-										<div>Tokens: 30 (30%)</div>
-										<div>Owed: 0 Eth</div>
-										<div>Collected: 0 Eth</div>
+										<div>Tokens: <span class="tokens"></span> (<span class="tPct"></span>%)</div>
+										<div>Owed: <span class="owed"></span> Eth</div>
+										<div>Collected: <span class="collected"></span> Eth</div>
 										<br>
 										<button class="btn-collect-divs">Collect Dividends</button><br>
 										<button class="btn-burn">Burn Tokens</button>
@@ -1284,9 +1306,9 @@
 									</div>
 									<div class="token-holder-three">
 										<div class="title">Token Holder 3</div>
-										<div>Tokens: 20 (20%)</div>
-										<div>Owed: 0 Eth</div>
-										<div>Collected: 0 Eth</div>
+										<div>Tokens: <span class="tokens"></span> (<span class="tPct"></span>%)</div>
+										<div>Owed: <span class="owed"></span> Eth</div>
+										<div>Collected: <span class="collected"></span> Eth</div>
 										<br>
 										<button class="btn-collect-divs">Collect Dividends</button><br>
 										<button class="btn-burn">Burn Tokens</button>
@@ -1294,9 +1316,9 @@
 									</div>
 									<div class="token-locker">
 										<div class="title">Token Locker</div>
-										<div>Tokens: 10 (10%)</div>
-										<div>Owed: 0 Eth</div>
-										<div>Collected: 0 Eth</div>
+										<div>Tokens: <span class="tokens"></span> (<span class="tPct"></span>%)</div>
+										<div>Owed: <span class="owed"></span> Eth</div>
+										<div>Collected: <span class="collected"></span> Eth</div>
 										<br>
 										<button class="btn-collect-divs">Collect Dividends</button>
 										<div class="status"></div>
@@ -1306,15 +1328,13 @@
 										<table width="100%">
 										<tr>
 											<td width="50%">
-												<div>Balance: 1014 Eth</div>
-												<div>Bankroll: 1000 Eth</div>
-												<br>
+												<div>Balance: <span class="balance"></span> Eth</div>
+												<div>Bankroll: <span class="bankroll"></span> Eth</div>
 												<button class="btn-send-divs">Task: Send Dividend</button>
 											</td>
 											<td width="50%">
-												<div>Daily Limit: 1 Eth</div>
-												<div>Daily Limit Used: 0 Eth</div>
-												<br>
+												<div>Daily Limit: <span class="dl"></span> Eth</div>
+												<div>Daily Limit Used: <span class="dlUsed"></span> Eth</div>
 												<button class="btn-ff">Skip to Next Day</button>
 											</td>
 										</tr>
@@ -1327,13 +1347,12 @@
 											<tr>
 												<td width="50%" valign="top" align="middle" style="border-right: 1px dotted #CCC">
 													<div>Penny Auction</div>
-													<button class="btn-start-auction">Task: Start Auction</button>
-													<button class="btn-end-auction" style="display: none;">Task: End Auction</button><br>
+													<button class="btn-restart-auction">Task: Restart Auction</button><br>
 													<button class="btn-pa-collect">Task: Collect</button>
 												</td>
 												<td width="50%" valign="top" align="middle">
 													<div>InstaDice</div>
-													<button class="btn-id-fund">Task: Fund</button><br>
+													<button class="btn-id-fund">Task: Fund InstaDice</button><br>
 													<button class="btn-id-collect">Task: Collect</button>
 												</td>
 											</tr>
@@ -1341,16 +1360,16 @@
 										<div class="status"></div>
 									</div>
 									<div class="penny-auction">
-										<div class="title">Penny Auction</div>
-										<div>Prize: 1 Eth</div>
-										<div>Bid Fees: 0 Eth</div>
+										<div class="title">Penny Auction (unstarted)</div>
+										<div>Prize: <span class="prize"></span> Eth</div>
+										<div>Bid Fees: <span class="bidFees"></span> Eth</div>
 										<button class="btn-end-auction">End Auction</button>
 										<div class="status"></div>
 									</div>
 									<div class="insta-dice">
 										<div class="title">InstaDice</div>
-										<div>Balance: 0 Eth</div>
-										<div>Funded: 0 Eth</div>
+										<div>Balance: <span class="balance"></span> Eth</div>
+										<div>Funded: <span class="funded"></span> Eth</div>
 										<div class="status"></div>
 									</div>
 									<div class="player-one">

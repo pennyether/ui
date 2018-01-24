@@ -163,7 +163,7 @@
 				_$e.addClass("no-connection");
 				_$pendingTxs.hide();
 				_$noAccount.hide();
-				_self.open();
+				//_self.open();
 			}
 		}
 
