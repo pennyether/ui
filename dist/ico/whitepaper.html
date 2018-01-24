@@ -102,12 +102,6 @@
 		Loader.onPageLoad.then(()=>{
 			if (loadedHash) goToHash(loadedHash);
 
-			// all # links should scroll to target
-			$("a[href^='#']").click(function(e){
-				e.preventDefault();
-				goToHash($(e.currentTarget).attr("href"));
-			});
-
 			// scrolls to the hash
 			function goToHash(hash) {
 				const $hash = $(hash);
@@ -121,8 +115,9 @@
 				window.location.hash = hash;
 				$hash.attr("id", hash.replace("#",""));
 			}
-			// links show goToHash() instead of default
-			$(".toc a").click(e=>{
+
+			// all # links should scroll to target
+			$("a[href^='#']").click(function(e){
 				e.preventDefault();
 				goToHash($(e.currentTarget).attr("href"));
 			});
@@ -136,7 +131,7 @@
 			});
 
 			// adds "on" class to the last of $items which is scrolled to.
-			function activateItem($items) {
+			function activateLastItemScrolledTo($items) {
 				const height = window.innerHeight;
 				const top = window.pageYOffset;
 				$items.removeClass("on");
@@ -156,8 +151,8 @@
 			const $items = $(".toc .item");
 			const $subitems = $(".toc .subitem");
 			$(window).on("scroll", function(){
-				activateItem($items);
-				activateItem($subitems);
+				activateLastItemScrolledTo($items);
+				activateLastItemScrolledTo($subitems);
 			});
 
 			$(window).scroll();
