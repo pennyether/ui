@@ -3,6 +3,8 @@ Loader.promise.then(()=>{
 	const ONE = new BigNumber(1);
 	// Initialize the Demo
 	function Demo() {
+		var _locked = false;
+
 		const _$e = $("#demo");
 
 		const _$token = _$e.find(".token");
@@ -48,7 +50,7 @@ Loader.promise.then(()=>{
 		});
 
 		// attach treasury events
-		_$treasury.find(".btn-send-divs").click(_sendDivs);
+		_$treasury.find(".btn-send-div").click(_sendDiv);
 		_$treasury.find(".btn-ff").click(_ff);
 
 		// attach mainController events
@@ -68,20 +70,26 @@ Loader.promise.then(()=>{
 
 		// move owed to collected
 		function _collectDivs($th) {
+			if (_locked) return;
 			_resetStatuses();
 			const thState = $th.data("state");
 			const amt = thState.owed;
-			if (amt.gt(0)) {
+			if (!amt.gt(0)) {
+				$th.find(".status").text(`Nothing to collect.`).addClass("error");
+				refresh();
+				return;
+			}
+
+			_sendEth(_$token, $th).then(()=>{
 				$th.find(".status").text(`Collected ${amt.toFixed(1)} Eth`);
 				thState.owed = ZERO;
 				thState.collected = thState.collected.plus(amt);
-			} else {
-				$th.find(".status").text(`Nothing to collect.`).addClass("error");
-			}
-			refresh();
+				refresh();
+			});
 		}
 		// set tokens to 0, decrease totalSupply, refresh other token holders
 		function _burn($th) {
+			if (_locked) return;
 			_resetStatuses();
 
 			const thState = $th.data("state");
@@ -107,26 +115,30 @@ Loader.promise.then(()=>{
 			}
 
 			// update state of tokenHolder, treasury, token, and tokenLocker
-			const tlBurn = thTokenBurn.div(9);
-			const totalBurn = thTokenBurn.plus(tlBurn);
-			thState.tokens = ZERO;
-			trState.bankroll = trState.bankroll.minus(thEthGain.mul(-1));
-			trState.balance = trState.balance.minus(thEthGain.mul(-1))
-			tokenState.supply = tokenState.supply.minus(totalBurn);
-			tlState.tokens = tlState.tokens.minus(tlBurn);
-			_$treasury.find(".status").text(`Sent ${thEthGain.toFixed(1)} Eth to user for burning tokens.`);
+			_sendEth(_$treasury, $th).then(()=>{
+				const tlBurn = thTokenBurn.div(9);
+				const totalBurn = thTokenBurn.plus(tlBurn);
+				thState.tokens = ZERO;
+				trState.bankroll = trState.bankroll.minus(thEthGain.mul(-1));
+				trState.balance = trState.balance.minus(thEthGain.mul(-1))
+				tokenState.supply = tokenState.supply.minus(totalBurn);
+				tlState.tokens = tlState.tokens.minus(tlBurn);
+				_$treasury.find(".status").text(`Sent ${thEthGain.toFixed(1)} Eth to user for burning tokens.`);
 
-			// update all token holder's pcts and status
-			_tokenHolders.forEach(($e)=>{
-				$e.data("state").tPct = $e.data("state").tokens.div(tokenState.supply).mul(100);
-				$e.find(".status").text(`Ownership Increased`);
+				// update all token holder's pcts and status
+				_tokenHolders.forEach(($e)=>{
+					$e.data("state").tPct = $e.data("state").tokens.div(tokenState.supply).mul(100);
+					$e.find(".status").text(`Ownership Increased`);
+				});
+				_$tokenLocker.find(".status").text(`Burned tokens to stay at 10%`);
+					
+				refresh();
 			});
-			_$tokenLocker.find(".status").text(`Burned tokens to stay at 10%`);
-				
-			refresh();
 		}
+
 		// increase token.divs, increase owed for each token holder
-		function _sendDivs() {
+		function _sendDiv() {
+			if (_locked) return;
 			_resetStatuses();
 
 			const trState = _$treasury.data("state");
@@ -135,9 +147,12 @@ Loader.promise.then(()=>{
 			if (!divAmt.gt(0)) {
 				_$treasury.find(".status").text(`Balance must be >${divThreshold} Eth to send dividends.`)
 					.addClass("error");
-			} else {
+				refresh();
+				return;
+			}
+			
+			_sendEth(_$treasury, _$token).then(()=>{
 				const tokenState = _$token.data("state");
-
 				// update treasury balance, token dividends
 				trState.balance = divThreshold;
 				tokenState.divs = tokenState.divs.plus(divAmt);
@@ -153,12 +168,13 @@ Loader.promise.then(()=>{
 						$th.find(".status").text(`Owed ${divShare.toFixed(1)} Eth more in dividends.`);
 					}
 				});
-				
-			}
-			refresh();
+			
+				refresh();
+			});
 		}
 		// set treasury dlUsed to 0
 		function _ff() {
+			if (_locked) return;
 			_resetStatuses();
 
 			const trState = _$treasury.data("state");
@@ -171,6 +187,7 @@ Loader.promise.then(()=>{
 		// update treasury numbers
 		// start auction
 		function _paRestart() {
+			if (_locked) return;
 			_resetStatuses();
 
 			const paState = _$pennyAuction.data("state");
@@ -198,20 +215,27 @@ Loader.promise.then(()=>{
 				refresh();
 				return;
 			}
-			trState.balance = trState.balance.minus(prizeAmt);
-			trState.dlUsed = trState.dlUsed.plus(prizeAmt);
-			paState.state = "started";
-			paState.bidFees = ZERO;
-			paState.winner.find(".status").text(`Sent ${paState.prize} Eth prize.`);
-			paState.winner = $("");
-			_$pennyAuction.removeClass("ended");
-			_$pennyAuction.find(".title").text("Penny Auction (started)");
-			_$pennyAuction.find(".status").text("Started");
-			_$mainController.find(".status").text(`Started Penny Auction.`)
-			_$treasury.find(".status").text(`Funded MainController ${prizeAmt} Eth for a Penny Auction.`);
-			refresh();
+
+			_sendEth(_$pennyAuction, paState.winner);
+			_sendEth(_$treasury, _$pennyAuction).then(()=>{
+				trState.balance = trState.balance.minus(prizeAmt);
+				trState.dlUsed = trState.dlUsed.plus(prizeAmt);
+				paState.state = "started";
+				paState.bidFees = ZERO;
+				paState.winner.find(".status").text(`Sent ${paState.prize} Eth prize.`);
+				paState.winner = $("");
+				_$pennyAuction.removeClass("ended");
+				_$pennyAuction.find(".title").text("Penny Auction (started)");
+				_$pennyAuction.find(".status").text("Started");
+				_$mainController.find(".status").text(`Started Penny Auction.`)
+				_$treasury.find(".status").text(`Funded MainController ${prizeAmt} Eth for a Penny Auction.`);
+				refresh();
+			});
 		}
+
+		// Send ETH from PennyAuction to Treasury
 		function _paCollect() {
+			if (_locked) return;
 			_resetStatuses();
 
 			const paState = _$pennyAuction.data("state");
@@ -228,23 +252,28 @@ Loader.promise.then(()=>{
 				return;
 			}
 
-			const trState = _$treasury.data("state");
-			trState.balance = trState.balance.plus(bidFees);
-			paState.bidFees = paState.bidFees.minus(bidFees);
+			_sendEth(_$pennyAuction, _$treasury).then(()=>{
+				const trState = _$treasury.data("state");
+				trState.balance = trState.balance.plus(bidFees);
+				paState.bidFees = paState.bidFees.minus(bidFees);
 
-			const divThreshold = trState.bankroll.plus(trState.dl.mul(14));
-			const profit = trState.balance.minus(divThreshold);
-			if (profit.gt(0)){
-				_$treasury.find(".status").text(`Received ${bidFees} Eth. Can now issue a dividend of ${profit} Eth.`);
-			} else {
-				_$treasury.find(".status").text(`Need ${profit.mul(-1)} more Eth to send dividend. Gamble more.`);
-			}
-			
-			_$pennyAuction.find(".status").text(`Sent ${bidFees} Eth to Treasury.`);
-			_$mainController.find(".status").text(`Bid Fees sent to Treasury.`);
-			refresh();
+				const divThreshold = trState.bankroll.plus(trState.dl.mul(14));
+				const profit = trState.balance.minus(divThreshold);
+				if (profit.gt(0)){
+					_$treasury.find(".status").text(`Received ${bidFees} Eth. Can now issue a dividend of ${profit} Eth.`);
+				} else {
+					_$treasury.find(".status").text(`Need ${profit.mul(-1)} more Eth to send dividend. Gamble more.`);
+				}
+				
+				_$pennyAuction.find(".status").text(`Sent ${bidFees} Eth to Treasury.`);
+				_$mainController.find(".status").text(`Bid Fees sent to Treasury.`);
+				refresh();
+			});
 		}
+
+		// Send ETH from treasury to Instadice
 		function _idFund() {
+			if (_locked) return;
 			_resetStatuses();
 			const trState = _$treasury.data("state");
 			const idState = _$instaDice.data("state");
@@ -262,17 +291,22 @@ Loader.promise.then(()=>{
 				return;	
 			}
 			 
-			trState.balance = trState.balance.minus(1);
-			trState.dlUsed = trState.dlUsed.plus(1);
-			idState.funded = idState.funded.plus(1);
-			idState.balance = idState.balance.plus(1);
-			_$treasury.find(".status").text("Funded InstaDice 1 Eth");
-			_$mainController.find(".status").text(`Funded MainController 1 Eth for InstaDice.`);
-			_$instaDice.find(".status").text("Got funded 1 Eth.");
-			_$instaDice.removeClass("unfunded");
-			refresh();
+			_sendEth(_$treasury, _$instaDice).then(()=>{
+				trState.balance = trState.balance.minus(1);
+				trState.dlUsed = trState.dlUsed.plus(1);
+				idState.funded = idState.funded.plus(1);
+				idState.balance = idState.balance.plus(1);
+				_$treasury.find(".status").text("Funded InstaDice 1 Eth");
+				_$mainController.find(".status").text(`Funded MainController 1 Eth for InstaDice.`);
+				_$instaDice.find(".status").text("Got funded 1 Eth.");
+				_$instaDice.removeClass("unfunded");
+				refresh();
+			});
 		}
+
+		// send Eth from InstaDice to Treasury
 		function _idCollect() {
+			if (_locked) return;
 			_resetStatuses();
 			const idState = _$instaDice.data("state");
 			const collectAmt = idState.balance.minus(idState.funded);
@@ -282,25 +316,29 @@ Loader.promise.then(()=>{
 				return;
 			}
 
-			const trState = _$treasury.data("state");
-			trState.balance = trState.balance.plus(collectAmt);
-			idState.balance = idState.balance.minus(collectAmt);
+			_sendEth(_$instaDice, _$treasury).then(()=>{
+				const trState = _$treasury.data("state");
+				trState.balance = trState.balance.plus(collectAmt);
+				idState.balance = idState.balance.minus(collectAmt);
 
-			const divThreshold = trState.bankroll.plus(trState.dl.mul(14));
-			const profit = trState.balance.minus(divThreshold);
-			if (profit.gt(0)){
-				_$treasury.find(".status").text(`Received ${collectAmt} Eth. Can now issue a dividend of ${profit} Eth.`);
-			} else {
-				_$treasury.find(".status").text(`Need ${profit.mul(-1)} Eth to send dividend. Gamble more.`);
-			}
-			_$mainController.find(".status").text(`Told InstaDice to send profits.`);
-			_$instaDice.find(".status").text(`Sent ${collectAmt} to Treasury.`);
-			refresh();
+				const divThreshold = trState.bankroll.plus(trState.dl.mul(14));
+				const profit = trState.balance.minus(divThreshold);
+				if (profit.gt(0)){
+					_$treasury.find(".status").text(`Received ${collectAmt} Eth. Can now issue a dividend of ${profit} Eth.`);
+				} else {
+					_$treasury.find(".status").text(`Need ${profit.mul(-1)} Eth to send dividend. Gamble more.`);
+				}
+				_$mainController.find(".status").text(`Told InstaDice to send profits.`);
+				_$instaDice.find(".status").text(`Sent ${collectAmt} to Treasury.`);
+				refresh();
+			});
 		}
 
 		// if started, mark it as ended
 		function _endAuction() {
+			if (_locked) return;
 			_resetStatuses();
+
 			const paState = _$pennyAuction.data("state");
 			if (paState.state == "started") {
 				paState.state = "ended";
@@ -323,15 +361,20 @@ Loader.promise.then(()=>{
 				refresh();
 				return;
 			}
-			paState.winner = $player;
-			paState.bidFees = paState.bidFees.plus(new BigNumber(.1));
-			_$pennyAuction.find(".status").text(`Received .1 Eth`);
-			$player.find(".status").text(`Sent .1 Eth`);
-			refresh();
+			
+			_sendEth($player, _$pennyAuction).then(()=>{
+				paState.winner = $player;
+				paState.bidFees = paState.bidFees.plus(new BigNumber(.1));
+				_$pennyAuction.find(".status").text(`Received .1 Eth`);
+				$player.find(".status").text(`Sent .1 Eth`);
+				refresh();	
+			});
 		}
+
 		// roll, either add or subtract from InstaDice
 		function _roll($player) {
 			_resetStatuses();
+
 			const idState = _$instaDice.data("state");
 			if (idState.balance.lt(.1)) {
 				_$instaDice.find(".status").text("Not enough balance to roll. Please fund.").addClass("error");
@@ -340,22 +383,77 @@ Loader.promise.then(()=>{
 				return;
 			}
 
-			const doWin = Math.random() > .4;
-			if (doWin){
-				idState.balance = idState.balance.plus(.1);	
-				_$instaDice.find(".status").text("Won .1 from a roll.");
-				$player.find(".status").text("Lost .1 from a roll.");
-			} else {
-				idState.balance = idState.balance.minus(.1);
-				_$instaDice.find(".status").text("Lost .1 from a roll.");
-				$player.find(".status").text("Won .1 from a roll.");
-			}
-			refresh();
+			_sendEth($player, _$instaDice).then(()=>{
+				const doWin = Math.random() > .4;
+				if (doWin){
+					idState.balance = idState.balance.plus(.1);	
+					_$instaDice.find(".status").text("Won .1 from a roll.");
+					$player.find(".status").text("Lost .1 from a roll.");
+				} else {
+					idState.balance = idState.balance.minus(.1);
+					_$instaDice.find(".status").text("Lost .1 from a roll.");
+					$player.find(".status").text("Won .1 from a roll.");
+				}
+				refresh();
+			});
 		}
 
 		function _resetStatuses() {
 			_$e.find(".status").text("").removeClass("try error");
 		}
+
+		function _sendEth($from, $to) {
+			_locked = true;
+			return new Promise((resolve, reject)=>{
+				const duration = 500;
+				if (!$from || !$to) return resolve();
+				const startOffset = $from.offset();
+				const stopOffset = $to.offset();
+				if (!startOffset || !stopOffset) return resolve();
+
+				const $img = $("<img>")
+					.attr("src", "/images/ethereum.png")
+					.attr("width", 35)
+					.css({
+						opacity: 0,
+						position: "absolute",
+						top: -100,
+						left: -100,
+						background: "rgba(215,255,255,.9)",
+						border: "1px solid #AAA",
+						borderRadius: "40px"
+					})
+					.appendTo(document.body);
+
+				const startX = startOffset.left - $img.width()/2 + $from.width()/2;
+				const startY = startOffset.top - $img.height()/2 + $from.height()/2;
+				const stopX = stopOffset.left - $img.width()/2 + $to.width()/2;
+				const stopY = stopOffset.top - $img.height()/2 + $to.height()/2;
+
+
+				const start = +new Date();
+				window.requestAnimationFrame(function step(){
+					const pct = Math.min((+new Date() - start) / duration, 1);
+					const x = startX + pct*(stopX - startX);
+					const y = startY + pct*(stopY - startY);
+					$img.css({
+						opacity: pct < .5 ? pct*3 : (1-pct)*3,
+						left: Math.round(x),
+						top: Math.round(y)
+					});
+					if (pct < 1) window.requestAnimationFrame(step);
+					else {
+						$img.remove();
+						resolve();
+					}
+				});
+			}).catch((e)=>{}).then(()=>{
+				_locked = false;
+			});
+		}
+
+		// updates all states for all objects.
+		// highlights buttons in green to suggest clicking them
 		function refresh() {
 			[_$token, _$th1, _$th2, _$th3, _$tokenLocker,
 			_$treasury, _$mainController, _$pennyAuction, _$instaDice,
@@ -397,7 +495,7 @@ Loader.promise.then(()=>{
 			}
 			const trState = _$treasury.data("state");
 			if (trState.balance.gt(trState.bankroll.plus(trState.dl.mul(14)))) {
-				_$treasury.find(".btn-send-divs").addClass("try");
+				_$treasury.find(".btn-send-div").addClass("try");
 			}
 			if (!trState.dl.gt(trState.dlUsed)) {
 				_$treasury.find(".btn-ff").addClass("try");
