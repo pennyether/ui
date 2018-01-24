@@ -39,9 +39,10 @@ Loader.onPageLoad.then(()=>{
 			_$instaDice.addClass("unfunded")
 				.data("state", {balance: ZERO, funded: ZERO});
 
-			refresh();
+			_resetStatuses();
+			_refresh();
+			_refresh();
 		}
-		_reset();
 
 		// attach tokenHolder events
 		_tokenHolders.forEach(($e)=>{
@@ -92,7 +93,7 @@ Loader.onPageLoad.then(()=>{
 			const amt = thState.owed;
 			if (!amt.gt(0)) {
 				$th.find(".status").text(`Nothing to collect.`).addClass("error");
-				refresh();
+				_refresh();
 				return;
 			}
 
@@ -100,7 +101,7 @@ Loader.onPageLoad.then(()=>{
 				$th.find(".status").text(`Collected ${amt.toFixed(1)} Eth`);
 				thState.owed = ZERO;
 				thState.collected = thState.collected.plus(amt);
-				refresh();
+				_refresh();
 			});
 		}
 		// set tokens to 0, decrease totalSupply, refresh other token holders
@@ -111,7 +112,7 @@ Loader.onPageLoad.then(()=>{
 			const thState = $th.data("state");
 			if (!thState.tokens.gt(0)){
 				$th.find(".status").text("Nothing to burn.").addClass("error");
-				refresh();
+				_refresh();
 				return;
 			}
 
@@ -154,7 +155,7 @@ Loader.onPageLoad.then(()=>{
 				}
 				_$tokenLocker.find(".status").text(`Burned tokens to stay at 10%`);
 					
-				refresh();
+				_refresh();
 			});
 		}
 
@@ -169,7 +170,7 @@ Loader.onPageLoad.then(()=>{
 			if (!divAmt.gt(0)) {
 				_$treasury.find(".status").text(`Balance must be >${divThreshold} Eth to send dividends.`)
 					.addClass("error");
-				refresh();
+				_refresh();
 				return;
 			}
 			
@@ -191,7 +192,7 @@ Loader.onPageLoad.then(()=>{
 					}
 				});
 			
-				refresh();
+				_refresh();
 			});
 		}
 		// set treasury dlUsed to 0
@@ -202,7 +203,7 @@ Loader.onPageLoad.then(()=>{
 			const trState = _$treasury.data("state");
 			trState.dlUsed = ZERO;
 			_$treasury.find(".status").text(`Daily Limit is back to 0.`);
-			refresh();
+			_refresh();
 		}
 
 		// check treasury dailyLimit
@@ -215,7 +216,7 @@ Loader.onPageLoad.then(()=>{
 			const paState = _$pennyAuction.data("state");
 			if (paState.state == "started") {
 				_$mainController.find(".status").text(`Auction has not ended.`).addClass("error");
-				refresh();
+				_refresh();
 				return;
 			}
 
@@ -223,7 +224,7 @@ Loader.onPageLoad.then(()=>{
 			const prizeAmt = paState.prize;
 			if (paState.bidFees.gt(0)) {
 				_$mainController.find(".status").text(`Collect bidFees first.`).addClass("error");
-				refresh();
+				_refresh();
 				return;
 			}
 			if (trState.dlUsed.plus(prizeAmt).gt(trState.dl)){
@@ -231,7 +232,7 @@ Loader.onPageLoad.then(()=>{
 					.addClass("error");
 				_$mainController.find(".status").text(`Treasury could not fund this.`)
 					.addClass("error");
-				refresh();
+				_refresh();
 				return;
 			}
 			if (trState.balance.lt(prizeAmt)) {
@@ -239,7 +240,7 @@ Loader.onPageLoad.then(()=>{
 					.addClass("error");
 				_$mainController.find(".status").text(`Treasury could not fund this.`)
 					.addClass("error");
-				refresh();
+				_refresh();
 				return;
 			}
 
@@ -258,7 +259,7 @@ Loader.onPageLoad.then(()=>{
 					_$pennyAuction.find(".status").text("Started");
 					_$mainController.find(".status").text(`Started Penny Auction.`)
 					_$treasury.find(".status").text(`Funded MainController ${prizeAmt} Eth for a Penny Auction.`);
-					refresh();
+					_refresh();
 				});
 		}
 
@@ -272,7 +273,7 @@ Loader.onPageLoad.then(()=>{
 			if (!bidFees.gt(0)) {
 				_$mainController.find(".status").text("Penny Auction has no bidFees to collect.")
 					.addClass("error");
-				refresh();
+				_refresh();
 				return;
 			}
 
@@ -291,7 +292,7 @@ Loader.onPageLoad.then(()=>{
 				
 				_$pennyAuction.find(".status").text(`Sent ${bidFees} Eth to Treasury.`);
 				_$mainController.find(".status").text(`Bid Fees sent to Treasury.`);
-				refresh();
+				_refresh();
 			});
 		}
 
@@ -304,14 +305,14 @@ Loader.onPageLoad.then(()=>{
 			if (trState.balance.lt(1)) {
 				_$treasury.find(".status").text(`Not enough balance to fund InstaDice`).addClass("error");
 				_$mainController.find(".status").text(`Treasury could not fund this.`).addClass("error");
-				refresh();
+				_refresh();
 				return;
 			}
 			if (trState.dlUsed.plus(1).gt(trState.dl)){
 				_$treasury.find(".status").text(`Funding would exceed Daily Limit. (Skip to next day)`)
 					.addClass("error");
 				_$mainController.find(".status").text(`Treasury could not fund this.`).addClass("error");
-				refresh();
+				_refresh();
 				return;	
 			}
 			 
@@ -326,7 +327,7 @@ Loader.onPageLoad.then(()=>{
 					_$mainController.find(".status").text(`Funded MainController 1 Eth for InstaDice.`);
 					_$instaDice.find(".status").text("Got funded 1 Eth.");
 					_$instaDice.removeClass("unfunded");
-					refresh();
+					_refresh();
 				});
 		}
 
@@ -338,7 +339,7 @@ Loader.onPageLoad.then(()=>{
 			const collectAmt = idState.balance.minus(idState.funded);
 			if (!collectAmt.gt(0)) {
 				_$mainController.find(".status").text(`InstaDice has no profit to send.`).addClass("error");
-				refresh();
+				_refresh();
 				return;
 			}
 
@@ -356,7 +357,7 @@ Loader.onPageLoad.then(()=>{
 				}
 				_$mainController.find(".status").text(`Told InstaDice to send profits.`);
 				_$instaDice.find(".status").text(`Sent ${collectAmt} to Treasury.`);
-				refresh();
+				_refresh();
 			});
 		}
 
@@ -374,7 +375,7 @@ Loader.onPageLoad.then(()=>{
 			} else {
 				_$pennyAuction.find(".status").text(`Auction was never started.`).addClass("error");
 			}
-			refresh();
+			_refresh();
 		}
 
 		// add bidFee to penny auction
@@ -384,7 +385,7 @@ Loader.onPageLoad.then(()=>{
 			const paState = _$pennyAuction.data("state");
 			if (paState.state == "ended") {
 				$player.find(".status").text("Auction not started.").addClass("error");
-				refresh();
+				_refresh();
 				return;
 			}
 			
@@ -393,7 +394,7 @@ Loader.onPageLoad.then(()=>{
 				paState.bidFees = paState.bidFees.plus(new BigNumber(.1));
 				_$pennyAuction.find(".status").text(`Received .1 Eth`);
 				$player.find(".status").text(`Sent .1 Eth`);
-				refresh();	
+				_refresh();	
 			});
 		}
 
@@ -405,7 +406,7 @@ Loader.onPageLoad.then(()=>{
 			if (idState.balance.lt(.1)) {
 				_$instaDice.find(".status").text("Not enough balance to roll. Please fund.").addClass("error");
 				$player.find(".status").text("Refunded wager.");
-				refresh();
+				_refresh();
 				return;
 			}
 
@@ -420,7 +421,7 @@ Loader.onPageLoad.then(()=>{
 					_$instaDice.find(".status").text("Lost .1 from a roll.");
 					$player.find(".status").text("Won .1 from a roll.");
 				}
-				refresh();
+				_refresh();
 			});
 		}
 
@@ -481,7 +482,7 @@ Loader.onPageLoad.then(()=>{
 
 		// updates all states for all objects.
 		// highlights buttons in green to suggest clicking them
-		function refresh() {
+		function _refresh() {
 			[_$token, _$th1, _$th2, _$th3, _$tokenLocker,
 			_$treasury, _$mainController, _$pennyAuction, _$instaDice,
 			_$playerOne, _$playerTwo, _$playerThree].forEach(($e)=>{
@@ -537,7 +538,9 @@ Loader.onPageLoad.then(()=>{
 			})
 		}
 
-		refresh();
+		this.reset = _reset;
+
+		_reset();
 	};
-	new Demo();
+	window.demo = new Demo();
 });
