@@ -99,8 +99,14 @@
 		var loadedHash = window.location.hash;
 		window.location.hash = "";
 
-		Loader.promise.then(()=>{
+		Loader.onPageLoad.then(()=>{
 			if (loadedHash) goToHash(loadedHash);
+
+			// all # links should scroll to target
+			$("a[href^='#']").click(function(e){
+				e.preventDefault();
+				goToHash($(e.currentTarget).attr("href"));
+			});
 
 			// scrolls to the hash
 			function goToHash(hash) {
@@ -410,7 +416,7 @@
 								PennyEther is an Ethereum-based distributed application that autonomously runs any number of gambling related games. PennyEther is already deployed, tested, audited, and currently runs two innovative games that are best-in-breed, and profitable: <a href="/games/pennyauctions.html">Penny Auctions</a>, and <a href="/games/instadice.html">InstaDice</a>.
 							</p>
 							<p>
-								PennyEther runs on top of <a href="#core-contracts">Core</a> that is <a href="#scalability">scalable</a>, <a href="#security">secure</a>, <a href="#instadice">distributes profits on-demand</a>, and <a href="#burning">allows token holders to exit their investment</a> by burning tokens for a 50% refund. Everthing has been <a href="">thoroughly tested</a> and <a href="">independantly audited</a>.
+								PennyEther runs on top of <a href="#core-contracts">Core</a> that is <a href="#scalability">scalable</a>, <a href="#security">secure</a>, <a href="#token-contract">distributes 100% of profits</a>, and <a href="#burning">allows token holders to exit their investment</a> by burning tokens for a 50% refund. Everthing has been <a href="">thoroughly tested</a> and <a href="">independantly audited</a>.
 							</p>
 							<p>
 								We strongly believe we've created the world's most sophisticated autonomous blockchain application, and are excited to sell 80% ownership to the public. We're having an ICO for three reasons:
@@ -639,7 +645,16 @@
 								<p>
 								<h3>PennyEther vs Penny Auction Websites</h3>
 								<p>
-									<table style="font-size: 90%" cellpadding="4" width="100%">
+									<style>
+									#pe-vs-pa td {
+										vertical-align: top;
+										padding: 5px;
+									}
+									#pe-vs-pa tr:nth-child(even) {
+										background: #EEE;
+									}
+									</style>
+									<table id="pe-vs-pa" style="font-size: 90%" cellpadding="0" cellspacing="0" width="100%">
 										<tr>
 											<td></td>
 											<td><b>PennyEther</b></td>
@@ -745,8 +760,8 @@
 											If they haven't won (half the time), submit their block as an uncle and only get an uncle reward of 4.375 Ether. They could also try to mine the block again, but are very unlikely to win the block in time.
 										</li>
 									</ol>
-									From the above, with an unrestricted bet size, the expected payout is (5 + 10)/2 + 4.375/2 = 9.7 Ether.  This is well over what the miner would get by mining honestly: 5 Ether.
-									<br><br>But, <b>with a restricted bet size</b>, the expected payout is (5 + <i>.625</i>)/2 + 4.375/2 = 5 Ether.  <b>By restricting the bet size, miners are <i>not</i> better off trying to cheat.</b>
+									From the above, with an unrestricted bet size, the expected payout is <span class="code">(5 + 10)/2 + 4.375/2 = 9.7 Ether</span>.  This is well over what the miner would get by mining honestly: <span class="code">5 Ether</span>.
+									<br><br>But, <b>with a restricted bet size</b>, the expected payout is <span class="code">(5 + <i>.625</i>)/2 + 4.375/2 = 5 Ether</span>.  <b>By restricting the bet size, miners are <i>not</i> better off trying to cheat.</b>
 								</p>
 								<p>
 									<i>Note: In the above calculations, we omit factoring in the percentage of the hash power the miner owns. As this percentage grows, the actual maximum bet needs to be lowered. In practice, our maximum bet size will be .5 Ether to account for this.</i>
@@ -790,7 +805,16 @@
 								<p>
 								We <i>strongly</i> believe we offer a far more compelling dice game than both the Ethereum and Bitcoin competition, and expect to capture a very large percentage of the market.
 								</p>
-								<table style="font-size: 90%" cellpadding="4" width="100%">
+								<style>
+								#instadice-vs td {
+									vertical-align: top;
+									padding: 4px;
+								}
+								#instadice-vs tr:nth-child(even) {
+									background: #EEE;
+								}
+								</style>
+								<table id="instadice-vs" style="font-size: 90%" cellpadding="0" cellspacing=0 width="100%">
 									<tr>
 										<td></td>
 										<td><b>PennyEther</b></td>
@@ -1074,6 +1098,7 @@
 									Any time a new game is deployed, the <span class="code">MainController</span> will be upgraded to be able to interact with the new game. Since MainController has no state, this is a very simple procedure.
 								</p>
 
+								<a id="token-contract"></a>
 								<h3>The Token Contract</h3>
 								<p>
 									We've created an ERC20 Token Contract that can dispurse dividends <b>at any time.</b> Any Ether sent to this contract is claimable by all Token Holders, proportional to their onwership at the time the dividend is issued.

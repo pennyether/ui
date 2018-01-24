@@ -1,4 +1,4 @@
-Loader.promise.then(()=>{
+Loader.onPageLoad.then(()=>{
 	const ZERO = new BigNumber(0);
 	const ONE = new BigNumber(1);
 	// Initialize the Demo

@@ -41,6 +41,11 @@
 	*/
 	function Loader(){
 		var _self = this;
+		
+		var _triggerPageLoaded;
+		this.onPageLoad = new Promise((resolve, reject)=>{
+			_triggerPageLoaded = resolve;
+		});
 
 		this.promise = Promise.all([
 			new Promise((res, rej)=>{ window.addEventListener('load', res); }),
@@ -67,6 +72,7 @@
 			if (!window.PennyEtherWebUtil){ throw new Error("Unable to find PennyEtherWebUtil."); }
 			if (!window.Nav){ throw new Error("Unable to find Nav"); }
 			if (!window.EthStatus){ throw new Error("Unable to find EthStatus"); }
+			_triggerPageLoaded();
 			
 
 		    // create web3 object depending on if its from browser or not
