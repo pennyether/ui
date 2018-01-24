@@ -68,6 +68,22 @@ Loader.onPageLoad.then(()=>{
 			$e.find(".btn-roll").click(()=>{ _roll($e); })
 		});
 
+		// attach tips
+		(function(){
+			_$e.find(".title").toArray().forEach((title)=>{
+				const $tip = $(title).parent().find(".demo-tip").show();
+				if ($tip.length == 0) return;
+				tippy(title, {
+					position: "top",
+					animation: "scale",
+					trigger: "click",
+					html: $tip[0],
+					theme: "light"
+				})
+			})
+		}())
+		
+
 		// move owed to collected
 		function _collectDivs($th) {
 			if (_locked) return;
@@ -228,7 +244,8 @@ Loader.onPageLoad.then(()=>{
 			}
 
 			_sendEth(_$pennyAuction, paState.winner)
-				.then(()=>{ return _sendEth(_$treasury, _$pennyAuction); })
+				.then(() => _sendEth(_$treasury, _$mainController))
+				.then(() => _sendEth(_$mainController, _$pennyAuction))
 				.then(()=>{
 					trState.balance = trState.balance.minus(prizeAmt);
 					trState.dlUsed = trState.dlUsed.plus(prizeAmt);
@@ -298,17 +315,19 @@ Loader.onPageLoad.then(()=>{
 				return;	
 			}
 			 
-			_sendEth(_$treasury, _$instaDice).then(()=>{
-				trState.balance = trState.balance.minus(1);
-				trState.dlUsed = trState.dlUsed.plus(1);
-				idState.funded = idState.funded.plus(1);
-				idState.balance = idState.balance.plus(1);
-				_$treasury.find(".status").text("Funded InstaDice 1 Eth");
-				_$mainController.find(".status").text(`Funded MainController 1 Eth for InstaDice.`);
-				_$instaDice.find(".status").text("Got funded 1 Eth.");
-				_$instaDice.removeClass("unfunded");
-				refresh();
-			});
+			_sendEth(_$treasury, _$mainController)
+				.then(() => _sendEth(_$mainController, _$instaDice))
+				.then(()=>{
+					trState.balance = trState.balance.minus(1);
+					trState.dlUsed = trState.dlUsed.plus(1);
+					idState.funded = idState.funded.plus(1);
+					idState.balance = idState.balance.plus(1);
+					_$treasury.find(".status").text("Funded InstaDice 1 Eth");
+					_$mainController.find(".status").text(`Funded MainController 1 Eth for InstaDice.`);
+					_$instaDice.find(".status").text("Got funded 1 Eth.");
+					_$instaDice.removeClass("unfunded");
+					refresh();
+				});
 		}
 
 		// send Eth from InstaDice to Treasury

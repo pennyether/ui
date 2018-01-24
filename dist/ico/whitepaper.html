@@ -1141,20 +1141,6 @@
 								<div class="note">
 									There is an (unlikely) possibility that not all Tokens can be burned. This can happen if the balance of the Treasury drops below the <span class="code">bankroll</span>, and <i>all</i> Token Holders try to burn their tokens. This case can only happen if the balance trickles below the <span class="code">bankroll</span>, which takes <i>at least</i> 14 days to occur.
 								</div>
-
-								<h3>The Registry Contract</h3>
-								<p>
-									The CrowdSale, and all of the above contracts (excluding <span class="code">MainController</span>) are hard-coded, and cannot be altered or redeployed. All other contracts can easily be upgraded or added via the <span class="code">Registry</span>. 
-								</p>
-								<p>
-									This contract contains <span class="code">name=>address</span> mappings. Upgrading a contract is as simple as deploying the new version, and changing the mapping to point to the new address. All existing contracts will immediately start using the new mapping. This architecture ensures that contracts can be upgraded, and new contracts can be deployed very easily.
-								</p>
-								<p>
-									For example, adding a new game is simple. We would add a mapping for it in the Registry, and upgrade <a href="github.com" target="_blank"><span class="code">MainController</span></a> to interact with this contract.
-								</p>
-								<p>
-									Using a <span class="code">Registry</span> is also simpler than other methods. There are no delegate calls, and there's no need to manage contract memory indexes. This comes at a cost -- it's more difficult to migrate existing contact data. To alleviate this concern, all upgradable contracts contain little to no state, and their state is superficial in that it does not effect the core operation of Penny Ether.
-								</p>
 							</div>
 						</div>
 						<style>
@@ -1170,27 +1156,42 @@
 								top: 0px;
 								left: 0px;
 								background: white;
-								border: 1px solid black;
+								border: 1px solid gray;
 								font-size: 80%
 							}
-							#demo > div > .title {
-								font-weight: bold;
-								border-bottom: 1px solid gray;
-								background: #DDD;
-								text-align: center;
-								padding: 2px;
-								margin-bottom: 5px
-							}
-							#demo > div > .status {
-								box-sizing: border-box;
-								position: absolute;
-								bottom: 0px;
-								width: 100%;
-								padding: 2px;
-								text-align: center;
-								border-top: 1px dotted #CCC;
-								background: #FAFAFA;
-							}
+								.demo-tip {
+									display: none;
+									font-size: 80%;
+									max-width: 300px;
+									text-align: left;
+								}
+								.demo-tip ul {
+									 margin-bottom: 0px;
+								}
+								.demo-tip .code {
+									background: #DDD;
+									padding: 0px 2px;
+									font-family: courier;
+								}
+								#demo > div > .title {
+									font-size: 110%;
+									border-bottom: 1px solid gray;
+									background: navy;
+									color: white;
+									text-align: center;
+									padding: 2px;
+									margin-bottom: 5px;
+								}
+								#demo > div > .status {
+									box-sizing: border-box;
+									position: absolute;
+									bottom: 0px;
+									width: 100%;
+									padding: 2px;
+									text-align: center;
+									border-top: 1px dotted #CCC;
+									background: #FAFAFA;
+								}
 								#demo > div > .status.try {
 									background: #88FF88;
 								}
@@ -1201,6 +1202,7 @@
 									background: #88FF88;
 								}
 								#demo button {
+									cursor: pointer;
 									margin-top: 2px;
 								}
 							#demo div.changed {
@@ -1293,13 +1295,23 @@
 							<div class="body">
 								<div id="demo">
 									<div class="token">
-										<div class="title">Token</div>
+										<div class="demo-tip">
+											The Token contract receives dividends from <span class='code'>Treasury</span> and allows Token Holders to collect their portion relative to their percent ownership at the time the dividend is received.
+										</div>
+										<div class="title tipLeft">Token</div>
 										<div>Dividends Received: <span class="divs"></span> Eth</div>
 										<div>Total Supply: <span class="supply"></span> Tokens</div>
 										<div class="status"></div>
 									</div>
 									<div class="token-holder-one">
-										<div class="title">Token Holder 1</div>
+										<div class="demo-tip">
+											A Token Holder's amount owed is updated any time the Token receives a dividend.
+											<ul>
+												<li><b>Collect Dividends</b>: Collects the owed amount from the Token contract.</li>
+												<li><b>Burn Tokens</b>: Burns tokens in exchange for .5 Eth each. This will decrease the Total Supply, and increase ownership of all other Token Holders, except for Token Locker which always stays at 10%.</li>
+											</ul>
+										</div>
+										<div class="title tipLeft">Token Holder 1</div>
 										<div>Tokens: <span class="tokens"></span> (<span class="tPct"></span>%)</div>
 										<div>Owed: <span class="owed"></span> Eth</div>
 										<div>Collected: <span class="collected"></span> Eth</div>
@@ -1309,7 +1321,14 @@
 										<div class="status"></div>
 									</div>
 									<div class="token-holder-two">
-										<div class="title">Token Holder 2</div>
+										<div class="demo-tip">
+											A Token Holder's amount owed is updated any time the Token receives a dividend.
+											<ul>
+												<li><b>Collect Dividends</b>: Collects the owed amount from the Token contract.</li>
+												<li><b>Burn Tokens</b>: Burns tokens in exchange for .5 Eth each. This will decrease the Total Supply, and increase ownership of all other Token Holders, except for Token Locker which always stays at 10%.</li>
+											</ul>
+										</div>
+										<div class="title tipLeft">Token Holder 2</div>
 										<div>Tokens: <span class="tokens"></span> (<span class="tPct"></span>%)</div>
 										<div>Owed: <span class="owed"></span> Eth</div>
 										<div>Collected: <span class="collected"></span> Eth</div>
@@ -1319,7 +1338,14 @@
 										<div class="status"></div>
 									</div>
 									<div class="token-holder-three">
-										<div class="title">Token Holder 3</div>
+										<div class="demo-tip">
+											A Token Holder's amount owed is updated any time the Token receives a dividend.
+											<ul>
+												<li><b>Collect Dividends</b>: Collects the owed amount from the Token contract.</li>
+												<li><b>Burn Tokens</b>: Burns tokens in exchange for .5 Eth each. This will decrease the Total Supply, and increase ownership of all other Token Holders, except for Token Locker which always stays at 10%.</li>
+											</ul>
+										</div>
+										<div class="title tipLeft">Token Holder 3</div>
 										<div>Tokens: <span class="tokens"></span> (<span class="tPct"></span>%)</div>
 										<div>Owed: <span class="owed"></span> Eth</div>
 										<div>Collected: <span class="collected"></span> Eth</div>
@@ -1329,7 +1355,10 @@
 										<div class="status"></div>
 									</div>
 									<div class="token-locker">
-										<div class="title">Token Locker</div>
+										<div class="demo-tip">
+											The Token Locker always holds 10% of tokens. The tokens cannot be transferred or burned. The dividends are collectable by the PennyEther team.
+										</div>
+										<div class="title tipLeft">Token Locker</div>
 										<div>Tokens: <span class="tokens"></span> (<span class="tPct"></span>%)</div>
 										<div>Owed: <span class="owed"></span> Eth</div>
 										<div>Collected: <span class="collected"></span> Eth</div>
@@ -1338,7 +1367,15 @@
 										<div class="status"></div>
 									</div>
 									<div class="treasury">
-										<div class="title">Treasury</div>
+										<div class="demo-tip">
+											The Treasury holds all of PennyEther's Ether. It receives revenue from games, and dispurses Ether to <span class='code'>MainController</span> to fund games. It can only fund <span class='code'>Daily Limit</span> per day.
+											<ul>
+												<li><b>Send Dividend</b>: If the balance is ever greater than the <span class='code'>bankroll + 14*dailyLimit</span>, the excess can be sent as dividends to Token.
+												<li><b>Skip to Next Day</b>: Simulates a day passing, which resets<span class='code'>Daily Limit Used</span> to 0.</li>
+											</ul>
+											
+										</div>
+										<div class="title tipLeft">Treasury</div>
 										<table width="100%">
 										<tr>
 											<td width="50%">
@@ -1356,7 +1393,16 @@
 										<div class="status"></div>
 									</div>
 									<div class="main-controller">
-										<div class="title">Main Controller</div>
+										<div class="demo-tip">
+											The MainController keeps PennyEther running autonomously. When 'Tasks' are executed, the caller will receive a small reward.
+											<ul>
+												<li><b>Restart Auction</b>: Pays the auction winner, then gets Ether from <span class='code'>Treasury</span> and starts a new auction.</li>
+												<li><b>Collect Bid Fees</b>: Tells the auction to send its <span class='code'>Bid Fees</span> to the <span class='code'>Treasury</span></li>
+												<li><b>Fund</b>: Gets Ether from <span class='code'>Treasury</span> and sends it to <span class='code'>InstaDice</span> so that it can take bets.</li>
+												<li><b>Collect Profits</b>: Tells <span class='code'>InstaDice</span> to send its profits to the <span class='code'>Treasury</span></li>
+											</ul>
+										</div>
+										<div class="title tipLeft">Main Controller</div>
 										<table width="100%">
 											<tr>
 												<td width="50%" valign="top" align="middle" style="border-right: 1px dotted #CCC">
@@ -1374,32 +1420,62 @@
 										<div class="status"></div>
 									</div>
 									<div class="penny-auction">
-										<div class="title">Penny Auction (unstarted)</div>
+										<div class="demo-tip">
+											A Penny Auction collects <span class='code'>Bid Fees</span> from players, and will send them to <span class='code'>Treasury</span> when told to. In this demo, there is only one running Penny Auction. In practice, there may be many.
+											<ul>
+												<li><b>End Auction</b>: Simulates the auction ending. In practice, this occurs when nobody bids for a certain number of blocks.</li>
+											</ul>
+										</div>
+										<div class="title tipLeft">Penny Auction (unstarted)</div>
 										<div>Prize: <span class="prize"></span> Eth</div>
 										<div>Bid Fees: <span class="bidFees"></span> Eth</div>
 										<button class="btn-end-auction">End Auction</button>
 										<div class="status"></div>
 									</div>
 									<div class="insta-dice">
-										<div class="title">InstaDice</div>
+										<div class="demo-tip">
+											InstaDice uses its bankroll of <span class='code'>Funded</span> to stake bets on random numbers. In this demo, it has a 10% edge.
+										</div>
+										<div class="title tipLeft">InstaDice</div>
 										<div>Balance: <span class="balance"></span> Eth</div>
 										<div>Funded: <span class="funded"></span> Eth</div>
 										<div class="status"></div>
 									</div>
 									<div class="player-one">
-										<div class="title">Player 1</div>
+										<div class="demo-tip">
+											Players are PennyEther's source of revenue. Their bids and rolls trickle up the system to the <span class='code'>Treasury</span>, then to the <span class='code'>Token</span>.
+											<ul>
+												<li><b>Bid</b>: Sends a bid to the current <span class='code'>Penny Auction</span></li>
+												<li><b>Roll</b>: Sends a bet to <span class='code'>InstaDice</span></li>
+											</ul>
+										</div>
+										<div class="title tipLeft">Player 1</div>
 										<button class="btn-bid">Bid</button>
 										<button class="btn-roll">Roll</button>
 										<div class="status"></div>
 									</div>
 									<div class="player-two">
-										<div class="title">Player 2</div>
+										<div class="demo-tip">
+											Players are PennyEther's source of revenue. Their bids and rolls trickle up the system to the <span class='code'>Treasury</span>, then to the <span class='code'>Token</span>.
+											<ul>
+												<li><b>Bid</b>: Sends a bid to the current <span class='code'>Penny Auction</span></li>
+												<li><b>Roll</b>: Sends a bet to <span class='code'>InstaDice</span></li>
+											</ul>
+										</div>
+										<div class="title tipLeft">Player 2</div>
 										<button class="btn-bid">Bid</button>
 										<button class="btn-roll">Roll</button>
 										<div class="status"></div>
 									</div>
 									<div class="player-three">
-										<div class="title">Player 3</div>
+										<div class="demo-tip">
+											Players are PennyEther's source of revenue. Their bids and rolls trickle up the system to the <span class='code'>Treasury</span>, then to the <span class='code'>Token</span>.
+											<ul>
+												<li><b>Bid</b>: Sends a bid to the current <span class='code'>Penny Auction</span></li>
+												<li><b>Roll</b>: Sends a bet to <span class='code'>InstaDice</span></li>
+											</ul>
+										</div>
+										<div class="title tipLeft">Player 3</div>
 										<button class="btn-bid">Bid</button>
 										<button class="btn-roll">Roll</button>
 										<div class="status"></div>
@@ -1436,6 +1512,20 @@
 										<li>Innovative testing library</li>
 										<li>Easy to add new games, or upgrade old ones</li>
 									</ul>
+								</p>
+								
+								<h3>The Registry Contract</h3>
+								<p>
+									The CrowdSale, and all of the above contracts (excluding <span class="code">MainController</span>) are hard-coded, and cannot be altered or redeployed. All other contracts can easily be upgraded or added via the <span class="code">Registry</span>. 
+								</p>
+								<p>
+									This contract contains <span class="code">name=>address</span> mappings. Upgrading a contract is as simple as deploying the new version, and changing the mapping to point to the new address. All existing contracts will immediately start using the new mapping. This architecture ensures that contracts can be upgraded, and new contracts can be deployed very easily.
+								</p>
+								<p>
+									For example, adding a new game is simple. We would add a mapping for it in the Registry, and upgrade <a href="github.com" target="_blank"><span class="code">MainController</span></a> to interact with this contract.
+								</p>
+								<p>
+									Using a <span class="code">Registry</span> is also simpler than other methods. There are no delegate calls, and there's no need to manage contract memory indexes. This comes at a cost -- it's more difficult to migrate existing contact data. To alleviate this concern, all upgradable contracts contain little to no state, and their state is superficial in that it does not effect the core operation of Penny Ether.
 								</p>
 							</div>
 						</div>
