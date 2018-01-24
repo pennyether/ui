@@ -106,30 +106,36 @@ Loader.promise.then(()=>{
 			// calculate how many tokens can be burned
 			var thTokenBurn = thState.tokens;
 			var thEthGain = thTokenBurn.div(2);
+			var burnedAll = true;
 			if (trState.balance.lt(thEthGain)) {
 				thTokenBurn = trState.balance.mul(2);
 				thEthGain = trState.balance;
-				$th.find(".status").text(`Could only burn ${thTokenBurn} tokens.`);
-			} else {
-				$th.find(".status").text(`Got ${thEthGain} ETH`);
+				burnedAll = false;
 			}
 
 			// update state of tokenHolder, treasury, token, and tokenLocker
 			_sendEth(_$treasury, $th).then(()=>{
 				const tlBurn = thTokenBurn.div(9);
 				const totalBurn = thTokenBurn.plus(tlBurn);
-				thState.tokens = ZERO;
-				trState.bankroll = trState.bankroll.minus(thEthGain.mul(-1));
-				trState.balance = trState.balance.minus(thEthGain.mul(-1))
+				thState.tokens = thState.tokens.minus(thTokenBurn);
+				trState.bankroll = trState.bankroll.minus(thEthGain);
+				trState.balance = trState.balance.minus(thEthGain)
 				tokenState.supply = tokenState.supply.minus(totalBurn);
 				tlState.tokens = tlState.tokens.minus(tlBurn);
-				_$treasury.find(".status").text(`Sent ${thEthGain.toFixed(1)} Eth to user for burning tokens.`);
+				_$treasury.find(".status").text(`Sent ${thEthGain.toFixed(1)} Eth to user for burning tokens. Bankroll reduced.`);
 
 				// update all token holder's pcts and status
 				_tokenHolders.forEach(($e)=>{
 					$e.data("state").tPct = $e.data("state").tokens.div(tokenState.supply).mul(100);
-					$e.find(".status").text(`Ownership Increased`);
+					if ($e.data("state").tokens.gt(0)){
+						$e.find(".status").text(`Ownership Increased`);
+					}
 				});
+				$th.find(".status").text(`Got ${thEthGain} ETH.`);
+				if (!burnedAll){
+					_$treasury.find(".status").append(` No balance remaining!`).addClass("error");
+					$th.find(".status").append(" Could not burn all tokens.").addClass("error");
+				}
 				_$tokenLocker.find(".status").text(`Burned tokens to stay at 10%`);
 					
 				refresh();
@@ -199,6 +205,11 @@ Loader.promise.then(()=>{
 
 			const trState = _$treasury.data("state");
 			const prizeAmt = paState.prize;
+			if (paState.bidFees.gt(0)) {
+				_$mainController.find(".status").text(`Collect bidFees first.`).addClass("error");
+				refresh();
+				return;
+			}
 			if (trState.dlUsed.plus(prizeAmt).gt(trState.dl)){
 				_$treasury.find(".status").text(`Funding would exceed Daily Limit. (Skip to next day)`)
 					.addClass("error");
@@ -216,21 +227,22 @@ Loader.promise.then(()=>{
 				return;
 			}
 
-			_sendEth(_$pennyAuction, paState.winner);
-			_sendEth(_$treasury, _$pennyAuction).then(()=>{
-				trState.balance = trState.balance.minus(prizeAmt);
-				trState.dlUsed = trState.dlUsed.plus(prizeAmt);
-				paState.state = "started";
-				paState.bidFees = ZERO;
-				paState.winner.find(".status").text(`Sent ${paState.prize} Eth prize.`);
-				paState.winner = $("");
-				_$pennyAuction.removeClass("ended");
-				_$pennyAuction.find(".title").text("Penny Auction (started)");
-				_$pennyAuction.find(".status").text("Started");
-				_$mainController.find(".status").text(`Started Penny Auction.`)
-				_$treasury.find(".status").text(`Funded MainController ${prizeAmt} Eth for a Penny Auction.`);
-				refresh();
-			});
+			_sendEth(_$pennyAuction, paState.winner)
+				.then(()=>{ return _sendEth(_$treasury, _$pennyAuction); })
+				.then(()=>{
+					trState.balance = trState.balance.minus(prizeAmt);
+					trState.dlUsed = trState.dlUsed.plus(prizeAmt);
+					paState.state = "started";
+					paState.bidFees = ZERO;
+					paState.winner.find(".status").text(`Sent ${paState.prize} Eth prize.`);
+					paState.winner = $("");
+					_$pennyAuction.removeClass("ended");
+					_$pennyAuction.find(".title").text("Penny Auction (started)");
+					_$pennyAuction.find(".status").text("Started");
+					_$mainController.find(".status").text(`Started Penny Auction.`)
+					_$treasury.find(".status").text(`Funded MainController ${prizeAmt} Eth for a Penny Auction.`);
+					refresh();
+				});
 		}
 
 		// Send ETH from PennyAuction to Treasury
@@ -240,11 +252,6 @@ Loader.promise.then(()=>{
 
 			const paState = _$pennyAuction.data("state");
 			const bidFees = paState.bidFees;
-			if (paState.state == "ended") {
-				_$mainController.find(".status").text("Penny Auction has not started.");
-				refresh();
-				return;
-			}
 			if (!bidFees.gt(0)) {
 				_$mainController.find(".status").text("Penny Auction has no bidFees to collect.")
 					.addClass("error");
@@ -252,7 +259,7 @@ Loader.promise.then(()=>{
 				return;
 			}
 
-			_sendEth(_$pennyAuction, _$treasury).then(()=>{
+			return _sendEth(_$pennyAuction, _$treasury).then(()=>{
 				const trState = _$treasury.data("state");
 				trState.balance = trState.balance.plus(bidFees);
 				paState.bidFees = paState.bidFees.minus(bidFees);
@@ -357,7 +364,7 @@ Loader.promise.then(()=>{
 
 			const paState = _$pennyAuction.data("state");
 			if (paState.state == "ended") {
-				$player.find(".status").text("Auction is not started.").addClass("error");
+				$player.find(".status").text("Auction not started.").addClass("error");
 				refresh();
 				return;
 			}
@@ -421,7 +428,8 @@ Loader.promise.then(()=>{
 						left: -100,
 						background: "rgba(215,255,255,.9)",
 						border: "1px solid #AAA",
-						borderRadius: "40px"
+						borderRadius: "40px",
+						boxShadow: "0px 0px 10px 0px rgba(0,0,255,.5)"
 					})
 					.appendTo(document.body);
 
@@ -437,7 +445,7 @@ Loader.promise.then(()=>{
 					const x = startX + pct*(stopX - startX);
 					const y = startY + pct*(stopY - startY);
 					$img.css({
-						opacity: pct < .5 ? pct*3 : (1-pct)*3,
+						opacity: pct < .5 ? pct*4 : (1-pct)*4,
 						left: Math.round(x),
 						top: Math.round(y)
 					});
@@ -477,13 +485,15 @@ Loader.promise.then(()=>{
 			});
 
 			_$e.find("button").removeClass("try");
+			if (_$pennyAuction.data("state").bidFees.gt(0)) {
+				_$mainController.find(".btn-pa-collect").addClass("try");
+			}
 			if (_$pennyAuction.data("state").state == "started") {
 				_$e.find(".btn-bid").addClass("try");
-				if (_$pennyAuction.data("state").bidFees.gt(0)) {
-					_$mainController.find(".btn-pa-collect").addClass("try");
-				}
 			} else {
-				_$mainController.find(".btn-restart-auction").addClass("try");
+				if (!_$pennyAuction.data("state").bidFees.gt(0)){
+					_$mainController.find(".btn-restart-auction").addClass("try");
+				}
 			}
 			if (_$instaDice.data("state").funded.gt(0)) {
 				_$e.find(".btn-roll").addClass("try");
