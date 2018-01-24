@@ -142,7 +142,7 @@ Loader.onPageLoad.then(()=>{
 
 				// update all token holder's pcts and status
 				_tokenHolders.forEach(($e)=>{
-					$e.data("state").tPct = $e.data("state").tokens.div(tokenState.supply).mul(100);
+					$e.data("state").tPct = $e.data("state").tokens.div(tokenState.supply).mul(100).round().toString();
 					if ($e.data("state").tokens.gt(0)){
 						$e.find(".status").text(`Ownership Increased`);
 					}

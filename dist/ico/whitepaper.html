@@ -1148,7 +1148,6 @@
 								position: relative;
 								width: 700px;
 								height: 450px;
-								background: #FAFAFA;
 							}
 							#demo > div {
 								position: absolute;
@@ -1198,6 +1197,11 @@
 								#demo > div > .status.error {
 									background: #FF8888;
 								}
+								#demo .value {
+									color: gray;
+									padding: 0px 2px;
+									font-family: courier;
+								}
 								#demo button.try {
 									background: #88FF88;
 								}
@@ -1205,9 +1209,9 @@
 									cursor: pointer;
 									margin-top: 2px;
 								}
-							#demo div.changed {
+							#demo .changed {
 								border-radius: 3px;
-								background: rgba(0,0,200,.3);
+								background: rgba(0,0,200,.15);
 								transition: background .5s;
 							}
 							#demo .token {
@@ -1216,46 +1220,46 @@
 								width: 260px;
 								height: 100px;
 							}
-							#demo .treasury {
-								top: 10px;
-								left: 320px;
-								width: 350px;
-								height: 100px;
-							}
 							#demo .token-holder-one {
 								top: 130px;
 								left: 10px;
-								height: 145px;
-								width: 120px;
+								height: 150px;
+								width: 125px;
 							}
 							#demo .token-holder-two {
 								top: 130px;
-								left: 150px;
-								height: 145px;
-								width: 120px;
+								left: 145px;
+								height: 150px;
+								width: 125px;
 							}
 							#demo .token-holder-three {
-								top: 295px;
+								top: 290px;
 								left: 10px;
-								height: 145px;
-								width: 120px;
+								height: 150px;
+								width: 125px;
 							}
 							#demo .token-locker {
-								top: 295px;
-								left: 150px;
-								height: 145px;
-								width: 120px;
+								top: 290px;
+								left: 145px;
+								height: 150px;
+								width: 125px;
+							}
+							#demo .treasury {
+								top: 10px;
+								left: 310px;
+								width: 360px;
+								height: 100px;
 							}
 							#demo .main-controller {
 								top: 130px;
-								left: 320px;
-								width: 350px;
+								left: 310px;
+								width: 360px;
 								height: 100px;
 							}
 							#demo .penny-auction {
 								top: 250px;
-								left: 320px;
-								width: 165px;
+								left: 310px;
+								width: 170px;
 								height: 100px;
 							}
 								#demo .penny-auction.ended {
@@ -1263,8 +1267,8 @@
 								}
 							#demo .insta-dice {
 								top: 250px;
-								left: 505px;
-								width: 165px;
+								left: 500px;
+								width: 170px;
 								height: 100px;
 							}
 								#demo .insta-dice.unfunded {
@@ -1272,26 +1276,28 @@
 								}
 							#demo .player-one {
 								top: 370px;
-								left: 320px;
-								width: 110px;
+								left: 310px;
+								width: 113px;
 								height: 70px;
 							}
 							#demo .player-two {
 								top: 370px;
-								left: 440px;
-								width: 110px;
+								left: 434px;
+								width: 113px;
 								height: 70px;
 							}
 							#demo .player-three {
 								top: 370px;
-								left: 560px;
-								width: 110px;
+								left: 556px;
+								width: 114px;
 								height: 70px;
 							}
 						</style>
 						<a id="interactive-demo"></a>
 						<div class="subsection">
-							<div class="head">Interactive Demo</div>
+							<div class="head">
+								Interactive Demo
+							</div>
 							<div class="body">
 								<div id="demo">
 									<div class="token">
@@ -1299,8 +1305,14 @@
 											The Token contract receives dividends from <span class='code'>Treasury</span> and allows Token Holders to collect their portion relative to their percent ownership at the time the dividend is received.
 										</div>
 										<div class="title tipLeft">Token</div>
-										<div>Dividends Received: <span class="divs"></span> Eth</div>
-										<div>Total Supply: <span class="supply"></span> Tokens</div>
+										<div>
+											Dividends Received:
+											<span class="value"><span class="divs"></span> Eth</span>
+										</div>
+										<div>
+											Total Supply:
+											<span class="value"><span class="supply"></span> Tokens</span>
+										</div>
 										<div class="status"></div>
 									</div>
 									<div class="token-holder-one">
@@ -1312,9 +1324,18 @@
 											</ul>
 										</div>
 										<div class="title tipLeft">Token Holder 1</div>
-										<div>Tokens: <span class="tokens"></span> (<span class="tPct"></span>%)</div>
-										<div>Owed: <span class="owed"></span> Eth</div>
-										<div>Collected: <span class="collected"></span> Eth</div>
+										<div>
+											Tokens:
+											<span class="value"><span><span class="tokens"></span></span> <span>(<span class="tPct"></span>%)</span></span>
+										</div>
+										<div>
+											Owed:
+											<span class="value"><span class="owed"></span> Eth</span>
+										</div>
+										<div>
+											Collected:
+											<span class="value"><span class="collected"></span> Eth</span>
+										</div>
 										<br>
 										<button class="btn-collect-divs">Collect Dividends</button><br>
 										<button class="btn-burn">Burn Tokens</button>
@@ -1329,9 +1350,18 @@
 											</ul>
 										</div>
 										<div class="title tipLeft">Token Holder 2</div>
-										<div>Tokens: <span class="tokens"></span> (<span class="tPct"></span>%)</div>
-										<div>Owed: <span class="owed"></span> Eth</div>
-										<div>Collected: <span class="collected"></span> Eth</div>
+										<div>
+											Tokens:
+											<span class="value"><span><span class="tokens"></span></span> <span>(<span class="tPct"></span>%)</span></span>
+										</div>
+										<div>
+											Owed:
+											<span class="value"><span class="owed"></span> Eth</span>
+										</div>
+										<div>
+											Collected:
+											<span class="value"><span class="collected"></span> Eth</span>
+										</div>
 										<br>
 										<button class="btn-collect-divs">Collect Dividends</button><br>
 										<button class="btn-burn">Burn Tokens</button>
@@ -1346,9 +1376,18 @@
 											</ul>
 										</div>
 										<div class="title tipLeft">Token Holder 3</div>
-										<div>Tokens: <span class="tokens"></span> (<span class="tPct"></span>%)</div>
-										<div>Owed: <span class="owed"></span> Eth</div>
-										<div>Collected: <span class="collected"></span> Eth</div>
+										<div>
+											Tokens:
+											<span class="value"><span><span class="tokens"></span></span> <span>(<span class="tPct"></span>%)</span></span>
+										</div>
+										<div>
+											Owed:
+											<span class="value"><span class="owed"></span> Eth</span>
+										</div>
+										<div>
+											Collected:
+											<span class="value"><span class="collected"></span> Eth</span>
+										</div>
 										<br>
 										<button class="btn-collect-divs">Collect Dividends</button><br>
 										<button class="btn-burn">Burn Tokens</button>
@@ -1357,11 +1396,22 @@
 									<div class="token-locker">
 										<div class="demo-tip">
 											The Token Locker always holds 10% of tokens. The tokens cannot be transferred or burned. The dividends are collectable by the PennyEther team.
+											<br><br>
+											When other Token Holders burn their tokens, Tokens are automatically burnt to maintain 10% ownership.
 										</div>
 										<div class="title tipLeft">Token Locker</div>
-										<div>Tokens: <span class="tokens"></span> (<span class="tPct"></span>%)</div>
-										<div>Owed: <span class="owed"></span> Eth</div>
-										<div>Collected: <span class="collected"></span> Eth</div>
+										<div>
+											Tokens:
+											<span class="value"><span><span class="tokens"></span></span> <span>(<span class="tPct"></span>%)</span></span>
+										</div>
+										<div>
+											Owed:
+											<span class="value"><span class="owed"></span> Eth</span>
+										</div>
+										<div>
+											Collected:
+											<span class="value"><span class="collected"></span> Eth</span>
+										</div>
 										<br>
 										<button class="btn-collect-divs">Collect Dividends</button>
 										<div class="status"></div>
@@ -1379,13 +1429,25 @@
 										<table width="100%">
 										<tr>
 											<td width="50%">
-												<div>Balance: <span class="balance"></span> Eth</div>
-												<div>Bankroll: <span class="bankroll"></span> Eth</div>
+												<div>
+													Balance:
+													<span class="value"><span class="balance"></span> Eth</span>
+												</div>
+												<div>
+													Bankroll:
+													<span class="value"><span class="bankroll"></span> Eth</span>
+												</div>
 												<button class="btn-send-div">Task: Send Dividend</button>
 											</td>
 											<td width="50%">
-												<div>Daily Limit: <span class="dl"></span> Eth</div>
-												<div>Daily Limit Used: <span class="dlUsed"></span> Eth</div>
+												<div>
+													Daily Limit:
+													<span class="value"><span class="dl"></span> Eth</span>
+												</div>
+												<div>
+													Daily Limit Used:
+													<span class="value"><span class="dlUsed"></span> Eth</span>
+												</div>
 												<button class="btn-ff">Skip to Next Day</button>
 											</td>
 										</tr>
@@ -1426,9 +1488,15 @@
 												<li><b>End Auction</b>: Simulates the auction ending. In practice, this occurs when nobody bids for a certain number of blocks.</li>
 											</ul>
 										</div>
-										<div class="title tipLeft">Penny Auction (unstarted)</div>
-										<div>Prize: <span class="prize"></span> Eth</div>
-										<div>Bid Fees: <span class="bidFees"></span> Eth</div>
+										<div class="title tipLeft">Penny Auction (ended)</div>
+										<div>
+											Prize:
+											<span class="value"><span class="prize"></span> Eth</span>
+										</div>
+										<div>
+											Bid Fees:
+											<span class="value"><span class="bidFees"></span> Eth</span>
+										</div>
 										<button class="btn-end-auction">End Auction</button>
 										<div class="status"></div>
 									</div>
@@ -1437,8 +1505,14 @@
 											InstaDice uses its bankroll of <span class='code'>Funded</span> to stake bets on random numbers. In this demo, it has a 10% edge.
 										</div>
 										<div class="title tipLeft">InstaDice</div>
-										<div>Balance: <span class="balance"></span> Eth</div>
-										<div>Funded: <span class="funded"></span> Eth</div>
+										<div>
+											Balance:
+											<span class="value"><span class="balance"></span> Eth</span>
+										</div>
+										<div>
+											Funded: 
+											<span class="value"><span class="funded"></span> Eth</span>
+										</div>
 										<div class="status"></div>
 									</div>
 									<div class="player-one">
@@ -1480,6 +1554,9 @@
 										<button class="btn-roll">Roll</button>
 										<div class="status"></div>
 									</div>
+									<div class="notes">
+										Test 123
+									</div>
 								</div>
 							</div>
 						</div>
@@ -1513,7 +1590,7 @@
 										<li>Easy to add new games, or upgrade old ones</li>
 									</ul>
 								</p>
-								
+
 								<h3>The Registry Contract</h3>
 								<p>
 									The CrowdSale, and all of the above contracts (excluding <span class="code">MainController</span>) are hard-coded, and cannot be altered or redeployed. All other contracts can easily be upgraded or added via the <span class="code">Registry</span>. 
