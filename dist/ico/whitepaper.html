@@ -4,6 +4,11 @@
 		<script src="/javascripts/lib/Loader.js"></script>
 		<script src="/javascripts/ico/whitepaper.js"></script>
 		<style>
+			.NavBar {
+				font-size: 90%;
+				color: #444;
+				text-shadow: 1px 1px 0px rgba(255, 255, 255, .4);
+			}
 			.toc {
 				font-size: 85%;
 				position: fixed;
@@ -36,6 +41,7 @@
 					}
 					.toc .item.on .head {
 						font-weight: bold;
+						text-shadow: 1px 1px 0px rgba(255, 255, 255, .4);
 						background: #CCC;
 						transition: background .2s;
 					}
@@ -52,6 +58,7 @@
 					.toc .item.on .subitem.on {
 						font-weight: bold;
 						color: black;
+						text-shadow: 1px 1px 0px rgba(255, 255, 255, .4);
 					}
 					.toc .item.on .subitem.on:before {
 						position: absolute;
@@ -145,7 +152,7 @@
 					const $anchor = $($item.data("anchor"));
 					if (!$anchor.length) continue;
 
-					if ($anchor[0].getBoundingClientRect().top <= innerHeight/2) {
+					if ($anchor[0].getBoundingClientRect().top <= 100) {
 						$item.addClass("on");
 						break;
 					}
@@ -418,7 +425,6 @@
 			<div class="content">
 				<div class="section">
 					<div class="body">
-
 						<a id="pennyether-introduction"></a>
 						<div class="subsection">
 							<div class="head">Introduction</div>
@@ -581,7 +587,7 @@
 									</p>
 								</p>
 
-								<h3>The Worst Case</h3>
+								<h4>The Worst Case</h4>
 								<p>
 									Lastly, we'd like you to consider the worst-case scenario: that our team is, in fact, purely evil. The worst we could possibly do is shut down the website and the games. PennyEther would stop earning revenue. <b>There is nothing we could do to prevent you from getting a 50% refund.</b>
 								</p>
@@ -1366,6 +1372,7 @@
 									text-align: center;
 									border-top: 1px dotted #CCC;
 									background: #FAFAFA;
+									transition: background .3s;
 								}
 								#demo .try {
 									color: white;
@@ -1382,6 +1389,7 @@
 								#demo button {
 									cursor: pointer;
 									margin-top: 2px;
+									transition: background .4s;
 								}
 							#demo .changed {
 								border-radius: 3px;
@@ -1435,6 +1443,7 @@
 								left: 310px;
 								width: 170px;
 								height: 100px;
+								transition: opacity .5s;
 							}
 								#demo .penny-auction.ended {
 									opacity: .4;
@@ -1444,6 +1453,7 @@
 								left: 500px;
 								width: 170px;
 								height: 100px;
+								transition: opacity .5s;
 							}
 								#demo .insta-dice.unfunded {
 									opacity: .4;

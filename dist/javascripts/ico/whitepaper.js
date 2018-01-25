@@ -543,4 +543,44 @@ Loader.onPageLoad.then(()=>{
 		_reset();
 	};
 	window.demo = new Demo();
+
+
+	function NavBar(selectors) {
+		const _selectors = [".section > .head", ".subsection > .head", "h3", "h4"];
+		const _items = _selectors.map(s=>$(s));
+		const _$e = $(`
+			<div class='NavBar'>
+				test.
+			</div>
+		`).appendTo("#Breadcrumb").css({
+			display: "inline-block",
+			position: "relative",
+			left: 85,
+			zIndex: 10
+		});
+
+		// return the first item that is above the fold.
+		function getFirstAboveFold(elements) {
+			const top = window.pageYOffset;
+			const el = elements.reverse().find(el=>el.getBoundingClientRect().top < 130);
+			return el ? $(el) : null;
+		}
+
+		$(window).on("scroll", function(){
+			const $navItems = [];
+			_items
+				.map(cat => getFirstAboveFold(cat.toArray()))
+				.filter($el => !!$el)
+				.some(($el, i, arr) => {
+					if (!arr[i-1]) { $navItems.push($el); return; }
+					const prevTop = arr[i-1][0].getBoundingClientRect().top;
+					const curTop = $el[0].getBoundingClientRect().top;
+					if (curTop > prevTop) { $navItems.push($el); return; }
+					return true;
+				});
+			_$e.text($navItems.map($e=>$e.text()).join(" » "));
+
+		});
+	}
+	window.navBar = new NavBar();
 });
