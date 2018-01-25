@@ -1688,34 +1688,65 @@
 							<div class="head">Scalability</div>
 							<div class="body">
 								<p>
-									Our architecture makes it easy to add new games.
-									<ul>
-										<li>Testing framework</li>
+									Our architecture makes it easy to add new games:
+									<ol>
 										<li>
-											Easy to add to UI, shared components:
-											<ul>
-												<li>EthStatus</li>
-												<li>Gas Price Slider</li>
-												<li>EthUtil</li>
-												<li>MetaMask compatible event system</li>
-												<li>TxBar showing estimated block time</li>
-											</ul>
+											<b>Code the Contract</b>: Coding the contract in Solidity is a fairly simple process, once you're used to Solidity. InstaDice took only a few days of coding, for example.
 										</li>
-										<li>Registry makes it easy to deploy</li>
-										<li>Core components securely accomodate additional games</li>
-									</ul>
-								</p>
-								<p>
-									<ul>
-										<li>Link to github</li>
-										<li>Innovative testing library</li>
-										<li>Easy to add new games, or upgrade old ones</li>
-									</ul>
+										<li>
+											<b>Test the Contract</b>: Testing is much more complicated. We've created a testing framework that makes writing tests a lot easier and more thorough. It also outputs test results in a human friendly manner. Tests, test results, and documentation on the testing framework can be found on <a href="github.com">our github</a>.
+										</li>
+										<li>
+											<b>Upgrade <span class='code'>MainController</span></b>: If the new game requires any <span class='code'>Tasks</span> to be run to keep it autonomous, or if it requires funding from <span class='code'>Treasury</span>, this logic must be added to <span class='code'>MainController</span>.
+										</li>
+										<li>
+											<b>Create UI</b>: This is perhaps the most time consuming process. We've created some <a href="#application-ui-tools">UI Tools</a> that makes this a lot easier, but coding the game-specific logic and asynchronous transaction workflows is a tedious process.
+										</li>
+										<li>
+											<b>Deploy</b>: It's simple to deploy the new game's contract. It's also easy to upgrade <span class='code'>MainController</span>. Thanks to <span class='code'>Registry</span>, and because <span class='code'>MainController</span> has no state, it's very easy to deploy the new version.
+										</li>
+									</ol>
 								</p>
 
+								<a id="application-ui-tools"></a>
+								<h3>Tools</h3>
+								<p>
+									We've created some very useful UI Tools (<a href="github.com">more info here</a>) that make it a lot easier to develop web3 webpages, and will speed up the process of creating new game UIs.
+									<ul>
+										<li>
+											EthUtil and EthStatus: Tells the UI if the user has web3 enabled, what their account is, which network they're on, when there's a new block, etc.
+										</li>
+										<li>
+											NiceWeb3: A web3-compatible wrapper that promisifies all transaction calls, exposes a lot of useful methods, and is compatible with MetaMask.
+										</li>
+										<li>
+											UI Components: We've created some reusable UI components that are applicable to any new game added (and, realistically, any dApp).
+											<ul>
+												<li>
+													LogViewer: Scans the blockchain history efficiently to display a list of events related to a particular contract or contracts.
+												</li>
+												<li>
+													GasPriceSlider: Pulls realtime gas price data from <a href="ethgasstation.info">Eth Gas Station</a> and shows a slider so that the user can easily select a gas price.
+												</li>
+												<li>
+													TxLoadingBar: Shows a loading bar that approximates how long a transaction will take.
+												</li>
+											</ul>
+										</li>
+									</ul>
+
+									<p>
+										On the Smart Contract side, we've made it easy to create, test, and deploy new games.
+									</p>
+									<ul>
+										<li><a href="github.com">Testing framework</a>: Makes writing, running, and reading tests a lot easier.</li>
+										<li>Registry (see below): makes it easy to deploy and upgrade contracts.</li>
+										<li>Core components: Ensure the financial security of PennyEther. No new game could ever cost PennyEther anything more than the <span class='code'>Daily Funding Limit</span> per day.</li>
+									</ul>
+								</p>
 								<h3>The Registry Contract</h3>
 								<p>
-									The CrowdSale, and all of the above contracts (excluding <span class="code">MainController</span>) are hard-coded, and cannot be altered or redeployed. All other contracts can easily be upgraded or added via the <span class="code">Registry</span>. 
+									The <span class='code'>CrowdSale</span>, <span class='code'>Treasury</span>, <span class='code'>Token</span>, and <span class='code'>TokenLocker</span> are all hard-coded, and cannot be altered or redeployed. <i>All other contracts can easily be upgraded or added via the <span class="code">Registry</span></i>. 
 								</p>
 								<p>
 									This contract contains <span class="code">name=>address</span> mappings. Upgrading a contract is as simple as deploying the new version, and changing the mapping to point to the new address. All existing contracts will immediately start using the new mapping. This architecture ensures that contracts can be upgraded, and new contracts can be deployed very easily.
@@ -1737,7 +1768,25 @@
 					<div class="head">Security</div>
 					<div class="body">
 						<p>
-							This section goes over some security features PennyEther has in place to ensure everything runs as expected.
+							This section goes over some security features PennyEther has in place to ensure everything runs as expected. Please be sure you've read and understand <a href="#application-core">the Core Application</a>.
+						</p>
+						<div class="note">
+							For this topic covered in full detail, please see our <a href="">technical documentation</a>.
+						</div>
+						<p>
+							<br>
+							Some key takeaways:
+							<ul>
+								<li>
+									The worst case scenario (owners turning evil) would result in <span class="code">Treasury</span> no longer receiving revenue, and <span class="code">Treasury</span> losing <span class="code">Daily Funding Limit</span> per day. <b>Token Holders will still be able to get half of their investment back.</b>
+								</li>
+								<li>
+									The compromising of any account is reversible, and at worst causes the loss of <span class="code">Daily Funding Limit</span> per day until the changes are reverted. The one exception is the <span class="code">Owner</span> acount, which is an air-gapped cold wallet that has never been used.
+								</li>
+								<li>
+									Since the reward for compromising an account is so low (only <span class="code">Daily Funding Limit</span> per day), and because we are anonymous, we believe the PennyEther team will not be a substantial target. Regardless, the <span class="code">Supervisor</span> and <span class="code">Owner</span> keys are both air-gapped, cold-storage, never-used wallets.
+								</li>
+							</ul>
 						</p>
 
 						<a id="security-scenarios"></a>
@@ -1745,9 +1794,62 @@
 							<div class="head">Scenarios</div>
 							<div class="body">
 								<p>
-									For this topic covered in detail, please see our <a href="">github page</a>.
-									<br><br>
-									TL:DR; the worst case scenario (owners turn evil) would result in all Token Holders being able to get half of their investment back. All other cases will cause PennyEther to temporarily lose <span class="code">dailyFundLimit</span> per day, until the issue is resolved.
+									<br>
+									There are a few roles that participate in and manage PennyEther:
+									<ul>
+										<li>
+											<b><span class='code'>Anybody</span></b>: Can participate in games, and can run <span class='code'>Tasks</span> for rewards.
+											<ul>
+												<li>
+													<span class='code'>Anybody</span> can, at worst, play PennyEther games with the intent of bankrupting the house. We say, have at it!
+												</li>
+											</ul>
+										</li>
+										<li>
+											<b><span class='code'>Admin</span></b>: Can alter minor configurations in the system, within strict limits. For example, <span class='code'>Admin</span> can change <span class='code'>Task</span> reward amounts, and can change <span class='code'>Penny Auction</span> game parameters.
+											<ul>
+												<li>
+													The <span class='code'>Admin</span> can, at worst, cause cause <span class='code'>Tasks</span> to pay high rewards (limited to <span class='code'>Daily Funding Limit</span>).
+												</li>
+												<li>
+													All changes are reversible by <span class='code'>Custodian</span>, <span class='code'>Supervisor</span>, and <span class='code'>Owner</span>.
+												</li>
+											</ul>
+										</li>
+										<li>
+											<b><span class='code'>Custodian</span></b>: Acts on behalf of the owners, can change the <span class='code'>Admin</span> account, and can deploy or upgrade non-core contracts (<span class='code'>MainController</span>, and all games).
+											<ul>
+												<li>
+													The <span class='code'>Custodian</span> can, at worst, cause all revenues to cease, and for PennyEther to lose <span class='code'>Daily Funding Limit</span> per day.
+												</li>
+												<li>
+													All changes are reversible by <span class='code'>Supervisor</span>, and <span class='code'>Owner</span>.
+												</li>
+											</ul>
+										</li>
+										<li>
+											<b><span class='code'>Supervisor</span></b>: A cold wallet that can change who the <span class='code'>Custodian</span> is, should they no longer be trust-worthy.
+											<ul>
+												<li>
+													The <span class='code'>Supervisor</span> can, at worst, cause all revenues to cease, and for PennyEther to lose <span class='code'>Daily Funding Limit</span> per day.
+												</li>
+												<li>
+													All changes are reversible by <span class='code'>Owner</span>.
+												</li>
+											</ul>
+										</li>
+										<li>
+											<b><span class='code'>Owner</span></b>: A very cold wallet, ideally never used, that can change who the <span class='code'>Supervisor</span> is.
+											<ul>
+												<li>
+													The <span class='code'>Owner</span> can, at worst, cause all revenues to cease, and for PennyEther to lose <span class='code'>Daily Funding Limit</span> per day.
+												</li>
+												<li>
+													Changes are not reversible.
+												</li>
+											</ul>
+										</li>
+									</ul>
 								</p>
 							</div>
 						</div>
@@ -1756,13 +1858,76 @@
 						<div class="subsection">
 							<div class="head">Autonomy</div>
 							<div class="body">
-								PennyEther was coded to run on its own, with little need for interaction by admins or owners.
-								<ul>
-									<li>Profits can be sent by anyone</li>
-									<li>Penny Auctions can be started/completed by anyone</li>
-									<li>Admin can only modify a few things</li>
-									<li>Rewards ensure the system is incentivized to keep running</li>
-								</ul>
+								<p>
+									Part of <a href="#mission">our mission</a> is to create a blockchain application that is as autonomous as possible. To us, that means that the application can be entirely run strictly by Token Holders in some sort of democratic fashion. It also means that there should be no case where the application relies on the owners or admins to take actions or execute functions.
+								</p>
+								<p>
+									While we haven't <a href="#security-autonomy-future">yet</a> achieved the former (DAO'ifying everything), we <i>have</i> achieved the latter:
+									<ul>
+										<li>
+											All games run and manage themselves, and can only be tweaked by <span class="code">Admin</span> to boost profitibility.
+										</li>
+										<li>
+											<span class="code">Tasks</span> reward users for calling functions that keep PennyEther running.
+										</li>
+										<li>
+											All contracts were coded with amortization in mind. There is no contract function that ever loops over an unbounded array. For example, no matter how many Token Holders there are, or how many games there are, collecting revenues and dispursing profits will always be a fixed gas cost.
+										</li>
+									</ul>
+								</p>
+
+								<a href="#security-autonomy-tasks"></a>
+								<h3>Tasks</h3>
+								<p>
+									There are times when certain functions need to be called to keep PennyEther running as expected. Some examples are:
+									<ul>
+										<li>
+											When the <span class="code">Treasury</span> has a large enough balance to pay dividends, a function must be called that causes it to send profits to the <span class="code">Token</span>. Otherwise, dividends are never issued.
+										</li>
+										<li>
+											When a Penny Auction completes, another one should be started in its place. Otherwise, no new auctions are created, and no revenue is generated.
+										</li>
+									</ul>
+								</p>
+								<p>
+									To pretty much guarantee that both of the above functions are called, we've financially incentivized them through what we call <span class="code">Tasks</span>:
+									<ul>
+										<li>
+											Any contract function that keeps PennyEther running, or distributes prizes, revenues, or dividends should be callable by <span class="code">Anyone</span>
+										</li>
+										<li>
+											Moreover, since these functions require gas to execute, and provide value to PennyEther, users should be <i>rewarded</i> for calling them.
+										</li>
+									</ul>
+								</p>
+								<p>
+									Since <span class="code">Tasks</span> receive a financial reward, and are callable by anyone, PennyEther should keep running (as long as people want free Ether). To make sure everyone is aware of these <span class="code">Tasks</span>, we've created <a href="pennyether.com/tasks.html">a UI that shows all available <span class="code">Tasks</span> in detail</a>.
+								</p>
+
+								<a id="security-autonomy-future"></a>
+								<h3>Next Steps To Autonomy</h3>
+								<p>
+									In the future, we want to make PennyEther <b>fully autonomous</b> by replacing the <span class="code">Admin</span> and <span class="code">Owner</span> wallets with a Token-Staked DAO wallet instead. It would work as follows:
+									<ul>
+										<li>
+											Somebody (probably the PennyEther team) would deploy a new contract. For example, a new type of game.
+										</li>
+										<li>
+											We would start a vote, that when reaching some % approval by Token Holders, would cause that contract to be added to the PennyEther system.
+										</li>
+										<li>
+											Token Holders would stake their tokens into a vote. This would mean their tokens are non-transferrable until the voting period is over.
+										</li>
+										<li>
+											If approved by enough Token Holders, the contract would be deployed to the PennyEther system (already very easy, thanks to the <span class="code">Registry</span>).
+										</li>
+									</ul>
+								</p>
+								<p>
+									The above is technically feasible, and we very much look forward to implementing it (as it would mean we would not longer need to be anonymous). However, it's all a bit too complicated for the first cut, we'd like to have a community around PennyEther to trust and guide us, and there are many details to work out (such as how the UI would get upgraded, the % approval required, creating dividend-tokens within the DAO, etc).
+									<br><br>
+									That being said, <b>this is very much our "ideal" version of PennyEther, and we look forward to the day where it is <i>fully</i> decentralized and autonomous</b>.
+								</p>
 							</div>
 						</div>
 
