@@ -571,12 +571,11 @@ Loader.onPageLoad.then(()=>{
 			_items
 				.map(cat => getFirstAboveFold(cat.toArray()))
 				.filter($el => !!$el)
-				.some(($el, i, arr) => {
-					if (!arr[i-1]) { $navItems.push($el); return; }
-					const prevTop = arr[i-1][0].getBoundingClientRect().top;
+				.forEach(($el, i) => {
+					if (i==0) { $navItems.push($el); return; }
+					const prevTop = $navItems.slice(-1).pop()[0].getBoundingClientRect().top;
 					const curTop = $el[0].getBoundingClientRect().top;
-					if (curTop > prevTop) { $navItems.push($el); return; }
-					return true;
+					if (curTop > prevTop) { $navItems.push($el); }
 				});
 			_$e.text($navItems.map($e=>$e.text()).join(" » "));
 
