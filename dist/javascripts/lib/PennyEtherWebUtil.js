@@ -61,7 +61,7 @@
 				: name;
 			return niceWeb3.ethUtil.$getLink(shortName, tx || name, "tx");
 		}
-		this.$getLoadingBar = function(timeMs, speed) {
+		this.getLoadingBar = function(timeMs, speed) {
 			return new LoadingBar(timeMs, speed);
 		}
 
@@ -139,8 +139,17 @@
 		`);
 		const _$loaded = _$e.find(".loaded");
 		const _startTime = (+new Date());
-		const _speed = 1-speed;
+		const _speed = 1 - (speed || .75);
 		var _timeout;
+
+		_$e.attr("title", "This is an estimate of time remaining, based on the Gas Price.");
+		if (tippy) {
+			tippy(_$e[0], {
+				trigger: "mouseenter",
+				placement: "top",
+				animation: "fade"
+			});
+		}
 
 		function _update() {
 			const t = (+new Date()) - _startTime;
@@ -367,11 +376,13 @@
 	// A slider to help the user choose a gas price.
 	// When .refresh() is called:
 	//   - Pulls data from EthGasStatus, sets default to lowest cost for <=60 second mining.
-	// .getValue() returns the current value:
+	// .getValue() returns the current value (Number):
 	//		- defaultGWei (or 0)
 	//		- autochosen value if its been refreshed
 	//		- or value selected by user
-	// .getWaitTimeS() returns waitTime of value
+	// .getWaitTimeS() returns (Number):
+	//		- null if no value chosen
+	//		- otherwise a regular Number
 	function GasPriceSlider(defaultGWei, autoChoose){
 		const CHOOSEN_WAIT_TIME_S = 60;
 		if (autoChoose===undefined) autoChoose = true;
@@ -499,14 +510,7 @@
 		_$status.text("Waiting for signature...");
 		p.getTxHash.then(function(tId){
 			_txId = tId;
-			_loadingBar = _util.$getLoadingBar(_waitTimeMs, .75);
-			console.log("wait time:", _waitTimeMs);
-			_loadingBar.$e.attr("title", "This is an estimate of time remaining, based on your Gas Price.");
-			tippy(_loadingBar.$e[0], {
-				trigger: "mouseenter",
-				placement: "top",
-				animation: "fade"
-			});
+			_loadingBar = _util.getLoadingBar(_waitTimeMs);
 			_$status.empty()
 				.append(_util.$getTxLink(_miningMsg, _txId))
 				.append(_loadingBar.$e);

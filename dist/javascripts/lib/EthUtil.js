@@ -257,8 +257,9 @@
 				blockNum
 			]);
 		}
-		// returns average blocktime, weighted to be somewhat recent
-		// in case of difficulty bomb or other event
+		// returns average blocktime (in seconds)
+		//	 - avg of avg blocktime for last 100, 1000, and 5000 blocks.
+		//   - returns promise for a BigNumber() of seconds
 		this.getAverageBlockTime = function(){
 			return _self.getBlock("latest").then((block)=>{
 				const curBlockNum = block.number;

@@ -285,6 +285,7 @@
 			}
 			.roll.pending,
 			.roll.prepending {
+				text-align: center;
 				background-color: #DFD;
 				animation: rollPending 1.5s 0s infinite ease-in-out alternate;
 			}
@@ -719,6 +720,7 @@
 				<div class="pending">
 					Your wager is making its way to the blockchain.
 					<span class="pendingTxLink"></span>
+					<div class="loading" style="display: none;"></div>
 				</div>
 				<div class="failed">
 					The transaction failed: <span class="reason"></span>

@@ -565,13 +565,7 @@ Loader.require("pac")
 				txId = tId;
 				const $txLink = util.$getTxLink("Your prize is being sent...", txId);
 				_$statusCell.removeClass("prepending").addClass("pending");
-				loadingBar = util.$getLoadingBar(waitTimeMs, .75);
-				loadingBar.$e.attr("title", "This is an estimate of time remaining, based on the average blocktime.");
-				tippy(loadingBar.$e[0], {
-					trigger: "mouseenter",
-					placement: "top",
-					animation: "fade"
-				});
+				loadingBar = util.getLoadingBar(waitTimeMs);
 				_$txStatus.empty().append($txLink).append(loadingBar.$e);
 			});
 			p.then(function(res){
@@ -598,7 +592,7 @@ Loader.require("pac")
 					const $txLink = util.$getTxLink("Your tx failed.", txId);
 					_$txStatus.empty().append($txLink).append(`<br>${e.message.split("\n")[0]}`);
 				} else {
-					_$txStatus.text(`Error: ${e.message}`);	
+					_$txStatus.text(`Error: ${e.message.split("\n")[0]}`);	
 				}
 			});
 		}
@@ -616,7 +610,7 @@ Loader.require("pac")
 				ethStatus.open();
 				_$clearTxStatus.show();
 				_$statusCell.addClass("error");
-				_$txStatus.text(`Error: ${e.message}`);
+				_$txStatus.text(`Error: ${e.message.split("\n")[0]}`);
 				return;
 			}
 			var bidTxId;
@@ -632,13 +626,7 @@ Loader.require("pac")
 				bidTxId = txId;
 				const $txLink = util.$getTxLink("Your Bid is being mined.", bidTxId);
 				_$statusCell.removeClass("prepending").addClass("pending");
-				loadingBar = util.$getLoadingBar(waitTimeMs, .75);
-				loadingBar.$e.attr("title", "This is an estimate of time remaining, based on the average blocktime.");
-				tippy(loadingBar.$e[0], {
-					trigger: "mouseenter",
-					placement: "top",
-					animation: "fade"
-				});
+				loadingBar = util.getLoadingBar(waitTimeMs);
 				_$txStatus.empty().append($txLink).append(loadingBar.$e);
 			});
 
@@ -715,7 +703,7 @@ Loader.require("pac")
 					const $txLink = util.$getTxLink("Your Bid failed.", bidTxId);
 					_$txStatus.empty().append($txLink).append(`<br>${e.message.split("\n")[0]}`);
 				} else {
-					_$txStatus.text(`Error: ${e.message}`);	
+					_$txStatus.text(`Error: ${e.message.split("\n")[0]}`);	
 				}
 			});
 		}

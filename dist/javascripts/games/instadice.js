@@ -177,7 +177,7 @@ Loader.require("dice")
 
     // roll tip
     function _initRollButton(){
-    	const gps = util.getGasPriceSlider();
+    	const gps = util.getGasPriceSlider(5);
     	const $rollBtn = $("#RollButton");
     	const $rollTip = $("#RollTip").append(gps.$e);
 
@@ -209,6 +209,7 @@ Loader.require("dice")
 			$(this).blur();
 			try {
 				var rollPromise = dice.roll({_number: number}, {value: bet, gas: 147000, gasPrice: gps.getValue()});
+				rollPromise.waitTimeMs = (gps.getWaitTimeS() || 45) * 1000;
 			} catch(e) {
 				console.error(e);
 				ethStatus.open();
@@ -250,12 +251,14 @@ Loader.require("dice")
 		};
 		var $e = $getRoll(roll).prependTo(_$currentRollsCtnr);
 
+		const loadingBar = util.getLoadingBar(p.waitTimeMs);
 		p.getTxHash.then((txId)=>{
 			roll.state = "pending";
 			roll.txId = txId;
 			const $new = $getRoll(roll);
 			$e.replaceWith($new);
 			$e = $new;
+			$e.find(".loading").show().append(loadingBar.$e);
 		});
 		p.then((res)=>{
 			res.events.forEach((event)=>{
@@ -271,7 +274,7 @@ Loader.require("dice")
 		},(e)=>{
 			// (blockNumber, blockHash, txId, time)
 			roll.state = "failed"
-			roll.failReason = e.message;
+			roll.failReason = e.message.split("\n")[0];
 			if (e.receipt) {
 				roll.created = {
 					blockHash: e.receipt.blockHash,
@@ -581,7 +584,7 @@ Loader.require("dice")
 					$button.removeAttr("disabled");
 					$claimStatus.empty()
 						.append(`There was an error claiming: `)
-						.append(util.$getTxLink(e.message, claimTxId))
+						.append(util.$getTxLink(e.message.split("\n")[0], claimTxId))
 						.append("<br>You should retry with more gas, or contact support");
 				});
 			})
