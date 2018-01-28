@@ -596,7 +596,7 @@ Loader.require("pac")
 				_$statusCell.removeClass("prepending pending").addClass("error");
 				if (txId) {
 					const $txLink = util.$getTxLink("Your tx failed.", txId);
-					_$txStatus.empty().append($txLink).append(`<br>${e.message}`);
+					_$txStatus.empty().append($txLink).append(`<br>${e.message.split("\n")[0]}`);
 				} else {
 					_$txStatus.text(`Error: ${e.message}`);	
 				}
@@ -713,7 +713,7 @@ Loader.require("pac")
 				_$statusCell.removeClass("prepending pending").addClass("error");
 				if (bidTxId) {
 					const $txLink = util.$getTxLink("Your Bid failed.", bidTxId);
-					_$txStatus.empty().append($txLink).append(`<br>${e.message}`);
+					_$txStatus.empty().append($txLink).append(`<br>${e.message.split("\n")[0]}`);
 				} else {
 					_$txStatus.text(`Error: ${e.message}`);	
 				}
