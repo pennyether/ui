@@ -44,6 +44,10 @@
 			return new GasPriceSlider(defaultGWei, chooseInitialValue);
 		}
 
+		this.$getTxStatus = function(p, opts) {
+			return (new TxStatus(p, opts, _self)).$e;
+		}
+
 		this.$getShortAddrLink = function(addr) {
 			const addrStr = addr.slice(0, 6) + "..." + addr.slice(-4);
 			return _self.$getAddrLink(addrStr, addr);
@@ -363,7 +367,11 @@
 	// A slider to help the user choose a gas price.
 	// When .refresh() is called:
 	//   - Pulls data from EthGasStatus, sets default to lowest cost for <=60 second mining.
-	// .getValue() returns BigNumber of 0
+	// .getValue() returns the current value:
+	//		- defaultGWei (or 0)
+	//		- autochosen value if its been refreshed
+	//		- or value selected by user
+	// .getWaitTimeS() returns waitTime of value
 	function GasPriceSlider(defaultGWei, autoChoose){
 		const CHOOSEN_WAIT_TIME_S = 60;
 		if (autoChoose===undefined) autoChoose = true;
@@ -410,9 +418,8 @@
 					if (autoChoose && d.waitTimeS <= CHOOSEN_WAIT_TIME_S) auto = Math.min(auto, d.gasPrice);
 				});
 				if (auto!==Infinity) _value = auto;
-				_$slider.attr("min", min);
-				_$slider.attr("max", max);
-				_$slider.val(_value);
+				if (min < 1) { max = max + min; }
+				_$slider.attr("min", min).attr("max", max).val(_value);
 				if (_$slider.val() > max) _$slider.val(max);
 				if (_$slider.val() < min) _$slider.val(min);
 				_$loading.hide();
@@ -425,7 +432,12 @@
 		}
 
 		function _onSliderChanged() {
-			const val = _$slider.val();
+			var val = _$slider.val();
+			if (!_gasData[val]) {
+				val = Object.keys(_gasData).reduce((prev, cur)=>{
+					return Math.abs(cur - val) < Math.abs(prev - val) ? cur : prev;
+				});
+			}
 			const data = _gasData[val];
 			const blocks = data.waitBlocks;
 			const timeStr = util.toTime(Math.round(data.waitTimeS));
@@ -449,7 +461,75 @@
 		this.getWaitTimeS = function(){
 			return _waitTimeS;
 		};
+		this.enable = function(bool) {
+			if (bool) {
+				_$slider.removeAttr("disabled");
+				_$e.removeClass("disabled");
+			} else {
+				_$slider.attr("disabled","disabled");
+				_$e.addClass("disabled");
+			}
+		}
 		this.refresh = _refresh;
+		this.$e = _$e;
+	}
+
+	function TxStatus(p, opts, _util) {
+		if (!opts) opts = {};
+
+		const _$e = $(`
+			<div class='TxStatus'>
+				<div class='clear'>clear</div>
+				<div class='status'></div>
+			</div>
+		`);
+		const _$clear = _$e.find(".clear").hide();
+		const _$status = _$e.find(".status");
+
+		const _miningMsg = opts.miningMsg || "Your transaction is being mined...";
+		const _successMsg = opts.successMsg || "Your transaction was mined!";
+		const _waitTimeMs = opts.waitTimeMs || 15000;
+		var _txId;
+		var _loadingBar;
+
+		_$clear.click(function(){
+			_$e.remove();
+		});
+
+		_$status.text("Waiting for signature...");
+		p.getTxHash.then(function(tId){
+			_txId = tId;
+			_loadingBar = _util.$getLoadingBar(_waitTimeMs, .75);
+			console.log("wait time:", _waitTimeMs);
+			_loadingBar.$e.attr("title", "This is an estimate of time remaining, based on your Gas Price.");
+			tippy(_loadingBar.$e[0], {
+				trigger: "mouseenter",
+				placement: "top",
+				animation: "fade"
+			});
+			_$status.empty()
+				.append(_util.$getTxLink(_miningMsg, _txId))
+				.append(_loadingBar.$e);
+		});
+
+		p.then(function(res){
+			_$clear.show();
+			_loadingBar.finish(500).then(()=>{
+				_$status.empty().append(_util.$getTxLink(_successMsg, _txId));
+			});
+		}).catch((e)=>{
+			_$clear.show();
+			if (_txId) {
+				_loadingBar.finish(500).then(()=>{
+					_$status.empty()
+						.append(util.$getTxLink("Your tx failed.", _txId))
+						.append(`<br>${e.message}`);
+				});
+			} else {
+				_$status.text(`${e.message.split("\n")[0]}`);	
+			}
+		});
+
 		this.$e = _$e;
 	}
 	

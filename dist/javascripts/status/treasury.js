@@ -15,12 +15,12 @@ Loader.require("reg", "comp", "tr")
 	// })
 
 	refreshAll();
+	$("#Stats .refresh").click(refreshStats);
 
 	function refreshAll() {
 		refreshSettings();
 		refreshHealth();
 		refreshBalance();
-		//refreshStats();
 	}
 
 	function refreshSettings() {
@@ -96,12 +96,12 @@ Loader.require("reg", "comp", "tr")
 			if (balance.gt(divThreshold)) {
 				const amt = ethUtil.toEth(balance.minus(divThreshold));
 				$("#DivStatus")
-					.text(`☑ ${amt} ETH can currently be sent as dividends.`)
+					.text(`☑ ${amt.toFixed(5)} ETH can currently be sent as dividends.`)
 					.addClass("good");
 			} else {
 				const amt = ethUtil.toEth(divThreshold.minus(balance));
 				$("#DivStatus")
-					.text(`☐ ${amt} ETH more needed to distribute a dividend.`)
+					.text(`☐ ${amt.toFixed(5)} ETH needed to distribute a dividend.`)
 					.removeClass("good");
 			}
 		});
@@ -155,27 +155,43 @@ Loader.require("reg", "comp", "tr")
 		})
 	}
 
+	var _isLoadingStats = false;
 	function refreshStats() {
-		function log(msg) { $("#Stats .log").text(msg); }
+		if (_isLoadingStats) return;
 
+		function log(msg) {
+			if (!msg) return $("#Stats .log").hide();
+			$("#Stats .log").show().text(msg);
+		}
+
+		_isLoadingStats = true;
 		const SECS_PER_DAY = 60*60*24;
 		var now;
 		var blockNums = {};
 		ethUtil.getBlock("latest")
 			.then((block)=>{
 				now = block.timestamp;
-				log("Finding block from 30 days ago.");
+				log("Finding block from 30 days ago....");
 				return ethUtil.getBlockNumberAtTimestamp(now - 30*SECS_PER_DAY)
+			}).catch(e=>{
+				log(`Unable to find block of 30 days ago: ${e.message};`);
+				throw e;
 			})
 			.then((blockNum)=>{
 				blockNums[30] = blockNum;
-				log("Finding block from 90 days ago.");
+				log("Finding block from 90 days ago...");
 				return ethUtil.getBlockNumberAtTimestamp(now - 90*SECS_PER_DAY);
+			}).catch(e=>{
+				log(`Unable to find block of 90 days ago: ${e.message};`);
+				throw e;
 			})
 			.then((blockNum)=>{
 				blockNums[90] = blockNum;
-				log("Finding block from 180 days ago.");
+				log("Finding block from 180 days ago....");
 				return ethUtil.getBlockNumberAtTimestamp(now - 180*SECS_PER_DAY);
+			}).catch(e=>{
+				log(`Unable to find block of 180 days ago: ${e.message};`);
+				throw e;
 			})
 			.then((blockNum)=>{
 				blockNums[180] = blockNum;
@@ -222,8 +238,10 @@ Loader.require("reg", "comp", "tr")
 					var p = Promise.resolve();
 					Object.keys(blockNums).forEach((numDaysAgo)=>{
 						p = p.then(()=>{
-							log(`Loading all values from ${numDaysAgo}...`);
+							log(`Loading values from ${numDaysAgo} days ago...`);
 							return setAllValuesFromDaysAgo(numDaysAgo)
+						}).catch(e=>{
+							log(`Failed to get values from ${numDaysAgo}: ${e.message}`);
 						});
 					});
 					return p;
@@ -255,7 +273,10 @@ Loader.require("reg", "comp", "tr")
 						});
 					});
 				})
-			})
+			}).catch(e => {
+				_isLoadingStats = false;
+				throw e;
+			});
 	}
 
 	function FinanceBar() {

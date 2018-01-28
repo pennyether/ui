@@ -601,6 +601,9 @@ body {
 	display: inline-block;
 	max-width: 200px
 }
+.GasPriceSlider.disabled {
+	opacity: .4;
+}
 .GasPriceSlider .head {
 	text-shadow: 1px 1px 1px rgba(0,0,0,.1);
 	text-align: center;
@@ -628,6 +631,35 @@ body {
 }
 .GasPriceSlider .wait.slow {
 	color: #A00;
+}
+
+.TxStatus {
+	position: relative;
+	max-width: 600px;
+	text-align: center;
+	background: #FAFAFA;
+	border: 1px solid #CCC;
+	padding: 5px;
+}
+.TxStatus .clear {
+	position: absolute;
+	top: 0;
+	right: 0;
+	color: blue;
+	font-size: 80%;
+	cursor: pointer;
+	padding: 2px 4px;
+}
+
+.LoadingBar {
+	height: 5px;
+	border: 1px solid rgba(0,0,0,.2);
+	width: 80%;
+	margin: 5px auto;
+}
+.LoadingBar .loaded {
+	background: rgba(0,128,0,.7);
+	box-shadow: 0px 0px 8px 1px rgba(0,255,0,.5);
 }
 
 .ib {

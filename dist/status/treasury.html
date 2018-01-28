@@ -116,6 +116,23 @@
 				border-top: none;
 				border-left: none;
 			}
+			#Stats .refresh {
+				font-size: 60%;
+				display: inline-block;
+				color: blue;
+				cursor: pointer;
+				margin-left: 5px;
+				padding: 2px 4px;
+			}
+			#Stats .log {
+				font-size: 80%;
+				font-weight: bold;
+				background: #FAFAFA;
+				padding: 4px;
+				border: 1px solid #CCC;
+				margin: -10px 0px 10px 0px;
+				color: gray;
+			}
 		</style>
 	</head>
 	<body><div id="Content">
@@ -246,9 +263,12 @@
 			</div>
 		</div>
 		<div id="Stats" class="section">
-			<div class="head">Stats</div>
+			<div class="head">
+				Stats
+				<div class="refresh">Click to Refresh</div>
+			</div>
 			<div class="body">
-				<div class="log"></div>
+				<div class="log" style="display: none;">Click refresh.</div>
 				<table>
 					<thead>
 						<tr>

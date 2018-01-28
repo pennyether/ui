@@ -26,7 +26,9 @@ Loader.require("tr", "mc", "pac")
 		updateTrDiv();
 	}
 
+	var _isPaStarting = false;
 	function updatePaStart() {
+		if (_isPaStarting) return;
 		const $e = $(".paStart");
 		const $fields = $e.find(".fields");
 		const $notice = $e.find(".no-reward");
@@ -74,10 +76,24 @@ Loader.require("tr", "mc", "pac")
 					.addClass(profit.gt(0) ? "good" : "bad");
 				$risk.text(`${ethUtil.toEthStr(risk)} (${failGasVal} gas)`);
 				$btn.removeAttr("disabled").click(()=>{
-					mc.startPennyAuction([data.index], {
+					_isPaStarting = true;
+					_paStartGps.enable(false);
+					$btn.attr("disabled", "disabled");
+					const reset = ()=>{
+						_isPaStarting = false;
+						_paStartGps.enable(true);
+						$btn.removeAttr("disabled");
+					}
+
+					const p = mc.startPennyAuction([data.index], {
 						gasPrice: gasPrice,
 						gas: estGas.plus(100000)
 					});
+					p.then(reset, reset);
+
+					const waitTimeMs = _paRefreshGps.getWaitTimeS() * 1000;
+					const $txStatus = util.$getTxStatus(p, {waitTimeMs: waitTimeMs});
+					$e.find(".tx").empty().append($txStatus);
 				});
 			} else {
 				$reward.text("Invalid gasPrice");
@@ -88,7 +104,9 @@ Loader.require("tr", "mc", "pac")
 		});
 	}
 
+	var _isPaRefreshing = false;
 	function updatePaRefresh() {
+		if (_isPaRefreshing) return;
 		const $e = $(".paRefresh");
 		const $fields = $e.find(".fields");
 		const $notice = $e.find(".no-reward");
@@ -143,10 +161,24 @@ Loader.require("tr", "mc", "pac")
 					.addClass(profit.gt(0) ? "good" : "bad");
 				$risk.text(`${ethUtil.toEthStr(risk)} (${failGasVal} gas)`);
 				$btn.removeAttr("disabled").click(()=>{
-					mc.refreshPennyAuctions([], {
+					_isPaRefreshing = true;
+					_paRefreshGps.enable(false);
+					$btn.attr("disabled", "disabled");
+					const reset = ()=>{
+						_isPaRefreshing = false;
+						_paRefreshGps.enable(true);
+						$btn.removeAttr("disabled");
+					}
+
+					const p = mc.refreshPennyAuctions([], {
 						gasPrice: gasPrice,
 						gas: estGas.plus(100000)
 					});
+					p.then(reset, reset);
+
+					const waitTimeMs = _paRefreshGps.getWaitTimeS() * 1000;
+					const $txStatus = util.$getTxStatus(p, {waitTimeMs: waitTimeMs});
+					$e.find(".tx").empty().append($txStatus);
 				});
 			} else {
 				$reward.text("Invalid gasPrice");
