@@ -4,6 +4,36 @@
 		<script src="/javascripts/lib/Loader.js"></script>
 		<script src="/javascripts/ico/whitepaper.js"></script>
 		<style>
+			.section > .head {
+				font-size: 170%;
+				color: black;
+				padding: 10px 10px;
+				font-weight: normal;
+				letter-spacing: .25em;
+				border-bottom: 1px solid gray;
+			}
+			.section > .body {
+				padding-top: 20px;
+			}
+
+			.subsection > .head {
+				font-size: 140%;
+				padding-left: 0px;
+				font-weight: normal;
+				letter-spacing: .25em;
+				border-bottom: 1px solid #BBB;
+				text-shadow: 3px 3px 1px rgba(0,0,0,.05);
+				margin-top: 30px;
+				/*background: linear-gradient(90deg, #999 0%, #DDD 100%);*/
+			}
+
+			h3 {
+				margin-top: 40px;
+				font-weight: normal;
+				letter-spacing: .15em;
+				border-bottom: 1px dotted #CCC;
+			}
+
 			.NavBar {
 				font-size: 90%;
 				color: #444;
@@ -67,16 +97,6 @@
 					}
 			.wp-body {
 				padding-left: 200px;
-			}
-			.wp-body h3 {
-				margin-top: 40px;
-			}
-			.wp-body .section .head {
-				font-size: 140%;
-			}
-			.wp-body .subsection .head {
-				font-size: 130%;
-				margin-top: 30px;
 			}
 			.wp-body .code {
 				padding: 2px;
@@ -201,6 +221,11 @@
 					<div class="head">Our Games</div>
 				</a>
 				<div class="body">
+					<a href="#game-standards">
+						<div class="subitem-wrapper">
+							<div class="subitem">Our Standards</div>
+						</div>
+					</a>
 					<a href="#games-penny-auctions">
 						<div class="subitem-wrapper">
 							<div class="subitem">Penny Auctions</div>
@@ -630,40 +655,43 @@
 						</p>
 
 						<a id="game-standards"></a>
-						<h4>Our Game Standards</h4>
-						<p>
-							We think the greatest challenge in blockchain gaming is adoption. While this will grow over time, there are things we can do <i>right now</i> to maximize the amount of players, and the amount they play.
-							<br><br>
-							<b>We will never release a game unless it meets these criteria:</b>
-							<ul>
-								<li>
-									<b>Zero Friction</b>: Eliminate all steps it takes a user to actually play.
-									<ul style="margin-bottom: 0px;">
-										<li>
-											<b>No Signup</b>: Why should a user need to provide any information to play?
-										</li>
-										<li>
-											<b>Wager in Ether</b>: Requiring the use of tokens requires the user spend a significant amount of time and effort interacting with exchanges. There are considerable security, privacy, volatility, and liquidity risks involved.
-										</li>
-										<li>
-											<b>Help users get Ether</b>: If a user doesn't have a web3 browser, we tell them how to get one. If they don't have Ether, we tell them how to get some.
-										</li>
-									</ul>
-								</li>
-								<li>
-									<b>Instant Results</b>: We want to show users their results as soon as their wager is mined.
-								</li>
-								<li>
-									<b>An Awesome UI</b>: We'd rather have an extremely usable and trustworthy UI than one that looks really cool. While we'll try to do both, our top UI priority is presenting the user with all the information they need, and feedback about every step of their wager.
-								</li>
-								<li>
-									<b>Assure the User</b>: Provide the users with as much as possible to prove the game is legitimate. Previous wagers, contract code, audit results, test results, etc.
-								</li>
-								<li>
-									<b>The game is fun, and fair!</b>
-								</li>
-							</ul>
-						</p>
+						<div class="subsection">
+							<div class="head">Our Standards</div>
+							<div class="body">
+								<p>
+									We think the greatest challenge in blockchain gaming is adoption. While this will grow over time, there are things we can do <i>right now</i> to maximize the amount of players, and the amount they play.
+								</p>
+								<b>We will never release a game unless it meets these criteria:</b>
+								<ul>
+									<li>
+										<b>Zero Friction</b>: Eliminate all steps it takes a user to actually play.
+										<ul style="margin-bottom: 0px;">
+											<li>
+												<b>No Signup</b>: Why should a user need to provide any information to play?
+											</li>
+											<li>
+												<b>Wager in Ether</b>: Requiring the use of tokens requires the user spend a significant amount of time and effort interacting with exchanges. There are considerable security, privacy, volatility, and liquidity risks involved.
+											</li>
+											<li>
+												<b>Help users get Ether</b>: If a user doesn't have a web3 browser, we tell them how to get one. If they don't have Ether, we tell them how to get some.
+											</li>
+										</ul>
+									</li>
+									<li>
+										<b>Instant Results</b>: We want to show users their results as soon as their wager is mined.
+									</li>
+									<li>
+										<b>An Awesome UI</b>: We'd rather have an extremely usable and trustworthy UI than one that looks really cool. While we'll try to do both, our top UI priority is presenting the user with all the information they need, and feedback about every step of their wager.
+									</li>
+									<li>
+										<b>Assure the User</b>: Provide the users with as much as possible to prove the game is legitimate. Previous wagers, contract code, audit results, test results, etc.
+									</li>
+									<li>
+										<b>The game is fun, and fair!</b>
+									</li>
+								</ul>
+							</div>
+						</div>
 
 						<a id="games-penny-auctions"></a>
 						<div class="subsection">
