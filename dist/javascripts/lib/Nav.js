@@ -37,8 +37,8 @@
 					name: "InstaDice",
 					url: "/games/instadice.html"
 				},{
-					name: "Rewards",
-					url: "/games/rewards.html"
+					name: "Tasks",
+					url: "/games/tasks.html"
 				}]
 			},
 			{

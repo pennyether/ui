@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<script src="../javascripts/lib/Loader.js"></script>
-		<script src="../javascripts/games/rewards.js"></script>
+		<script src="../javascripts/games/tasks.js"></script>
 		<style>
 			#Summary {
 				padding: 10px 30px 30px 30px;
@@ -57,21 +57,21 @@
 	</head>
 	<body><div id="Content">
 		<div class="section pageTitle">
-			Win Rewards
+			Win Rewards!
 		</div>
 		<div id="Summary">
-			PennyEther is run autonomously, and has no back-end processes or special accounts that keep it running. In order to keep running, it relies on <i>you</i> to periodically call a few contract functions. In return for calling these functions, you will earn rewards.
+			PennyEther is run autonomously, and has no back-end processes or special accounts that keep it running. In order to keep running, it relies on <i>you</i> to periodically call a few contract functions, called <b>Tasks</b>. In return for running a task, you will earn rewards.
 			<div class="notice">
-				It is possible that two people try to get the same reward by both submitting transactions. When this happens, only the first transaction will receive the reward. The second transaction will execute and end early, consuming only a small amount of gas. For each reward, we've estimated this amount of gas that could be wasted - it's labeled as "risk".
+				It is possible that two people try to run the same Task at the same time. When this happens, only the first transaction will receive the reward. The second transaction will execute and end early, consuming only a small amount of gas. For each Task, we've estimated the amount of gas that could be wasted - it's labeled as "risk".
 				<br><br>
-				It's up to you to choose a gasPrice you are willing to pay. The higher it is, the more likely is is that your transaction will execute first. For each reward, we've provided a calculator to help you make an informed decision. You may also find <a href="https://ethgasstation.info/" target="_blank">EthGasStation</a> helpful in determining a gasPrice.
+				It's up to you to choose a Gas Price you are willing to pay. The higher it is, the more likely is is that your transaction will execute first. For each Task, we've provided a calculator to help you make an informed decision.
 			</div>
 		</div>
 		<div class="subsection paStart">
 			<div class="head">Start a Penny Auction</div>
 			<div class="body">
 				<div class="summary">
-					When an existing Penny Auction has ended, a new one can be started in its place. This costs quite a bit of gas, but rewards you in Ether.
+					When an existing Penny Auction has ended, a new one can be started in its place. This costs quite a bit of gas, but rewards you a fixed amount of Ether.
 				</div>
 				<div>
 					<div class="no-reward">
@@ -115,7 +115,7 @@
 			<div class="head">Refresh Penny Auctions</div>
 			<div class="body">
 				<div class="summary">
-					As Penny Auctions are run, they accumulate bid fees (revenue) which needs to be sent to the Treasury. Additionally, auctions may have ended and require paying the winner a reward. All of this costs gas. You'll be rewarded a percentage of the fees sent to the Treasury, as well as receive Ether any time a game has ended.
+					As Penny Auctions are run, they accumulate bid fees (revenue) which can be sent to the Treasury. Additionally, auctions may have ended and require paying the winner a reward. All of this costs gas. You'll be rewarded a percentage of the fees sent to the Treasury, as well as receive Ether any time a game is ended.
 				</div>
 				<div>
 					<div class="no-reward">
