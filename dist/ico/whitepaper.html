@@ -16,6 +16,10 @@
 				padding-top: 20px;
 			}
 
+			.subsection {
+				margin: 10px 0px;
+			}
+
 			.subsection > .head {
 				font-size: 140%;
 				padding-left: 0px;
@@ -24,7 +28,9 @@
 				border-bottom: 1px solid #BBB;
 				text-shadow: 3px 3px 1px rgba(0,0,0,.05);
 				margin-top: 30px;
-				/*background: linear-gradient(90deg, #999 0%, #DDD 100%);*/
+			}
+			.subsection > .body {
+				margin-left: 20px;	
 			}
 
 			h3 {
@@ -681,7 +687,7 @@
 										<b>Instant Results</b>: We want to show users their results as soon as their wager is mined.
 									</li>
 									<li>
-										<b>An Awesome UI</b>: We'd rather have an extremely usable and trustworthy UI than one that looks really cool. While we'll try to do both, our top UI priority is presenting the user with all the information they need, and feedback about every step of their wager.
+										<b>A Comprehensive UI</b>: We'd rather have an extremely usable and trustworthy UI than one that looks really cool. While we'll try to do both, our top UI priority is presenting the user with all the information they need, and feedback about every step of their wager.
 									</li>
 									<li>
 										<b>Assure the User</b>: Provide the users with as much as possible to prove the game is legitimate. Previous wagers, contract code, audit results, test results, etc.
@@ -1920,6 +1926,7 @@
 										<li>Core components: Ensure the financial security of PennyEther. No new game could ever cost PennyEther anything more than the <span class='code'>Daily Funding Limit</span> per day.</li>
 									</ul>
 								</p>
+
 								<h3>The Registry Contract</h3>
 								<p>
 									The <span class='code'>CrowdSale</span>, <span class='code'>Treasury</span>, <span class='code'>Token</span>, and <span class='code'>TokenLocker</span> are all hard-coded, and cannot be altered or redeployed. <i>All other contracts can easily be upgraded or added via the <span class="code">Registry</span></i>. 
@@ -1932,6 +1939,22 @@
 								</p>
 								<p>
 									Using a <span class="code">Registry</span> is also simpler than other methods. There are no delegate calls, and there's no need to manage contract memory indexes. This comes at a cost -- it's more difficult to migrate existing contact data. To alleviate this concern, all upgradable contracts contain little to no state, and their state is superficial in that it does not effect the core operation of Penny Ether.
+								</p>
+
+								<h3>Open Sourced</h3>
+								<p>
+									Both our contracts and our UI have been open sourced. This allows us to leverage an entire world of developers to improve our product:
+									<ul>
+										<li>
+											<b>Bounties:</b> We can easily offer bounties for various improvements, no matter how large or small. For example, we could post a bounty for adding graphs of dividends to the Token UI, or for decreasing the gas cost of some transactions.
+										</li>
+										<li>
+											<b>Easy to develop:</b> Both of our projects are extremely simple to get up and running for any developer. The UI requires no external dependancies, and the contracts UI has a suite of tests that must be passed.
+										</li>
+										<li>
+											<b>Quality:</b> As with any open-source project, we feel by involving more developers and stakeholders, the overall quality of PennyEther will be improved. As owners, ultimately the PennyEther Team will oversee all merges to ensure they meet quality and security standards.
+										</li>
+									</ul>
 								</p>
 							</div>
 						</div>
@@ -2523,12 +2546,13 @@
 								<div class="milestone">
 									<div class="content">
 										<div class="top">
-											Site Redesign and Translations
+											Product Improvements
 										</div>
 										<div class="bottom">
 											<ul>
 												<li>Pay for professional redesign</li>
 												<li>Pay for translation to Chinese</li>
+												<li>Bounties for internal improvements</li>
 											</ul>
 										</div>
 									</div>
@@ -2917,7 +2941,7 @@
 
 													</div>
 													<div style='margin: 3px 0px'>
-														to be used as capital for marketing, advertising, developing, etc. See: <a href="#market-strategy">market strategy</a> and <a href="#roadmap-future">roadmap</a>.
+														to be used as capital for marketing, advertising, developing, bounties, etc. See: <a href="#market-strategy">market strategy</a> and <a href="#roadmap-future">roadmap</a>.
 													</div>
 												</div>
 											</div>

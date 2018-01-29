@@ -72,6 +72,7 @@ body {
 	padding: 18px 8px;
 	margin: 0px 5px;
 	cursor: pointer;
+	letter-spacing: .1em;
 	transition: color .3s, background .3s;
 }
 #Top .menuItem.on {
@@ -80,6 +81,7 @@ body {
 #Top .menuItem:hover {
 	color: white;
 	background: green;
+	box-shadow: 3px 3px 4px 0px rgba(0,0,0,.15);
 }
 	#Top .middle a {
 		color: inherit;
@@ -90,7 +92,6 @@ body {
 		font-weight: normal;
 		font-size: 90%;
 		position: absolute;
-		border: 1px solid #CCC;
 
 		background: linear-gradient(to bottom, #FAFAFA 0%, #BBBBBB 100%);
 		margin-top: 18px; /* should match padding of .menuItem */
@@ -98,6 +99,7 @@ body {
 		right: -1000px;
 		opacity: 0;
 		transition: opacity .3s;
+		box-shadow: 3px 3px 4px 0px rgba(0,0,0,.15);
 	}
 	#Top .menuItem:hover .subMenu {
 		display: block;
@@ -116,6 +118,11 @@ body {
 	}
 	#Top .menuItem .subItem:hover {
 		background: #999;
+		color: white;
+	}
+	#Top .menuItem .subItem.crowdsale {
+		text-align: center;
+		background: linear-gradient(45deg, rgba(0,128,0,.8) 0%, #CCC 150%);
 		color: white;
 	}
 
@@ -436,50 +443,6 @@ body {
 	}
 
 
-/* Web3 Logger in bottom right of screen */
-.Web3Logger {
-	position: fixed;
-	background: #CCC;
-	border: 1px solid black;
-	padding: 10px;
-	bottom: 10px;
-	right: 20px;
-}
-	.Web3Logger .tx {
-		max-height: 400px;
-		max-width: 300px;
-		overflow: auto;
-	}
-	.Web3Logger .tx {
-		margin: 2px 0px;
-		border: 1px solid gray;
-		background: #DDD;
-	}
-	.Web3Logger .tx .name {
-		font-weight: bold;
-		padding: 2px 4px;
-		border-bottom: 1px solid gray;
-	}
-	.Web3Logger .body {
-		padding: 3px;
-	}
-	.Web3Logger .tx .transaction {
-		font-size: 90%;
-	}
-	.Web3Logger .tx .header {
-		font-weight: bold;
-		text-decoration: underline;
-	}
-	.Web3Logger .tx .pending {
-		color: gray;
-	}
-	.Web3Logger .tx .error {
-		color: red;
-	}
-	.Web3Logger .tx .success {
-		color: green;
-	}
-
 .pageTitle {
 	font-size: 150%;
 	font-weight: bold;
@@ -493,57 +456,70 @@ body {
 	padding: 0px 20px;
 }
 	.section > .head {
-		font-size: 120%;
-		font-weight: bold;
-		background: #EEE;
-		padding: 5px 10px;
-		margin: 0px;
-		border-bottom: 1px solid #CCC;
+		font-size: 170%;
+		color: black;
+		padding: 10px 10px;
+		font-weight: normal;
+		letter-spacing: .25em;
+		border-bottom: 1px solid gray;
 	}
 	.section > .body {
-		padding: 30px 10px 10px 10px;
+		padding-top: 20px;
 	}
 
 .subsection {
-	margin: 10px 0px 0px 20px;
+	margin: 10px 0px;
 }
 	.subsection > .head {
-		font-weight: bold;
-		border-bottom: 1px dotted #CCC;
-		padding: 4px 8px;
+		font-size: 140%;
+		padding-left: 0px;
+		font-weight: normal;
+		letter-spacing: .25em;
+		border-bottom: 1px solid #BBB;
+		text-shadow: 3px 3px 1px rgba(0,0,0,.05);
+		margin-top: 30px;
 	}
 	.subsection > .body {
+		margin-left: 20px;
 		padding: 10px 10px 10px 0px;
 	}
 
+	h3 {
+		margin-top: 40px;
+		font-weight: normal;
+		letter-spacing: .15em;
+		border-bottom: 1px dotted #CCC;
+	}
+
 /* Anything with a tooltip gets a little i next to it */
-	.tipRight::after,
-	.tipLeft::before,
-	.infoLeft::before {
-		content: "i";
-		font-family: serif;
-		font-weight: bold;
-		font-size: 80%;
-		font-style: italic;
-		color: white;
-		background: rgba(200,200,200,.5);
+.tipRight::after,
+.tipLeft::before,
+.infoLeft::before {
+	content: "i";
+	font-family: serif;
+	font-weight: bold;
+	font-size: 80%;
+	font-style: italic;
+	color: white;
+	background: rgba(200,200,200,.5);
+	letter-spacing: initial;
 
-		display: inline-block;
-		margin: 0px .5em;
-		padding: 0px .5em;
-		border-radius: .3em;
+	display: inline-block;
+	margin: 0px .5em;
+	padding: 0px .5em;
+	border-radius: .3em;
 
-		transition: background-color .4s;
-		vertical-align: middle;
-		margin-bottom: 2px;
-	}
-	.tipRight:hover::after,
-	.tipLeft:hover::before {
-		background: rgba(200,200,200,.8);
-	}
-	.tipLeft, .tipRight {
-		cursor: pointer;
-	}
+	transition: background-color .4s;
+	vertical-align: middle;
+	margin-bottom: 2px;
+}
+.tipRight:hover::after,
+.tipLeft:hover::before {
+	background: rgba(200,200,200,.8);
+}
+.tipLeft, .tipRight {
+	cursor: pointer;
+}
 
 .tippy-tooltip.light-theme {
 	background-color: #EEE;

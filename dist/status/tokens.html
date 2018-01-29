@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/javascripts/lib/Loader.js"></script>
+		<script src="/javascripts/status/tokens.js"></script>
+		<style>
+			.fieldList {
+				display: table;
+			}
+			.fieldList > .field {
+				display: table-row;
+			}
+			.fieldList > .field > .label {
+				display: table-cell;
+				white-space: nowrap;
+				padding: 4px 20px 4px 4px;
+			}
+			.fieldList > .field > .value {
+				padding: 10px;
+				display: table-cell;
+			}
+			.subsection {
+				padding: 0px 20px;
+			}
+			.pageTitle {
+				text-align: center;
+				padding: 20px 0px;
+				letter-spacing: .2em;
+				font-weight: normal;
+			}
+		</style>
+	</head>
+	<body><div id="Content">
+		<div class="pageTitle">
+			Token Holder UI
+		</div>
+		<div class="subsection" style="position: relative;">
+			<div class="head">Token Contract</div>
+			<div class="body fieldList">
+				<div class="field">
+					<div class="label tipLeft" title="Address of the Token Contract">Address:</div>
+					<div class="value"></div>
+				</div>
+				<div class="field">
+					<div class="label tipLeft" title="The total amount of dividends received.">Dividends:</div>
+					<div class="value">
+						<div class="divs">1.57 Ether</div>
+						<div class="divsInfo">
+							<b>Dividend History</b>
+							<div class="log"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="subsection">
+			<div class="head">My Account</div>
+			<div class="body fieldList">
+				<div class="field">
+					<div class="label tipLeft" title="Ethereum address of the Token Holder.">Address:</div>
+					<div class="value">
+						<input type="text" class="address" placeholder="Account Address">
+						<button>refresh</button>
+					</div>
+				</div>
+				<div class="field">
+					<div class="label tipLeft" title="The total amount of Tokens owned.">Balance:</div>
+					<div class="value"></div>
+				</div>
+				<div class="field">
+					<div class="label tipLeft" title="The amount of Ether owed as dividends, collectable at any time.">Dividends Owed:</div>
+					<div class="value">
+						<div class="divsOwed"></div>
+						<button>collect</button>
+						<div class="tx"></div>
+					</div>
+				</div>
+				<div class="field">
+					<div class="label tipLeft" title="Transfers tokens from the Token Holder to another Ethereum account.">Transfer:</div>
+					<div class="value">
+						<div>To: <input type=text></div>
+						<div>Amount: <input type=text></div>
+						<button>Transfer</button>
+						<div class="tx"></div>
+					</div>
+				</div>
+				<div class="field">
+					<div class="label tipLeft" title="Burns tokens for .5 Ether each.<br><b>Once burned, tokens are gone forever.</b>">Burn Tokens:</div>
+					<div class="value">
+						<div>Amount: <input type=text></div>
+						<div>Will send <span class="amt"></span> to <span class="addr"></span>.</div>
+						<button style="background: red; color: white;">Burn</button>
+						<div class="tx"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div></body>
+</html>

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<script src="./javascripts/lib/Loader.js"></script>
-		<script src="./javascripts/admin.js"></script>
+		<script src="/javascripts/lib/Loader.js"></script>
+		<script src="/javascripts/status/admin.js"></script>
 		<style>
 		.pacDefinedAuction {
 			margin: 10px;
@@ -111,12 +111,12 @@
 						<span id="DiceBalance"></span>
 					</div>
 					<div>
-						<span class="tipLeft" title="The amount of ETH available to be used for potential payout. This is decremented any time a roll is created, and incremented when the roll is resolved (if it lost).">Bankroll:</span>
+						<span class="tipLeft" title="The amount of Ether available to be used for potential payout. This is decremented any time a roll is created, and incremented when the roll is resolved (if it lost).">Bankroll:</span>
 						<span id="DiceBankroll"></span>
 					</div>
 					<div>
-						<span class="tipLeft" title="The amount of bankroll that has added to InstaDice. Any bankroll exceeding this is considered profit.">MinBankroll:</span>
-						<span id="DiceMinBankroll"></span>
+						<span class="tipLeft" title="The amount of Ether funded to InstaDice. Any bankroll exceeding this is considered profit, and can be sent to Treasury.">Funding:</span>
+						<span id="DiceFunding"></span>
 					</div>
 					<div>
 						<span class="tipLeft" title="Unresolved rolls happen when more than one bid occurs on the same block. When this happens, the bankroll is tied up until the roll is resolved. Note: there is always one unresolved roll: the last one!">Unresolved Rolls:</span>
@@ -126,19 +126,19 @@
 				<div>
 					<h4>Financials</h4>
 					<div>
-						<span class="tipLeft" title="Sends any amount over bankroll to Treasury">Send Profits: </span>
+						<span class="tipLeft" title="Sends any amount over the funding to Treasury">Send Profits: </span>
 						<span id="DiceSendProfits" placeholder="eth"></span> <button id="btnDiceSendProfits">Send Profits</button> (admin only)
 					</div>
 					<div>
-						<span class="tipLeft" title="Removes from bankroll and send to treasury.">Remove Bankroll: </span>
-						<input type=text id="DiceRemoveBankroll" placeholder="eth"> ETH <button id="btnDiceRemoveBankroll">Remove Bankroll</button> (admin only)
+						<span class="tipLeft" title="Removes funding and sends it to treasury.">Remove Funding: </span>
+						<input type=text id="DiceRemoveFunding" placeholder="eth"> ETH <button id="btnDiceRemoveFunding">Remove Funding</button> (admin only)
 					</div>
 					<div>
-						<span class="tipLeft" title="Increases bankroll and minBankroll">Add Bankroll: </span>
-						<input type=text id="DiceAddBankroll" placeholder="eth"> ETH <button id="btnDiceAddBankroll">Add Bankroll</button> (anybody)
+						<span class="tipLeft" title="Increases funding (and bankroll)">Add Funding: </span>
+						<input type=text id="DiceAddFunding" placeholder="eth"> ETH <button id="btnDiceAddFunding">Add Funding</button> (anybody)
 					</div>
 					<div>
-						<span class="tipLeft" title="Removes from bankroll and send to treasury. Anyone can do this.">Resolve Unresolved Rolls:</span>
+						<span class="tipLeft" title="Unresolved rolls will still hold onto some bankroll. Resolving a roll will pay the winner or increase the bankroll.">Resolve Unresolved Rolls:</span>
 						<input type=text id="DiceResolveRolls" placeholder="number of rolls" value=100> rolls. <button id="btnDiceResolveMany">Resolve Rolls</button> (anybody)
 					</div>
 					<div>

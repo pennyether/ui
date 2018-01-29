@@ -71,8 +71,8 @@
 					name: "Games",
 					url: "/status/games.html"
 				},{
-					name: "Dividends",
-					url: "/status/dividends.html"
+					name: "Token Holders",
+					url: "/status/tokens.html"
 				},{
 					name: "Admin",
 					url: "/status/admin.html",
@@ -80,7 +80,7 @@
 			},
 			{
 				name: "ICO",
-				url: "/ico/intro.html",
+				url: "/ico/whitepaper.html",
 				children: [{
 					name: "Whitepaper",
 					url: "/ico/whitepaper.html"
@@ -88,8 +88,9 @@
 					name: "FAQs",
 					url: "/ico/faqs.html"
 				},{
-					name: "Buy",
-					url: "/ico/buy.html"
+					name: "CrowdSale",
+					class: "crowdsale",
+					url: "/ico/crowdsale.html"
 				}]
 			}
 		];
@@ -107,6 +108,8 @@
 					.attr("href", obj.url)
 					.text(obj.name)
 					.appendTo(_$menu);
+				if (obj.class) $e.addClass(obj.class);
+
 				if (obj.url.toLowerCase() == curUrl) {
 					$e.addClass("on");
 					if (breadcrumb.length==0) breadcrumb = [obj];
@@ -123,6 +126,7 @@
 						.attr("href", child.url)
 						.text(child.name)
 						.appendTo($sub);
+					if (child.class) $child.addClass(child.class);
 
 					if (child.url == curUrl) {
 						$child.addClass("on");
