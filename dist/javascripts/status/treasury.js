@@ -294,7 +294,7 @@ Loader.require("reg", "comp", "tr")
 
 					<div class="balanceTxt" style="position: absolute; top: -20px;"></div>
 					<div class="bankrollTxt" style="position: absolute; bottom: -20px;"></div>
-					<div class="divThreshTxt" style="position: absolute; bottom: -20px;"></div>
+					<div class="divThreshTxt" style="position: absolute; bottom: -35px;"></div>
 				</div>
 			</div>
 		`);
