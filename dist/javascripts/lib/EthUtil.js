@@ -311,7 +311,8 @@
 				return formatted;
 			},(e)=>{
 				_gasPricePromise = null;
-				console.error("Error retrieving gas prices.", e);
+				e.message = "Could not retrieve gas prices.";
+				console.error(e);
 				throw e;
 			});
 			return _gasPricePromise;

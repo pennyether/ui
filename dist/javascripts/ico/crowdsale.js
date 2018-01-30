@@ -11,10 +11,9 @@ Loader.require("comp")
 	const _$hours = $(".hours .value");
 	const _$minutes = $(".minutes .value");
 	const _$seconds = $(".seconds .value");
-	const _$contText = $(".contributeText");
-	const _$contTip = $(".contributeTip");
-	const _$contBtn = _$contTip.find("button").click(contribute);
-	const _$txtEther = _$contTip.find(".txtEther");
+	const _$cont = $(".contribute");
+	const _$contBtn = _$cont.find("button");
+	const _$txtEther = _$cont.find(".txtEther");
 	const _gps = util.getGasPriceSlider(20);
 
 	var _totalRaised;
@@ -30,29 +29,16 @@ Loader.require("comp")
 
 	(function(){
 		_gps.refresh();
-		_gps.$e.appendTo(_$contTip.find(".gasSlider"));
-
-		// attach txtEther to $numTokens
-		const $numTokens = _$contTip.find(".numTokens");
-		_$txtEther.on("input", function(){
-			Promise.resolve().then(()=>{
-				const val = (new BigNumber(_$txtEther.val())).mul(1e18);
-				return comp.getTokensFromEth([val]).then((tokens)=>{
-					$numTokens.text(tokens.div(1e18).toFixed(2));
-				});
-			}).catch(()=>{
-				$numTokens.text("--");
-			})
-		}).trigger("input");
-		tippy(_$contText[0], {
-			trigger: "mouseenter",
-			html: _$contTip.show()[0],
+		_gps.$e.appendTo(_$cont.find(".gasSlider"));
+		_$txtEther.on("input", refreshContribute);
+		$(".requirement input").on("change", refreshRequirements);
+		tippy(_$contBtn[0], {
 			animation: "scale",
-			theme: "light",
-			onShown: ()=>{
-				_gps.refresh();
-			}
-		})
+			trigger: "mouseenter",
+			dynamicTitle: true
+		});
+		refreshContribute();
+		refreshRequirements();
 	}());
 
 	// initialize sale parameters
@@ -69,11 +55,86 @@ Loader.require("comp")
 		updateCountdown();
 	});
 
+	// enables/disabled contribute button
+	function refreshRequirements() {
+		if ($(".requirement input:checked").length==3) {
+			_$contBtn
+				.removeClass("disabled")
+				.removeAttr("title")
+				.bind("click", contribute);
+			_$contBtn[0]._tippy.disable();
+		} else {
+			_$contBtn
+				.addClass("disabled")
+				.attr("title", "You must meet the requirements to the left.")
+				.unbind("click");
+			_$contBtn[0]._tippy.enable();
+		}
+	}
+
+	// shows the number of tokens received for a given amount of Ether
+	function refreshContribute(){
+		Promise.resolve().then(()=>{
+			const $numTokens = _$cont.find(".numTokens");
+			const $refund = _$cont.find(".refund");
+			const val = (new BigNumber(_$txtEther.val())).mul(1e18);
+			return comp.getTokensFromEth([val]).then((tokens)=>{
+				$numTokens.text(tokens.div(1e18).toFixed(2));
+				if (_totalRaised && _hardCap) {
+					if (_totalRaised.plus(val).gt(_hardCap)) $refund.show();
+					else $refund.hide();
+				}
+			});
+		}).catch((e)=>{
+			$numTokens.text("--");
+		})
+	}
+
+	// sends transaction based on selection, shows results
 	function contribute() {
+		_$contBtn.blur();
 		var gas = 200000;
+		const value = (new BigNumber(_$txtEther.val())).mul(1e18);
 		if (_totalRaised.gt(0)) gas = 100000;
 		if (_totalRaised.gt(_softCap)) gas = 75000;
-		comp.sendTransaction({gas: gas});
+		const p = comp.sendTransaction({gas: gas, value: value});
+		const $ctnr = _$cont.find(".txStatus").show();
+		const $txStatus = util.$getTxStatus(p, {
+			onClear: function(){ $ctnr.hide(); },
+			onSuccess: function(res){
+				const failure = res.events.find(e=>e.name=="BuyTokensFailure");
+				const success = res.events.find(e=>e.name=="BuyTokensSuccess");
+				const $msg = $("<div></div>");
+				if (success) {
+					const tokensStr = ethUtil.toTokenStr(success.args.numTokens);
+					const refund = value.minus(success.args.value);
+					const ethStr = ethUtil.toEthStr(success.args.value);
+					$msg.append(`<div class='success'>You purchased ${tokensStr} for ${ethStr}.</div>`);
+					if (refund.gt(0)) {
+						const refundStr = ethUtil.toEthStr(refund);
+						$msg.append(`<div>You were refunded ${refundStr}.</div>`);
+					}
+				}
+				if (failure) {
+					const eth = ethUtil.toEthStr(value);
+					const reason = failure.args.reason;
+					$msg
+						.append(`<div class='failure'>Failure: ${reason}</div>`)
+						.append(`<div>You were refunded ${eth}.</div>`);
+				}
+				// this should never happen, but just in case.
+				if (!success && !failure) {
+					$msg.append(`
+						<div>
+							Your transaction did not return any expected events!
+							Please double-check everything went ok.
+						</div>
+					`);
+				}
+				$txStatus.find(".status").append($msg);
+			}
+		});
+		$ctnr.empty().append($txStatus);
 	}
 
 	// get values that may have changed, refresh stuff
@@ -96,7 +157,6 @@ Loader.require("comp")
 				_$statSoftCap.parent().addClass("reached");
 			}
 
-			console.log(_totalRaised);
 			_$progressAmt.css({
 				width: `${progressPct}%`,
 				opacity: 1
@@ -106,14 +166,29 @@ Loader.require("comp")
 			_$statRaised.text(`${_totalRaised.div(1e18).toFixed(2)} Eth`);
 			_$statBonus.text(`${bonusPct.round()}%`);
 			updateCountdown();
+			refreshContribute();
 		});
 	}
 		
 
+	// updates _timeLeft based on current stage
+	//  - sale not defined (Sale TBD)
+	//  - before sale started (Sale starts ...)
+	//  - during sale (Sale ends ...)
+	//  - after sale (Sale Ended)
 	var _timeLastUpdated = null;
 	var _timeLeft = null;
 	function updateCountdown() {
 		const blockTime = ethUtil.getCurrentBlockTime();
+		// sale not defined
+		if (!_dateSaleStarted){
+			_timeLeft = null;
+			_$progress.hide();
+			_$cdSummary.text(`Sale Date TBD. Check back soon.`);
+			return;
+		}
+
+		// sale ended
 		if (blockTime > _dateSaleEnded || _totalRaised && _totalRaised.equals(_hardCap)){
 			_timeLeft = null;
 			_$progress.show();
@@ -121,8 +196,8 @@ Loader.require("comp")
 			return;
 		}
 
-		if (_dateSaleStarted > blockTime) {
-			// sale not started yet.
+		// sale not started yet.
+		if (_dateSaleStarted >= blockTime) {
 			_timeLeft = _dateSaleStarted - blockTime;
 			_timeLastUpdated = +new Date();
 			_$progress.hide();
@@ -131,8 +206,8 @@ Loader.require("comp")
 			return;
 		}
 
-		if (_dateSaleEnded > blockTime) {
-			// sale not ended yet
+		// sale not ended yet
+		if (_dateSaleEnded >= blockTime) {
 			_timeLeft = _dateSaleEnded - blockTime;
 			_timeLastUpdated = +new Date();
 			_$progress.show();
@@ -141,6 +216,8 @@ Loader.require("comp")
 			return;
 		}
 	};
+
+	// counts down from _timeLeft, which is reset each block.
 	function refreshCountdown(){
 		if (_timeLeft == null) {
 			_$days.text("00");
@@ -150,6 +227,7 @@ Loader.require("comp")
 			return;
 		};
 		var timeLeft = _timeLeft + (_timeLastUpdated - (+ new Date()))/1000;
+		timeLeft = Math.max(0, timeLeft);
 
 		var days = Math.floor(timeLeft/(60*60*24));
 		_$days.text(`${days<10?"0":""}${days}`);

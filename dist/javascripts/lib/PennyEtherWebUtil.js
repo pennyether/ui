@@ -500,11 +500,14 @@
 		const _miningMsg = opts.miningMsg || "Your transaction is being mined...";
 		const _successMsg = opts.successMsg || "Your transaction was mined!";
 		const _waitTimeMs = opts.waitTimeMs || 15000;
+		const _onClear = opts.onClear || function(){};
+		const _onSuccess = opts.onSuccess || function(){};
 		var _txId;
 		var _loadingBar;
 
 		_$clear.click(function(){
 			_$e.remove();
+			_onClear();
 		});
 
 		_$status.text("Waiting for signature...");
@@ -520,6 +523,7 @@
 			_$clear.show();
 			_loadingBar.finish(500).then(()=>{
 				_$status.empty().append(_util.$getTxLink(_successMsg, _txId));
+				_onSuccess(res);
 			});
 		}).catch((e)=>{
 			_$clear.show();

@@ -151,7 +151,7 @@
 				transition: width 3s, opacity 1s;
 			}
 			
-			.progress .stat {
+			.stat {
 				display: inline-block;
 				text-align: center;
 				background: rgba(255,255,255,.2);
@@ -159,12 +159,18 @@
 				border: 1px inset #999;
 				padding: 2px 4px;
 			}
-			.progress .stat.reached {
+			.stat.reached {
 				background: rgba(128,255,128,.2);
 			}
-			.progress .stat .label {
+			.stat .label {
 				font-size: 80%;
-				color: black;
+				color: #AAA;
+				text-shadow: 1px 1px 1px rgba(0,0,0,.3);
+			}
+
+			.send {
+				padding: 0px;
+				margin: 0px 60px;
 			}
 
 			.contributeText {
@@ -176,32 +182,99 @@
 				box-shadow: 0px 0px 10px 0px lime;
 			}
 
-			.contributeTip {
-				padding: 8px;
+			.requirements {
+				border-top: 1px dotted rgba(255,255,255,.2);
+				margin-top: 15px;
+				padding: 0px;
+				font-size: 90%;
 			}
-			.contributeTip .choose {
-				border: 1px solid #EEE;
-				background: #DDD;
-				padding: 8px;
-				margin: 5px 0px 10px 0px;
+			.requirements a {
+				color: white;
 			}
-			.contributeTip .numTokens {
-				color: green;
+			.requirement {
+				margin: 10px 0px;
 			}
-			.contributeTip .txtEther {
-				font-size: 120%;
-				width: 100px;
+			.requirement input {
+				float: left;
+				margin-right: 5px;
 			}
-			.contributeTip .btnWrap {
-				padding: 10px;
-				background: #CCC;
+
+			.contribute {
+				background: linear-gradient(to bottom, rgba(128,128,128,.8) 0%, rgba(128,128,128,.3) 100%);
+				box-shadow: 3px 3px 3px 0px rgba(0,0,0,.2);
+				padding: 15px;
+				border-radius: 10px;
+				margin-left: 20px;
+				border: 1px outset #888;
+			}
+			.contribute .choose {
+				font-size: 110%;
+				text-shadow: 1px 1px 1px rgba(0,0,0,.5);
+				color: rgb(44,190,44);
+			}
+				.contribute .txtEther {
+					background: rgba(255,255,255,.1);
+					text-shadow: 1px 1px 1px rgba(255, 255, 255, .2);
+					border: none;
+					font-weight: bold;
+					border-bottom: 1px dotted #999;
+					text-align: center;
+					font-size: 120%;
+					width: 70px;
+				}
+				.contribute .numTokens {
+					color: black;
+					font-weight: bold;
+					text-shadow: 1px 1px 1px rgba(255, 255, 255, .2);
+				}
+				.contribute .gasSlider {
+					margin: 10px 0px;
+				}
+				.contribute .GasPriceSlider .wait {
+					opacity: .7;
+					text-shadow: 1px 1px 1px rgba(0,0,0,.4);
+					color: #AAA;
+				}
+				.contribute .GasPriceSlider .wait.fast {
+					color: rgb(44,190,44);
+				}
+				.contribute .GasPriceSlider .wait.slow {
+					color: rgb(208,110,110);
+				}
+			.contribute .refund {
+				font-size: 80%;
+				font-style: italic;
+			}
+			.contribute .btnWrap {
 				margin-top: 10px;
 			}
-			.contributeTip button {
+			.contribute button {
+				margin-top: 5px;
 				font-size: 150%;
+				padding: 4px 40px;
 				background: green;
 				color: white;
 				cursor: pointer;
+			}
+			.contribute button.disabled {
+				background: #888;
+				cursor: not-allowed;
+			}
+			.contribute .txStatus {
+				color: #333;
+				margin-top: 10px;
+				font-size: 90%;
+			}
+			.contribute .txStatus .success {
+				color: green;
+			}
+			.contribute .txStatus .failure {
+				color: maroon;
+			}
+			.contribute .TxStatus {
+				border-radius: 4px;
+				border-style: inset;
+				background: #CCC;
 			}
 		</style>
 		<div class="header">
@@ -269,43 +342,58 @@
 						<div class="amt"></div>
 					</div>
 				</div>
-				<table width="100%" style="margin-top: 10px;">
-				<tr>
-					<td align="left" valign="top" width="30%">
-						<div class="stat raised">
-							<div class="value">--</div>
-							<div class="label">Raised</div>
-						</div>
-						<div class="stat bonus">
-							<div class="value">--</div>
-							<div class="label">Current Bonus</div>
-						</div>
-					</td>
-					<td align="center" valign="top">
-						<div class="contributeText">Contribute...</div>
-						<div class="contributeTip" style="display: none;">
-							<div class="choose">
-								Send <input type="number" class="txtEther" value=1 min=0><span class="amtEther"> Ether</span>
-								<br>
-								To recieve <span class="numTokens">--</span> Tokens.
+			</div>
+			<div class="send">
+				<table width="100%" style="margin-top: 10px;" cellspacing="0" cellpadding="0">
+					<tr>
+						<td align="left" valign="top" width="0%">
+							<div style="white-space: nowrap;">
+								<div class="stat softCap">
+									<div class="value">--</div>
+									<div class="label">Soft Cap</div>
+								</div>
+								<div class="stat hardCap">
+									<div class="value">--</div>
+									<div class="label">Hard Cap</div>
+								</div>
+								<div class="stat raised" style="margin-left: 10px">
+									<div class="value">--</div>
+									<div class="label">Raised</div>
+								</div>
+								<div class="stat bonus">
+									<div class="value">--</div>
+									<div class="label">Current Bonus</div>
+								</div>
 							</div>
-							<div class="gasSlider"></div>
-							<div class="btnWrap">
-								<button>Send</button>
+							<div class="requirements">
+								<div class="requirement">
+									<label><input type=checkbox>I've read the <a href="/ico/whitepaper.html" target="_blank">whitepaper</a>, and am making an informed decision.</label>
+								</div>
+								<div class="requirement">
+									<label><input type=checkbox>I've read and understand the <a href="/ico/whitepaper.html#crowdsale" target="_blank">CrowdSale terms and conditions</a>.</label>
+								</div>
+								<div class="requirement">
+									<label><input type=checkbox>I'm following all local rules and regulations with regards to ICOs.</label>
+								</div>
 							</div>
-						</div>
-					</td>
-					<td align="right" valign="top" width="30%">
-						<div class="stat softCap">
-							<div class="value">--</div>
-							<div class="label">Soft Cap</div>
-						</div>
-						<div class="stat hardCap">
-							<div class="value">--</div>
-							<div class="label">Hard Cap</div>
-						</div>
-					</td>
-				</tr>
+						</td>
+						<td align="center" valign="top" width="100%">
+							<div class="contribute">
+								<div class="choose">
+									Send <input type="number" class="txtEther" value=1 min=0><span class="amtEther"> Ether</span>
+									to recieve <span class="numTokens">--</span> Tokens
+								</div>
+								<div class="refund" style="display: none;">
+									Since this exceeds the Hard Cap, additional Ether will be refunded.
+								</div>
+								<div class="gasSlider"></div>
+								<div class="btnWrap">
+									<button class="dontTip" title=" ">Send</button>
+								</div>
+								<div class="txStatus"></div>
+							</div>
+						</td>
+					</tr>
 				</table>
 			</div>
 		</div>
