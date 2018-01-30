@@ -21,7 +21,7 @@ Loader.require("reg", "comp", "tr", "mc", "pac", "dice")
 	function refreshWallet() {
 		if (!reg) return;
 		//address owner supervisor
-		const p = reg.addressOf(["WALLET"]).then((walletAddr)=>{
+		const p = comp.wallet().then((walletAddr)=>{
 			const wallet = CustodialWallet.at(walletAddr);
 			$("#WalletAddr").empty().append(util.$getAddrLink(walletAddr));
 			util.bindToElement(wallet.custodian().then(util.$getAddrLink)
@@ -50,9 +50,9 @@ Loader.require("reg", "comp", "tr", "mc", "pac", "dice")
 			$("#CompTokenAddr").empty().append(util.$getAddrLink(tokenAddr));
 			$("#CompLockerAddr").empty().append(util.$getAddrLink(lockerAddr));
 			const token = DividendToken.at(tokenAddr);
-			util.bindToElement(comp.owner().then(util.$getAddrLink), $("#CompOwner"), true);
+			util.bindToElement(comp.wallet().then(util.$getAddrLink), $("#CompOwner"), true);
 			util.bindToElement(comp.treasury().then(util.$getAddrLink), $("#CompTreasury"), true);
-			util.bindToElement(comp.isSaleStarted(), $("#CompSaleStarted"));
+			util.bindToElement(comp.wasSaleStarted(), $("#CompSaleStarted"));
 			util.bindToElement(token.totalSupply().then(ethUtil.toTokenStr), $("#CompTokenTotalSupply"));
 			util.bindToElement(token.balanceOf([lockerAddr]).then(ethUtil.toTokenStr), $("#CompLockerBalance"));
 			util.bindToElement(util.$getLogs(comp, true), $("#CompLogs"), true);

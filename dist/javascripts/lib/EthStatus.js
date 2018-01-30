@@ -231,7 +231,12 @@
 		// 		- events
 		//	- stylize
 		function _onCall(p) {
-	  		if (p.metadata.isConstant) return;
+	  		if (p.metadata.isConstant) {
+	  			p.catch(e=>{
+	  				console.log(`Call failed: ${p.metadata.callName}`, p.metadata, e);
+	  			});
+	  			return;
+	  		};
 
 	  		// states: signing, tx-id-error, pending, tx-error
 	  		const callName = p.metadata.callName;

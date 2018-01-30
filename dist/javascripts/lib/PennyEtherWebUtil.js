@@ -229,7 +229,7 @@
 		const _order = opts.order;
 		const _allAtOnce = opts.allAtOnce || false;
 		const _startBlock = opts.startBlock || ethUtil.getCurrentBlockHeight().toNumber();
-		const _endBlock = _order == 'newest' ? _startBlock - 500000 : _startBlock + 500000;
+		const _endBlock = _order == 'newest' ? Math.max(0,_startBlock - 500000) : _startBlock + 500000;
 		const _stopFn = opts.stopFn || function(){};
 		const _dateFn = opts.dateFn || _defaultDateFn;
 		const _valueFn = opts.valueFn || _defaultValueFn;
