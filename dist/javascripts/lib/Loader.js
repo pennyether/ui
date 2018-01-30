@@ -107,9 +107,6 @@
 				window[`_${contractName}`] = _web3.eth.contract(abi.abi);
 		  	});
 
-			// make Registry public
-		  	const registry = Registry.at("0x3a98e0a23e4b90357ebb937bdbc9144cb7ac0dd3");
-
 		  	// load nav
 		  	const nav = new Nav();
 		  	nav.setEthStatusElement(ethStatus.$e)
@@ -128,7 +125,15 @@
 		  	$("body").addClass("loaded");
 
 		  	// done.
-		  	return statePromise.then(()=>{
+		  	return statePromise.then((state)=>{
+		  		if (state.networkId > 10){
+		  			var registry = Registry.at("0xc4a1282aedb7397d10b8baa89639cfdaff2ee428");
+		  		} else {
+		  			var registry = Registry.at({
+		  				1: "0x0",
+		  				3: "0x3a98e0a23e4b90357ebb937bdbc9144cb7ac0dd3"
+		  			}[state.networkId]);
+		  		}
 		  		console.log("Loader is done setting things up.");
 		  		return registry;
 		  	})

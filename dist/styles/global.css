@@ -148,6 +148,98 @@ body {
 
 
 /***********************************************/
+/** GLOBAL STYLES ******************************/
+/***********************************************/
+
+.pageTitle {
+	font-size: 150%;
+	text-align: center;
+	padding: 20px 0px;
+	letter-spacing: .2em;
+	text-shadow: 3px 3px 3px rgba(0,0,0,.15);
+}
+
+/* Sections are commonly used chunks of related info */
+.section {
+	margin: 25px 0px 40px 0px;
+	padding: 0px 20px;
+}
+	.section > .head {
+		font-size: 170%;
+		color: black;
+		padding: 10px 10px;
+		font-weight: normal;
+		letter-spacing: .25em;
+		border-bottom: 1px solid gray;
+	}
+	.section > .body {
+		padding-top: 20px;
+	}
+
+.subsection {
+	margin: 10px 0px;
+}
+	.subsection > .head {
+		font-size: 140%;
+		padding-left: 0px;
+		font-weight: normal;
+		letter-spacing: .25em;
+		border-bottom: 1px solid #BBB;
+		text-shadow: 3px 3px 1px rgba(0,0,0,.05);
+		margin-top: 30px;
+	}
+	.subsection > .body {
+		margin-left: 20px;
+		padding: 10px 10px 10px 0px;
+	}
+
+	h3 {
+		margin-top: 40px;
+		font-weight: normal;
+		letter-spacing: .15em;
+		border-bottom: 1px dotted #CCC;
+	}
+
+/* Anything with a tooltip gets a little i next to it */
+.tipRight::after,
+.tipLeft::before,
+.infoLeft::before {
+	content: "i";
+	font-family: serif;
+	font-weight: bold;
+	font-size: 80%;
+	font-style: italic;
+	color: white;
+	background: rgba(200,200,200,.5);
+	letter-spacing: initial;
+
+	display: inline-block;
+	margin: 0px .5em;
+	padding: 0px .5em;
+	border-radius: .3em;
+
+	transition: background-color .4s;
+	vertical-align: middle;
+	margin-bottom: 2px;
+}
+.tipRight:hover::after,
+.tipLeft:hover::before {
+	background: rgba(200,200,200,.8);
+}
+.tipLeft, .tipRight {
+	cursor: pointer;
+}
+
+.tippy-tooltip.light-theme {
+	background-color: #EEE;
+	color: black;
+	border: 1px solid black;
+	box-shadow: 5px 5px 5px 0px rgba(50,50,50,.3);
+}
+
+
+
+/***********************************************/
 /** EthStatus (upper right thingy) *************/
 /***********************************************/
 		
@@ -443,91 +535,6 @@ body {
 	}
 
 
-.pageTitle {
-	font-size: 150%;
-	font-weight: bold;
-	text-shadow: 3px 3px 2px rgba(0,0,0,.15);
-	padding-left: 25px;
-}
-
-/* Sections are commonly used chunks of related info */
-.section {
-	margin: 25px 0px 40px 0px;
-	padding: 0px 20px;
-}
-	.section > .head {
-		font-size: 170%;
-		color: black;
-		padding: 10px 10px;
-		font-weight: normal;
-		letter-spacing: .25em;
-		border-bottom: 1px solid gray;
-	}
-	.section > .body {
-		padding-top: 20px;
-	}
-
-.subsection {
-	margin: 10px 0px;
-}
-	.subsection > .head {
-		font-size: 140%;
-		padding-left: 0px;
-		font-weight: normal;
-		letter-spacing: .25em;
-		border-bottom: 1px solid #BBB;
-		text-shadow: 3px 3px 1px rgba(0,0,0,.05);
-		margin-top: 30px;
-	}
-	.subsection > .body {
-		margin-left: 20px;
-		padding: 10px 10px 10px 0px;
-	}
-
-	h3 {
-		margin-top: 40px;
-		font-weight: normal;
-		letter-spacing: .15em;
-		border-bottom: 1px dotted #CCC;
-	}
-
-/* Anything with a tooltip gets a little i next to it */
-.tipRight::after,
-.tipLeft::before,
-.infoLeft::before {
-	content: "i";
-	font-family: serif;
-	font-weight: bold;
-	font-size: 80%;
-	font-style: italic;
-	color: white;
-	background: rgba(200,200,200,.5);
-	letter-spacing: initial;
-
-	display: inline-block;
-	margin: 0px .5em;
-	padding: 0px .5em;
-	border-radius: .3em;
-
-	transition: background-color .4s;
-	vertical-align: middle;
-	margin-bottom: 2px;
-}
-.tipRight:hover::after,
-.tipLeft:hover::before {
-	background: rgba(200,200,200,.8);
-}
-.tipLeft, .tipRight {
-	cursor: pointer;
-}
-
-.tippy-tooltip.light-theme {
-	background-color: #EEE;
-	color: black;
-	border: 1px solid black;
-	box-shadow: 5px 5px 5px 0px rgba(50,50,50,.3);
-}
-
 /*
 */
 .LogViewer .head {
@@ -571,8 +578,12 @@ body {
 	}
 
 
-/*
-*/
+
+
+/***********************************************/
+/** UI Components ******************************/
+/***********************************************/
+
 .GasPriceSlider {
 	display: inline-block;
 	max-width: 200px

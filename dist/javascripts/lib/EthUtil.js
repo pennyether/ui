@@ -81,9 +81,11 @@
 			return new BigNumber(Math.floor(_curState.latestBlock.timestamp / (60*60*24)));
 		};
 		this.getCurrentBlockHeight = function(){
+			// returns BigNumber
 			return new BigNumber(_curState.latestBlock.number);
 		}
 		this.getCurrentBlockTime = function(){
+			// returns BigNubmer
 			return new BigNumber(_curState.latestBlock.timestamp);
 		}
 		this.getCurrentAccount = function(required){

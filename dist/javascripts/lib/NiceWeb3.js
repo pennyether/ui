@@ -130,9 +130,21 @@
 			const constructorDef = abi.find(def=>def.type==='constructor');
 			if (!constructorDef)
 				throw new Error(`${contractName} ABI doesn't define a constructor.`);
-			
+
 			return getCallFn(oldNew, constructorDef, null)(inputsObj, options);
 		};
+		this.newEstimateGas = function(inputsObj, options) {
+			const constructorDef = abi.find(def=>def.type==='constructor');
+			const inputs = _validateInputs(inputsObj, constructorDef.inputs);
+			if (!options) options = {from: _ethUtil.NO_ADDRESS};
+			options = _validateOpts(options, constructorDef.payable);
+			options.data = unlinked_binary;
+			const data = _self.contract.new.getData.apply(_self.contract.new, inputs.concat(options));
+			return _ethUtil.doEthCall("estimateGas", [{data: data}]).then(res=>{
+				alert(res);
+				return res;
+			});
+		}
 
 		// Returns a NiceContract instance, which is:
 		//	- a regular web3 contract instance

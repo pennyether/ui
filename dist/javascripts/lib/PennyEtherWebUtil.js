@@ -437,7 +437,7 @@
 				_$content.show();
 				_onSliderChanged();
 			}, (e)=>{
-				_$loading.show().text(`Error: ${e}`);
+				_$loading.show().text(`Error: ${e.message}`);
 				_$content.hide();
 			});
 		}
