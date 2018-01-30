@@ -127,7 +127,7 @@
 		  	// done.
 		  	return statePromise.then((state)=>{
 		  		if (state.networkId > 10){
-		  			var registry = Registry.at("0xc4a1282aedb7397d10b8baa89639cfdaff2ee428");
+		  			var registry = Registry.at("0xcd54ae131487ac02b505d7c0d66a06c273cfd647");
 		  		} else {
 		  			var registry = Registry.at({
 		  				1: "0x0",

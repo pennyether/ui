@@ -1,6 +1,7 @@
 Loader.require("comp")
 .then(function(comp){
 	const _$progress = $(".progress");
+	const _$send = $(".send");
 	const _$progressAmt = $(".progress .amt");
 	const _$statSoftCap = $(".stat.softCap .value");
 	const _$statHardCap = $(".stat.hardCap .value");
@@ -74,8 +75,8 @@ Loader.require("comp")
 
 	// shows the number of tokens received for a given amount of Ether
 	function refreshContribute(){
+		const $numTokens = _$cont.find(".numTokens");
 		Promise.resolve().then(()=>{
-			const $numTokens = _$cont.find(".numTokens");
 			const $refund = _$cont.find(".refund");
 			const val = (new BigNumber(_$txtEther.val())).mul(1e18);
 			return comp.getTokensFromEth([val]).then((tokens)=>{
@@ -93,10 +94,10 @@ Loader.require("comp")
 	// sends transaction based on selection, shows results
 	function contribute() {
 		_$contBtn.blur();
-		var gas = 200000;
+		var gas = 175000;
 		const value = (new BigNumber(_$txtEther.val())).mul(1e18);
 		if (_totalRaised.gt(0)) gas = 100000;
-		if (_totalRaised.gt(_softCap)) gas = 75000;
+		if (_totalRaised.gt(_softCap)) gas = 80000;
 		const p = comp.sendTransaction({gas: gas, value: value});
 		const $ctnr = _$cont.find(".txStatus").show();
 		const $txStatus = util.$getTxStatus(p, {
@@ -126,7 +127,7 @@ Loader.require("comp")
 				if (!success && !failure) {
 					$msg.append(`
 						<div>
-							Your transaction did not return any expected events!
+							Your transaction did not return any expected events!<br>
 							Please double-check everything went ok.
 						</div>
 					`);
@@ -149,7 +150,7 @@ Loader.require("comp")
 			const wasSaleEnded = arr[1];
 			const bonusPct = arr[2].div(1e12).minus(1).mul(100);
 			const progressPct = _totalRaised.div(_hardCap).mul(100).toFixed(2);
-			if (bonusPct.equals(0)){ _$statBonus.hide(); }
+			if (bonusPct.lte(0)){ _$statBonus.parent().css("visibility","hidden"); }
 			if (_totalRaised.gt(_hardCap.minus(1))){
 				_$statHardCap.parent().addClass("reached");
 			};
@@ -184,6 +185,7 @@ Loader.require("comp")
 		if (!_dateSaleStarted){
 			_timeLeft = null;
 			_$progress.hide();
+			_$send.hide();
 			_$cdSummary.text(`Sale Date TBD. Check back soon.`);
 			return;
 		}
@@ -192,6 +194,11 @@ Loader.require("comp")
 		if (blockTime > _dateSaleEnded || _totalRaised && _totalRaised.equals(_hardCap)){
 			_timeLeft = null;
 			_$progress.show();
+			_$send.show();
+			if ($(".TxStatus:visible").length==0) {
+				$(".contribute").remove();
+				$(".requirements").remove();
+			}
 			_$cdSummary.text(`Sale Ended!`);
 			return;
 		}
@@ -201,6 +208,7 @@ Loader.require("comp")
 			_timeLeft = _dateSaleStarted - blockTime;
 			_timeLastUpdated = +new Date();
 			_$progress.hide();
+			_$send.hide();
 			_$cdSummary.text(`Sale starts ${util.toDateStr(_dateSaleStarted)}`);
 			refreshCountdown();
 			return;
@@ -211,6 +219,7 @@ Loader.require("comp")
 			_timeLeft = _dateSaleEnded - blockTime;
 			_timeLastUpdated = +new Date();
 			_$progress.show();
+			_$send.show();
 			_$cdSummary.text(`Sale ends ${util.toDateStr(_dateSaleEnded)}`);
 			refreshCountdown();
 			return;
