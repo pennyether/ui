@@ -141,21 +141,22 @@
 		// does a low-level JSON RPC call with provided method/params
 		this.sendAsync = function(method, params){
 	        return new Promise((res,rej)=>{
-	        	const paramsStr = JSON.stringify(params);
-	        	const name = `${method} (${paramsStr}`;
 	        	const obj = {
 		            jsonrpc: "2.0",
 		            method: method,
 		            params: params,
 		            id: new Date().getTime() + Math.round(Math.random()*1e12)
 		        };
-		        //console.log(`starting asyncSend: ${name}...`, obj);
 	        	_web3.currentProvider.sendAsync(obj, function(err, result){
-	        		//console.log(`finished asyncSend: ${name}...`, err, result);
 		        	if (err) rej(err);
 		        	if (result.error) rej(new Error(result.error.message));
 		        	else res(result.result);
 		        });	
+	        }).catch(e=>{
+	        	const paramsStr = JSON.stringify(params);
+	        	const name = `${method} (${paramsStr}`;
+	        	console.error(`Error with asyncCall: ${name} ${params}`, e);
+	        	throw e;
 	        });
 		};
 
@@ -175,6 +176,9 @@
 					reject(new Error(`"_web3.eth.${name}" returned null.`));
 				}
 				_web3.eth[name].apply(_web3.eth, args.concat(callback));
+			}).catch(e=>{
+				console.error(`web.eth.${name} call failed`, args, e);
+				throw e;
 			});
 		};
 

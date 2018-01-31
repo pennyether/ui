@@ -67,147 +67,152 @@
 				It's up to you to choose a Gas Price you are willing to pay. The higher it is, the more likely is is that your transaction will execute first. For each Task, we've provided a calculator to help you make an informed decision.
 			</div>
 		</div>
-		<div class="subsection paStart">
-			<div class="head">Start a Penny Auction</div>
-			<div class="body">
-				<div class="summary">
-					When an existing Penny Auction has ended, a new one can be started in its place. This costs quite a bit of gas, but rewards you a fixed amount of Ether.
-				</div>
-				<div>
-					<div class="no-reward">
-						There are currently no Penny Auctions to start. Keep an eye on <a href="/status/games.html">Game Statuses</a> and try again later.
-					</div>
-					<div class="fields">
-						<div class="field">
-							<div class="label tipLeft" title="Choose a gasPrice you are willing to pay to execute this reward, and the form will be updated.">GasPrice:</div>
-							<div class="value gasPriceSlider" style='vertical-align: middle'></div>
-						</div>
-						<div class="reward field">
-							<div class="label tipLeft" title="This is the amount you'll receive for executing this reward.">Reward:</div>
-							<div class="value"></div>
-						</div>
-						<div class="cost field">
-							<div class="label tipLeft" title="This is how much it will cost you to execute this reward.">Estimated Cost:</div>
-							<div class="value"></div>
-						</div>
-						<div class="profit field">
-							<div class="label tipLeft" title="This is your total profit for executing this reward.">Profit:</div>
-							<div class="value"></div>
-						</div>
-						<div class="risk field">
-							<div class="label tipLeft" title="If somebody else claims the reward before you, you'll lose up to this amount in gas costs.'">Risk:</div>
-							<input type=hidden class="failGasPrice" value="58277"/>
-							<div class="value"></div>
-						</div>
-						<div class="execute field">
-							<div class="label tipLeft" title="Click here to submit a transaction with your chosen gasPrice.">Execute:</div>
-							<div class="value">
-								<button>Claim Reward</button>
-							</div>
-						</div>
-						<div class="tx"></div>
-					</div>
-				</div>
-			</div>
-		</div>
+		<div style="margin: 0px 20px">
 
-		<div class="subsection paRefresh">
-			<div class="head">Refresh Penny Auctions</div>
-			<div class="body">
-				<div class="summary">
-					As Penny Auctions are run, they accumulate bid fees (revenue) which can be sent to the Treasury. Additionally, auctions may have ended and require paying the winner a reward. All of this costs gas. You'll be rewarded a percentage of the fees sent to the Treasury, as well as receive Ether any time a game is ended.
-				</div>
-				<div>
-					<div class="no-reward">
-						Refreshing Penny Auctions would currently receive no reward. Check back later.
+			<div class="subsection paStart">
+				<div class="head">Start a Penny Auction</div>
+				<div class="body">
+					<div class="summary">
+						When an existing Penny Auction has ended, a new one can be started in its place. This costs quite a bit of gas, but rewards you a fixed amount of Ether.
 					</div>
-					<div class="fields">
-						<div class="field">
-							<div class="label tipLeft" title="Choose a gasPrice you are willing to pay to execute this reward, and the form will be updated.">GasPrice:</div>
-							<div class="value gasPriceSlider" style='vertical-align: middle'></div>
+					<div>
+						<div class="no-reward">
+							There are currently no Penny Auctions to start. Keep an eye on <a href="/status/games.html">Game Statuses</a> and try again later.
 						</div>
-						<div class="settings field">
-							<div class="label tipLeft" title="These are the values at which you will be rewarded.">Settings:</div>
-							<div class="value">.01 ETH per auction ended + .1% of fees collected</div>
-						</div>
-						<div class="available field">
-							<div class="label tipLeft" title="These are the values at which you will be rewarded.">Available:</div>
-							<div class="value">2 auctions to end, .05 ETH fees to collect</div>
-						</div>
-						<div class="reward field">
-							<div class="label tipLeft" title="This is the amount you'll receive for executing this reward.">Reward:</div>
-							<div class="value"></div>
-						</div>
-						<div class="cost field">
-							<div class="label tipLeft" title="This is how much it will cost you to execute this reward.">Estimated Cost:</div>
-							<div class="value"></div>
-						</div>
-						<div class="profit field">
-							<div class="label tipLeft" title="This is your total profit for executing this reward.">Profit:</div>
-							<div class="value"></div>
-						</div>
-						<div class="risk field">
-							<div class="label tipLeft" title="If somebody else claims the reward before you, you'll lose up to this amount in gas costs.">Risk:</div>
-							<div class="value"></div>
-						</div>
-						<div class="execute field">
-							<div class="label tipLeft" title="Click here to submit a transaction with your chosen gasPrice.">Execute:</div>
-							<div class="value">
-								<button>Claim Reward</button>
+						<div class="fields">
+							<div class="field">
+								<div class="label tipLeft" title="Choose a gasPrice you are willing to pay to execute this reward, and the form will be updated.">GasPrice:</div>
+								<div class="value gasPriceSlider" style='vertical-align: middle'></div>
 							</div>
+							<div class="reward field">
+								<div class="label tipLeft" title="This is the amount you'll receive for executing this reward.">Reward:</div>
+								<div class="value"></div>
+							</div>
+							<div class="cost field">
+								<div class="label tipLeft" title="This is how much it will cost you to execute this reward.">Estimated Cost:</div>
+								<div class="value"></div>
+							</div>
+							<div class="profit field">
+								<div class="label tipLeft" title="This is your total profit for executing this reward.">Profit:</div>
+								<div class="value"></div>
+							</div>
+							<div class="risk field">
+								<div class="label tipLeft" title="If somebody else claims the reward before you, you'll lose up to this amount in gas costs.'">Risk:</div>
+								<input type=hidden class="failGasPrice" value="58277"/>
+								<div class="value"></div>
+							</div>
+							<div class="execute field">
+								<div class="label tipLeft" title="Click here to submit a transaction with your chosen gasPrice.">Execute:</div>
+								<div class="value">
+									<button>Claim Reward</button>
+								</div>
+							</div>
+							<div class="tx"></div>
 						</div>
-						<div class="tx"></div>
 					</div>
 				</div>
 			</div>
-		</div>
 
-		<div class="subsection trDiv">
-			<div class="head">Distribute Dividends</div>
-			<div class="body">
-				<div class="summary">
-					When the Treasury has a surplus of funds, it is able to distribute dividends to token holders. This costs a small amount of gas, but rewards you with a percentage of the dividends distributed.
-				</div>
-				<div>
-					<div class="no-reward">
-						There are currently no profits to distribute, so this reward is currently unavailable. Keep an eye on the <a href="/status/treasury.html">Treasury Status</a> and try again later.
+			<div class="subsection paRefresh">
+				<div class="head">Refresh Penny Auctions</div>
+				<div class="body">
+					<div class="summary">
+						As Penny Auctions are run, they accumulate bid fees (revenue) which can be sent to the Treasury. Additionally, auctions may have ended and require paying the winner a reward. All of this costs gas. You'll be rewarded a percentage of the fees sent to the Treasury, as well as receive Ether any time a game is ended.
 					</div>
-					<div class="fields">
-						<div class="field">
-							<div class="label tipLeft" title="Choose a gasPrice you are willing to pay to execute this reward, and the form will be updated.">GasPrice:</div>
-							<div class="value gasPriceSlider" style='vertical-align: middle'></div>
+					<div>
+						<div class="no-reward">
+							Refreshing Penny Auctions would currently receive no reward. Check back later.
 						</div>
-						<div class="amount field">
-							<div class="label tipLeft" title="This is the amount of Ether able to be distributed to token holders.">Profits to distribute:</div>
-							<div class="value"></div>
-						</div>
-						<div class="reward field">
-							<div class="label tipLeft" title="This is the amount you'll receive for executing this reward.">Reward:</div>
-							<div class="value"></div>
-						</div>
-						<div class="cost field">
-							<div class="label tipLeft" title="This is how much it will cost you to execute this reward.">Estimated Cost:</div>
-							<div class="value"></div>
-						</div>
-						<div class="profit field">
-							<div class="label tipLeft" title="This is your total profit for executing this reward.">Profit:</div>
-							<div class="value"></div>
-						</div>
-						<div class="risk field">
-							<div class="label tipLeft" title="If somebody else claims the reward before you, you'll lose up to this amount in gas costs.">Risk:</div>
-							<input type=hidden class="failGasPrice" value="25424"/>
-							<div class="value"></div>
-						</div>
-						<div class="execute field">
-							<div class="label tipLeft" title="Click here to submit a transaction with your chosen gasPrice.">Execute:</div>
-							<div class="value">
-								<button>Claim Reward</button>
+						<div class="fields">
+							<div class="field">
+								<div class="label tipLeft" title="Choose a gasPrice you are willing to pay to execute this reward, and the form will be updated.">GasPrice:</div>
+								<div class="value gasPriceSlider" style='vertical-align: middle'></div>
 							</div>
+							<div class="settings field">
+								<div class="label tipLeft" title="These are the values at which you will be rewarded.">Settings:</div>
+								<div class="value">.01 ETH per auction ended + .1% of fees collected</div>
+							</div>
+							<div class="available field">
+								<div class="label tipLeft" title="These are the values at which you will be rewarded.">Available:</div>
+								<div class="value">2 auctions to end, .05 ETH fees to collect</div>
+							</div>
+							<div class="reward field">
+								<div class="label tipLeft" title="This is the amount you'll receive for executing this reward.">Reward:</div>
+								<div class="value"></div>
+							</div>
+							<div class="cost field">
+								<div class="label tipLeft" title="This is how much it will cost you to execute this reward.">Estimated Cost:</div>
+								<div class="value"></div>
+							</div>
+							<div class="profit field">
+								<div class="label tipLeft" title="This is your total profit for executing this reward.">Profit:</div>
+								<div class="value"></div>
+							</div>
+							<div class="risk field">
+								<div class="label tipLeft" title="If somebody else claims the reward before you, you'll lose up to this amount in gas costs.">Risk:</div>
+								<div class="value"></div>
+							</div>
+							<div class="execute field">
+								<div class="label tipLeft" title="Click here to submit a transaction with your chosen gasPrice.">Execute:</div>
+								<div class="value">
+									<button>Claim Reward</button>
+								</div>
+							</div>
+							<div class="tx"></div>
 						</div>
-						<div class="tx"></div>
 					</div>
 				</div>
 			</div>
+
+
+			<div class="subsection trDiv">
+				<div class="head">Distribute Dividends</div>
+				<div class="body">
+					<div class="summary">
+						When the Treasury has a surplus of funds, it is able to distribute dividends to token holders. This costs a small amount of gas, but rewards you with a percentage of the dividends distributed.
+					</div>
+					<div>
+						<div class="no-reward">
+							There are currently no profits to distribute, so this reward is currently unavailable. Keep an eye on the <a href="/status/treasury.html">Treasury Status</a> and try again later.
+						</div>
+						<div class="fields">
+							<div class="field">
+								<div class="label tipLeft" title="Choose a gasPrice you are willing to pay to execute this reward, and the form will be updated.">GasPrice:</div>
+								<div class="value gasPriceSlider" style='vertical-align: middle'></div>
+							</div>
+							<div class="amount field">
+								<div class="label tipLeft" title="This is the amount of Ether able to be distributed to token holders.">Profits to distribute:</div>
+								<div class="value"></div>
+							</div>
+							<div class="reward field">
+								<div class="label tipLeft" title="This is the amount you'll receive for executing this reward.">Reward:</div>
+								<div class="value"></div>
+							</div>
+							<div class="cost field">
+								<div class="label tipLeft" title="This is how much it will cost you to execute this reward.">Estimated Cost:</div>
+								<div class="value"></div>
+							</div>
+							<div class="profit field">
+								<div class="label tipLeft" title="This is your total profit for executing this reward.">Profit:</div>
+								<div class="value"></div>
+							</div>
+							<div class="risk field">
+								<div class="label tipLeft" title="If somebody else claims the reward before you, you'll lose up to this amount in gas costs.">Risk:</div>
+								<input type=hidden class="failGasPrice" value="25424"/>
+								<div class="value"></div>
+							</div>
+							<div class="execute field">
+								<div class="label tipLeft" title="Click here to submit a transaction with your chosen gasPrice.">Execute:</div>
+								<div class="value">
+									<button>Claim Reward</button>
+								</div>
+							</div>
+							<div class="tx"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
 		</div>
 	</div></body>
 </html>

@@ -327,8 +327,9 @@
 		<div id="BidTip" style="display:none;">
 			<div class="htBidTip">
 				<div class="title">Bid with confidence.</div>
-				<div class="info">It only costs a little bit to play! And, if your bid doesn't result in you becoming the current winner, it is refunded. You'll get your remaining gas back, too.</div>
-				<div class="aboveList">Your bid will be refunded if:</div>
+				<div class="info">It only costs a little bit to play! Send the bid fee to the auction, and become the current winner.
+				<br><br>
+				You'll get refunded, and some gas back, if for any reason you don't become the current winner:</div>
 				<div class="item">• The auction has already ended.</div>
 				<div class="item">• Someone bids after you in the same block.</div>
 				<div class="item">• You are already the current winner.</div>
@@ -337,7 +338,7 @@
 		</div>
 		<div id="WaitTip" style="display: none;">
 			<div class="waitTip">
-				<div class="title">Wait for the auction to expire.</div>
+				<div class="title">Wait for the auction to end.</div>
 				<div class="item">• Each bid adds a few blocks to the auction time.</div>
 				<div class="item">• If nobody else bids, you win!</div>
 			</div>
@@ -882,22 +883,24 @@
 			transition: opacity .3s ease-out 1s;
 		}
 		</style>
-		<div class="subsection activeAuctions">
-			<div class="head">
-				Live Auctions
-				<div class="refreshNotice">Refreshing</div>
+		<div style="margin: 0px 20px">
+			<div class="subsection activeAuctions">
+				<div class="head">
+					Live Auctions
+					<div class="refreshNotice">Refreshing</div>
+				</div>
+				<div class="body">
+					<div class="auctions">Loading...</div>
+				</div>
 			</div>
-			<div class="body">
-				<div class="auctions">Loading...</div>
-			</div>
-		</div>
-		<div class="subsection endedAuctions">
-			<div class="head">
-				Ended Auctions
-				<div class="refreshNotice">Refreshing</div>
-			</div>
-			<div class="body">
-				<div class="auctions">Loading...</div>
+			<div class="subsection endedAuctions">
+				<div class="head">
+					Ended Auctions
+					<div class="refreshNotice">Refreshing</div>
+				</div>
+				<div class="body">
+					<div class="auctions">Loading...</div>
+				</div>
 			</div>
 		</div>
 	</div>

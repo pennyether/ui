@@ -32,15 +32,15 @@
 		</style>
 	</head>
 	<body><div id="Content">
-		<div class="section title">
+		<div class="pageTitle">
 			Game Statuses
 		</div>
-		<div id="PennyAuctions" class="section">
-			<div class="head">Penny Auctions</div>
-			<div class="body">
-				<div class="subsection">
-					<div class="head">Stats</div>
-					<div class="body stats">
+		<div style="margin: 0px 20px;">
+			<div id="PennyAuctions" class="subsection">
+				<div class="head">Penny Auctions</div>
+				<div class="body">
+					<h3>Stats</h3>
+					<div class="stats">
 						<div>
 							<span class="tipLeft" title="This contract can be upgraded. This identifies which version is currently in use.">
 								Version:
@@ -73,14 +73,11 @@
 						</div><br>
 						<div id="PacLogs"></div>
 					</div>
-				</div>
-				<div class="subsection">
-					<div class="head">
-						<span title="Penny Auctions are all pre-defined by an admin. MainController will periodically look for any enabled pre-defined auctions that are completed and will restart them by creating a new auction instance. This ensures there are always Penny Auctions running.">
-							Pre-Defined Auctions
-						</span>
-					</div>
-					<div class="body definedAuctions">
+
+					<h3>
+						<span title="Penny Auctions are all pre-defined by an admin. MainController will periodically look for any enabled pre-defined auctions that are completed and will restart them by creating a new auction instance. This ensures there are always Penny Auctions running.">Pre-Defined Auctions</span>
+					</h3>
+					<div class="definedAuctions">
 						<div class="definedAuction definedAuctionTemplate" style="display: none;">
 							<div class="name">Auction 1</div>
 							<div class="isEnabled field">
@@ -129,13 +126,11 @@
 					</div>
 				</div>
 			</div>
-		</div>
-		<div id="Status" class="section">
-			<div class="head">Dice</div>
-			<div class="body">
-				<div class="subsection">
-					<div class="head">Stats</div>
-					<div class="body stats">
+			<div id="Status" class="subsection">
+				<div class="head">InstaDice</div>
+				<div class="body">
+					<h3>Stats</h3>
+					<div class="stats">
 						<div>
 							<span class="tipLeft" title="This contract can be upgraded. This identifies which version is currently in use.">
 								Version:
@@ -185,10 +180,9 @@
 							<span id="DiceTotalProfit"></span>
 						</div>
 					</div>
-				</div>
-				<div class="subsection">
-					<div class="head">Settings</div>
-					<div class="body stats">
+
+					<h3>Settings</h3>
+					<div class="stats">
 						<div>
 							<span class="tipLeft" title="The house fee.">
 								House Fee:
