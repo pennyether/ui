@@ -75,7 +75,7 @@ Loader.require("pac", "dice")
 	function refreshDice() {
 		util.bindToElement(dice.version(), $("#DiceVersion"));
 		util.bindToElement(ethUtil.getBalance(dice.address).then(ethUtil.toEthStr), $("#DiceBalance"));
-		util.bindToElement(dice.minBankroll().then(ethUtil.toEthStr), $("#DiceMinBankroll"));
+		util.bindToElement(dice.funding().then(ethUtil.toEthStr), $("#DiceMinBankroll"));
 		util.bindToElement(dice.bankroll().then(ethUtil.toEthStr), $("#DiceBankroll"));
 		util.bindToElement(dice.curId(), $("#DiceTotalRolls"));
 		

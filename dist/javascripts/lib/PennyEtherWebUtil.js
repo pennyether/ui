@@ -188,6 +188,10 @@
 					topicName: value,
 					topic2Name: value
 				}
+				formatters: {
+					eventArg1: function(val){ ... }
+					eventArg2: function(val){ ... }
+				}
 			},{ ... }],
 			$head: content to put into head
 			// which order to retrieve logs
@@ -346,17 +350,11 @@
 				$argVals = Object.keys(e.args || [])
 					.filter(name=>name!=="time")
 					.map(name=>{
-						const val = e.args[name];
-						const $e = $("<span></span>").append(`<b>${name}</b>: `);
-						if (val.toNumber && val.gt(1000000000)){
-							$e.append(ethUtil.toEthStr(val));	
-						} else if (!val.toNumber && val.toString().length==42) {
-							$e.append(util.$getShortAddrLink(val));
-						} else {
-							$e.append(val.toString());
-						}
-						return $e;
-					});
+						const eventDef = opts.events.find(def => def.name===e.name);
+						const formatter = (eventDef.formatters || {})[name] || _defaultFormatter;
+						return formatter(e.args[name], name);
+					})
+					.filter(str => !!str);
 			}
 			
 			const $e = $("<div></div>").append(`<b>${e.name}</b> - `);
@@ -364,6 +362,17 @@
 				if (i!==0) $e.append(", ");
 				$e.append($v)
 			});
+			return $e;
+		}
+		function _defaultFormatter(val, name) {
+			const $e = $("<span></span>").append(`<b>${name}</b>: `);
+			if (val.toNumber && val.gt(1000000000)){
+				$e.append(ethUtil.toEthStr(val));	
+			} else if (!val.toNumber && val.toString().length==42) {
+				$e.append(util.$getShortAddrLink(val));
+			} else {
+				$e.append(val.toString());
+			}
 			return $e;
 		}
 

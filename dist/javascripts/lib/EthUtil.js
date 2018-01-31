@@ -267,12 +267,12 @@
 				const curBlockNum = block.number;
 				const curBlockTime = block.timestamp;
 				return Promise.all([
-					_self.getBlock(curBlockNum-100),
-					_self.getBlock(curBlockNum-1000),
-					_self.getBlock(curBlockNum-5000),
+					_self.getBlock(Math.max(0, curBlockNum-50)),
+					_self.getBlock(Math.max(0, curBlockNum-500)),
+					_self.getBlock(Math.max(0, curBlockNum-5000)),
 				]).then(arr=>{
-					const num = ((curBlockTime - arr[0].timestamp)/100
-						     +   (curBlockTime - arr[1].timestamp)/1000
+					const num = ((curBlockTime - arr[0].timestamp)/50
+						     +   (curBlockTime - arr[1].timestamp)/500
 						     +   (curBlockTime - arr[2].timestamp)/5000)
 							     / 3;
 					return new BigNumber(num.toFixed(15));
@@ -330,7 +330,7 @@
 		}
 		this.toTokenStr = function(val, digits) {
 			if (digits===undefined) digits = 4;
-			return _self.toEth(val).toFixed(digits) + " Tokens";
+			return _self.toEth(val).toFixed(digits) + " Penny";
 		}
 		this.toWei = function(val) {
 			try { var bn = new BigNumber(val); }

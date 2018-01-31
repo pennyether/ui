@@ -184,7 +184,7 @@
 			return {
 				then: function(cb) {
 					return Promise.resolve(p).then(arr=>{
-						cb.apply(null, arr);
+						return cb.apply(null, arr);
 					});
 				}
 			}
