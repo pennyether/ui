@@ -6,21 +6,49 @@
 		<style>
 			.fieldList {
 				display: table;
+				width: 100%;
 			}
 			.fieldList > .field {
 				display: table-row;
 			}
 			.fieldList > .field > .label {
 				display: table-cell;
+				vertical-align: top;
 				white-space: nowrap;
-				padding: 4px 20px 4px 4px;
+				padding: 10px 20px 4px 4px;
 			}
 			.fieldList > .field > .value {
-				padding: 10px;
 				display: table-cell;
+				vertical-align: top;
+				width: 100%;
+				padding: 10px;
 			}
 			.subsection {
 				padding: 0px 20px;
+			}
+			.marginTop {
+				margin-top: 10px;
+			}
+			.field .status .error {
+				color: red;
+			}
+			.field .status .success {
+				color: green;
+			}
+			.field .warning {
+				max-width: 500px;
+				border-radius: 4px;
+				text-align: center;
+				font-size: 80%;
+				margin: 10px;
+				background: #FEE;
+				border: 1px solid #FCC;
+				padding: 10px;
+			}
+			.btnBurn {
+				font-size: 110%;
+				background: red;
+				color: white;
 			}
 
 			#AccountAddr {
@@ -33,7 +61,7 @@
 		<div class="pageTitle">
 			Token Holder UI
 		</div>
-		<div class="subsection" style="position: relative;">
+		<div class="subsection">
 			<div class="head">Token Contract</div>
 			<div class="body fieldList">
 				<div class="field address">
@@ -50,7 +78,7 @@
 			</div>
 		</div>
 		<div class="subsection">
-			<div class="head">My Account</div>
+			<div class="head">Account Details</div>
 			<div class="body">
 				<div class="fieldList">
 					<div class="field acctAddr">
@@ -72,8 +100,15 @@
 					<div class="field owedDivs">
 						<div class="label tipLeft" title="The amount of Ether owed as dividends, collectable at any time.">Dividends Owed:</div>
 						<div class="value">
-							<span class="owedDivs"></span> <button class="btnCollect">collect</button>
-							<div class="tx"></div>
+							<span class="owedDivs"></span>
+						</div>
+					</div>
+					<div class="field collectDivs" style="display: none;">
+						<div class="label tipLeft" title="Collects all dividends owed to the currently logged in account.">Collect Dividends:</div>
+						<div class="value">
+							<div class="gasSlider"></div>
+							<button class="btnCollect marginTop">Collect</button>
+							<div class="status marginTop"></div>
 						</div>
 					</div>
 					<div class="field">
@@ -86,13 +121,18 @@
 
 				<h3>Transfer</h3>
 				<div class="fieldList">
-					<div class="field">
+					<div class="field transfer" style="display: none;">
 						<div class="label tipLeft" title="Transfers tokens from the Token Holder to another Ethereum account.">Transfer:</div>
 						<div class="value">
-							<div>To: <input type=text></div>
-							<div>Amount: <input type=text></div>
-							<button class="btnTransfer">Transfer</button>
-							<div class="tx"></div>
+							<div>
+								To: <input type=text class="transferTo" placeholder="address">
+							</div>
+							<div class="marginTop">
+								Amount: <input type=text class="transferAmt" placeholder="amount"> Penny
+							</div>
+							<div class="gasSlider marginTop"></div>
+							<button class="btnTransfer marginTop">Transfer</button>
+							<div class="status marginTop"></div>
 						</div>
 					</div>
 					<div class="field">
@@ -105,13 +145,20 @@
 
 				<h3>Burn</h3>
 				<div class="fieldList">
-					<div class="field">
+					<div class="field burn" style="display: none;">
 						<div class="label tipLeft" title="Burns tokens for .5 Ether each.<br><b>Once burned, tokens are gone forever.</b>">Burn Tokens:</div>
 						<div class="value">
-							<div>Amount: <input type=text class="txtTransfer"> Penny</div>
-							<div>Will refund <span class="amtBurnEth"></span></div>
-							<button class="btnBurn">Burn</button>
-							<div class="tx"></div>
+							<div>
+								Amount: <input type=text class="burnAmt"> Penny
+							</div>
+							<div class="gasSlider marginTop"></div>
+							<div class="warning">
+								This will burn tokens, sending a <b>.5 Ether refund for each token burned.</b><br>
+								Once tokens are burned, they are gone forever.<br>
+								If you wish to burn your entire balance, pass in a large number.<br>
+								<button class="btnBurn marginTop">Burn</button>
+							</div>
+							<div class="status marginTop"></div>
 						</div>
 					</div>
 					<div class="field">

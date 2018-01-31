@@ -45,7 +45,15 @@
 		}
 
 		this.$getTxStatus = function(p, opts) {
-			return (new TxStatus(p, opts, _self)).$e;
+			const txStatus = new TxStatus(_self);
+			txStatus.setTxPromise(p, opts);
+			return txStatus.$e;
+		}
+
+		this.getTxStatus = function(opts) {
+			const txStatus = new TxStatus(_self);
+			txStatus.addOpts(opts);
+			return txStatus;
 		}
 
 		this.$getShortAddrLink = function(addr) {
@@ -393,7 +401,7 @@
 	//		- null if no value chosen
 	//		- otherwise a regular Number
 	function GasPriceSlider(defaultGWei, autoChoose){
-		const CHOOSEN_WAIT_TIME_S = 60;
+		const AUTO_WAIT_TIME_S = 60;
 		if (autoChoose===undefined) autoChoose = true;
 		
 		const _$e = $(`
@@ -417,14 +425,20 @@
 		var _gasData = {};
 		var _value = defaultGWei || new BigNumber(0);
 		var _waitTimeS = null;
-		var _hasValue = false;
 		var _onChangeCb;
 
+		// Retrieves gas data (up to 60s old)
+		// Populates available gasPrices:
+		//	- All gWei between 2 blocks and 2 hours waitTime, incremented by 1 GWei
+		//	- discards gasPrices that are too slow or pointlessly expensive
+		// If autoChoose is true:
+		//	- selects least expensive gas price with waitTimeS <= AUTO_WAIT_TIME_S
+		// If autoChoose is false
+		//	- selects defaultGWei gas price, which will snap to closest available gasPrice
 		function _refresh() {
 			_$loading.show().text(`Loading gas data...`);
 			_$content.hide();
 			ethUtil.getGasPrices().then(data=>{
-				// get min and max, populate gasData
 				var min = null;
 				var max = null;
 				var auto = Infinity;
@@ -435,9 +449,9 @@
 					if (!min && d.waitTimeS <= 2*60*60) min = d.gasPrice;
 					if (!max && d.waitBlocks <= 2) max = d.gasPrice;
 					// autochoose value to smallest value that meets criteria
-					if (autoChoose && d.waitTimeS <= CHOOSEN_WAIT_TIME_S) auto = Math.min(auto, d.gasPrice);
+					if (autoChoose && d.waitTimeS <= AUTO_WAIT_TIME_S) auto = Math.min(auto, d.gasPrice);
 				});
-				if (auto!==Infinity) _value = auto;
+				if (auto !== Infinity) _value = auto;
 				if (min < 1) { max = max + min; }
 				_$slider.attr("min", min).attr("max", max).val(_value);
 				if (_$slider.val() > max) _$slider.val(max);
@@ -451,6 +465,8 @@
 			});
 		}
 
+		// sets _value and _waitTimeS to the closest matching _gasData[] value.
+		// updates display of _$wait and _$gasPrice
 		function _onSliderChanged() {
 			var val = _$slider.val();
 			if (!_gasData[val]) {
@@ -494,60 +510,73 @@
 		this.$e = _$e;
 	}
 
-	function TxStatus(p, opts, _util) {
-		if (!opts) opts = {};
-
+	// A container that shows the progress of a txPromise
+	// Includes many options, and can be used to show non-tx errors
+	function TxStatus(_util) {
 		const _$e = $(`
 			<div class='TxStatus'>
 				<div class='clear'>clear</div>
 				<div class='status'></div>
 			</div>
 		`);
+		const _opts = {};
 		const _$clear = _$e.find(".clear").hide();
 		const _$status = _$e.find(".status");
 
-		const _miningMsg = opts.miningMsg || "Your transaction is being mined...";
-		const _successMsg = opts.successMsg || "Your transaction was mined!";
-		const _waitTimeMs = opts.waitTimeMs || 15000;
-		const _onClear = opts.onClear || function(){};
-		const _onSuccess = opts.onSuccess || function(){};
-		var _txId;
-		var _loadingBar;
-
 		_$clear.click(function(){
 			_$e.remove();
-			_onClear();
+			(_opts.onClear || function(){})();
 		});
 
-		_$status.text("Waiting for signature...");
-		p.getTxHash.then(function(tId){
-			_txId = tId;
-			_loadingBar = _util.getLoadingBar(_waitTimeMs);
-			_$status.empty()
-				.append(_util.$getTxLink(_miningMsg, _txId))
-				.append(_loadingBar.$e);
-		});
+		function _setTxPromise(p, opts) {
+			_addOpts(opts);
+			const miningMsg = _opts.miningMsg || "Your transaction is being mined...";
+			const successMsg = _opts.successMsg || "Your transaction was mined!";
+			const waitTimeMs = _opts.waitTimeMs || 15000;
+			const onSuccess = _opts.onSuccess || function(){};
+			var txId;
+			var loadingBar;
 
-		p.then(function(res){
-			_$clear.show();
-			_loadingBar.finish(500).then(()=>{
-				_$status.empty().append(_util.$getTxLink(_successMsg, _txId));
-				_onSuccess(res);
+			_$status.text("Waiting for signature...");
+			p.getTxHash.then(function(tId){
+				txId = tId;
+				loadingBar = _util.getLoadingBar(waitTimeMs);
+				_$status.empty()
+					.append(_util.$getTxLink(miningMsg, txId))
+					.append(loadingBar.$e);
 			});
-		}).catch((e)=>{
-			_$clear.show();
-			if (_txId) {
-				_loadingBar.finish(500).then(()=>{
-					_$status.empty()
-						.append(util.$getTxLink("Your tx failed.", _txId))
-						.append(`<br>${e.message}`);
-				});
-			} else {
-				_$status.text(`${e.message.split("\n")[0]}`);	
-			}
-		});
 
+			p.then(function(res){
+				_$clear.show();
+				loadingBar.finish(500).then(()=>{
+					_$status.empty().append(_util.$getTxLink(successMsg, txId));
+					onSuccess(res);
+				});
+			}).catch((e)=>{
+				_$clear.show();
+				if (txId) {
+					loadingBar.finish(500).then(()=>{
+						_$status.empty()
+							.append(util.$getTxLink("Your tx failed.", txId))
+							.append(`<br>${e.message}`);
+					});
+				} else {
+					_$status.text(`${e.message.split("\n")[0]}`);	
+				}
+			});
+		}
+
+		function _addOpts(opts) {
+			if (!opts) return;
+			Object.assign(_opts, opts);
+		}
+
+		this.setTxPromise = (p, opts) => { _setTxPromise(p, opts); };
+		this.setStatus = (str) => { _$status.text(str); };
+		this.addOpts = (opts) => { _addOpts(opts); };
+		this.fail = (str) => { _$clear.show(); _$status.text(str); };
 		this.$e = _$e;
+		this.$status = _$status;
 	}
 	
 	window.PennyEtherWebUtil = PennyEtherWebUtil;

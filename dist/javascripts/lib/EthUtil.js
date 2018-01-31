@@ -279,7 +279,11 @@
 				});
 			});
 		}
-		// returns the gasPrices, refreshing if older than 1 minute
+
+		// Returns the gasPrices, refreshing if older than 1 minute
+		// To reduce HTTP calls, all calls are memoized.
+		// EthGasStation we love you for allowing cross origin requests.
+		// Sincerely, we thank you.
 		var _lastGasPrices;
 		var _gasPricePromise;
 		this.getGasPrices = function(){

@@ -3,14 +3,12 @@ Loader.require("comp")
 	return comp.token();
 }).then(tokenAddr=>{
 	const token = DividendToken.at(tokenAddr);
-	const $logViewer = util.$getLogViewer({
-		events: [{
-			instance: token,
-			name: "DividendReceived"
-		}],
-		order: "newest",
-		$head: "Dividend History"
-	});
+	const collectGps = util.getGasPriceSlider();
+	const transferGps = util.getGasPriceSlider();
+	const burnGps = util.getGasPriceSlider();
+	const $collectDivs = $(".field.collectDivs");
+	const $transfer = $(".field.transfer");
+	const $burn = $(".field.burn");
 
 	ethUtil.onStateChanged((state)=>{
 		if (!state.isConnected) return;
@@ -19,9 +17,21 @@ Loader.require("comp")
 	});
 
 	// initialize dividend logs
-	$(".divHistory").append($logViewer);
+	$(".divHistory").append(util.$getLogViewer({
+		events: [{
+			instance: token,
+			name: "DividendReceived"
+		}],
+		order: "newest",
+		$head: "Dividend History"
+	}));
+
 	// initialize account address
 	$("#AccountAddr").val(ethUtil.getCurrentAccount());
+	// append sliders
+	$collectDivs.find(".gasSlider").append(collectGps.$e);
+	$transfer.find(".gasSlider").append(transferGps.$e);
+	$burn.find(".gasSlider").append(burnGps.$e);
 	// bind events
 	$("#RefreshAcct").click(refreshAccount);
 	$(".btnCollect").click(doCollect);
@@ -42,11 +52,23 @@ Loader.require("comp")
 		const $collectHistory = $(".collectHistory").empty();
 		const $transferHistory = $(".transferHistory").empty();
 		const $mintHistory = $(".mintHistory").empty();
+		collectGps.refresh();
+		burnGps.refresh();
+		transferGps.refresh();
 
 		if (!addr || addr.length!=42) {
 			$(".field.acctAddr .value .error").show().text("Invalid address.");
 			return;
 		} else {
+			if (ethUtil.getCurrentAccount() == addr) {
+				$collectDivs.show();
+				$transfer.show();
+				$burn.show();
+			} else {
+				$collectDivs.hide();
+				$transfer.hide();
+				$burn.hide();
+			}
 			$(".field.acctAddr .value .error").hide();
 		}
 
@@ -117,12 +139,128 @@ Loader.require("comp")
 	}
 
 	function doCollect(){
-		alert("collect");
+		const addr = ethUtil.getCurrentAccount();
+		const txStatus = util.getTxStatus({ onClear: ()=>$status.hide() });
+		const $status = $collectDivs.find(".status").show().empty().append(txStatus.$e);
+
+		if (!addr) {
+			ethStatus.open();
+			txStatus.fail("No account available.");
+			return;
+		}
+
+		txStatus.setStatus("Checking for dividends...");
+		token.getOwedDividends([addr]).then(owed=>{
+			if (owed.lte(0)) {
+				txStatus.fail("No dividends to collect.");
+				return;
+			}
+			const p = token.collectOwedDividends([], {gasPrice: collectGps.getValue()});
+			const $txStatus = txStatus.setTxPromise(p, {
+				onSuccess: function(res){
+					// event CollectedDividends(address indexed account, uint amount);
+					const collected = res.events.find(e=>e.name=="CollectedDividends");
+					const $msg = $("<div></div>");
+					if (collected) {
+						const $account = util.$getShortAddrLink(collected.args.account);
+						const ethStr = ethUtil.toEthStr(collected.args.amount);
+						$msg.addClass("success").text(`Sent ${ethStr} to `).append($account).append(".");
+					} else {
+						$msg.addClass("error").text(`No dividend collected.`);
+					}
+					txStatus.$status.append($msg);
+				}
+			});
+		});
 	}
+
 	function doTransfer(){
-		alert("transfer");
+		const addr = ethUtil.getCurrentAccount();
+		const to = $transfer.find(".transferTo").val();
+		var amt = $transfer.find(".transferAmt").val();
+		const txStatus = util.getTxStatus({ onClear: ()=>$status.hide() });
+		const $status = $transfer.find(".status").show().empty().append(txStatus.$e);
+		
+		if (!addr) {
+			ethStatus.open();
+			txStatus.fail("No account available.");
+			return;
+		}
+		if (!to || to.length!=42){
+			txStatus.fail("Invalid 'to' address. Should begin with 0x and be 42 characters long.");
+			return;
+		}
+		try {
+			amt = (new BigNumber(amt)).mul(1e18);
+		}catch(e){
+			txStatus.fail(`Invalid amount. Must be a number.`);
+			return;
+		}
+
+		txStatus.setStatus("Checking balance...");
+		token.balanceOf([addr]).then(balance=>{
+			const balanceStr = ethUtil.toTokenStr(balance);
+			if (amt.gt(balance)){
+				const amtStr = ethUtil.toTokenStr(amt);
+				txStatus.fail(`Balance is only ${balanceStr}, cannot send ${amtStr}.`);
+				return;
+			}
+
+			const p = token.transfer([to, amt]);
+			const $txStatus = txStatus.setTxPromise(p, {
+				onSuccess: function(res){
+					//event Transfer(address indexed from, address indexed to, uint amount);
+					const transfered = res.events.find(e=>e.name=="Transfer");
+					const $msg = $("<div></div>");
+					if (transfered) {
+						const $from = util.$getShortAddrLink(transfered.args.from);
+						const $to = util.$getShortAddrLink(transfered.args.to);
+						const amtStr = ethUtil.toTokenStr(transfered.args.amount);
+						$msg.addClass("success")
+							.text(`Transferred ${amtStr} from `).append($from)
+							.append(" to ").append($to).append(".");
+					} else {
+						$msg.addClass("error").text(`No transfer occurred.`);
+					}
+					txStatus.$status.append($msg);
+				}
+			});
+		});
 	}
+
 	function doBurn(){
-		alert("burn");
+		const addr = ethUtil.getCurrentAccount();
+		var amt = $burn.find(".burnAmt").val();
+		const txStatus = util.getTxStatus({ onClear: ()=>$status.hide() });
+		const $status = $burn.find(".status").show().empty().append(txStatus.$e);
+		
+		if (!addr) {
+			ethStatus.open();
+			txStatus.fail("No account available.");
+			return;
+		}
+		try {
+			amt = (new BigNumber(amt)).mul(1e18);
+		}catch(e){
+			txStatus.fail(`Invalid amount. Must be a number.`);
+			return;
+		}
+
+		const p = comp.burnTokens([amt]);
+		const $txStatus = txStatus.setTxPromise(p, {
+			onSuccess: function(res){
+				// event UserRefunded(uint time, address indexed sender, uint numTokens, uint refund);
+				const refunded = res.events.find(e=>e.name=="UserRefunded");
+				const $msg = $("<div></div>");
+				if (refunded) {
+					const tokensStr = ethUtil.toTokenStr(refunded.args.numTokens);
+					const ethStr = ethUtil.toEthStr(refunded.args.refund);
+					$msg.addClass("success").text(`Burned ${tokensStr} for ${ethStr}.`);
+				} else {
+					$msg.addClass("error").text(`No burning occurred.`);
+				}
+				txStatus.$status.append($msg);
+			}
+		});
 	}
 });
