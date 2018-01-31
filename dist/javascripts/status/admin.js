@@ -123,11 +123,11 @@ Loader.require("reg", "tr", "mc", "pac", "dice")
 					});
 
 					if (index == num){
-						$defined.find(".change").text("ADD");
+						$defined.find(".change").text("Add");
 						$defined.find(".enable").parent().remove();
 						$defined.find(".disable").parent().remove();
 					}else{
-						$defined.find(".change").text("UPDATE");
+						$defined.find(".change").text("Save Changes");
 						if (res[1]){
 							$defined.find(".enable").parent().remove();
 							makeTxDiv($defined.find(".disable"), (gasPrice)=>{

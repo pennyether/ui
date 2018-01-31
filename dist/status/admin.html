@@ -32,6 +32,11 @@
 		}
 		button {
 			margin-top: 4px;
+			padding: 2px 15px;
+			font-size: 100%;
+			background: green;
+			color: white;
+			cursor: pointer;
 		}
 		.line {
 			padding: 2px;
@@ -43,7 +48,7 @@
 
 		.definedAuctionAction {
 			display: inline-block;
-			width: 250px;
+			width: 400px;
 			border: 1px dotted gray;
 			background: white;
 			padding: 5px;
@@ -96,7 +101,7 @@
 						</div>
 						<div class="value dailyFundLimit">
 							<input type=text id="TrDailyFundLimit" placeholder="eth"> Eth
-							<button id="TrChangeDailyFundLimit">SET DAILY LIMIT</button>
+							<button id="TrChangeDailyFundLimit">Save Changes</button>
 						</div>
 					</div>
 				</div>
@@ -132,7 +137,7 @@
 					<div class="field">
 						<div class="label">Change:</div>
 						<div class="value changePaRewards">
-							<button id="McChangePaRewards">SET REWARDS</button>
+							<button id="McChangePaRewards">Save Changes</button>
 						</div>
 					</div>
 				</div>
@@ -182,13 +187,13 @@
 							</div>
 						</div>
 						<div class='definedAuctionAction'>
-							<button class="change">ADD / UPDATE</button>
+							<button class="change">Change</button>
 						</div>
 						<div class='definedAuctionAction'>
-							<button class="enable">enable</button>
+							<button class="enable">Enable</button>
 						</div>
 						<div class='definedAuctionAction'>
-							<button class="disable">disable</button>
+							<button class="disable">Disable</button>
 						</div>
 					</div>
 					<div id="PacDefinedAuctions"></div>
@@ -339,7 +344,7 @@
 					<div class="field">
 						<div class="label"></div>
 						<div class="value">
-							<button id="DiceChangeSettings">CHANGE SETTINGS</button>
+							<button id="DiceChangeSettings">Save Changes</button>
 						</div>
 					</div>
 				</div>
