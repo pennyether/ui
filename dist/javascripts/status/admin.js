@@ -1,5 +1,51 @@
 Loader.require("reg", "tr", "mc", "pac", "dice")
 .then(function(reg, tr, mc, pac, dice){
+	// puts a div in place of button
+	// txFn(gasPrice) should return a tx promise
+	function makeTxDiv($button, txFn) {
+		const $e = $(`
+			<div>
+				<div class='gps'></div>
+				<div class='btn'></div>
+				<div class='status'></div>
+			</div>
+		`);
+
+		// init gps
+		const gps = util.getGasPriceSlider();
+		gps.$head.remove();
+		gps.$refresh.show();
+		gps.refresh();
+		$e.find(".gps").append(gps.$e)
+
+		// replace button with div
+		$button.replaceWith($e);
+		
+		// add button, set click event
+		$e.find(".btn").append($button);
+		$button.click(()=>{
+			const p = txFn(gps.getValue());
+			$e.find(".status").empty().append(util.$getTxStatus(p, {
+				waitTimeMs: gps.getWaitTimeS()*1000
+			}));
+		})
+	}
+
+	// init all tx divs
+	makeTxDiv($("#TrChangeDailyFundLimit"), trChangeDailyFundLimit);
+	makeTxDiv($("#McChangePaRewards"), mcChangePaRewards);
+	makeTxDiv($("#DiceChangeSettings"), diceChangeSettings);
+	makeTxDiv($("#btnDiceSendProfits"), diceSendProfits);
+	makeTxDiv($("#btnDiceRemoveFunding"), diceRemoveFunding);
+	makeTxDiv($("#btnDiceAddFunding"), diceAddFunding);
+	makeTxDiv($("#btnDiceResolveMany"), diceResolveMany);
+	makeTxDiv($("#btnDiceResolveLatest"), diceResolveLatest);
+
+	$(".tr.refresh").click(updateTr);
+	$(".mc.refresh").click(updateMc);
+	$(".pac.refresh").click(updatePac);
+	$(".dice.refresh").click(updateDice);
+
 	updateAll();
 
 	function updateAll(){
@@ -17,17 +63,11 @@ Loader.require("reg", "tr", "mc", "pac", "dice")
 		util.bindToInput(tr.dailyFundLimit().then(ethUtil.toEth), $("#TrDailyFundLimit"));
 	}
 
-	$("#TrChangeDailyFundLimit").click(function(){
+	function trChangeDailyFundLimit(gasPrice){
 		if (!tr) return alert("tr not loaded.");
 		const newLimit = ethUtil.toWei($("#TrDailyFundLimit").val());
-		tr.setDailyFundLimit({_newValue: newLimit})
-			.then(function(){
-				alert("Value updated.");
-				updateTr();
-			}).catch(function(){
-				alert("Unsuccessful - are you the admin?");
-			});
-	});
+		return tr.setDailyFundLimit({_newValue: newLimit}, {gasPrice: gasPrice});
+	};
 
 
 	function updateMc() {
@@ -37,22 +77,17 @@ Loader.require("reg", "tr", "mc", "pac", "dice")
 		util.bindToInput(mc.paEndReward().then(ethUtil.toEth), $("#McPaEndReward"));
 		util.bindToInput(mc.paFeeCollectRewardDenom(), $("#McPaRewardDenom"));
 	}
-	$("#McChangePaRewards").click(function(){
+	function mcChangePaRewards(gasPrice){
 		if (!mc) return alert("mc not loaded.");
 		const paStartReward = ethUtil.toWei($("#McPaStartReward").val());
 		const paEndReward = ethUtil.toWei($("#McPaEndReward").val());
 		const paRewardDenom = $("#McPaRewardDenom").val();
-		mc.setPennyAuctionRewards({
+		return mc.setPennyAuctionRewards({
 			_paStartReward: paStartReward,
 			_paEndReward: paEndReward,
 			_paFeeCollectRewardDenom: paRewardDenom
-		}).then(function(){
-			alert("Values updated.");
-			updateMc();
-		}).catch(function(){
-			alert("Unsuccessful - are you the admin?");
-		});
-	})
+		}, {gasPrice: gasPrice});
+	}
 
 
 	function updatePac() {
@@ -83,20 +118,35 @@ Loader.require("reg", "tr", "mc", "pac", "dice")
 					$defined.find(".bidIncr").val(ethUtil.toEth(res[5]));
 					$defined.find(".bidAddBlocks").val(res[6]);
 					$defined.find(".initialBlocks").val(res[7]);
-					$defined.find(".change").click(function(){
-						editDefinedAuction(index);
-					})
-					$defined.find(".enable").click(function(){
-						enableDefinedAuction(index);
+					makeTxDiv($defined.find(".change"), (gasPrice)=>{
+						return editDefinedAuction(index, gasPrice);
 					});
-					$defined.find(".disable").click(function(){
-						disableDefinedAuction(index);
-					});
+
+					if (index == num){
+						$defined.find(".change").text("ADD");
+						$defined.find(".enable").parent().remove();
+						$defined.find(".disable").parent().remove();
+					}else{
+						$defined.find(".change").text("UPDATE");
+						if (res[1]){
+							$defined.find(".enable").parent().remove();
+							makeTxDiv($defined.find(".disable"), (gasPrice)=>{
+								if (!pac) return alert("Pac not loaded");
+								return pac.disableDefinedAuction({_index: index}, {gasPrice: gasPrice});
+							});
+						} else {
+							$defined.find(".disable").parent().remove();
+							makeTxDiv($defined.find(".enable"), (gasPrice)=>{
+								if (!pac) return alert("Pac not loaded");
+								return pac.enableDefinedAuction({_index: index}, {gasPrice: gasPrice});
+							});	
+						}
+					}
 				});
 			};
 		});
 	}
-	function editDefinedAuction(index){
+	function editDefinedAuction(index, gasPrice){
 		if (!pac) return alert("Pac not loaded.");
 
 		const $e = $("#PacDefinedAuctions").find(".pacDefinedAuction").eq(index);
@@ -111,39 +161,13 @@ Loader.require("reg", "tr", "mc", "pac", "dice")
 			_bidAddBlocks: $e.find(".bidAddBlocks").val(),
 			_initialBlocks: $e.find(".initialBlocks").val()
 		};
-		pac.editDefinedAuction(obj).then(function(){
-			alert(`Defined auction ${index} updated!`);
-			updatePac();
-		}).catch(e=>{
-			alert(`Failed to edit auction ${index}!`);
-		});
-	}
-	function enableDefinedAuction(index){
-		if (!pac) return alert("Pac not loaded");
-		pac.enableDefinedAuction({_index: index}).then(()=>{
-			alert(`Defined auction ${index} is now enabled.`);
-			updatePac();
-		}).catch(e=>{
-			alert(`Failed to enable auction ${index}.`);
-		})
-	}
-	function disableDefinedAuction(index){
-		if (!pac) return alert("Pac not loaded");
-		debugger;
-		pac.disableDefinedAuction({_index: index}).then(()=>{
-			alert(`Defined auction ${index} is now enabled.`);
-			updatePac();
-		}).catch(e=>{
-			alert(`Failed to enable auction ${index}.`);
-		})
+		return pac.editDefinedAuction(obj, {gasPrice: gasPrice});
 	}
 
-	/*
-DiceNumUnresolved
-	*/
 	function updateDice() {
 		if (!dice) return alert("dice not loaded.");
 		util.bindToElement(ethUtil.getBalance(dice.address).then(ethUtil.toEthStr), $("#DiceBalance"));
+		util.bindToElement(dice.curId(), $("#DiceNumRolls"));
 		util.bindToElement(dice.getNumUnresolvedRolls(), $("#DiceNumUnresolved"));
 		util.bindToElement(dice.getProfits().then(ethUtil.toEthStr), $("#DiceSendProfits"));
 		util.bindToElement(dice.bankroll().then(ethUtil.toEthStr), $("#DiceBankroll"));
@@ -165,67 +189,37 @@ DiceNumUnresolved
 				: $("#btnDiceResolveLatest").removeAttr("disabled");
 		});
 	}
-	$("#DiceChangeSettings").click(function(){
+	function diceChangeSettings(gasPrice){
 		if (!dice) return alert("dice not loaded.");
 		const feeBips = $("#DiceFeeBips").val();
 		const minBet = ethUtil.toWei($("#DiceMinBet").val());
 		const maxBet = ethUtil.toWei($("#DiceMaxBet").val());
 		const minNumber = $("#DiceMinNumber").val();
 		const maxNumber = $("#DiceMaxNumber").val();
-		dice.changeSettings({
+		return dice.changeSettings({
 			_minBet: minBet,
 			_maxBet: maxBet,
 			_minNumber: minNumber,
 			_maxNumber: maxNumber,
 			_feeBips: feeBips
-		}).then(function(){
-			alert("Values updated.");
-			updateDice();
-		}).catch(function(){
-			alert("Unsuccessful - are you the admin?");
-		});
-	});
-	$("#btnDiceSendProfits").click(function(){
-		dice.sendProfits([]).then(function(){
-			alert("Profits sent.");
-			updateDice();
-		}).catch(function(){
-			alert("Unsuccessful - are you the admin?");
-		})
-	})
-	$("#btnDiceRemoveFunding").click(function(){
+		}, {gasPrice: gasPrice});
+	};
+	function diceSendProfits(gasPrice){
+		return dice.sendProfits([], {gasPrice: gasPrice});
+	}
+	function diceRemoveFunding(gasPrice){
 		const num = ethUtil.toWei($("#DiceRemoveFunding").val());
-		dice.removeFunding([num]).then(function(){
-			alert("Funding removed.");
-			updateDice();
-		}).catch(function(){
-			alert("Unsuccessful - are you the admin?");
-		})
-	});
-	$("#btnDiceAddFunding").click(function(){
+		return dice.removeFunding([num], {gasPrice: gasPrice});
+	}
+	function diceAddFunding(gasPrice){
 		const num = ethUtil.toWei($("#DiceAddFunding").val());
-		dice.addFunding([], {value: num}).then(function(){
-			alert("Funding added.");
-			updateDice();
-		}).catch(function(){
-			alert("Unsuccessful.");
-		})
-	});
-	$("#btnDiceResolveMany").click(function(){
+		return dice.addFunding([], {value: num, gasPrice: gasPrice});
+	}
+	function diceResolveMany(gasPrice){
 		const num = new BigNumber($("#DiceResolveRolls").val());
-		dice.resolveUnresolvedRolls([num]).then(function(){
-			alert("Resolved.");
-			updateDice();
-		}).catch(function(){
-			alert("Unsuccessful.");	
-		});
-	});
-	$("#btnDiceResolveLatest").click(function(){
-		dice.curId().then(rollId=>{
-			return dice.payoutRoll([rollId])
-		}).then(()=>{
-			alert("Roll resolved.");
-			updateDice();
-		});
-	})
+		return dice.resolveUnresolvedRolls([num], {gasPrice: gasPrice})
+	}
+	function diceResolveLatest(gasPrice){
+		return dice.payoutRoll([0], {gasPrice: gasPrice});
+	}
 });

@@ -157,6 +157,7 @@ Loader.require("comp")
 			}
 			const p = token.collectOwedDividends([], {gasPrice: collectGps.getValue()});
 			const $txStatus = txStatus.setTxPromise(p, {
+				waitTimeMs: collectGps.getWaitTimeS()*1000,
 				onSuccess: function(res){
 					// event CollectedDividends(address indexed account, uint amount);
 					const collected = res.events.find(e=>e.name=="CollectedDividends");
@@ -206,8 +207,9 @@ Loader.require("comp")
 				return;
 			}
 
-			const p = token.transfer([to, amt]);
+			const p = token.transfer([to, amt], {gasPrice: transferGps.getValue()});
 			const $txStatus = txStatus.setTxPromise(p, {
+				waitTimeMs: transferGps.getWaitTimeS()*1000,
 				onSuccess: function(res){
 					//event Transfer(address indexed from, address indexed to, uint amount);
 					const transfered = res.events.find(e=>e.name=="Transfer");
@@ -246,8 +248,9 @@ Loader.require("comp")
 			return;
 		}
 
-		const p = comp.burnTokens([amt]);
+		const p = comp.burnTokens([amt], {gasPrice: burnGps.getValue()});
 		const $txStatus = txStatus.setTxPromise(p, {
+			waitTimeMs: burnGps.getWaitTimeS()*1000,
 			onSuccess: function(res){
 				// event UserRefunded(uint time, address indexed sender, uint numTokens, uint refund);
 				const refunded = res.events.find(e=>e.name=="UserRefunded");

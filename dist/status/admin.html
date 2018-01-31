@@ -10,165 +10,338 @@
 			background: #FAFAFA;
 			padding: 10px;
 		}
+		.field {
+			font-size: 90%;
+			display: table;
+			width: 100%;
+		}
+		.field .label {
+			display: table-cell;
+			width: 200px;
+			padding: 10px;
+			vertical-align: top;
+		}
+		.field .value {
+			display: table-cell;
+			padding: 10px;
+		}
+		.note {
+			color: gray; 
+			font-size: 80%;
+			margin: 4px 0px;
+		}
+		button {
+			margin-top: 4px;
+		}
+		.line {
+			padding: 2px;
+		}
+		.line > span:first-child {
+			display: inline-block;
+			width: 130px;
+		}
+
+		.definedAuctionAction {
+			display: inline-block;
+			width: 250px;
+			border: 1px dotted gray;
+			background: white;
+			padding: 5px;
+			margin: 5px;
+			text-align: center;
+		}
+		.head .refresh {
+			font-size: 70%;
+			letter-spacing: initial;
+			color: blue;
+			cursor: pointer;
+		}
 		</style>
 	</head>
 	<body><div id="Content">
 		<div class="section pageTitle">
 			Admin Page
 		</div>
-		<div class="section">
-			<div class="head">Treasury</div>
-			<div class="body">
-				<div>
-					Admin: <span id="TrAdmin"></span>
-				</div>
-				<h4>Daily Fund Limit</h4>
-				<div>
-					Daily Limit Last Changed: <span id="TrDailyFundLimitLastChanged"></span>
-					<br>
-					Today is: <span id="TrToday"></span>
-				</div>
-				<div>
-					<span>Daily Fund Limit (ETH)</span>
-					<input type=text id="TrDailyFundLimit" placeholder="eth">
-					<span style='color: gray'>
-						Only changable once per day, and must be within 5% of old value.
-					</span>
-					<br>
-					<button id="TrChangeDailyFundLimit">SET DAILY LIMIT</button>
+		<div style="margin: 0px 0px 0px 30px">
+			Admin Account: <span id="TrAdmin"></span>
+		</div>
+		<div style="margin: 0px 20px">
+		
+			<div class="subsection">
+				<div class="head">Treasury <span class="tr refresh">refresh</span></div>
+				<div class="body">
+					<h3>Daily Fund Limit</h3>
+					<div class="field">
+						<div class="label">
+							Daily Limit Last Changed:
+						</div>
+						<div class="value">
+						 	<span id="TrDailyFundLimitLastChanged"></span>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">
+							Today:
+						</div>
+						<div class="value">
+							<span id="TrToday"></span>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">
+							Daily Fund Limit:
+							<div class="note">
+								Only changable once per day, and must be within 5% of old value.
+							</div>
+						</div>
+						<div class="value dailyFundLimit">
+							<input type=text id="TrDailyFundLimit" placeholder="eth"> Eth
+							<button id="TrChangeDailyFundLimit">SET DAILY LIMIT</button>
+						</div>
+					</div>
 				</div>
 			</div>
-		</div>
 
-		<div class="section">
-			<div class="head">Main Controller</div>
-			<div class="body">
-				<div>
-					Admin: <span id="McAdmin"></span>
-				</div>
-				<h4>Penny Auction Rewards</h4>
-				<div>
-					<div>
-						<span>Start Reward (ETH)</span>
-						<input type=text id="McPaStartReward" placeholder="eth">
+			<div class="subsection">
+				<div class="head">Main Controller <span class="mc refresh">refresh</span></div>
+				<div class="body">
+					<h3>Penny Auction Rewards</h3>
+					<div class="field">
+						<div class="label">Start Reward</div>
+						<div class="value">
+							<input type=text id="McPaStartReward" placeholder="eth"> Eth
+						</div>
 					</div>
-					<div>
-						<span>End Reward (ETH)</span>
-						<input type=text id="McPaEndReward" placeholder="eth">
+					<div class="field">
+						<div class="label">End Reward</div>
+						<div class="value">
+							<input type=text id="McPaEndReward" placeholder="eth"> Eth
+						</div>
 					</div>
-					<div>
-						<span>Reward Denom</span>
-						<input type=text id="McPaRewardDenom" placeholder="inverse number">
-						Min Value is 100 (eg, 1%)
+					<div class="field">
+						<div class="label">
+							Fee Reward Denom
+							<div class="note">
+								Reciprical, eg: 1000 = 1/1000 = .1%
+							</div>
+						</div>
+						<div class="value">
+							<input type=text id="McPaRewardDenom" placeholder="inverse number">
+						</div>
 					</div>
-					<button id="McChangePaRewards">SET REWARDS</button>
+					<div class="field">
+						<div class="label">Change:</div>
+						<div class="value changePaRewards">
+							<button id="McChangePaRewards">SET REWARDS</button>
+						</div>
+					</div>
 				</div>
 			</div>
-		</div>
 
-		<div class="section">
-			<div class="head">Penny Auction Controller</div>
-			<div class="body">
-				<div>
-					Admin: <span id="PacAdmin"></span>
-				</div>
-				<h4>Defined Auctions</h4>
-				<div>
-					<b>Num Defined:</b> <span id="PacNumDefinedAuctions"></span>
-				</div>
-				<div class="pacDefinedAuctionTemplate" style="display: none;">
-					Index: <span class="index">loading...</span>
-					<div style="display: none;" class="values">
-						<div>
-							Enabled: <span class="enabled"></span>
+			<div class="subsection">
+				<div class="head">Penny Auction Controller <span class="pac refresh">refresh</span></div>
+				<div class="body">
+					<h3>Defined Auctions</h3>
+					<div>
+						<b>Num Defined:</b> <span id="PacNumDefinedAuctions"></span>
+					</div>
+					<div class="pacDefinedAuctionTemplate" style="display: none;">
+						Index: <span class="index">loading...</span>
+						<div style="display: none;" class="values">
+							<div class="line">
+								<span>Enabled:</span>
+								<span class="enabled"></span>
+							</div>
+							<div class="line">
+								<span>Auction:</span>
+								<span class="auction"></span>
+							</div>
+							<div class="line">
+								<span>Summary:</span>
+								<input type=text class="summary">
+							</div>
+							<div class="line">
+								<span>InitialPrize:</span>
+								<input type=text class="initialPrize"> Eth
+							</div>
+							<div class="line">
+								<span>bidPrice:</span>
+								<input type=text class="bidPrice"> Eth
+							</div>
+							<div class="line">
+								<span>bidIncr:</span>
+								<input type=text class="bidIncr"> Eth
+							</div>
+							<div class="line">
+								<span>bidAddBlocks:</span>
+								<input type=text class="bidAddBlocks">
+							</div>
+							<div class="line">
+								<span>initialBlocks:</span>
+								<input type=text class="initialBlocks">
+							</div>
+						</div>
+						<div class='definedAuctionAction'>
+							<button class="change">ADD / UPDATE</button>
+						</div>
+						<div class='definedAuctionAction'>
 							<button class="enable">enable</button>
+						</div>
+						<div class='definedAuctionAction'>
 							<button class="disable">disable</button>
 						</div>
-						Auction: <span class="auction"></span><br>
-						Summary: <input type=text class="summary"><br>
-						InitialPrize (ETH): <input type=text class="initialPrize"><br>
-						bidPrice (ETH): <input type=text class="bidPrice"><br>
-						bidIncr: <input type=text class="bidIncr"><br>
-						bidAddBlocks: <input type=text class="bidAddBlocks"><br>
-						initialBlocks: <input type=text class="initialBlocks"><br>
 					</div>
-					<button class="change">UPDATE</button>
+					<div id="PacDefinedAuctions"></div>
 				</div>
-				<div id="PacDefinedAuctions"></div>
 			</div>
-		</div>
 
-		<div class="section">
-			<div class="head">InstaDice</div>
-			<div class="body">
-				<div>
-					Admin: <span id="DiceAdmin"></span>
-				</div>
-				<h4>Status</h4>
-				<div>
-					<div>
-						<span>Balance:</span>
-						<span id="DiceBalance"></span>
+			<div class="subsection">
+				<div class="head">InstaDice <span class="dice refresh">refresh</span></div>
+				<div class="body">
+					<h3>Status</h3>
+					<div class="field">
+						<div class="label">Balance</div>
+						<div class="value">
+							<span id="DiceBalance"></span> Eth
+						</div>
 					</div>
-					<div>
-						<span class="tipLeft" title="The amount of Ether available to be used for potential payout. This is decremented any time a roll is created, and incremented when the roll is resolved (if it lost).">Bankroll:</span>
-						<span id="DiceBankroll"></span>
+					<div class="field">
+						<div class="label">
+							<span class="tipLeft" title="The amount of Ether available to be used for potential payout. This is decremented any time a roll is created, and incremented when the roll is resolved (if it lost).">Bankroll:</span>
+						</div>
+						<div class="value">
+							<span id="DiceBankroll"></span> Eth
+						</div>
 					</div>
-					<div>
-						<span class="tipLeft" title="The amount of Ether funded to InstaDice. Any bankroll exceeding this is considered profit, and can be sent to Treasury.">Funding:</span>
-						<span id="DiceFunding"></span>
+					<div class="field">
+						<div class="label">
+							<span class="tipLeft" title="The amount of Ether funded to InstaDice. Any bankroll exceeding this is considered profit, and can be sent to Treasury.">Funding:</span>
+						</div>
+						<div class="value">
+							<span id="DiceFunding"></span> Eth
+						</div>
 					</div>
-					<div>
-						<span class="tipLeft" title="Unresolved rolls happen when more than one bid occurs on the same block. When this happens, the bankroll is tied up until the roll is resolved. Note: there is always one unresolved roll: the last one!">Unresolved Rolls:</span>
-						<span id="DiceNumUnresolved"></span>
+					<div class="field">
+						<div class="label">
+							<span class="tipLeft" title="Total number of rolls.">Total Rolls:</span>
+						</div>
+						<div class="value">
+							<span id="DiceNumRolls"></span>
+						</div>
 					</div>
-				</div>
-				<div>
-					<h4>Financials</h4>
-					<div>
-						<span class="tipLeft" title="Sends any amount over the funding to Treasury">Send Profits: </span>
-						<span id="DiceSendProfits" placeholder="eth"></span> <button id="btnDiceSendProfits">Send Profits</button> (admin only)
+					<div class="field">
+						<div class="label">
+							<span class="tipLeft" title="Unresolved rolls happen when more than one bid occurs on the same block. When this happens, the bankroll is tied up until the roll is resolved. Note: there is always one unresolved roll: the last one!">Unresolved Rolls:</span>
+						</div>
+						<div class="value">
+							<span id="DiceNumUnresolved"></span>
+						</div>
 					</div>
-					<div>
-						<span class="tipLeft" title="Removes funding and sends it to treasury.">Remove Funding: </span>
-						<input type=text id="DiceRemoveFunding" placeholder="eth"> ETH <button id="btnDiceRemoveFunding">Remove Funding</button> (admin only)
+					
+					<h3>Funding</h3>
+					<div class="field">
+						<div class="label">
+							<span class="tipLeft" title="Sends any amount over the funding to Treasury">Send Profits:</span>
+							<div class="note">admin only</div>
+						</div>
+						<div class="value">
+							Profits: <span id="DiceSendProfits" placeholder="eth"></span>
+							<br>
+							<button id="btnDiceSendProfits">Send Profits</button>
+						</div>
 					</div>
-					<div>
-						<span class="tipLeft" title="Increases funding (and bankroll)">Add Funding: </span>
-						<input type=text id="DiceAddFunding" placeholder="eth"> ETH <button id="btnDiceAddFunding">Add Funding</button> (anybody)
+					<div class="field">
+						<div class="label">
+							<span class="tipLeft" title="Removes funding and sends it to treasury.">Remove Funding: </span>
+							<div class="note">admin only</div>
+						</div>
+						<div class="value">
+							<input type=text id="DiceRemoveFunding" placeholder="eth"> ETH
+							<br>
+							<button id="btnDiceRemoveFunding">Remove Funding</button>
+						</div>
 					</div>
-					<div>
-						<span class="tipLeft" title="Unresolved rolls will still hold onto some bankroll. Resolving a roll will pay the winner or increase the bankroll.">Resolve Unresolved Rolls:</span>
-						<input type=text id="DiceResolveRolls" placeholder="number of rolls" value=100> rolls. <button id="btnDiceResolveMany">Resolve Rolls</button> (anybody)
+					<div class="field">
+						<div class="label">
+							<span class="tipLeft" title="Increases funding (and bankroll)">Add Funding: </span>
+							<div class="note">callable by anyone</div>
+						</div>
+						<div class="value">
+							<input type=text id="DiceAddFunding" placeholder="eth"> ETH
+							<br>
+							<button id="btnDiceAddFunding">Add Funding</button>
+						</div>
 					</div>
-					<div>
-						<span class="tipLeft" title="Resolves the latest roll.">Resolve Last Roll:</span>
-						<button id="btnDiceResolveLatest">Resolve Last Roll</button> (anybody)
+
+					<h3>Resolve Rolls</h3>
+					<div class="field">
+						<div class="label">
+							<span class="tipLeft" title="Unresolved rolls will still hold onto some bankroll. Resolving a roll will pay the winner or increase the bankroll.">Resolve Unresolved Rolls:</span>
+							<div class="note">callable by anyone</div>
+						</div>
+						<div class="value">
+							<input type=text id="DiceResolveRolls" placeholder="number of rolls" value=100> rolls.
+							<br>
+							<button id="btnDiceResolveMany">Resolve Rolls</button>
+						</div>
 					</div>
-				</div>
-				<h4>Settings</h4>
-				<div>
-					<div>
-						<span>Fee Bips (100 = 1%):</span>
-						<input type=text id="DiceFeeBips" placeholder="bips">
+					<div class="field">
+						<div class="label">
+							<span class="tipLeft" title="Resolves the latest roll.">Resolve Last Roll:</span>
+							<div class="note">callable by anyone</div>
+						</div>
+						<div class="value">
+							<button id="btnDiceResolveLatest">Resolve Last Roll</button>
+						</div>
 					</div>
-					<div>
-						<span>Min Bet (ETH):</span>
-						<input type=text id="DiceMinBet" placeholder="eth">
+
+					<h3>Settings</h3>
+					<div class="field">
+						<div class="label">
+							<span>Fee Bips (100 = 1%):</span>
+						</div>
+						<div class="value">
+							<input type=text id="DiceFeeBips" placeholder="bips">
+						</div>
 					</div>
-					<div>
-						<span>Max Bet (ETH):</span>
-						<input type=text id="DiceMaxBet" placeholder="eth">
+					<div class="field">
+						<div class="label">
+							<span>Min Bet:</span>
+						</div>
+						<div class="value">
+							<input type=text id="DiceMinBet" placeholder="eth"> Eth
+						</div>
 					</div>
-					<div>
-						<span>Min Number:</span>
-						<input type=text id="DiceMinNumber" placeholder="1-100">
+					<div class="field">
+						<div class="label">
+							<span>Max Bet:</span>
+						</div>
+						<div class="value">
+							<input type=text id="DiceMaxBet" placeholder="eth"> Eth
+						</div>
 					</div>
-					<div>
-						<span>Max Number:</span>
-						<input type=text id="DiceMaxNumber" placeholder="1-100">
+					<div class="field">
+						<div class="label">
+							<span>Min Number:</span>
+						</div>
+						<div class="value">
+							<input type=text id="DiceMinNumber" placeholder="1-100">
+						</div>
 					</div>
-					<button id="DiceChangeSettings">CHANGE SETTINGS</button>
+					<div class="field">
+						<div class="label">
+							<span>Max Number:</span>
+						</div>
+						<div class="value">
+							<input type=text id="DiceMaxNumber" placeholder="1-100">
+						</div>
+					</div>
+					<div class="field">
+						<div class="label"></div>
+						<div class="value">
+							<button id="DiceChangeSettings">CHANGE SETTINGS</button>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

@@ -603,6 +603,7 @@ body {
 	min-width: 200px;
 }
 .GasPriceSlider .description {
+	position: relative;
 	text-align: center;
 	font-size: 80%;
 	margin-top: -8px;
@@ -618,6 +619,13 @@ body {
 }
 .GasPriceSlider .wait.slow {
 	color: #A00;
+}
+.GasPriceSlider .refresh {
+	color: blue;
+	cursor: pointer;
+	position: absolute;
+	top: 5px;
+	right: 0px;
 }
 
 .TxStatus {

@@ -413,15 +413,18 @@
 					<div class='description'>
 						<div class='gasPrice'></div>
 						<div class='wait'></div>
+						<div class='refresh'>↻</div>
 					</div>
 				</div>
 			</div>
 		`);
+		const _$head = _$e.find(".head");
 		const _$loading = _$e.find(".loading").text("Not initialized.").show();
 		const _$content = _$e.find(".content").hide();
 		const _$gasPrice = _$e.find(".gasPrice");
 		const _$wait = _$e.find(".wait");
 		const _$slider = _$e.find("input").on("input", _onSliderChanged);
+		const _$refresh = _$e.find(".refresh").hide().click(()=>_refresh(true));
 		var _gasData = {};
 		var _value = defaultGWei || new BigNumber(0);
 		var _waitTimeS = null;
@@ -435,10 +438,10 @@
 		//	- selects least expensive gas price with waitTimeS <= AUTO_WAIT_TIME_S
 		// If autoChoose is false
 		//	- selects defaultGWei gas price, which will snap to closest available gasPrice
-		function _refresh() {
+		function _refresh(fresh) {
 			_$loading.show().text(`Loading gas data...`);
 			_$content.hide();
-			ethUtil.getGasPrices().then(data=>{
+			ethUtil.getGasPrices(fresh).then(data=>{
 				var min = null;
 				var max = null;
 				var auto = Infinity;
@@ -508,6 +511,8 @@
 		}
 		this.refresh = _refresh;
 		this.$e = _$e;
+		this.$head = _$head;
+		this.$refresh = _$refresh;
 	}
 
 	// A container that shows the progress of a txPromise

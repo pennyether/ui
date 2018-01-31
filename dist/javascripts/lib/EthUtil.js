@@ -290,8 +290,8 @@
 		// Sincerely, we thank you.
 		var _lastGasPrices;
 		var _gasPricePromise;
-		this.getGasPrices = function(){
-			if (_lastGasPrices && _lastGasPrices.timestamp+60000 >= (+new Date())){
+		this.getGasPrices = function(fresh){
+			if (!fresh && _lastGasPrices && _lastGasPrices.timestamp+60000 >= (+new Date())){
 				return Promise.resolve(_lastGasPrices.data);
 			}
 			if (_gasPricePromise) return _gasPricePromise;
