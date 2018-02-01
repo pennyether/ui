@@ -358,7 +358,8 @@
 				$argVals = Object.keys(e.args || [])
 					.filter(name=>name!=="time")
 					.map(name=>{
-						const eventDef = opts.events.find(def => def.name===e.name);
+						var eventDef = opts.events.find(def => def.name===e.name);
+						if (!eventDef) eventDef = opts.events.find(def => def.name=="all");
 						const formatter = (eventDef.formatters || {})[name] || _defaultFormatter;
 						return formatter(e.args[name], name);
 					})

@@ -78,6 +78,8 @@ Loader.require("pac", "dice")
 		util.bindToElement(dice.funding().then(ethUtil.toEthStr), $("#DiceMinBankroll"));
 		util.bindToElement(dice.bankroll().then(ethUtil.toEthStr), $("#DiceBankroll"));
 		util.bindToElement(dice.curId(), $("#DiceTotalRolls"));
+		util.bindToElement(dice.getNumUnresolvedRolls(), $("#DiceNumUnresolved"));
+		util.bindToElement(util.$getLogs(dice), $("#DiceLogs"), true);
 		
 		Promise.all([
 			dice.totalWagered(),

@@ -41,6 +41,7 @@
 		// eg: {topic1Name: value, topic2Name: value}
 		this.getEvents = function(instance, name, filter, fromBlock, toBlock) {
 			filter = filter || {};
+			if (fromBlock < 0) fromBlock = 0;
 			const def = instance.abi.find((def)=>def.type=="event" && def.name==name);
 			if (!def) throw new Error(`${instance._getName()} has no "${name}" event.`);
 			// first topic is the signature of the event
