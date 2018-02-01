@@ -132,16 +132,16 @@ body {
 	padding: 5px 0px 5px 20px;
 	background: linear-gradient(to bottom, #FAFAFA 0%, #DDDDDD 100%);
 }
-	#Breadcrumb .parent {
+	#Breadcrumb .item {
 		display: inline-block;
 	}
-	#Breadcrumb .parent:after {
+	#Breadcrumb .item:not(:last-child):after {
 		display: inline-block;
 		content: '»';
 		padding-left: 10px;
 		padding-right: 10px;
 	}
-	#Breadcrumb .curPage {
+	#Breadcrumb .item:last-child {
 		font-weight: bold;
 		display: inline-block;
 	}

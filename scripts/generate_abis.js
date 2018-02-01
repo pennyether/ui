@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
 /**
-Looks in ../build/contracts and plucks out ABIs and binary data.
+Usage: ./generate_abis.js path/to/build
+
+Looks in a build folder and plucks out ABIs and binary data.
 Stores them in an object where the key is the contract name.
 Only looks for certain ABIs.
 */

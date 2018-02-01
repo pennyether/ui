@@ -33,6 +33,7 @@ Loader.require("reg", "tr", "mc", "pac", "dice")
 
 	// init all tx divs
 	makeTxDiv($("#TrChangeDailyFundLimit"), trChangeDailyFundLimit);
+	makeTxDiv($("#TrFund"), trFund);
 	makeTxDiv($("#McChangePaRewards"), mcChangePaRewards);
 	makeTxDiv($("#DiceChangeSettings"), diceChangeSettings);
 	makeTxDiv($("#btnDiceSendProfits"), diceSendProfits);
@@ -69,6 +70,11 @@ Loader.require("reg", "tr", "mc", "pac", "dice")
 		return tr.setDailyFundLimit({_newValue: newLimit}, {gasPrice: gasPrice});
 	};
 
+	function trFund(gasPrice){
+		if (!tr) return alert("tr not loaded.");
+		const amt = ethUtil.toWei($("#TrFundAmt").val());
+		return tr.sendTransaction({gasPrice: gasPrice, value: amt});
+	}
 
 	function updateMc() {
 		if (!mc) return alert("mc not loaded.");

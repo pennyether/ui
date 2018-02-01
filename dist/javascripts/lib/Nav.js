@@ -48,11 +48,13 @@
 					name: "Our Mission",
 					url: "/about/mission.html"
 				},{
-					name: "How to Play",
-					url: "/about/howtoplay.html"
-				},{
-					name: "Fairness",
-					url: "/about/fairness.html"
+					name: "Contracts, Tests, Audits",
+					url: "/about/contracts.html",
+					linkInBreacrumb: true,
+					children: [{
+						name: "Test Results",
+						url: "/test-results/index.html"
+					}]
 				},{
 					name: "Contact",
 					url: "/about/contact.html"
@@ -135,25 +137,30 @@
 							$e.addClass("on");
 						}
 					}
+
+					if (child.children) child.children.forEach(grandchild=>{
+						if (grandchild.url == curUrl){
+							breadcrumb = [obj, child, grandchild];
+							$e.addClass("on");
+							$child.addClass("on");
+						}
+					});
 				});
 				$sub.appendTo($e);
 			});
 
 			document.title = breadcrumb.map(x=>x.name).join(" > ");
 			_$breadcrumb.empty();
-			if (breadcrumb.length) {
-				const curPage = breadcrumb.pop();
-				const $curPage = $("<div></div>")
-					.addClass("curPage")
-					.text(curPage.name)
-					.prependTo(_$breadcrumb);
-			}
-			if (breadcrumb.length) {
-				const parent = breadcrumb.pop();
-				const $parent = $("<div></div>")
-					.addClass("parent")
-					.text(parent.name)
-					.prependTo(_$breadcrumb);
+			while (breadcrumb.length) {
+				const item = breadcrumb.shift();
+				const $item = $("<div></div>")
+					.addClass("item")
+					.appendTo(_$breadcrumb);
+				if (item.linkInBreacrumb && breadcrumb.length) {
+					$item.append($("<a></a>").attr("href", item.url).text(item.name))
+				} else {
+					$item.text(item.name);
+				}
 			}
 		}
 
