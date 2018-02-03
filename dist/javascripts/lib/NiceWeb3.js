@@ -57,6 +57,7 @@
 				const topicValue = filter.hasOwnProperty(input.name)
 					? "0x"+ethUtil.toBytesStr(filter[input.name], 32)
 					: null;
+				topics.push(topicValue);
 			});
 			
 			// do it.
@@ -322,7 +323,6 @@
 						result.receipt = receipt;
 						result.transaction = tx;
 						result.metadata = metadata;
-						console.log(`${callStr} completed.`, result);
 
 						if (receipt.status == 0 || receipt.status == "0x0") {
 							const e = new Error(`Transaction failed (out of gas, or other error)`);

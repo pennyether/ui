@@ -327,16 +327,16 @@ Loader.require("tr", "mc", "pac")
 							const failure = res.events.find(e => e.name == "DistributeFailure");
 							const paid = res.events.find(e => e.name == "RewardPaid");
 							if (error) {
-								$msg.append(`Error: ${error.args.msg}`);
+								$msg.append(`Error: ${error.args.msg} `);
 								return;
 							}
 							if (success) {
 								const ethStr = ethUtil.toEthStr(success.args.amount);
-								$msg.append(`Distributed ${ethStr} to Token.`);
+								$msg.append(`Distributed ${ethStr} to Token. `);
 							}
 							if (failure) {
 								const ethStr = ethUtil.toEthStr(success.args.amount);
-								$msg.append(`Couldn't distribute ${ethStr} to Token.`);	
+								$msg.append(`Couldn't distribute ${ethStr} to Token. `);	
 							}
 							if (paid) {
 								const $user = util.$getAddrLink(paid.args.recipient);

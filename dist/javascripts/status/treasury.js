@@ -45,7 +45,6 @@ Loader.require("reg", "comp", "tr")
 			const dailyFundLimit = arr[4];
 			const amtFundedToday = arr[5];
 			const dayLastFunded = arr[6];
-			console.log(`amt funded today: ${amtFundedToday.div(1e18)}`);
 			const today = ethUtil.getToday();
 			const used = dayLastFunded.equals(today) ? amtFundedToday : 0;
 			const dailyFundLimitStr = ethUtil.toEthStr(dailyFundLimit);

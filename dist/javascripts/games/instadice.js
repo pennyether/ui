@@ -60,13 +60,15 @@ Loader.require("dice")
 	var _minNumber;
 	var _maxNumber;
 	var _bankroll;
+	var _feeBips;
 	function refreshBetUiSettings() {
 		Promise.all([
 			dice.minBet(),
 			dice.maxBet(),
 			dice.minNumber(),
 			dice.maxNumber(),
-			dice.bankroll()
+			dice.bankroll(),
+			dice.feeBips()
 		]).then(arr=>{
 			$loader.hide();
 			_minBet = arr[0];
@@ -74,6 +76,7 @@ Loader.require("dice")
 			_minNumber = arr[2];
 			_maxNumber = arr[3];
 			_bankroll = arr[4];
+			_feeBips = arr[5];
 			$wagerText
 				.attr("min", _minBet.div(1e18).toNumber())
 				.attr("max", _maxBet.div(1e18).toNumber());
@@ -171,8 +174,9 @@ Loader.require("dice")
         return bn.mod(100).plus(1);
     }
     function computePayout(bet, number) {
-    	//todo: use the feeBips, not hardcoded .99
-		return bet.mul(100).div(number).mul(.99)
+    	const feePct = _feeBips.div(10000);
+    	const ret = (new BigNumber(1)).minus(feePct);
+		return bet.mul(100).div(number).mul(ret);
     }
 
     // roll tip

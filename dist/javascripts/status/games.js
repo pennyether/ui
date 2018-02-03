@@ -67,10 +67,10 @@ Loader.require("pac", "dice", "tr")
 					$defined.find(".bidAddBlocks .value").text(`${bidAddBlocks} (~${bidAddBlocksTime})`);
 					$defined.find(".initialBlocks .value").text(`${initialBlocks} (~${initialBlocksTime})`);
 
-					if (!res[1]) {
+					if (res[0]!=ethUtil.NO_ADDRESS) {
+						$defined.find(".canBeStarted .value").text("No: it is already started.");
+					} else if (!res[1]) {
 						$defined.find(".canBeStarted .value").text("No: it is disabled.");
-					} else if (res[0]!=ethUtil.NO_ADDRESS) {
-						$defined.find(".canBeStarted .value").text("No: it is ongoing.");
 					} else {
 						$defined.find(".canBeStarted .value").text("Loading...");
 						tr.canFund([res[3]]).then((canFund)=>{
