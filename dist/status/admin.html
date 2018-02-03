@@ -55,11 +55,21 @@
 			margin: 5px;
 			text-align: center;
 		}
+		.definedIndex {
+			text-align: center;
+			padding: 3px 8px;
+			margin-top: -10px;
+			margin-bottom: 10px;
+			border-bottom: 1px dotted gray;
+		}
 		.head .refresh {
 			font-size: 70%;
 			letter-spacing: initial;
 			color: blue;
 			cursor: pointer;
+		}
+		.status .TxStatus {
+			margin-top: 10px;
 		}
 		</style>
 	</head>
@@ -67,8 +77,10 @@
 		<div class="section pageTitle">
 			Admin Page
 		</div>
-		<div style="margin: 0px 0px 0px 30px">
-			Admin Account: <span id="TrAdmin"></span>
+		<div style="text-align: center;">
+			<div style="display: inline-block; padding: 4px 8px; background: #EEE; border-radius: 5px">
+				Admin Account: <span id="TrAdmin"></span>
+			</div>
 		</div>
 		<div style="margin: 0px 20px">
 		
@@ -161,11 +173,10 @@
 				<div class="head">Penny Auction Controller <span class="pac refresh">refresh</span></div>
 				<div class="body">
 					<h3>Defined Auctions</h3>
-					<div>
-						<b>Num Defined:</b> <span id="PacNumDefinedAuctions"></span>
-					</div>
 					<div class="pacDefinedAuctionTemplate" style="display: none;">
-						Index: <span class="index">loading...</span>
+						<div class="definedIndex">
+							Index: <span class="index">loading...</span>
+						</div>
 						<div style="display: none;" class="values">
 							<div class="line">
 								<span>Enabled:</span>

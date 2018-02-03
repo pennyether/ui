@@ -48,7 +48,7 @@
 					name: "Our Mission",
 					url: "/about/mission.html"
 				},{
-					name: "Contracts, Tests, Audits",
+					name: "Contracts",
 					url: "/about/contracts.html",
 					linkInBreacrumb: true,
 					children: [{

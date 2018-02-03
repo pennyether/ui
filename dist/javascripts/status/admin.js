@@ -24,6 +24,7 @@ Loader.require("reg", "tr", "mc", "pac", "dice")
 		// add button, set click event
 		$e.find(".btn").append($button);
 		$button.click(()=>{
+			$button.blur();
 			const p = txFn(gps.getValue());
 			$e.find(".status").empty().append(util.$getTxStatus(p, {
 				waitTimeMs: gps.getWaitTimeS()*1000
@@ -100,8 +101,6 @@ Loader.require("reg", "tr", "mc", "pac", "dice")
 		if (!pac) return alert("pac not loaded.");
 		util.bindToElement(pac.getAdmin(), $("#PacAdmin"));
 		pac.numDefinedAuctions().then(function(num){
-			$("#PacNumDefinedAuctions").text(num);
-
 			const $ctnr = $("#PacDefinedAuctions").empty();
 			const $template = $(".pacDefinedAuctionTemplate");
 			for (var i=0; i<=num; i++){

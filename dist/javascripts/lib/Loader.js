@@ -131,7 +131,7 @@
 		  		} else {
 		  			var registry = Registry.at({
 		  				1: "0x0",
-		  				3: "0x3a98e0a23e4b90357ebb937bdbc9144cb7ac0dd3"
+		  				3: "0xc308888ca6c76c547a4a63d00c08ce5c22b93bff"
 		  			}[state.networkId]);
 		  		}
 		  		console.log("Loader is done setting things up.");

@@ -238,6 +238,10 @@
 	  			return;
 	  		};
 
+	  		// remove extra Tx, if there is one
+	  		const LIMIT = 10;
+	  		_$txs.children().eq(LIMIT - 1).remove();
+
 	  		// states: signing, tx-id-error, pending, tx-error
 	  		const callName = p.metadata.callName;
 	  		const $e = _$txTemplate.clone().show().prependTo(_$txs);

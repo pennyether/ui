@@ -4,18 +4,21 @@ Loader.require("tr", "mc", "pac")
 	_paStartGps.refresh();
 	_paStartGps.onChange(util.debounce(500, updatePaStart))
 	_paStartGps.$e.find(".head").remove();
+	_paStartGps.$refresh.show();
 	$(".paStart .gasPriceSlider").prepend(_paStartGps.$e);	
 
 	const _paRefreshGps = util.getGasPriceSlider();
 	_paRefreshGps.refresh();
 	_paRefreshGps.onChange(util.debounce(500, updatePaRefresh))
 	_paRefreshGps.$e.find(".head").remove();
+	_paRefreshGps.$refresh.show();
 	$(".paRefresh .gasPriceSlider").prepend(_paRefreshGps.$e);
 
 	const _trDivGps = util.getGasPriceSlider();
 	_trDivGps.refresh();
 	_trDivGps.onChange(util.debounce(500, updateTrDiv))
 	_trDivGps.$e.find(".head").remove();
+	_trDivGps.$refresh.show();
 	$(".trDiv .gasPriceSlider").prepend(_trDivGps.$e);
 
 	updateAll();
@@ -92,7 +95,36 @@ Loader.require("tr", "mc", "pac")
 					p.then(reset, reset);
 
 					const waitTimeMs = _paRefreshGps.getWaitTimeS() * 1000;
-					const $txStatus = util.$getTxStatus(p, {waitTimeMs: waitTimeMs});
+					const $txStatus = util.$getTxStatus(p, {
+						onSuccess: res=>{
+							const $msg = $("<div></div>").appendTo($e.find(".TxStatus .status"));
+							const error = res.events.find(e => e.name == "Error");
+							const started = res.events.find(e => e.name == "PennyAuctionStarted");
+							const paid = res.events.find(e => e.name == "RewardPaid");
+							const notPaid = res.events.find(e => e.name == "RewardNotPaid");
+							if (error) {
+								$msg.append(`Unable to start auction: ${error.args.msg}`);
+								return;
+							}
+							if (started) {
+								const $link = $("<a target='_blank'>Auction</a>")
+									.attr("href",`/games/viewpennyauction.html#${started.args.addr}`);
+								$msg.append($link).append(" started. ");
+							}
+							if (paid) {
+								const $user = util.$getAddrLink(paid.args.recipient);
+								const amtStr = ethUtil.toEthStr(paid.args.amount);
+								$msg.append(`Rewarded `).append($user).append(` with ${amtStr}`);
+							}
+							if (notPaid) {
+								const $user = util.$getAddrLink(notPaid.args.recipient);
+								const amtStr = ethUtil.toEthStr(notPaid.args.amount);
+								const note = notPaid.args.note;
+								$msg.append(`Could not send `).append($user).append(` ${amtStr}: ${note}`);
+							}
+						},
+						waitTimeMs: waitTimeMs
+					});
 					$e.find(".tx").empty().append($txStatus);
 				});
 			} else {
@@ -177,7 +209,36 @@ Loader.require("tr", "mc", "pac")
 					p.then(reset, reset);
 
 					const waitTimeMs = _paRefreshGps.getWaitTimeS() * 1000;
-					const $txStatus = util.$getTxStatus(p, {waitTimeMs: waitTimeMs});
+					const $txStatus = util.$getTxStatus(p, {
+						onSuccess: res=>{
+							const $msg = $("<div></div>").appendTo($e.find(".TxStatus .status"));
+							const error = res.events.find(e => e.name == "Error");
+							const refreshed = res.events.find(e => e.name == "PennyAuctionsRefreshed");
+							const paid = res.events.find(e => e.name == "RewardPaid");
+							const notPaid = res.events.find(e => e.name == "RewardNotPaid");
+							if (refreshed) {
+								const numEnded = e.args.numEnded;
+								const feesCollected = ethUtil.toEthStr(e.args.feesCollected);
+								$msg.append(`Ended ${numEnded} auctions and collected ${feesCollected}.`);
+							}
+							if (error) {
+								$msg.append(`Error: ${error.args.msg}`);
+								return;
+							}
+							if (paid) {
+								const $user = util.$getAddrLink(paid.args.recipient);
+								const amtStr = ethUtil.toEthStr(paid.args.amount);
+								$msg.append(`Rewarded `).append($user).append(` with ${amtStr}`);
+							}
+							if (notPaid) {
+								const $user = util.$getAddrLink(notPaid.args.recipient);
+								const amtStr = ethUtil.toEthStr(notPaid.args.amount);
+								const note = notPaid.args.note;
+								$msg.append(`Could not send `).append($user).append(` ${amtStr}: ${note}`);
+							}
+						}
+						waitTimeMs: waitTimeMs
+					});
 					$e.find(".tx").empty().append($txStatus);
 				});
 			} else {
@@ -189,7 +250,9 @@ Loader.require("tr", "mc", "pac")
 		});
 	}
 
+	var _isTrUpdating = false;
 	function updateTrDiv() {
+		if (_isTrUpdating) return;
 		const $e = $(".trDiv");
 		const $fields = $e.find(".fields");
 		const $notice = $e.find(".no-reward");
@@ -199,6 +262,7 @@ Loader.require("tr", "mc", "pac")
 		const $cost = $e.find(".cost .value").text("Loading...");
 		const $profit = $e.find(".profit .value").text("Loading...");
 		const $risk = $e.find(".risk .value").text("Loading...");
+		const $btn = $e.find(".execute button").unbind("click").attr("disabled","disabled");
 		const failGasVal = new BigNumber($e.find(".failGasPrice").val());
 		const gasPrice = _trDivGps.getValue(0);
 
@@ -235,6 +299,26 @@ Loader.require("tr", "mc", "pac")
 					.removeClass("good bad")
 					.addClass(profit.gt(0) ? "good" : "bad");
 				$risk.text(`${ethUtil.toEthStr(risk)} (${failGasVal} gas)`);
+				$btn.removeAttr("disabled").click(()=>{
+					_isTrUpdating = true;
+					_trDivGps.enable(false);
+					$btn.attr("disabled", "disabled");
+					const reset = ()=>{
+						_isTrUpdating = false;
+						_trDivGps.enable(true);
+						$btn.removeAttr("disabled");
+					}
+
+					const p = tr.distributeToToken([], {
+						gasPrice: gasPrice,
+						gas: estGas.plus(100000)
+					});
+					p.then(reset, reset);
+
+					const waitTimeMs = _trDivGps.getWaitTimeS() * 1000;
+					const $txStatus = util.$getTxStatus(p, {waitTimeMs: waitTimeMs});
+					$e.find(".tx").empty().append($txStatus);
+				});
 			} else {
 				$reward.text("Invalid gasPrice");
 				$cost.text("Invalid gasPrice");

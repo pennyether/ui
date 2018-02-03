@@ -332,13 +332,17 @@
 			catch (e) { throw new Error(`${val} is not convertable to a BigNumber`); }
 			return bn.div(1e18);
 		}
-		this.toEthStr = function(val, digits) {
+		this.toEthStr = function(val, digits, unit) {
 			if (digits===undefined) digits = 4;
-			return _self.toEth(val).toFixed(digits) + " ETH";
+			if (!unit) unit = "Ether";
+			val = _self.toEth(val);
+			if (val.equals(0)) {}
+			else if (val.lt(".000000000000001")) { val = val.mul(1e18); unit = `wei-${unit}`; }
+			else if (val.lt(".000001")) { val = val.mul(1e6); unit = `µ-${unit}`; }
+			return val.toFixed(digits) + ` ${unit}`;
 		}
 		this.toTokenStr = function(val, digits) {
-			if (digits===undefined) digits = 4;
-			return _self.toEth(val).toFixed(digits) + " Penny";
+			return _self.toEthStr(val, digits, "Penny");
 		}
 		this.toWei = function(val) {
 			try { var bn = new BigNumber(val); }

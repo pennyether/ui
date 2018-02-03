@@ -30,6 +30,7 @@ Loader.require("reg", "comp", "tr", "mc", "pac", "dice")
 				, $("#WalletSupervisor"), true);
 			util.bindToElement(wallet.owner().then(util.$getAddrLink)
 				, $("#WalletOwner"), true);
+			util.bindToElement(util.$getLogs(wallet, true), $("#WalletLogs"), true);
 		})
 	}
 	function refreshAdmin() {

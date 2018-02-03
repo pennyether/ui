@@ -127,7 +127,7 @@ Loader.require("comp")
 
 		// sale ended
 		if (blockTime > _dateSaleEnded || _totalRaised && _totalRaised.equals(_hardCap)){
-			_timeLeft = null;
+			_timeLeft = 0;
 			_$progress.show();
 			_$send.show();
 			_$statBonus.parent().css("visibility","hidden");

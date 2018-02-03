@@ -2,13 +2,443 @@
 <html>
 	<head>
 		<script src="/javascripts/lib/Loader.js"></script>
+		<style>
+			.toc {
+				font-size: 85%;
+				position: fixed;
+				padding: 0px 0px 0px 0px;
+				width: 200px;
+				background: #F0F0F0;
+				height: 100%;
+				border-right: 1px solid #AAA;
+			}
+			.toc .header {
+				text-align: center;
+				font-weight: bold;
+				padding: 2px 4px;
+				margin-top: 15px;
+				margin-bottom: 0px;
+				border-bottom: 1px dotted #AAA;
+			}
+			.toc a {
+				color: black;
+				text-decoration: none;
+			}
+				.toc .item .head {
+					padding: 2px 0px 2px 15px;
+					margin-top: 2px;
+					transition: background .2s;
+				}
+					.toc .item .head:hover {
+						background: #DDD;
+						transition: background .2s;
+					}
+					.toc .item.on .head {
+						font-weight: bold;
+						text-shadow: 1px 1px 0px rgba(255, 255, 255, .4);
+						background: #CCC;
+						transition: background .2s;
+					}
+
+			.main {
+				padding-left: 220px;
+				padding-right: 20px;
+			}
+
+			.fieldList {
+				display: table;
+				box-sizing: border-box;
+				width: 100%;
+				padding: 15px 15px 0px 15px;
+				margin-top: 10px;
+			}
+			.fieldList > .field {
+				display: table-row;
+			}
+			.fieldList > .field:nth-child(odd) {
+				background: #F0F0F0;
+			}
+			.fieldList > .field > .label {
+				display: table-cell;
+				white-space: nowrap;
+				vertical-align: top;
+				padding: 10px;
+				padding-right: 40px;
+			}
+			.fieldList > .field > .value {
+				display: table-cell;
+				padding: 10px;
+				width: 100%;
+			}
+
+			.summary {
+				margin: 15px;
+				padding: 10px;
+				font-size: 90%;
+				background: rgba(0,128,0,.15);
+				border-radius: 5px;
+			}
+		</style>
+		<script>
+		var loadedHash = window.location.hash;
+		window.location.hash = "";
+		Loader.onPageLoad.then(()=>{
+			if (loadedHash) goToHash(loadedHash);
+
+			// scrolls to the hash
+			function goToHash(hash) {
+				const $hash = $(hash);
+				if ($hash.length==0) {
+					document.location.hash = hash;
+					return;
+				}
+
+				$hash.attr("id", "");
+				doScrolling($hash.position().top - 100, 500);
+				window.location.hash = hash;
+				$hash.attr("id", hash.replace("#",""));
+			}
+
+			// all # links should scroll to target
+			$("a[href^='#']").click(function(e){
+				e.preventDefault();
+				goToHash($(e.currentTarget).attr("href"));
+			});
+
+			// add "anchor" data to .item and .subitem
+			$(".toc .item").each((i, el)=>{
+				$(el).data("anchor", $(el).find("a").eq(0).attr("href"));
+				$(el).find(".body a").each((i, sublink)=>{
+					$(sublink).find(".subitem").data("anchor", $(sublink).attr("href"));
+				});
+			});
+
+			// adds "on" class to the last of $items which is scrolled to.
+			function activateLastItemScrolledTo($items) {
+				const height = window.innerHeight;
+				const top = window.pageYOffset;
+				$items.removeClass("on");
+				for (var i = $items.length-1; i>=0; i--) {
+					const $item = $items.eq(i);
+					const $anchor = $($item.data("anchor"));
+					if (!$anchor.length) continue;
+
+					if ($anchor[0].getBoundingClientRect().top <= 105) {
+						$item.addClass("on");
+						break;
+					}
+				}
+			}
+
+			// on scroll, set ".on" for proper item and subitem
+			const $items = $(".toc .item");
+			$(window).on("scroll", function(){
+				activateLastItemScrolledTo($items);
+			});
+
+			$(window).scroll();
+		});
+		</script>
 	</head>
 	<body><div id="Content">
-		<div class="section pageTitle">
-			Contracts, Tests, and Audits
+		<div class="toc">
+			<div class="header">Contracts</div>
+			<div class="item">
+				<a href="#comptroller">
+					<div class="head">Comptroller</div>
+				</a>
+			</div>
+			<div class="item">
+				<a href="#dividend-token">
+					<div class="head">DividendToken</div>
+				</a>
+			</div>
+			<div class="item">
+				<a href="#treasury">
+					<div class="head">Treasury</div>
+				</a>
+			</div>
+			<div class="item">
+				<a href="#main-controller">
+					<div class="head">MainController</div>
+				</a>
+			</div>
+			<div class="item">
+				<a href="#penny-auction">
+					<div class="head">PennyAuction</div>
+				</a>
+			</div>
+			<div class="item">
+				<a href="#instadice">
+					<div class="head">InstaDice</div>
+				</a>
+			</div>
 		</div>
-		<div>
-			<a href="/test-results/index.html">Test Results</a>
+		<div class="main">
+			<div class="section pageTitle">
+				Contracts, Tests, and Audits
+			</div>
+			<div>
+				On this page you'll find information on our deployed contracts.<br>
+				To view the current state of each contract, you can view the <a href="/status/system.html">system status page</a>.
+			</div>
+
+			<div>
+				<a id="comptroller"></a>
+				<h3>Comptroller</h3>
+				<div class="summary">
+					The Comptroller runs the ICO. After the ICO, it sends bankroll to the Treasury, and is in charge of burning tokens for a refund.
+				</div>
+				<div class="fieldList">
+					<div class="field">
+						<div class="label">Address:</div>
+						<div class="value"></div>
+					</div>
+					<div class="field">
+						<div class="label">Status:</div>
+						<div class="value">
+							<a href="/status/system.html#comptroller">System Status Page</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">More Info:</div>
+						<div class="value">
+							<a href="/">Technical Documentation</a>
+							<br>
+							<a href="/">Source Code</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Tests:</div>
+						<div class="value">
+							<a href="">Test Results</a>
+							<a href="">(Test File)</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Audits:</div>
+						<div class="value"></div>
+					</div>
+				</div>
+			</div>
+
+			<div>
+				<a id="dividend-token"></a>
+				<h3>DividendToken</h3>
+				<div class="summary">
+					The DividendToken is an ERC20 Token that can distribute dividends to Token Holders at any time. The totalSupply is fixed, and only goes down if/when Token Holders decide to burn tokens. All tokens are backed by at least .5 Ether held in the Treasury.
+				</div>
+				<div class="fieldList">
+					<div class="field">
+						<div class="label">Address:</div>
+						<div class="value"></div>
+					</div>
+					<div class="field">
+						<div class="label">Status:</div>
+						<div class="value">
+							<a href="/status/system.html#token">System Status Page</a>
+							<br>
+							<a href="/status/token.html">Token UI</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">More Info:</div>
+						<div class="value">
+							<a href="/ico/whitepaper.html#token">Whitepaper</a>
+							<br>
+							<a href="/">Technical Documentation</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Source Code:</div>
+						<div class="value"></div>
+					</div>
+					<div class="field">
+						<div class="label">Tests:</div>
+						<div class="value">
+							<a href="">Test Results</a>
+							<a href="">(Test File)</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Audits:</div>
+						<div class="value"></div>
+					</div>
+				</div>
+			</div>
+
+			<div>
+				<a id="treasury"></a>
+				<h3>Treasury</h3>
+				<div class="summary">
+					The Treasury holds the bankroll, and only ever sends Ether to fund games (limited by a daily amount), or to pay Token Holders .5 Ether per Token burned. The bankroll is set after the ICO, by the Comptroller.
+				</div>
+				<div class="fieldList">
+					<div class="field">
+						<div class="label">Address:</div>
+						<div class="value"></div>
+					</div>
+					<div class="field">
+						<div class="label">Status:</div>
+						<div class="value">
+							<a href="/status/treasury.html">Treasury Status</a>
+							<br>
+							<a href="/status/system.html#treasury">System Status Page</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">More Info:</div>
+						<div class="value">
+							<a href="/ico/whitepaper.html#treasury">Whitepaper</a>
+							<br>
+							<a href="/">Technical Documentation</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Source Code:</div>
+						<div class="value"></div>
+					</div>
+					<div class="field">
+						<div class="label">Tests:</div>
+						<div class="value">
+							<a href="">Test Results</a>
+							<a href="">(Test File)</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Audits:</div>
+						<div class="value"></div>
+					</div>
+				</div>
+			</div>
+
+			<div>
+				<a id="main-controller"></a>
+				<h3>MainController</h3>
+				<div class="summary">
+					The MainController keeps PennyEther running autonomously. It is the only contract that can get funds from the Treasury, and uses those funds to stake PennyAuctions and InstaDice. It also allows for users to run Tasks, and in return pays them rewards.
+				</div>
+				<div class="fieldList">
+					<div class="field">
+						<div class="label">Address:</div>
+						<div class="value"></div>
+					</div>
+					<div class="field">
+						<div class="label">Status:</div>
+						<div class="value">
+							<a href="/status/system.html#maincontroller">MainController Status</a>
+							<br>
+							<a href="/game/tasks.html">Tasks Page</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">More Info:</div>
+						<div class="value">
+							<a href="/ico/whitepaper.html#treasury">MainController</a>
+							<br>
+							<a href="/">Technical Documentation</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Source Code:</div>
+						<div class="value"></div>
+					</div>
+					<div class="field">
+						<div class="label">Tests:</div>
+						<div class="value">
+							<a href="">Test Results</a>
+							<a href="">(Test File)</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Audits:</div>
+						<div class="value"></div>
+					</div>
+				</div>
+			</div>
+
+			<div>
+				<a id="penny-auction"></a>
+				<h3>PennyAuction</h3>
+				<div class="summary">
+					A Penny Auction is a simple game where a prize is staked, and the last person to bid (by paying a small, fixed fee) will win the prize. Each new bid extends the auction by a few blocks.
+				</div>
+				<div class="fieldList">
+					<div class="field">
+						<div class="label">Status:</div>
+						<div class="value">
+							<div class="note">
+								Multiple PennyAuction instances exist. They can each be viewed via the link below.
+							</div>
+							<a href="/games/viewauction.html">View Auction</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">More Info:</div>
+						<div class="value">
+							<a href="/ico/whitepaper.html#games-penny-auctions">Whitepaper</a>
+							<br>
+							<a href="/">Technical Documentation</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Source Code:</div>
+						<div class="value"></div>
+					</div>
+					<div class="field">
+						<div class="label">Tests:</div>
+						<div class="value">
+							<a href="">Test Results</a>
+							<a href="">(Test File)</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Audits:</div>
+						<div class="value"></div>
+					</div>
+				</div>
+			</div>
+
+			<div style='padding-bottom: 400px'>
+				<a id="instadice"></a>
+				<h3>InstaDice</h3>
+				<div class="summary">
+					The InstaDice contract allows for users to wager on a customizable dice roll and immediately see their results the moment their transaction is mined. Rolls are automatically paid the next time any user rolls, or the user can redeem manually.
+				</div>
+				<div class="fieldList">
+					<div class="field">
+						<div class="label">Address:</div>
+						<div class="value"></div>
+					</div>
+					<div class="field">
+						<div class="label">Status:</div>
+						<div class="value">
+							<a href="/status/games.html#instadice">InstaDice Status</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Links:</div>
+						<div class="value">
+							<a href="/games/viewroll.html#1">View Roll</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Source Code:</div>
+						<div class="value"></div>
+					</div>
+					<div class="field">
+						<div class="label">Tests:</div>
+						<div class="value">
+							<a href="">Test Results</a>
+							<a href="">(Test File)</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Audits:</div>
+						<div class="value"></div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div></body>
 </html>
