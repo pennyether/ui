@@ -57,14 +57,15 @@
 				const topicValue = filter.hasOwnProperty(input.name)
 					? "0x"+ethUtil.toBytesStr(filter[input.name], 32)
 					: null;
-				topics.push(topicValue);
 			});
 			
 			// do it.
+			const fromHex = fromBlock ? web3.toHex(fromBlock) : web3.toHex(0);
+			const toHex = toBlock ? web3.toHex(toBlock) : "latest";
 			return _ethUtil.sendAsync("eth_getLogs", [{
 				address: instance.address,
-				fromBlock: fromBlock ? web3.toHex(fromBlock) : web3.toHex(0),
-				toBlock: toBlock ? web3.toHex(toBlock) : "latest",
+				fromBlock: fromHex,
+				toBlock: toHex,
 				topics: topics
 			}]).then((events)=>{
 				return _self.decodeKnownEvents(events);

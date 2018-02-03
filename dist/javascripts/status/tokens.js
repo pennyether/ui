@@ -48,6 +48,7 @@ Loader.require("comp")
 	function refreshAccount() {
 		const addr = $("#AccountAddr").val();
 		const $balance = $(".field.balance .value").empty();
+		const $totalSupply = $(".field.totalSupply .value").empty();
 		const $owedDivs = $(".field.owedDivs .owedDivs").empty();
 		const $collectHistory = $(".collectHistory").empty();
 		const $transferHistory = $(".transferHistory").empty();
@@ -74,6 +75,7 @@ Loader.require("comp")
 
 		//update balance and owedDividends
 		util.bindToElement(token.balanceOf([addr]).then(ethUtil.toTokenStr), $balance);
+		util.bindToElement(token.totalSupply().then(ethUtil.toEthStr), $totalSupply);
 		util.bindToElement(token.getOwedDividends([addr]).then(ethUtil.toEthStr), $owedDivs);
 
 		//event CollectedDividends(address indexed account, uint amount);

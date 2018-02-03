@@ -45,7 +45,7 @@ Loader.require("reg", "comp", "tr")
 			const used = dayLastFunded.equals(today) ? amtFundedToday : 0;
 			const dailyFundLimitStr = ethUtil.toEthStr(dailyFundLimit);
 			const usedStr = ethUtil.toEthStr(used);
-			const dailyLimitStr = `${dailyFundLimitStr} (${usedStr} used today.)`;
+			const dailyLimitStr = `${dailyFundLimitStr} (${usedStr} used today)`;
 			$("#Addr .value").empty().append(util.$getAddrLink(tr.address));
 			$("#TokenAddr .value").empty().append(util.$getAddrLink(tokenAddr));
 			$("#ComptrollerAddr .value").empty().append(util.$getAddrLink(compAddr));

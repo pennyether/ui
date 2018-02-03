@@ -10,6 +10,7 @@ Loader.require("reg", "tr", "mc", "pac", "dice")
 				<div class='status'></div>
 			</div>
 		`);
+		const $status = $e.find(".status");
 
 		// init gps
 		const gps = util.getGasPriceSlider();
@@ -26,7 +27,7 @@ Loader.require("reg", "tr", "mc", "pac", "dice")
 		$button.click(()=>{
 			$button.blur();
 			const p = txFn(gps.getValue());
-			$e.find(".status").empty().append(util.$getTxStatus(p, {
+			$status.empty().append(util.$getTxStatus(p, {
 				waitTimeMs: gps.getWaitTimeS()*1000
 			}));
 		})

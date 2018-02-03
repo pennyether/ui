@@ -151,7 +151,7 @@
 		        	if (err) rej(err);
 		        	if (result.error) rej(new Error(result.error.message));
 		        	else res(result.result);
-		        });	
+		        });
 	        }).catch(e=>{
 	        	const paramsStr = JSON.stringify(params);
 	        	const name = `${method} (${paramsStr}`;

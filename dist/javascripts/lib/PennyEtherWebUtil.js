@@ -217,7 +217,8 @@
 		}
 	*/
 	function LogViewer(opts) {
-		const _BLOCKS_PER_SEARCH = 5000;
+		const _BLOCKS_PER_SEARCH = 50000;
+		const _MAX_SEARCH = _BLOCKS_PER_SEARCH*10;
 
 		const _$e = $(`
 			<div class='LogViewer'>
@@ -241,7 +242,9 @@
 		const _order = opts.order;
 		const _allAtOnce = opts.allAtOnce || false;
 		const _startBlock = opts.startBlock || ethUtil.getCurrentBlockHeight().toNumber();
-		const _endBlock = _order == 'newest' ? Math.max(0,_startBlock - 500000) : _startBlock + 500000;
+		const _endBlock = _order == 'newest'
+			? Math.max(0, _startBlock - _MAX_SEARCH)
+			: _startBlock + _MAX_SEARCH;
 		const _stopFn = opts.stopFn || function(){};
 		const _dateFn = opts.dateFn || _defaultDateFn;
 		const _valueFn = opts.valueFn || _defaultValueFn;
@@ -544,20 +547,26 @@
 			var loadingBar;
 
 			_$status.text("Waiting for signature...");
-			p.getTxHash.then(function(tId){
-				txId = tId;
-				loadingBar = _util.getLoadingBar(waitTimeMs);
-				_$status.empty()
-					.append(_util.$getTxLink(miningMsg, txId))
-					.append(loadingBar.$e);
-			});
+			if (p.getTxHash){
+				p.getTxHash.then(function(tId){
+					txId = tId;
+					loadingBar = _util.getLoadingBar(waitTimeMs);
+					_$status.empty()
+						.append(_util.$getTxLink(miningMsg, txId))
+						.append(loadingBar.$e);
+				});
+			}
 
 			p.then(function(res){
-				_$clear.show();
-				loadingBar.finish(500).then(()=>{
-					_$status.empty().append(_util.$getTxLink(successMsg, txId));
+				if (loadingBar) {
+					_$clear.show();
+					loadingBar.finish(500).then(()=>{
+						_$status.empty().append(_util.$getTxLink(successMsg, txId));
+						onSuccess(res);
+					});
+				} else {
 					onSuccess(res);
-				});
+				}
 			}).catch((e)=>{
 				_$clear.show();
 				if (txId) {
