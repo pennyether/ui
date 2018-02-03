@@ -96,6 +96,7 @@ Loader.require("tr", "mc", "pac")
 
 					const waitTimeMs = _paRefreshGps.getWaitTimeS() * 1000;
 					const $txStatus = util.$getTxStatus(p, {
+						waitTimeMs: waitTimeMs,
 						onSuccess: res=>{
 							const $msg = $("<div></div>").appendTo($e.find(".TxStatus .status"));
 							const error = res.events.find(e => e.name == "Error");
@@ -122,8 +123,7 @@ Loader.require("tr", "mc", "pac")
 								const note = notPaid.args.note;
 								$msg.append(`Could not send `).append($user).append(` ${amtStr}: ${note}`);
 							}
-						},
-						waitTimeMs: waitTimeMs
+						}
 					});
 					$e.find(".tx").empty().append($txStatus);
 				});
@@ -210,6 +210,7 @@ Loader.require("tr", "mc", "pac")
 
 					const waitTimeMs = _paRefreshGps.getWaitTimeS() * 1000;
 					const $txStatus = util.$getTxStatus(p, {
+						waitTimeMs: waitTimeMs,
 						onSuccess: res=>{
 							const $msg = $("<div></div>").appendTo($e.find(".TxStatus .status"));
 							const error = res.events.find(e => e.name == "Error");
@@ -237,7 +238,6 @@ Loader.require("tr", "mc", "pac")
 								$msg.append(`Could not send `).append($user).append(` ${amtStr}: ${note}`);
 							}
 						}
-						waitTimeMs: waitTimeMs
 					});
 					$e.find(".tx").empty().append($txStatus);
 				});
@@ -316,7 +316,33 @@ Loader.require("tr", "mc", "pac")
 					p.then(reset, reset);
 
 					const waitTimeMs = _trDivGps.getWaitTimeS() * 1000;
-					const $txStatus = util.$getTxStatus(p, {waitTimeMs: waitTimeMs});
+					const $txStatus = util.$getTxStatus(p, {
+						waitTimeMs: waitTimeMs,
+						onSuccess: res=>{
+							const $msg = $("<div></div>").appendTo($e.find(".TxStatus .status"));
+							const error = res.events.find(e => e.name == "DistributeError");
+							const success = res.events.find(e => e.name == "DistributeSuccess");
+							const failure = res.events.find(e => e.name == "DistributeFailure");
+							const paid = res.events.find(e => e.name == "RewardPaid");
+							if (error) {
+								$msg.append(`Error: ${error.args.msg}`);
+								return;
+							}
+							if (success) {
+								const ethStr = ethUtil.toEthStr(success.args.amount);
+								$msg.append(`Distributed ${ethStr} to Token.`);
+							}
+							if (failure) {
+								const ethStr = ethUtil.toEthStr(success.args.amount);
+								$msg.append(`Couldn't distribute ${ethStr} to Token.`);	
+							}
+							if (paid) {
+								const $user = util.$getAddrLink(paid.args.recipient);
+								const amtStr = ethUtil.toEthStr(paid.args.amount);
+								$msg.append(`Rewarded `).append($user).append(` with ${amtStr}`);
+							}
+						}
+					});
 					$e.find(".tx").empty().append($txStatus);
 				});
 			} else {

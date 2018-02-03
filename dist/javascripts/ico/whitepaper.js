@@ -548,16 +548,15 @@ Loader.onPageLoad.then(()=>{
 	function NavBar(selectors) {
 		const _selectors = [".section > .head", ".subsection > .head", "h3", "h4"];
 		const _items = _selectors.map(s=>$(s));
-		const _$e = $(`
-			<div class='NavBar'>
-				test.
-			</div>
-		`).appendTo("#Breadcrumb").css({
-			display: "inline-block",
-			position: "relative",
-			left: 85,
-			zIndex: 10
-		});
+		const _$e = $(`<div class='NavBar'></div>`)
+			.appendTo("#Breadcrumb")
+			.css({
+				display: "inline-block",
+				position: "absolute",
+				top: 6,
+				left: 230,
+				zIndex: 10
+			});
 
 		// return the first item that is above the fold.
 		function getFirstAboveFold(elements) {

@@ -337,8 +337,8 @@
 			if (!unit) unit = "Ether";
 			val = _self.toEth(val);
 			if (val.equals(0)) {}
-			else if (val.lt(".000000000000001")) { val = val.mul(1e18); unit = `wei-${unit}`; }
-			else if (val.lt(".000001")) { val = val.mul(1e6); unit = `µ-${unit}`; }
+			else if (val.abs().lt(".00000000000001")) { val = val.mul(1e18); unit = `wei-${unit}`; }
+			else if (val.abs().lt(".0001")) { digits = 6; }
 			return val.toFixed(digits) + ` ${unit}`;
 		}
 		this.toTokenStr = function(val, digits) {

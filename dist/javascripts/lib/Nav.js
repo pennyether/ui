@@ -151,11 +151,12 @@
 
 			document.title = breadcrumb.map(x=>x.name).join(" > ");
 			_$breadcrumb.empty();
+			$breadcrumb = $("<div></div>").appendTo(_$breadcrumb);
 			while (breadcrumb.length) {
 				const item = breadcrumb.shift();
 				const $item = $("<div></div>")
 					.addClass("item")
-					.appendTo(_$breadcrumb);
+					.appendTo($breadcrumb);
 				if (item.linkInBreacrumb && breadcrumb.length) {
 					$item.append($("<a></a>").attr("href", item.url).text(item.name))
 				} else {
