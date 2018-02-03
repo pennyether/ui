@@ -13,7 +13,7 @@ Loader.require("comp")
 	ethUtil.onStateChanged((state)=>{
 		if (!state.isConnected) return;
 		refreshDividends();
-		refreshAccount();
+		//refreshAccount();
 	});
 
 	// initialize dividend logs
@@ -28,6 +28,7 @@ Loader.require("comp")
 
 	// initialize account address
 	$("#AccountAddr").val(ethUtil.getCurrentAccount());
+	refreshAccount();
 	// append sliders
 	$collectDivs.find(".gasSlider").append(collectGps.$e);
 	$transfer.find(".gasSlider").append(transferGps.$e);
@@ -75,7 +76,7 @@ Loader.require("comp")
 
 		//update balance and owedDividends
 		util.bindToElement(token.balanceOf([addr]).then(ethUtil.toTokenStr), $balance);
-		util.bindToElement(token.totalSupply().then(ethUtil.toEthStr), $totalSupply);
+		util.bindToElement(token.totalSupply().then(ethUtil.toTokenStr), $totalSupply);
 		util.bindToElement(token.getOwedDividends([addr]).then(ethUtil.toEthStr), $owedDivs);
 
 		//event CollectedDividends(address indexed account, uint amount);

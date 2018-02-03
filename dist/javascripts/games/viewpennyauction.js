@@ -36,18 +36,18 @@ Loader.require("pac")
 			$(".field .value").text("");
 			return;
 		}
-		const contract = PennyAuction.at(_address);
-		const pBlockEnded = contract.blockEnded();
+		const auction = PennyAuction.at(_address);
+		const pBlockEnded = auction.blockEnded();
 		$(".field.address .value").empty().append(util.$getAddrLink(_address));
-		util.bindToElement(contract.prize().then(ethUtil.toEthStr), $(".prize .value"));
-		util.bindToElement(contract.bidPrice().then(ethUtil.toEthStr), $(".bidPrice .value"));
-		util.bindToElement(contract.bidIncr().then(ethUtil.toEthStr), $(".bidIncr .value"));
-		util.bindToElement(contract.bidAddBlocks(), $(".bidAddBlocks .value"));
-		util.bindToElement(contract.currentWinner().then(util.$getAddrLink), $(".currentWinner .value"), true);
+		util.bindToElement(auction.prize().then(ethUtil.toEthStr), $(".prize .value"));
+		util.bindToElement(auction.bidPrice().then(ethUtil.toEthStr), $(".bidPrice .value"));
+		util.bindToElement(auction.bidIncr().then(ethUtil.toEthStr), $(".bidIncr .value"));
+		util.bindToElement(auction.bidAddBlocks(), $(".bidAddBlocks .value"));
+		util.bindToElement(auction.currentWinner().then(util.$getAddrLink), $(".currentWinner .value"), true);
 		util.bindToElement(pBlockEnded, $(".blockEnded .value"));
-		util.bindToElement(contract.numBids(), $(".numBids .value"));
-		util.bindToElement(contract.isPaid(), $(".isPaid .value"));
-		util.bindToElement(contract.collector().then(util.$getAddrLink), $(".collector .value"), true);
+		util.bindToElement(auction.numBids(), $(".numBids .value"));
+		util.bindToElement(auction.isPaid(), $(".isPaid .value"));
+		util.bindToElement(auction.collector().then(util.$getAddrLink), $(".collector .value"), true);
 
 		pBlockEnded.then(blockEnded=>{
 			const curBlock = ethUtil.getCurrentBlockHeight();
@@ -58,6 +58,8 @@ Loader.require("pac")
 				$(".blockEnded .value").append(` (${diff.abs()} blocks ago)`);
 			}
 		});
+
+		// todo: find transaction it was created on, verify there was a PAF event.
 	}
 
 	function refreshLogs() {

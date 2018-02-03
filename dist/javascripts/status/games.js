@@ -1,5 +1,5 @@
-Loader.require("pac", "dice")
-.then(function(pac, dice){
+Loader.require("pac", "dice", "tr")
+.then(function(pac, dice, tr){
 	refreshAll();
 
 	function refreshAll(){
@@ -66,6 +66,18 @@ Loader.require("pac", "dice")
 					$defined.find(".bidIncr .value ").text(bidIncr);
 					$defined.find(".bidAddBlocks .value").text(`${bidAddBlocks} (~${bidAddBlocksTime})`);
 					$defined.find(".initialBlocks .value").text(`${initialBlocks} (~${initialBlocksTime})`);
+
+					if (!res[1]) {
+						$defined.find(".canBeStarted .value").text("No: it is disabled.");
+					} else if (res[0]!=ethUtil.NO_ADDRESS) {
+						$defined.find(".canBeStarted .value").text("No: it is ongoing.");
+					} else {
+						$defined.find(".canBeStarted .value").text("Loading...");
+						tr.canFund([res[3]]).then((canFund)=>{
+							const txt = canFund ? "Yes." : "No: cannot be funded. (Check daily limit)";
+							$defined.find(".canBeStarted .value").text(txt);
+						});
+					}
 				});
 				tippy($defined.find(".tipLeft").toArray(), { placement: "top" });
 			};

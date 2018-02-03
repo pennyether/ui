@@ -29,6 +29,7 @@
 				font-size: 60%;
 				margin-left: 10px;
 				vertical-align: middle;
+				letter-spacing: initial;
 			}
 
 			.logs .refresh {
@@ -38,6 +39,7 @@
 				cursor: pointer;
 				text-decoration: underline;
 				margin-left: 10px;
+				letter-spacing: initial;
 			}
 			.logs .LogViewer .logs {
 				max-height: 300px;
@@ -55,8 +57,8 @@
 				<input type=text id="Address" placeholder="auction address"><button id="LoadButton">Load</button>
 			</div>
 		</div>
-		<div>
-			<div class="section contractData">
+		<div style="margin: 0px 30px">
+			<div class="subsection contractData">
 				<div class="head">
 					Contract Data
 					<div class="info">This data is refreshed every new block.</div>
@@ -64,6 +66,10 @@
 				<div class="body">
 					<div class="field address">
 						<div class="label tipLeft" title="The address of the auction.">Address:</div>
+						<div class="value"></div>
+					</div>
+					<div class="field verified">
+						<div class="label tipLeft" title="Shows the transaction that created this contract.">Verified:</div>
 						<div class="value"></div>
 					</div>
 					<div class="field prize">
@@ -106,7 +112,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="section logs">
+			<div class="subsection logs">
 				<div class="head">
 					Event Log
 					<div class="refresh">click to refresh</div>

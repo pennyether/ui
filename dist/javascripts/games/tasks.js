@@ -1,33 +1,29 @@
 Loader.require("tr", "mc", "pac")
 .then(function(tr, mc, pac){
 	const _paStartGps = util.getGasPriceSlider();
-	_paStartGps.refresh();
 	_paStartGps.onChange(util.debounce(500, updatePaStart))
 	_paStartGps.$e.find(".head").remove();
 	_paStartGps.$refresh.show();
+	_paStartGps.refresh();
 	$(".paStart .gasPriceSlider").prepend(_paStartGps.$e);	
 
 	const _paRefreshGps = util.getGasPriceSlider();
-	_paRefreshGps.refresh();
 	_paRefreshGps.onChange(util.debounce(500, updatePaRefresh))
 	_paRefreshGps.$e.find(".head").remove();
 	_paRefreshGps.$refresh.show();
+	_paRefreshGps.refresh();
 	$(".paRefresh .gasPriceSlider").prepend(_paRefreshGps.$e);
 
 	const _trDivGps = util.getGasPriceSlider();
-	_trDivGps.refresh();
 	_trDivGps.onChange(util.debounce(500, updateTrDiv))
 	_trDivGps.$e.find(".head").remove();
 	_trDivGps.$refresh.show();
+	_trDivGps.refresh();
 	$(".trDiv .gasPriceSlider").prepend(_trDivGps.$e);
 
-	updateAll();
-
-	function updateAll() {
-		updatePaStart();
-		updatePaRefresh();
-		updateTrDiv();
-	}
+	updatePaStart();
+	updatePaRefresh();
+	updateTrDiv();
 
 	var _isPaStarting = false;
 	function updatePaStart() {
@@ -44,10 +40,11 @@ Loader.require("tr", "mc", "pac")
 		const failGasVal = new BigNumber($e.find(".failGasPrice").val());
 		const gasPrice = _paStartGps.getValue();
 
-		mc.getStartPennyAuctionReward().then(res=>{
+		mc.canStartPennyAuction().then(res=>{
 			var data = {
-				reward: res[0],
+				canStart: res[0],
 				index: res[1],
+				reward: res[2],
 				estGas: new BigNumber(0)
 			}
 			if (data.reward.gt(0)){
@@ -55,11 +52,12 @@ Loader.require("tr", "mc", "pac")
 			}
 			return data;
 		}).then(data=>{
+			const canStart = data.canStart;
 			const reward = data.reward;
 			const estGas = new BigNumber(data.estGas);
 			const index = data.index;
 
-			if (reward.gt(0)){
+			if (canStart){
 				$notice.hide();
 				$fields.show();	
 			} else {
@@ -86,6 +84,7 @@ Loader.require("tr", "mc", "pac")
 						_isPaStarting = false;
 						_paStartGps.enable(true);
 						$btn.removeAttr("disabled");
+						updatePaStart();
 					}
 
 					const p = mc.startPennyAuction([data.index], {
@@ -155,20 +154,21 @@ Loader.require("tr", "mc", "pac")
 		Promise.all([
 			mc.paEndReward(),
 			mc.paFeeCollectRewardDenom(),
-			mc.getRefreshPennyAuctionsReward(),
+			mc.canRefreshPennyAuctions(),
 			mc.refreshPennyAuctions.estimateGas(),
 			mc.refreshPennyAuctions.call(),
-			mc.getRefreshPennyAuctionsReward.estimateGas()
+			mc.canRefreshPennyAuctions.estimateGas()
 		]).then(arr=>{
 			const endReward = arr[0];
 			const feeCollectDenom = arr[1];
-			const reward = arr[2];
+			const canRefresh = arr[2][0]
+			const reward = arr[2][1];
 			const estGas = new BigNumber(arr[3]);
 			const gamesEnded = arr[4][0];
 			const feesCollected = arr[4][1];
 			const failGasVal = new BigNumber(arr[5]);
 
-			if (reward.gt(0)){
+			if (canRefresh){
 				$notice.hide();
 				$fields.show();	
 			} else {
@@ -200,6 +200,7 @@ Loader.require("tr", "mc", "pac")
 						_isPaRefreshing = false;
 						_paRefreshGps.enable(true);
 						$btn.removeAttr("disabled");
+						updatePaRefresh();
 					}
 
 					const p = mc.refreshPennyAuctions([], {
@@ -218,8 +219,8 @@ Loader.require("tr", "mc", "pac")
 							const paid = res.events.find(e => e.name == "RewardPaid");
 							const notPaid = res.events.find(e => e.name == "RewardNotPaid");
 							if (refreshed) {
-								const numEnded = e.args.numEnded;
-								const feesCollected = ethUtil.toEthStr(e.args.feesCollected);
+								const numEnded = refreshed.args.numEnded;
+								const feesCollected = ethUtil.toEthStr(refreshed.args.feesCollected);
 								$msg.append(`Ended ${numEnded} auctions and collected ${feesCollected}.`);
 							}
 							if (error) {
@@ -307,6 +308,7 @@ Loader.require("tr", "mc", "pac")
 						_isTrUpdating = false;
 						_trDivGps.enable(true);
 						$btn.removeAttr("disabled");
+						updateTrDiv();
 					}
 
 					const p = tr.distributeToToken([], {

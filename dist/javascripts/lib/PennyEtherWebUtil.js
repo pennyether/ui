@@ -150,7 +150,8 @@
 		const _speed = 1 - (speed || .75);
 		var _timeout;
 
-		_$e.attr("title", "This is an estimate of time remaining, based on the Gas Price.");
+		const timeStr = util.toTime(Math.round(timeMs / 1000));
+		_$e.attr("title", `This is an estimate of time remaining, based on the chosen gas price (~${timeStr})`);
 		if (tippy) {
 			tippy(_$e[0], {
 				trigger: "mouseenter",

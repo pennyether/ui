@@ -16,6 +16,11 @@ Loader.require("reg", "comp", "tr")
 
 	refreshAll();
 	$("#Stats .refresh").click(refreshStats);
+	util.$getLogs(tr, true).then(($e)=>{
+		$e.find(".head").remove();
+		$("#Logs .body").append($e);
+	});
+	
 
 	function refreshAll() {
 		refreshSettings();

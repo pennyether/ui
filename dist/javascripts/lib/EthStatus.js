@@ -277,7 +277,9 @@
 			}
 			if (Object.keys(argsObj).length > 0) {
 				Object.keys(argsObj).forEach((name)=>{
-					const $e = $("<div></div>").text(`${name}: ${argsObj[name]}`);
+					var argAsStr = `${argsObj[name]}`;
+					if (argAsStr.length > 25) argAsStr = argAsStr.slice(0,25) + "...";
+					const $e = $("<div></div>").text(`${name}: ${argAsStr}`);
 					$argsTip.append($e);
 				});
 				$fnArgs.text("(...)").addClass("tipped");

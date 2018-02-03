@@ -235,8 +235,11 @@ body {
 .tippy-tooltip.light-theme {
 	background-color: #EEE;
 	color: black;
-	border: 1px solid black;
+	border: 1px solid #555;
 	box-shadow: 5px 5px 5px 0px rgba(50,50,50,.3);
+}
+.tippy-tooltip.dark-theme a {
+	color: rgb(170,170,255);
 }
 
 

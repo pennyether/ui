@@ -10,17 +10,18 @@
 			.good {
 				color: green;
 			}
-
 			.label {
 				display: inline-block;
-				width: 200px;
-				margin-bottom: 5px;
+				width: 220px;
+				margin-top: 8px;
+			}
+			.subsection {
+				margin-top: 50px;
 			}
 
 			/* stuff withing #STATUS */
 			#Status {}
 				#BurnStatus, #DivStatus {
-					font-weight: bold;
 					margin-top: 20px;
 					display: inline-block;
 				}
@@ -70,7 +71,6 @@
 					padding: 3px;
 				}
 				#Balance .description {
-					font-weight: bold;
 					font-size: 70%;
 				}
 					#Balance .description.positive {
@@ -94,7 +94,6 @@
 				}
 				#IsBalanced {
 					display: inline-block;
-					font-weight: bold;
 					margin-top: 20px;
 				}
 
@@ -121,6 +120,7 @@
 				display: inline-block;
 				color: blue;
 				cursor: pointer;
+				letter-spacing: initial;
 				margin-left: 5px;
 				padding: 2px 4px;
 			}
@@ -265,6 +265,11 @@
 						<div id="IsBalanced" title="If Treasury is balanced, every single Wei in and out is accounted for."></div>
 					</div>
 				</div>
+			</div>
+
+			<div id="Logs" class="subsection">
+				<div class="head">Log</div>
+				<div class="body"></div>
 			</div>
 
 			<div id="Stats" class="subsection">
