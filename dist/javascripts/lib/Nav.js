@@ -73,7 +73,7 @@
 					name: "Games",
 					url: "/status/games.html"
 				},{
-					name: "Token Holders",
+					name: "Token Holder UI",
 					url: "/status/tokens.html"
 				},{
 					name: "Admin",

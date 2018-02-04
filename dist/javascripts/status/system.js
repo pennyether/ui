@@ -1,9 +1,29 @@
+var loadedHash = window.location.hash;
+window.location.hash = "";
+
 Loader.require("reg", "comp", "tr", "mc", "pac", "dice")
 .then(function(reg, comp, tr, mc, pac, dice){
 	var reg, comp, tr, mc, pac, dice;
 
-	refreshAll();
+	if (loadedHash) setTimeout(function(){
+		goToHash(loadedHash);
+	}, 500);
 
+	// scrolls to the hash
+	function goToHash(hash) {
+		const $hash = $(hash);
+		if ($hash.length==0) {
+			document.location.hash = hash;
+			return;
+		}
+
+		$hash.attr("id", "");
+		doScrolling($hash.position().top-80, 500);
+		window.location.hash = hash;
+		$hash.attr("id", hash.replace("#",""));
+	}
+
+	refreshAll();
 	function refreshAll() {
 		refreshRegistry();
 		refreshWallet();
@@ -57,6 +77,9 @@ Loader.require("reg", "comp", "tr", "mc", "pac", "dice")
 			util.bindToElement(token.totalSupply().then(ethUtil.toTokenStr), $("#CompTokenTotalSupply"));
 			util.bindToElement(token.balanceOf([lockerAddr]).then(ethUtil.toTokenStr), $("#CompLockerBalance"));
 			util.bindToElement(util.$getLogs(comp, true), $("#CompLogs"), true);
+			util.bindToElement(comp.dateSaleStarted().then(util.toDateStr), $("#CompDateSaleStarted"));
+			util.bindToElement(comp.dateSaleEnded().then(util.toDateStr), $("#CompDateSaleEnded"));
+			util.bindToElement(comp.totalRaised().then(ethUtil.toEthStr), $("#CompTotalRaised"));
 		});
 	}
 

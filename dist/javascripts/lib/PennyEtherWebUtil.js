@@ -82,6 +82,7 @@
 			    minute: "2-digit",
 			    second: "2-digit"
 			};
+			if (timestampS == 0) return "n/a";
 			return (new Date(timestampS*1000))
     			.toLocaleString(window.navigator.language, options);
 		}
