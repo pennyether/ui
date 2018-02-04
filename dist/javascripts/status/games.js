@@ -7,6 +7,9 @@ Loader.require("pac", "dice", "tr")
 		refreshDice();
 	};
 
+	$("#PennyAuctions .head .refresh").click(refreshPac);
+	$("#InstaDice .head .refresh").click(refreshDice);
+
 	function refreshPac() {
 		function getNumActiveAuctions() {
 			return pac.numDefinedAuctions().then((num)=>{

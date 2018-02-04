@@ -35,6 +35,14 @@
 				display: table-cell;
 				padding: 8px;
 			}
+
+			.head > .refresh {
+				font-size: 70%;
+				letter-spacing: initial;
+				color: blue;
+				cursor: pointer;
+				padding-left: 5px;
+			}
 		</style>
 	</head>
 	<body><div id="Content">
@@ -43,7 +51,10 @@
 		</div>
 		<div style="margin: 0px 30px;">
 			<div id="PennyAuctions" class="subsection">
-				<div class="head">Penny Auctions</div>
+				<div class="head">
+					Penny Auctions
+					<span class="refresh">refresh</span>
+				</div>
 				<div class="body">
 					<h3>Stats</h3>
 					<div class="stats">
@@ -165,8 +176,11 @@
 					</div>
 				</div>
 			</div>
-			<div id="Status" class="subsection">
-				<div class="head">InstaDice</div>
+			<div id="InstaDice" class="subsection">
+				<div class="head">
+					InstaDice
+					<span class="refresh">refresh</span>
+				</div>
 				<div class="body">
 					<h3>Stats</h3>
 					<div class="stats">

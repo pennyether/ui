@@ -221,10 +221,10 @@ Loader.require("tr", "mc", "pac")
 							if (refreshed) {
 								const numEnded = refreshed.args.numEnded;
 								const feesCollected = ethUtil.toEthStr(refreshed.args.feesCollected);
-								$msg.append(`Ended ${numEnded} auctions and collected ${feesCollected}.`);
+								$msg.append(`Ended ${numEnded} auctions and collected ${feesCollected}. `);
 							}
 							if (error) {
-								$msg.append(`Error: ${error.args.msg}`);
+								$msg.append(`Error: ${error.args.msg} `);
 								return;
 							}
 							if (paid) {

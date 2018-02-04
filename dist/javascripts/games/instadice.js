@@ -55,6 +55,11 @@ Loader.require("dice")
 		refreshPayout();
 	});
 
+	const _feeBipsPromise = dice.feeBips().then(res=>{
+		_feeBips = res;
+		return _feeBips;
+	});
+
 	var _minBet;
 	var _maxBet;
 	var _minNumber;
@@ -299,7 +304,9 @@ Loader.require("dice")
 	/******************************************************/
 	function getRollFromWageredOrRefunded(event, curId){
 		const roll = {}
-		roll.id = event.name=="RollWagered" ? event.args.id : null;
+		roll.id = event.name=="RollWagered"
+			? event.args.id
+			: null;
 		roll.txId = event.transactionHash;
 		roll.state = event.name=="RollRefunded"
 			? "refunded"
@@ -308,7 +315,9 @@ Loader.require("dice")
 				: curId.equals(roll.id) ? "waiting" : "unresolved"
 		roll.bet = event.args.bet;
 		roll.number = event.args.number;
-		roll.payout = computePayout(roll.bet, roll.number);
+		roll.payout = event.name=="RollWagered"
+			? event.args.payout
+			: computePayout(roll.bet, roll.number);
 		roll.result = event.name=="RollWagered"
 			? computeResult(event.blockHash, event.args.id)
 			: null;
@@ -344,7 +353,8 @@ Loader.require("dice")
     		dice.getEvents("RollRefunded", {user: state.account}, state.latestBlock.number - 256),
     		dice.getEvents("RollResolved", {user: state.account}, state.latestBlock.number - 256),
     		dice.getEvents("PayoutSuccess", {user: state.account}, state.latestBlock.number - 256),
-    		dice.getEvents("PayoutFailure", {user: state.account}, state.latestBlock.number - 256)
+    		dice.getEvents("PayoutFailure", {user: state.account}, state.latestBlock.number - 256),
+    		_feeBipsPromise
 		]).then((arr)=>{
 			const curId = arr[0];
 			const rollsWagered = arr[1];
@@ -402,8 +412,8 @@ Loader.require("dice")
 					? -1
 					: 1;
 			}).reverse();
-			refreshCurrentRolls(allRolls, state.latestBlock.number);
-			refreshRecentRolls(allRolls, state.latestBlock.number);
+			refreshCurrentRolls(allRolls);
+			refreshRecentRolls(allRolls);
 		});
     }
 
@@ -636,18 +646,15 @@ Loader.require("dice")
 	/*** LIVE FEED ****************************************/
 	/******************************************************/
 	var _lastCheckedBlock = null;
-	var _promiseInView = (data)=>{
-		return promiseInView($(".liveRolls")[0]).then(()=>{
-			return data;
-		});
-	}
+	var _promiseInView = promiseInView($(".liveRolls")[0]);
 	function refreshLiveRolls() {
 		const MAX_ELEMENTS = 6;
 		const toBlock = ethUtil.getCurrentBlockHeight().toNumber();
 		const fromBlock = _lastCheckedBlock ? _lastCheckedBlock + 1 : (toBlock - 250);
 		_lastCheckedBlock = toBlock;
 		dice.getEvents("RollWagered", {}, fromBlock, toBlock)
-			.then(_promiseInView)
+			.then((events)=>_promiseInView.then(()=>events))
+			.then((events)=>_feeBipsPromise.then(()=>events))
 			.then((events)=>{
 				if (events.length > MAX_ELEMENTS) events = events.slice(-MAX_ELEMENTS);
 				events.forEach((e, i)=>{
@@ -659,7 +666,7 @@ Loader.require("dice")
 					const $userLink = e.args.user == ethUtil.getCurrentAccount()
 						? util.$getAddrLink("You!", e.args.user)
 						: util.$getShortAddrLink(e.args.user);
-					const payoutStr = ethUtil.toEthStr(computePayout(e.args.bet, number));
+					const payoutStr = ethUtil.toEthStr(e.args.payout);
 					const result = computeResult(e.blockHash, rollId);
 					const isWinner = !result.gt(number);
 

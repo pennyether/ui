@@ -86,21 +86,21 @@ Loader.require("dice")
 		_$refunded.hide();
 
 		dice.rolls([rollId]).then(arr=>{
-			const id = arr[0];
-			const user = arr[1];
-			const bet = arr[2];
-			const number = arr[3];
+			const user = arr[0];
+			const bet = arr[1];
+			const number = arr[2];
+			const payout = arr[3];
 			const block = arr[4];
 			const result = arr[5];
 			const isPaid = arr[6];
 			$(".field .value").text("");
 
-			if (id == 0) {
+			if (block == 0) {
 				_$status.empty().append(`Roll Id "${rollId}" not found in contract.`);
 				return;
 			}
 
-			$(".field.id .value").text(`${id}`);
+			$(".field.id .value").text(`${rollId}`);
 			$(".field.block .value").text(`${block}`);
 			$(".field.user .value").append(util.$getAddrLink(user));
 			$(".field.bet .value").append(ethUtil.toEthStr(bet));
@@ -109,10 +109,10 @@ Loader.require("dice")
 
 			//name, filter, fromBlock, toBlock
 			Promise.all([
-				dice.getEvents("RollWagered", {id: id}, block),
-				dice.getEvents("RollResolved", {id: id}, block),
-				dice.getEvents("PayoutSuccess", {id: id}, block),
-				dice.getEvents("PayoutFailure", {id: id}, block)
+				dice.getEvents("RollWagered", {id: rollId}, block),
+				dice.getEvents("RollResolved", {id: rollId}, block),
+				dice.getEvents("PayoutSuccess", {id: rollId}, block),
+				dice.getEvents("PayoutFailure", {id: rollId}, block)
 			]).then(arr=>{
 				const wagered = arr[0].length ? arr[0][0] : null;
 				const resolved = arr[1].length ? arr[1][0] : null;
@@ -120,9 +120,9 @@ Loader.require("dice")
 				const payoutFailures = arr[3];
 
 				if (!wagered) {
-					throw new Error(`Unable to find the RollWagered event of roll: ${id}`);
+					throw new Error(`Unable to find the RollWagered event of roll: ${rollId}`);
 				}
-				const computedResult = computeResult(wagered.blockHash, id);
+				const computedResult = computeResult(wagered.blockHash, rollId);
 				const isWinner = !computedResult.gt(number);
 				// update initial transaction and result.
 				$(".field.transaction .value")
