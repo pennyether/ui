@@ -1,28 +1,16 @@
 var loadedHash = window.location.hash;
-window.location.hash = "";
 
 Loader.require("reg", "comp", "tr", "mc", "pac", "dice")
 .then(function(reg, comp, tr, mc, pac, dice){
 	var reg, comp, tr, mc, pac, dice;
 
-	if (loadedHash) setTimeout(function(){
-		goToHash(loadedHash);
-	}, 500);
-
-	// scrolls to the hash
-	function goToHash(hash) {
-		const $hash = $(hash);
-		if ($hash.length==0) {
-			document.location.hash = hash;
-			return;
-		}
-
-		$hash.attr("id", "");
+	setTimeout(function goToLoadedHash(){
+		if (!loadedHash) return;
+		const $hash = $(loadedHash);
+		if ($hash.length==0) return;
 		doScrolling($hash.position().top-80, 500);
-		window.location.hash = hash;
-		$hash.attr("id", hash.replace("#",""));
-	}
-
+	}, 500);
+	
 	refreshAll();
 	function refreshAll() {
 		refreshRegistry();

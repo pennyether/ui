@@ -1,5 +1,15 @@
+var loadedHash = window.location.hash;
+
 Loader.require("pac", "dice", "tr")
 .then(function(pac, dice, tr){
+	
+	setTimeout(function goToLoadedHash(){
+		if (!loadedHash) return;
+		const $hash = $(loadedHash);
+		if ($hash.length==0) return;
+		doScrolling($hash.position().top-80, 500);
+	}, 500);
+
 	refreshAll();
 
 	function refreshAll(){
