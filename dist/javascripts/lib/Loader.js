@@ -153,6 +153,7 @@
 					"tr": [Treasury, "TREASURY"],
 					"mc": [MainController, "MAIN_CONTROLLER"],
 					"pac": [PennyAuctionController, "PENNY_AUCTION_CONTROLLER"],
+					"paf": [PennyAuctionFactory, "PENNY_AUCTION_FACTORY"],
 					"dice": [InstaDice, "INSTADICE"]
 				};
 				strs.forEach(str => {

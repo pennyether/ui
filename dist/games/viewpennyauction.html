@@ -16,6 +16,7 @@
 				padding: 3px 0px;
 			}
 			.contractData .field .label {
+				vertical-align: top;
 				display: inline-block;
 				width: 170px;
 			}
@@ -44,6 +45,8 @@
 			.logs .LogViewer .logs {
 				max-height: 300px;
 			}
+			.verified .value .good { color: green; }
+			.verified .value .bad { color: red; }
 		</style>
 	</head>
 	<body>
@@ -107,7 +110,11 @@
 						<div class="value"></div>
 					</div>
 					<div class="field collector">
-						<div class="label tipLeft" title="The address to which fees are sent.">Collector:</div>
+						<div class="label tipLeft" title="The address to which fees are sent. This should always be the Treasury.">Collector:</div>
+						<div class="value"></div>
+					</div>
+					<div class="field fees">
+						<div class="label tipLeft" title="The amount of Ether that can be sent to the Treasury as revenue. Zero means all fees have been sent.">Uncollected Fees:</div>
 						<div class="value"></div>
 					</div>
 				</div>

@@ -1,5 +1,5 @@
-Loader.require("pac")
-.then(function(pac){
+Loader.require("pac", "paf")
+.then(function(pac, paf){
 	ethUtil.onStateChanged((state)=>{
 		if (!state.isConnected) return;
 		refreshAuction();
@@ -46,20 +46,59 @@ Loader.require("pac")
 		util.bindToElement(auction.currentWinner().then(util.$getAddrLink), $(".currentWinner .value"), true);
 		util.bindToElement(pBlockEnded, $(".blockEnded .value"));
 		util.bindToElement(auction.numBids(), $(".numBids .value"));
-		util.bindToElement(auction.isPaid(), $(".isPaid .value"));
 		util.bindToElement(auction.collector().then(util.$getAddrLink), $(".collector .value"), true);
+		util.bindToElement(auction.fees().then(ethUtil.toEthStr), $(".fees .value"));
 
 		pBlockEnded.then(blockEnded=>{
+			const $paid = $(".isPaid .value");
 			const curBlock = ethUtil.getCurrentBlockHeight();
 			const diff = blockEnded.minus(curBlock);
 			if (diff.gt(0)) {
 				$(".blockEnded .value").append(` (${diff} blocks from now)`);
-			} else {
-				$(".blockEnded .value").append(` (${diff.abs()} blocks ago)`);
+				$paid.empty().append("Auction not yet over.");
+				return;
 			}
+
+			$(".blockEnded .value").append(` (${diff.abs()} blocks ago)`);
+			Promise.all([
+				auction.isPaid(),
+				auction.getEvents("SendPrizeSuccess")
+			]).then(arr=>{
+				const isPaid = arr[0];
+				const feesSent = arr[1].length ? arr[1][0] : null;
+				const $msg = $("<div></div>");
+				$paid.empty().append($msg);
+				if (isPaid) {
+					$msg.append("Paid. Could not find event, though.");
+					if (feesSent){
+						const ethStr = ethUtil.toEthStr(feesSent.args.amount);
+						const $addrLink = util.$getShortAddrLink(feesSent.args.recipient);
+						const $txLink = util.$getTxLink(feesSent.transactionHash);
+						$msg.empty().append(`${ethStr} sent to `)
+							.append($addrLink)
+							.append(` in tx: `)
+							.append($txLink);
+					}
+				} else {
+					$msg.append("Not yet paid.");
+				}
+			});
 		});
 
 		// todo: find transaction it was created on, verify there was a PAF event.
+		paf.getEvents("AuctionCreated", {addr: _address}).then(arr=>{
+			const $msg = $("<div></div>");
+			$(".verified .value").empty().append($msg);
+			if (arr.length) {
+				const $pafLink = util.$getAddrLink("PennyAuctionFactory", paf.address);
+				const $txLink = util.$getTxLink(arr[0].transactionHash);
+				$msg.addClass("good")
+					.append(`✓ Created by `).append($pafLink).append(` in tx: `).append($txLink).append(`.`);
+			} else {
+				$msg.addClass("bad")
+					.text("Not created by current PennyAuctionFactory!");
+			}
+		});
 	}
 
 	function refreshLogs() {
