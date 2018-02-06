@@ -25,6 +25,7 @@ Loader.require("reg", "comp", "tr", "mc", "pac", "dice")
 
 	function refreshRegistry() {
 		$("#RegistryAddr").empty().append(util.$getAddrLink(reg.address));
+		util.bindToElement(util.$getLogs(reg, true), $("#RegistryLogs"), true);
 	}
 	function refreshWallet() {
 		if (!reg) return;
@@ -61,7 +62,6 @@ Loader.require("reg", "comp", "tr", "mc", "pac", "dice")
 			const token = DividendToken.at(tokenAddr);
 			util.bindToElement(comp.wallet().then(util.$getAddrLink), $("#CompOwner"), true);
 			util.bindToElement(comp.treasury().then(util.$getAddrLink), $("#CompTreasury"), true);
-			util.bindToElement(comp.wasSaleStarted(), $("#CompSaleStarted"));
 			util.bindToElement(token.totalSupply().then(ethUtil.toTokenStr), $("#CompTokenTotalSupply"));
 			util.bindToElement(token.balanceOf([lockerAddr]).then(ethUtil.toTokenStr), $("#CompLockerBalance"));
 			util.bindToElement(util.$getLogs(comp, true), $("#CompLogs"), true);

@@ -384,6 +384,9 @@
 				$e.append(ethUtil.toEthStr(val));	
 			} else if (!val.toNumber && val.toString().length==42) {
 				$e.append(util.$getShortAddrLink(val));
+			} else if (!val.toNumber && val.toString().length==66) {
+				// bytes32
+				$e.append(niceWeb3.web3.toAscii(val));
 			} else {
 				$e.append(val.toString());
 			}
