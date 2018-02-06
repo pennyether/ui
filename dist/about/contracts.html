@@ -98,10 +98,14 @@
 		Loader.onPageLoad.then(()=>{
 			(function goToLoadedHash(){
 				if (!loadedHash) return;
-				const $hash = $(loadedHash);
-				if ($hash.length==0) return;
-				doScrolling($hash.position().top-80, 500);
+				goToHash(loadedHash);
 			}());
+
+			function goToHash(hash) {
+				const $hash = $(hash);
+				if ($hash.length==0) return;
+				doScrolling($hash.position().top-90, 500);
+			}
 
 			// all # links should scroll to target
 			$("a[href^='#']").click(function(e){
@@ -146,6 +150,7 @@
 		.then(function(comp, tr, mc, dice){
 			$(".comp-addr").append(util.$getAddrLink(comp.address));
 			util.bindToElement(comp.token().then(util.$getAddrLink), $(".token-addr"), true);
+			util.bindToElement(comp.locker().then(util.$getAddrLink), $(".locker-addr"), true);
 			$(".tr-addr").append(util.$getAddrLink(tr.address));
 			$(".mc-addr").append(util.$getAddrLink(mc.address));
 			$(".dice-addr").append(util.$getAddrLink(dice.address));
@@ -163,6 +168,11 @@
 			<div class="item">
 				<a href="#dividend-token">
 					<div class="head">DividendToken</div>
+				</a>
+			</div>
+			<div class="item">
+				<a href="#dividend-token-locker">
+					<div class="head">DividendTokenLocker</div>
 				</a>
 			</div>
 			<div class="item">
@@ -199,7 +209,7 @@
 				<a id="comptroller"></a>
 				<h3>Comptroller</h3>
 				<div class="summary">
-					The Comptroller runs the ICO. After the ICO, it sends bankroll to the Treasury, and is in charge of burning tokens for a refund.
+					The Comptroller runs the CrowdSale. After the CrowdSale, it sends bankroll to the Treasury, and is in charge of burning tokens for a refund.
 				</div>
 				<div class="fieldList">
 					<div class="field">
@@ -256,7 +266,50 @@
 					<div class="field">
 						<div class="label">More Info:</div>
 						<div class="value">
-							<a href="/ico/whitepaper.html#token">Whitepaper</a>
+							<a href="/ico/whitepaper.html#token-contract">Whitepaper</a>
+							<br>
+							<a href="/">Technical Documentation</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Source Code:</div>
+						<div class="value"></div>
+					</div>
+					<div class="field">
+						<div class="label">Tests:</div>
+						<div class="value">
+							<a href="">Test Results</a>
+							<a href="">(Test File)</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Audits:</div>
+						<div class="value"><div class="pending">pending</div></div>
+					</div>
+				</div>
+			</div>
+
+			<div>
+				<a id="dividend-token-locker"></a>
+				<h3>DividendTokenLocker</h3>
+				<div class="summary">
+					The TokenLocker holds 10% of all tokens, at all times, even if/when tokens are burned. Tokens held in this contract cannot be transferred or burned -- only their dividends can be collected. This contract ensures PennyEther developers always have exactly 10% ownership in PennyEther, and are aligned with Token Holders' interest: to generate more revenue.
+				</div>
+				<div class="fieldList">
+					<div class="field">
+						<div class="label">Address:</div>
+						<div class="value locker-addr"></div>
+					</div>
+					<div class="field">
+						<div class="label">Status:</div>
+						<div class="value">
+							<a href="/status/system.html#token">DividendTokenLocker Status</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">More Info:</div>
+						<div class="value">
+							<a href="/ico/whitepaper.html#tokenlocker">Whitepaper</a>
 							<br>
 							<a href="/">Technical Documentation</a>
 						</div>
@@ -346,7 +399,7 @@
 					<div class="field">
 						<div class="label">More Info:</div>
 						<div class="value">
-							<a href="/ico/whitepaper.html#treasury">MainController</a>
+							<a href="/ico/whitepaper.html#maincontroller">Whitepaper</a>
 							<br>
 							<a href="/">Technical Documentation</a>
 						</div>
@@ -428,12 +481,16 @@
 						<div class="label">Status:</div>
 						<div class="value">
 							<a href="/status/games.html#instadice">InstaDice Status</a>
+							<br>
+							<a href="/games/viewroll.html#1">View Roll</a>
 						</div>
 					</div>
 					<div class="field">
-						<div class="label">Links:</div>
+						<div class="label">More Info:</div>
 						<div class="value">
-							<a href="/games/viewroll.html#1">View Roll</a>
+							<a href="/ico/whitepaper.html#games-instadice">Whitepaper</a>
+							<br>
+							<a href="/">Technical Documentation</a>
 						</div>
 					</div>
 					<div class="field">

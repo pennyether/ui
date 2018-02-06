@@ -64,19 +64,19 @@
 				name: "Status",
 				url: "/status/treasury.html",
 				children: [{
-					name: "Treasury",
+					name: "Treasury Status",
 					url: "/status/treasury.html"
 				},{
-					name: "System",
+					name: "System Status",
 					url: "/status/system.html"
 				},{
-					name: "Games",
+					name: "Game Controllers",
 					url: "/status/games.html"
 				},{
 					name: "Token Holder UI",
 					url: "/status/tokens.html"
 				},{
-					name: "Admin",
+					name: "Admin UI",
 					url: "/status/admin.html",
 				}]
 			},
@@ -86,9 +86,6 @@
 				children: [{
 					name: "Whitepaper",
 					url: "/ico/whitepaper.html"
-				},{
-					name: "FAQs",
-					url: "/ico/faqs.html"
 				},{
 					name: "CrowdSale",
 					class: "crowdsale",
