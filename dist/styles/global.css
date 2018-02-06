@@ -77,6 +77,8 @@ body {
 }
 #Top .menuItem.on {
 	font-weight: bold;
+	color: white;
+	background: rgba(0,128,0,.75);
 }
 #Top .menuItem:hover {
 	color: white;
@@ -93,13 +95,14 @@ body {
 		font-size: 90%;
 		position: absolute;
 
-		background: linear-gradient(to bottom, #FAFAFA 0%, #BBBBBB 100%);
+		background: linear-gradient(to bottom, green 0%, rgb(100,150,100) 100%);
 		margin-top: 18px; /* should match padding of .menuItem */
 		color: black;
 		right: -1000px;
 		opacity: 0;
 		transition: opacity .3s;
 		box-shadow: 3px 3px 4px 0px rgba(0,0,0,.15);
+		z-index: 3;
 	}
 	#Top .menuItem:hover .subMenu {
 		display: block;
@@ -108,22 +111,19 @@ body {
 	}
 	#Top .menuItem .subItem {
 		display: block;
-		padding: 8px 15px 8px 20px;
 		white-space: nowrap;
-	}
-	#Top .menuItem .subItem.on {
-		font-weight: bold;
-		color: white;
-		background: gray;
+		padding: 8px 15px 8px 20px;
+		color: rgb(230,230,230);
+		text-shadow: 1px 1px 1px rgba(0,0,0,.3);
+		transition: background .3s, color .3s;
 	}
 	#Top .menuItem .subItem:hover {
-		background: #999;
 		color: white;
+		background: rgba(100,200,100,.8);
 	}
-	#Top .menuItem .subItem.crowdsale {
-		text-align: center;
-		background: linear-gradient(45deg, rgba(0,128,0,.8) 0%, #CCC 150%);
+	#Top .menuItem .subItem.on {
 		color: white;
+		background: rgba(100,230,100,.8);
 	}
 
 #Breadcrumb {
