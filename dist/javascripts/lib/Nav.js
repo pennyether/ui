@@ -42,6 +42,26 @@
 				}]
 			},
 			{
+				name: "Status",
+				url: "/status/system.html",
+				children: [{
+					name: "System Status",
+					url: "/status/system.html"
+				},{
+					name: "Treasury Status",
+					url: "/status/treasury.html"
+				},{
+					name: "Game Controllers",
+					url: "/status/games.html"
+				},{
+					name: "Token Holder UI",
+					url: "/status/tokens.html"
+				},{
+					name: "Admin UI",
+					url: "/status/admin.html",
+				}]
+			},
+			{
 				name: "About",
 				url: "/about/mission.html",
 				children: [{
@@ -58,26 +78,6 @@
 				},{
 					name: "Contact",
 					url: "/about/contact.html"
-				}]
-			},
-			{
-				name: "Status",
-				url: "/status/treasury.html",
-				children: [{
-					name: "Treasury Status",
-					url: "/status/treasury.html"
-				},{
-					name: "System Status",
-					url: "/status/system.html"
-				},{
-					name: "Game Controllers",
-					url: "/status/games.html"
-				},{
-					name: "Token Holder UI",
-					url: "/status/tokens.html"
-				},{
-					name: "Admin UI",
-					url: "/status/admin.html",
 				}]
 			},
 			{

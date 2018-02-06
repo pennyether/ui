@@ -107,13 +107,15 @@ Loader.require("dice")
 			$(".field.number .value").append(`${number} or below.`);
 			$(".field.payout .value").append(ethUtil.toEthStr(computePayout(bet, number)));
 
-			//name, filter, fromBlock, toBlock
+			// subtract 5000 from block... there's some bug with infura where it
+			// sometimes doesn't return events.
 			Promise.all([
-				dice.getEvents("RollWagered", {id: rollId}, block),
-				dice.getEvents("RollResolved", {id: rollId}, block),
-				dice.getEvents("PayoutSuccess", {id: rollId}, block),
-				dice.getEvents("PayoutFailure", {id: rollId}, block)
+				dice.getEvents("RollWagered", {id: rollId}, block-5000),
+				dice.getEvents("RollResolved", {id: rollId}, block-5000),
+				dice.getEvents("PayoutSuccess", {id: rollId}, block-5000),
+				dice.getEvents("PayoutFailure", {id: rollId}, block-5000)
 			]).then(arr=>{
+				console.log("resolved:", arr[1]);
 				const wagered = arr[0].length ? arr[0][0] : null;
 				const resolved = arr[1].length ? arr[1][0] : null;
 				const payoutSuccess = arr[2].length ? arr[2][0] : null;
