@@ -61,6 +61,12 @@ Loader.require("pac")
 				delete aMap[addr];
 			}
 		});
+		if (cAuctions.length == 0) {
+			$e.parent().find(".none").show();
+		} else {
+			$e.parent().find(".none").hide();
+		}
+
 		// for each cAuction, getOrCreate it.
 		return cAuctions.map((c)=>{
 			if (aMap[c.address]) return aMap[c.address];

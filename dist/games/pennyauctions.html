@@ -365,9 +365,8 @@
 			width: 400px; 
 			background: linear-gradient(to top, #BBB 0%, #EEE 100%);
 			border-radius: 10px;
-/*			border: 1px solid #DDD;*/
 			box-shadow: 3px 3px 10px 0px rgba(0,0,0,.2);
-			margin: 10px 30px;
+			margin: 10px 25px;
 		}
 		.auction.ended,
 		.auction.initializing {
@@ -893,6 +892,9 @@
 					<div class="refreshNotice">Refreshing</div>
 				</div>
 				<div class="body">
+					<div class="none" style="display: none;">
+						There are currently no live auctions. You may be able to <a href="/games/tasks.html">start one here</a>, for a reward.
+					</div>
 					<div class="auctions">Loading...</div>
 				</div>
 			</div>
@@ -902,6 +904,9 @@
 					<div class="refreshNotice">Refreshing</div>
 				</div>
 				<div class="body">
+					<div class="none" style="display: none;">
+						There are currently no ended auctions.
+					</div>
 					<div class="auctions">Loading...</div>
 				</div>
 			</div>
