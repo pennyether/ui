@@ -63,8 +63,11 @@
 			},
 			{
 				name: "About",
-				url: "/about/mission.html",
+				url: "/about/pennyether.html",
 				children: [{
+					name: "Penny Ether",
+					url: "/about/pennyether.html"
+				},{
 					name: "Our Mission",
 					url: "/about/mission.html"
 				},{
