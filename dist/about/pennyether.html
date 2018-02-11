@@ -42,37 +42,31 @@
 
 				function doFunding(){
 					_sendEth(fundingStart, fundingStop, true)
+						.then(() => _sendEth(fundGameStart, fundGameStop, false, true))
 						.then(()=>{
-							return _sendEth(fundGameStart, fundGameStop, false, true)
+							setTimeout(doFunding, 7000);			
 						});
 				}
-				setInterval(doFunding, 7000);
+				setTimeout(doFunding, 7000);
 
 				function doRevenue(){
-					if (Math.random() < .5) {
-						_sendEth(game1RevStart, game1RevStop, true)
-							.then(()=>{
-								return _sendEth(game1RevStop, revTop);
-							})
-							.then(()=>{
-								_sendEth(revTop, revEnd, false, true);
-							})
-					}else{
-						_sendEth(game2RevStart, game2RevStop, true)
-							.then(()=>{
-								return _sendEth(game2RevStop, revTop);
-							})
-							.then(()=>{
-								_sendEth(revTop, revEnd, false, true);
-							});
-					}
 					setTimeout(doRevenue, 500 + Math.random() * 2000);
+					var p;
+					if (Math.random() < .5) {
+						p = _sendEth(game1RevStart, game1RevStop, true)
+							.then(() => _sendEth(game1RevStop, revTop));
+					}else{
+						p = _sendEth(game2RevStart, game2RevStop, true)
+							.then(() => _sendEth(game2RevStop, revTop));
+					}
+					p.then(() => _sendEth(revTop, revEnd, false, true));
 				}
 				setTimeout(doRevenue, 1000);
 
 				function doProfits(){
 					_sendEth(profitsStart, profitsStop, true)
 						.then(()=>{
+							const promises = [];
 							for (var i = 0; i<15; i++){
 								const signX = Math.random()<.5 ? 1 : -1;
 								const signY = Math.random()<.5 ? 1 : -1;
@@ -81,11 +75,14 @@
 									y: dividendsStop.y + Math.random()*50*signY
 								};
 								const duration = 700 + Math.random()*1300;
-								_sendEth(profitsStop, end, false, true, 20, duration);
+								promises.push(_sendEth(profitsStop, end, false, true, 20, duration));
 							}
+							return Promise.all(promises);
+						}).then(()=>{
+							setTimeout(doProfits, 4000);
 						});
 				}
-				setInterval(doProfits, 4000);
+				setTimeout(doProfits, 4000);
 
 				function _sendEth(start, stop, doFadeOn, doFadeOff, size, timeMs) {
 					return new Promise((resolve, reject)=>{
@@ -171,6 +168,15 @@
 				text-align: center;
 				font-weight: bold;
 				text-shadow: 1px 1px 1px rgba(255,255,255,.5);
+			}
+			.topology a {
+				color: black;
+				text-decoration: none;
+				transition: color .3s;
+			}
+			.topology a:hover {
+				color: blue;
+				text-decoration: underline;
 			}
 
 			.comptroller {
@@ -360,7 +366,7 @@
 					<div class="head">Our Goals</div>
 					<div class="body">
 						<p>
-							We decided very early on that our focus was technology, and not marketing. Our team members are technically minded, and we're all fatigued by the current ICO and crypto market -- it's endless hype, endless promises, and endless scandal. We want no part in that, though we _do_ want to garner enough interest in our experiement to give it a shot at success.
+							We decided very early on that our focus was technology, and not marketing. Our team members are technically minded, and we're all fatigued by the current ICO and crypto market -- it's endless hype, endless promises, and endless scandal. We want no part in that, though we <i>do</i> want to garner enough interest in our experiement to give it a shot at success.
 						</p>
 						<p>
 							We are much more interested in building and earning revenue from a working product. Partly there's the dream of earning a sizeable passive income, but mostly there's a strong desire to create a fully-fledged blockchain application. We've seen very few projects developed past a prototype or simulated screen-grab, and we want to break new ground.
@@ -418,10 +424,14 @@
 						</p>
 						<div class="topology">
 							<div class="comptroller box" style="display: table;">
-								<div class="label">CrowdSale</div>
+								<div class="label">
+									<a href="/about/contracts.html#comptroller" target="_blank">CrowdSale</a>
+								</div>
 							</div>
 							<div class="token box">
-								<div class="label">DividendToken</div>
+								<div class="label">
+									<a href="/about/contracts.html#dividend-token" target="_blank">DividendToken</a>
+								</div>
 							</div>
 							<div class="ths box">
 								<div class="label">Token Holders</div>
@@ -431,15 +441,23 @@
 							<div class="th3 box"></div>
 							<div class="th4 box"></div> -->
 							<div class="treasury box">
-								<div class="label">Treasury</div>
+								<div class="label">
+									<a href="/about/contracts.html#treasury" target="_blank">Treasury</a>
+								</div>
 							</div>
 							<div class="mc box">
-								<div class="label">MainController</div>
+								<div class="label">
+									<a href="/about/contracts.html#main-controller" target="_blank">MainController</a>
+								</div>
 							</div>
 							<div class="games box container">
 								<div class="title">Games</div>
-								<div class="game game-1">Penny Auctions</div>
-								<div class="game game-2">InstaDice</div>
+								<div class="game game-1">
+									<a href="/about/contracts.html#penny-auction" target="_blank">Penny Auctions</a>
+								</div>
+								<div class="game game-2">
+									<a href="/about/contracts.html#instadice">InstaDice</a>
+								</div>
 								<div class="game other">Coming soon...</div>
 							</div>
 							<div class="dao box">
@@ -520,7 +538,7 @@
 							Classically, one had to trust the owners of the Penny Auction to actually send the prize. This, too, is solved, because the Penny Auction is a smart contract. The prize will go the winner, and nobody else, and nothing can prevent that from happening short of the Ethereum network going down.
 						</p>
 						<p>
-							<a href="/ico/whitepaper.html#penny-auctions">Much more about Penny Auctions can be found in our whitepaper.</a>							
+							<a href="/ico/whitepaper.html#games-penny-auctions">Much more about Penny Auctions can be found in our whitepaper.</a>							
 						</p>
 
 						<h3>InstaDice</h3>
@@ -534,7 +552,7 @@
 							Also our UI, though admittedly plain, is arguably the best one out there: we allow the user easily and plainly see thier wager parameters, allow them to choose their own gas price, show the transaction progress, and make all internal details of the roll available to the user.
 						</p>
 						<p>
-							<a href="/ico/whitepaper.html#instadice">Much more about InstaDice can be found in our whitepaper.</a>		
+							<a href="/ico/whitepaper.html#games-instadice">Much more about InstaDice can be found in our whitepaper.</a>		
 						</p>
 					</div>
 				</div>
