@@ -50,13 +50,15 @@
 				setTimeout(doFunding, 7000);
 
 				function doRevenue(){
-					setTimeout(doRevenue, 500 + Math.random() * 2000);
 					var p;
+					const queueNext = () => setTimeout(doRevenue, Math.random() * 2000);
 					if (Math.random() < .5) {
 						p = _sendEth(game1RevStart, game1RevStop, true)
+							.then(queueNext)
 							.then(() => _sendEth(game1RevStop, revTop));
 					}else{
 						p = _sendEth(game2RevStart, game2RevStop, true)
+							.then(queueNext)
 							.then(() => _sendEth(game2RevStop, revTop));
 					}
 					p.then(() => _sendEth(revTop, revEnd, false, true));
