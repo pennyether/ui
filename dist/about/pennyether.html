@@ -25,17 +25,17 @@
 					const tokenOffset = $top.find(".token").offset();
 					const holdersOffset = $top.find(".ths").offset();
 
-					fundingStart = {x: trOffset.left + 25, y: trOffset.top + 50};
-					fundingStop = {x: fundingStart.x, y: mcOffset.top + 35};
+					fundingStart = {x: trOffset.left + 30, y: trOffset.top + 60};
+					fundingStop = {x: fundingStart.x, y: mcOffset.top + 41};
 					fundGameStart = {x: fundingStop.x, y: fundingStop.y};
 					fundGameStop = {x: gameOffset.left, y: fundGameStart.y};
-					game1RevStart = {x: game1Offset.left + 50, y: game1Offset.top - 7};
-					game1RevStop = {x: game1lineOffset.left + 45, y: game1RevStart.y};
-					game2RevStart = {x: game2Offset.left + 50, y: game2Offset.top - 7};
-					game2RevStop = {x: game2lineOffset.left + 45, y: game2RevStart.y};
-					revTop = {x: game2RevStop.x, y: revUpOffset.top - 20};
+					game1RevStart = {x: game1Offset.left + 65, y: game1Offset.top - 2};
+					game1RevStop = {x: revUpOffset.left - 14, y: game1RevStart.y};
+					game2RevStart = {x: game1RevStart.x, y: game2Offset.top - 2};
+					game2RevStop = {x: game1RevStop.x, y: game2RevStart.y};
+					revTop = {x: game2RevStop.x, y: revUpOffset.top - 13};
 					revEnd = {x: trOffset.left + 300, y: revTop.y};
-					profitsStart = {x: trOffset.left, y: trOffset.top + 75};
+					profitsStart = {x: trOffset.left, y: trOffset.top + 80};
 					profitsStop = {x: tokenOffset.left + 110, y: profitsStart.y};
 					dividendsStop = {x: profitsStop.x + 20, y: holdersOffset.top + 35};
 				}());
@@ -91,7 +91,7 @@
 						const duration = timeMs || 1000;
 						const $img = $("<img>")
 							.attr("src", "/images/ethereum.png")
-							.attr("width", size || 35)
+							.attr("width", size || 25)
 							.css({
 								opacity: 0,
 								position: "absolute",

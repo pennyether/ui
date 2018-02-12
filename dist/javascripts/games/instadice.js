@@ -189,16 +189,22 @@ Loader.require("dice")
     	const gps = util.getGasPriceSlider(5);
     	const $rollBtn = $("#RollButton");
     	const $rollTip = $("#RollTip").append(gps.$e);
-
-		tippy($rollBtn[0], {
-			// arrow: false,
-			theme: "light",
-			animation: "fade",
-			placement: "top",
-			html: $rollTip.show()[0],
-			trigger: "mouseenter",
-			onShow: function(){ gps.refresh(); }
-		});
+    	(function attachTip(){
+    		tippy($rollBtn[0], {
+				// arrow: false,
+				theme: "light",
+				animation: "fade",
+				placement: "top",
+				html: $rollTip.show()[0],
+				trigger: "mouseenter",
+				onShow: function(){ gps.refresh(); },
+				onHidden: function(){
+					// fixes a firefox bug where the tip won't be displayed again.
+					$rollBtn[0]._tippy.destroy();
+					attachTip();
+				}
+			});
+    	}());
 
 		$rollBtn.click(function(){
 			this._tippy.hide(0);
