@@ -276,18 +276,35 @@ Loader.require("dice")
 			$e.find(".loading").show().append(loadingBar.$e);
 		});
 		p.then((res)=>{
-			res.events.forEach((event)=>{
-				if (event.name=="RollWagered" || event.name=="RollRefunded") {
-					dice.curId().then((curId)=>{
-						var roll = getRollFromWageredOrRefunded(event, curId);
-						const $new = $getRoll(roll);
-						$e.replaceWith($new);
-						_$currentRolls[roll.id] = $new;
-					})
-				}
-			});
-		},(e)=>{
-			// (blockNumber, blockHash, txId, time)
+			const event = res.events.find(ev => ev.name=="RollWagered" || ev.name=="RollRefunded");
+			if (!event){
+				throw new Error(
+					`The transaction receipt unexpectedly contained no event.
+					<br>Please refresh the page.`
+				);
+			}
+			// display the roll, and poll if it is syncing.
+			(function updateRoll(){
+				dice.curId().then(curId => {
+					// its possible that the curId is not yet updated.
+					// if so, the roll is "syncing", waiting for provider to update.
+					var roll = getRollFromWageredOrRefunded(event, curId);
+
+					// if roll is displayed, and not syncing, do nothing.
+					var $displayed = _$currentRolls[roll.id];
+					if ($displayed && $displayed.data("roll").state != "syncing") return;
+
+					// display the new roll. add it to _$currentRolls
+					// it will now be updated as new events come in.
+					const $new = $getRoll(roll);
+					($displayed || $e).replaceWith($new);
+					_$currentRolls[roll.id] = $new;
+
+					// if it's syncing, poll every second for an updated curId()
+					if (roll.state == "syncing") setTimeout(updateRoll, 1000);
+				});
+			}());
+		}).catch((e)=>{
 			roll.state = "failed"
 			roll.failReason = e.message.split("\n")[0];
 			if (e.receipt) {
@@ -300,7 +317,6 @@ Loader.require("dice")
 			}
 			const $new = $getRoll(roll);
 			$e.replaceWith($new);
-			$e = $new;
 		});
 	}
 
@@ -424,6 +440,7 @@ Loader.require("dice")
     }
 
     // for any roll that is in _$currentRolls, refresh it.
+    // ignore rolls that are in _$lockedRolls.
     function refreshCurrentRolls(rolls) {
     	rolls.forEach((roll)=>{
     		if (!_$currentRolls[roll.id]) return;
@@ -437,8 +454,10 @@ Loader.require("dice")
     const _$recentRollsCtnr = $(".recentRolls .rolls");
     const _$noRecentRolls = $(".recentRolls .empty");
     const _$lockedRolls = {};
+    // given all rolls, ignore any that are _$currentRolls
+    // and do not update any that are in _$lockedRolls
+    // for the rest, rerender them entirely
     function refreshRecentRolls(rolls) {
-    	// create $rolls, detach _$locked ones
     	const $rolls = rolls.map((roll)=>{
     		if (_$currentRolls[roll.id]) return;
     		return _$lockedRolls[roll.id]
@@ -494,6 +513,7 @@ Loader.require("dice")
     	const $e = $(".roll.template")
     		.clone()
     		.removeClass("template")
+    		.data("roll", roll)
     		.show();
 
     	const $status = $e.find(".status");
