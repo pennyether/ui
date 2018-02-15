@@ -257,7 +257,7 @@
 					}
 					function nextStep(){
 						const next = steps[step];
-						if (!next) reset();
+						if (!next) return reset();
 						steps[step]();
 						step++;
 					}
