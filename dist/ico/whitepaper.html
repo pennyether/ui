@@ -1353,7 +1353,7 @@
 									If the balance of the Treasury is ever over the <span class="code">dividend threshold</span>, the surplus is sent to the Token contract as dividends.
 									<ul style="margin-bottom: 10px">
 										<li>
-											The <span class="code">dividend threshold</span> is calculated as: <span class="code">bankroll + 14*dailyFundLimit</span>. In the worst-case scenario of all games becoming unprofitable, Treasury will still be able to burn <i>all</i> tokens for at least 14 days.
+											The <span class="code">dividend threshold</span> is calculated as: <span class="code">bankroll + 30*dailyFundLimit</span>. In the worst-case scenario of all games becoming unprofitable, Treasury will still be able to burn <i>all</i> tokens for at least 30 days.
 										</li>
 										<li>
 											Dividends can be trigged by <b>anyone</b>, at any time.
@@ -1421,7 +1421,7 @@
 									The burning of tokens will result in the Treasury having a lower <span class="code">bankroll</span>, and also the <span class="code">totalSupply</span> of Tokens descreasing; as a result, if/when tokens are burned, all future dividends will distribute more Ether per-token.
 								</p>
 								<div class="note">
-									There is an (unlikely) possibility that not all Tokens can be burned. This can happen if the balance of the Treasury drops below the <span class="code">bankroll</span>, and <i>all</i> Token Holders try to burn their tokens. This case can only happen if the balance trickles below the <span class="code">bankroll</span>, which takes <i>at least</i> 14 days to occur.
+									There is an (unlikely) possibility that not all Tokens can be burned. This can happen if the balance of the Treasury drops below the <span class="code">bankroll</span>, and <i>all</i> Token Holders try to burn their tokens. This case can only happen if the balance trickles below the <span class="code">bankroll</span>, which takes <i>at least</i> 30 days to occur.
 								</div>
 							</div>
 						</div>
@@ -1594,10 +1594,10 @@
 											For simplicity, this demo assumes the ICO sells <span class='code'>180 Tokens</span>, and that the <span class='code'>Treasury</span> has a <span class='code'>Daily Funding Limit</span> of 1 Ether. (The actual values will be different.)
 										</li>
 										<li>
-											Based on the above, the ICO would fund the <span class='code'>Treasury</span> with <span class='code'>90 Ether</span> for bankroll, plus <span class='code'>14 Ether (14 * Daily Fund Limit)</span>, for a total of <span class='code'>104 Ether</span>. This ensures all tokens are burnable, and that any profits can be immediately distributed.
+											Based on the above, the ICO would fund the <span class='code'>Treasury</span> with <span class='code'>90 Ether</span> for bankroll, plus <span class='code'>30 Ether (30 * Daily Fund Limit)</span>, for a total of <span class='code'>120 Ether</span>. This ensures all tokens are burnable, and that any profits can be immediately distributed.
 										</li>
 										<li>
-											You can play with the demo to either produce profits, or to try to bankrupt it. Note that in order for the <span class='code'>Treasury</span> balance to get below <span class='code'>bankroll</span>, you'll have to advance at least 14 days with zero revenue.
+											You can play with the demo to either produce profits, or to try to bankrupt it. Note that in order for the <span class='code'>Treasury</span> balance to get below <span class='code'>bankroll</span>, you'll have to advance at least 30 days with zero revenue.
 										</li>
 										<li>
 											The worst case scenario is that <span class='code'>Treasury</span> funds <span class='code'>Daily Funding Limit</span> per day, and receives no revenue. See: <a href="#security">security</a> for more details about how even this case is unlikely.
@@ -1729,7 +1729,7 @@
 										<div class="demo-tip">
 											The Treasury holds all of PennyEther's Ether. It receives revenue from games, and dispurses Ether to <span class='code'>MainController</span> to fund games. It can only fund <span class='code'>Daily Limit</span> per day.
 											<ul>
-												<li><b>Send Dividend</b>: If the balance is ever greater than the <span class='code'>bankroll + 14*dailyLimit</span>, the excess can be sent as dividends to Token.
+												<li><b>Send Dividend</b>: If the balance is ever greater than the <span class='code'>bankroll + 30*dailyLimit</span>, the excess can be sent as dividends to Token.
 												<li><b>Skip to Next Day</b>: Simulates a day passing, which resets<span class='code'>Daily Limit Used</span> to 0.</li>
 											</ul>
 											
@@ -2986,7 +2986,7 @@
 									const numSoldTokens = bonusCap*1.25 + (amtRaised-bonusCap);
 									const numDevTokens = Math.round(numSoldTokens * .25);
 									const bankroll = Math.round((numSoldTokens + numDevTokens) * .5);
-									const buffer = dailyFundLimit * 14;
+									const buffer = dailyFundLimit * 30;
 									const remaining = amtRaised - (bankroll + buffer);
 
 						    		updateFundingChart(bankroll+buffer, remaining);

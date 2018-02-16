@@ -32,7 +32,7 @@ Loader.onPageLoad.then(()=>{
 			_$tokenLocker.data("state", {tokens: new BigNumber(40), tPct: 20, owed: ZERO, collected: ZERO});
 
 			_$treasury.data("state",
-				{balance: new BigNumber(104), bankroll: new BigNumber(90), dl: ONE, dlUsed: ZERO});
+				{balance: new BigNumber(120), bankroll: new BigNumber(90), dl: ONE, dlUsed: ZERO});
 			_$mainController.data("state", {});
 			_$pennyAuction.addClass("ended")
 				.data("state", {state: "ended", prize: ONE, bidFees: ZERO, winner: $("")});
@@ -160,7 +160,7 @@ Loader.onPageLoad.then(()=>{
 			_resetStatuses();
 
 			const trState = _$treasury.data("state");
-			const divThreshold = trState.bankroll.plus(trState.dl.mul(14));
+			const divThreshold = trState.bankroll.plus(trState.dl.mul(30));
 			const divAmt = trState.balance.minus(divThreshold)
 			if (!divAmt.gt(0)) {
 				_$treasury.find(".status").text(`Balance must be >${divThreshold} Eth to send dividends.`)
@@ -277,7 +277,7 @@ Loader.onPageLoad.then(()=>{
 				trState.balance = trState.balance.plus(bidFees);
 				paState.bidFees = paState.bidFees.minus(bidFees);
 
-				const divThreshold = trState.bankroll.plus(trState.dl.mul(14));
+				const divThreshold = trState.bankroll.plus(trState.dl.mul(30));
 				const profit = trState.balance.minus(divThreshold);
 				if (profit.gt(0)){
 					_$treasury.find(".status").text(`Received ${bidFees} Eth. Can now issue a dividend of ${profit} Eth.`);
@@ -343,7 +343,7 @@ Loader.onPageLoad.then(()=>{
 				trState.balance = trState.balance.plus(collectAmt);
 				idState.balance = idState.balance.minus(collectAmt);
 
-				const divThreshold = trState.bankroll.plus(trState.dl.mul(14));
+				const divThreshold = trState.bankroll.plus(trState.dl.mul(30));
 				const profit = trState.balance.minus(divThreshold);
 				if (profit.gt(0)){
 					_$treasury.find(".status").text(`Received ${collectAmt} Eth. Can now issue a dividend of ${profit} Eth.`);
@@ -518,7 +518,7 @@ Loader.onPageLoad.then(()=>{
 				_$mainController.find(".btn-id-collect").addClass("try");
 			}
 			const trState = _$treasury.data("state");
-			if (trState.balance.gt(trState.bankroll.plus(trState.dl.mul(14)))) {
+			if (trState.balance.gt(trState.bankroll.plus(trState.dl.mul(30)))) {
 				_$treasury.find(".btn-send-div").addClass("try");
 			}
 			if (!trState.dl.gt(trState.dlUsed)) {
