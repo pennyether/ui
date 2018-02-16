@@ -177,7 +177,7 @@
 						this.$e = _$e;
 						this.setValues = function(balance, bankroll, divThreshold){
 							// calculate max number, add 10%
-							const max = new BigNumber(800e18);
+							const max = new BigNumber(850e18);
 							const width = _$e.find(".bar").width();
 							function toPct(val) {
 								return val.div(max).mul(width).round().toNumber();
@@ -262,7 +262,7 @@
 						step++;
 					}
 					function wait(timeMs){
-						$statusBtn.attr("disabled", "disabled").css("opacity", .4);
+						$statusBtn.attr("disabled", "disabled").css("opacity", .6);
 						return new Promise((res,rej)=>{
 							setTimeout(()=>{
 								$statusBtn.removeAttr("disabled", "disabled").css("opacity","");
@@ -302,7 +302,7 @@
 							const invOffset = $investors.offset();
 							const csOffset = $crowdsale.offset();
 							const invPt = {x: invOffset.left + 40, y: invOffset.top};
-							const invHeight = $investors.height();
+							const invHeight = $investors.height() - 5;
 							const csPt = {x: csOffset.left + 40, y: invPt.y};
 							const trPt = {x: csPt.x, y: csPt.y - 100};
 							// send 10 eth icons from investors to crowdsale.
@@ -350,14 +350,14 @@
 							$dflValue.addClass("on").text("5 Ether");
 							wait(1000).then(()=>{
 								$txtDivThresh.show().addClass("on");
-								divThreshold = divThreshold.plus(60e18);
+								divThreshold = divThreshold.plus(180e18);
 								updateBar();
 								return wait(2000);
 							}).then(()=>{
 								$statusBtn.text("Finish CrowdSale");
 								$statusTxt.empty()
 									.append(`Notice the <span class="code">Dividend Threshold</span> marker.<br>`)
-									.append(`Its value is hardcoded to <span class="code">bankroll + 14 * dailyFundingLimit</span>.<br>`)
+									.append(`Its value is hardcoded to <span class="code">bankroll + 30 * dailyFundingLimit</span>.<br>`)
 									.append(`Any balance above this is considered profit, and will be sent to DividendToken.<br>`)
 									.append(`<b>The CrowdSale will send Ether to meet this amount.</b>`);
 							});
@@ -368,7 +368,7 @@
 							const trPt = {x: csPt.x, y: csPt.y - 100};
 							_sendEth(csPt, trPt, true, true);
 							wait(1000).then(()=>{
-								balance = balance.plus(60e18);
+								balance = balance.plus(180e18);
 								updateBar();
 								return wait(2000);
 							}).then(()=>{
@@ -378,7 +378,7 @@
 								$statusBtn.text("Continue");
 								$statusTxt.empty()
 									.append(`Since the most Treasury can lose per day is <span class="code">dailyFundingLimit</span>,<br>
-										Tokens are fully collateralized for at least 14 days.`);
+										Tokens are fully collateralized for at least 30 days.`);
 							});
 						},
 						function step5(){
@@ -441,7 +441,7 @@
 								$statusTxt.empty()
 									.append(`<b>The Treasury now has a profit!</b><br>
 											Profits get distributed <i>only</i> to the DividendToken.<br>
-											Dividends can happen at any time, there is are no "distribution periods".<br>
+											Dividends can happen at any time, there are no "distribution periods".<br>
 											Investors will be able to collect their profit share, at any time, forever.<br>
 											`);
 							});
@@ -450,7 +450,7 @@
 							const invOffset = $investors.offset();
 							const tokenOffset = $token.offset();
 							const tokenPt = {x: tokenOffset.left + 20, y: tokenOffset.top}
-							const tokenHeight = $token.height();
+							const tokenHeight = $token.height() - 5;
 							const invPt = {x: invOffset.left + 20, y: tokenPt.y};
 							const trPt = {x: tokenPt.x, y: tokenPt.y - 100};
 							balance = balance.minus(5e18);
@@ -473,7 +473,7 @@
 								$statusTxt.empty()
 									.append(`The Treasury has distributed profits.<br>
 										When profits are distributed, Treasury balance will drop to <span class="code">Dividend Threshold</span>.<br>
-										All tokens are still burnable for at least 14 days.`);
+										All tokens are still burnable for at least 30 days.`);
 							});
 						},
 						function step9(){
@@ -616,7 +616,7 @@
 								return wait(1000)
 							}).then(()=>{
 								const invOffset = $investors.offset();
-								const invHeight = $investors.height();
+								const invHeight = $investors.height() - 5;
 								const tokenOffset = $token.offset();
 								const tokenPt = {x: tokenOffset.left + 20, y: tokenOffset.top + 10}
 								const invPt = {x: invOffset.left + 20, y: tokenPt.y};
@@ -667,12 +667,12 @@
 									<b>Let's see what happens when someone burns 100 Tokens<b>`);
 						},
 						function step16(){
-							$txtBankroll.addClass("on")
 							balance = balance.minus(50e18);
 							bankroll = bankroll.minus(50e18);
 							divThreshold = divThreshold.minus(50e18);
 							updateBar();
 							wait(2000).then(()=>{
+								$txtBankroll.addClass("on");
 								const invOffset = $investors.offset();
 								const invPt = {x: invOffset.left + 20, y: invOffset.top + 20};
 								const trPt = {x: invPt.x, y: invPt.y - 100};
@@ -681,19 +681,21 @@
 							}).then(()=>{
 								$statusBtn.text("Continue");
 								$statusTxt.empty()
-									.append(`The bankroll has been reduced by 50 Ether and the Investor has gotten back 50 Ether.<br>
+									.append(`The <span class="code">bankroll</span> has been reduced by 50 Ether and the Investor has gotten back 50 Ether.<br>
 										Since the supply of tokens has decreased, remaining Token Holders<br>
 										will receive a higher percentage of each dividend.`);
 							});
 						},
 						function step17(){
+							$txtBankroll.removeClass("on");
+							$txtDivThresh.addClass("on");
 							$statusBtn.text("Continue");
 							$statusTxt.empty()
 								.append(`Since the bankroll has been reduced, so too has the Dividend Threshold.<br>
-									The Treasury is still in good health, regardless of having less bankroll.`);
+									The Treasury is still ready to pay dividends on any profit.`);
 						},
 						function step18(){
-							$txtBankroll.removeClass("on");
+							$txtDivThresh.removeClass("on");
 							$statusBtn.text("Reset");
 							$statusTxt.empty()
 								.append(`That's all.<br>
@@ -777,14 +779,14 @@
 
 			#tr-sim .status {
 				display: table;
-				border-radius: 5px;
-				background: rgba(0,0,255,.1);
-				border: 1px solid rgba(0,0,255, .3);
-				box-shadow: 3px 3px 3px 0px rgba(0,0,0,.05);
-				text-shadow: 1px 1px 1px rgba(255,255,255,.4);
 				margin-top: 20px;
-				transition: opacity 2s;
 				max-width: 800px;
+				background: linear-gradient(to bottom, #999 0%, #555 100%);
+				border-radius: 5px;
+				box-shadow: 3px 3px 3px 0px rgba(0,0,0,.2);
+
+				color: #EEE;
+				text-shadow: 1px 1px 1px rgba(0,0,0,.4);
 			}
 			#tr-sim .status .code {
 				background: rgba(0,0,255,.5);
@@ -795,19 +797,22 @@
 				vertical-align: middle;
 				font-size: 90%;
 				padding: 10px;
+				transition: opacity .5s, height 1s;
 			}
 			#tr-sim .status .right {
 				display: table-cell;
 				vertical-align: middle;
 				padding: 2px 10px;
 				width: 0px;
-				border-left: 1px dotted gray;
+				border-left: 1px dotted rgba(0,0,0,.4);
 			}
 			#tr-sim .status button {
 				font-size: 120%;
 				color: blue;
 				cursor: pointer;
 				white-space: nowrap;
+				border-radius: 3px;
+				background: #EEE;
 				transition: opacity .5s;
 			}
 			#tr-sim .on {
@@ -1169,7 +1174,7 @@
 							The MainController manages and funds all games, and is the only contract the Treasury can send Ether to. For example, a Penny Auction requires Ether to be started - so the MainController will get funding from the Treasury and send it to the new Penny Auction. The Treasury will only fund the MainController a (relatively small) amount per day: <span class="code">dailyFundingLimit</span>. Therefore, the loss of <span class="code">dailyFundingLimit</span> per day is the worst-case scenario for PennyEther.
 						</p>
 						<p>
-							The Treasury protects Token Holders' .5 Ether by having a buffer between the balance required to pay dividends, and the balance required to burn all tokens. This buffer is <span class="code">14 days * dailyFundingLimit</span>. This means that in the worst-case of the Treasury losing <span class="code">dailyFundingLimit</span> per day, Token Holders' .5 Ether will be safe for at least 14 days. Token Holders can monitor the Treasury via the blockchain, or through the <a href="/status/token">Treasury UI</a>.
+							The Treasury protects Token Holders' .5 Ether by having a buffer between the balance required to pay dividends, and the balance required to burn all tokens. This buffer is <span class="code">30 days * dailyFundingLimit</span>. This means that in the worst-case of the Treasury losing <span class="code">dailyFundingLimit</span> per day, Token Holders' .5 Ether will be safe for at least 30 days. Token Holders can monitor the Treasury via the blockchain, or through the <a href="/status/token">Treasury UI</a>.
 						</p>
 						<p>
 							All of the above happens autonomously, and cannot ever be altered by anyone. There is no way to get Ether out of the Treasury other than to burn Tokens, or to fund games (limited by <span class="code">dailyFundingLimit</span>). There are no "emergency" systems in place to prevent dividends from being distributed, or to prevent tokens from being burned, or to remove funds from the Treasury. And you don't have to take our word for it - the source code is public, and we're having it audited.
