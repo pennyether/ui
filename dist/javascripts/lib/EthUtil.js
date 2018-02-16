@@ -22,32 +22,38 @@
 		this.getCurrentState = function(fresh){
 			// update the _curState value every 2 seconds
 			function updateCurrentState(){
-				return Promise.resolve(_self.getBlock('latest'))
-					.then(block=>{
-						return {
-							isConnected: true,
-							account: web3.eth.accounts[0],
-							networkId: web3.version.network,
-							latestBlock: block,
-						}
-					}).catch(() => {
-						return _DEFAULT_STATE;
-					}).then(newState => {
-						// for for any differences, and call the callbacks
-						const anyChange = Object.keys(newState).some(state=>{
-							return state=="latestBlock"
-								? newState[state].number!==_curState[state].number
-								: newState[state]!==_curState[state];
-						})
-						_curState = newState;
-						_isInitialized = true;
+				return Promise.all([
+					_self.getBlock('latest'),
+					_self.doEthCall("getAccounts"),
+					_self.doWeb3Call("version", "getNetwork")
+				]).then(arr=>{
+					const block = arr[0];
+					const accounts = arr[1];
+					const network = arr[2];
+					return {
+						isConnected: true,
+						account: accounts[0],
+						networkId: arr[2],
+						latestBlock: block,
+					}
+				}).catch(() => {
+					return _DEFAULT_STATE;
+				}).then(newState => {
+					// for for any differences, and call the callbacks
+					const anyChange = Object.keys(newState).some(state=>{
+						return state=="latestBlock"
+							? newState[state].number!==_curState[state].number
+							: newState[state]!==_curState[state];
+					})
+					_curState = newState;
+					_isInitialized = true;
 
-						if (anyChange){
-							try { _stateChangeCallbacks.forEach(cb => cb(newState)); }
-							catch(e){ console.error("Callback Threw: ", e); }
-						}
-						return _curState;
-					});
+					if (anyChange){
+						try { _stateChangeCallbacks.forEach(cb => cb(newState)); }
+						catch(e){ console.error("Callback Threw: ", e); }
+					}
+					return _curState;
+				});
 			};
 		
 			if (fresh) {
@@ -162,25 +168,29 @@
 
 		// resolves/rejects with response from web3.eth.<name>(args[0], args[1],...)
 		this.doEthCall = function(name, args) {
+			return _self.doWeb3Call("eth", name, args);
+		};
+
+		this.doWeb3Call = function(moduleName, fnName, args) {
 			if (!args) args = [];
 			if (!Array.isArray(args))
-				throw new Error(`doAsyncEthCall(${name}) expects an array as args.`);
+				throw new Error(`doWeb3Call(${moduleName}, ${fnName}) expects an array as args.`);
 			return new Promise((resolve, reject)=>{
 				const timeout = setTimeout(()=>{
-					reject(new Error(`web3.eth.${name} call timed out.`));
+					reject(new Error(`"web3.${moduleName}.${fnName}" call timed out.`));
 				}, 5000);
 				function callback(err, result){
 					clearTimeout(timeout); 
 					if (err){ reject(err); }
 					if (result!==null){ resolve(result); }
-					reject(new Error(`"_web3.eth.${name}" returned null.`));
+					reject(new Error(`"web3.${moduleName}.${name}" returned null.`));
 				}
-				_web3.eth[name].apply(_web3.eth, args.concat(callback));
+				_web3[moduleName][fnName].apply(_web3.eth, args.concat(callback));
 			}).catch(e=>{
-				console.error(`web.eth.${name} call failed`, args, e);
+				console.error(`"web3.${moduleName}.${fnName}" call failed`, args, e);
 				throw e;
 			});
-		};
+		}
 
 		// waits for a non-null response from web3.eth.<name>(args[0], args[1],...)
 		this.pollEthCall = function(name, args) {
