@@ -64,7 +64,7 @@ Loader.require("reg", "comp", "tr")
 		const p = Promise.all([
 			ethUtil.getBalance(tr),
 			tr.bankroll(),
-			tr.getMinBalanceToDistribute(),
+			tr.getDividendThreshold(),
 			tr.dailyFundLimit()
 		]);
 

@@ -79,7 +79,7 @@ Loader.require("reg", "comp", "tr", "mc", "pac", "dice")
 		util.bindToElement(ethUtil.getBalance(tr).then(ethUtil.toEthStr), $("#TrBalance"));
 		util.bindToElement(tr.bankroll().then(ethUtil.toEthStr), $("#TrBankroll"));
 		util.bindToElement(tr.dailyFundLimit().then(ethUtil.toEthStr), $("#TrDailyLimit"));
-		util.bindToElement(tr.getMinBalanceToDistribute().then(ethUtil.toEthStr), $("#TrDivThreshold"))
+		util.bindToElement(tr.getDividendThreshold().then(ethUtil.toEthStr), $("#TrDivThreshold"))
 		util.bindToElement(util.$getLogs(tr), $("#TrLogs"), true);
 	}
 
