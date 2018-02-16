@@ -2739,10 +2739,12 @@
 							We're keeping <a href="/ico/crowdsale.html" target="_blank">our crowdsale</a> as simple and as fair as possible:
 							<ul>
 								<li>There is no "registration period", "pre-sale", or "phases".</li>
-								<li>More than 66% of Ether raised bankrolls the Treasury.</li>
+								<li>Between 78% and 69% of Ether raised is used as Treasury bankroll, redeemable by Token Holders.</li>
 								<li>Token distribution is fixed. Investors will receive 80%, developers will receive 20%.</li>
-								<li>The bonus is on a linear scale, starting at 50%, and smoothly tapering down to 0%.</li>
 								<li>Tokens will never be minted again.</li>
+								<li>If an error occurs when buying tokens (eg, sale not started or sale already completed), minimal gas is used and Ether is refunded.</li>
+								<li>If the Soft Cap is not met, all investors can claim a full refund.</li>
+								<li>The bonus is on a linear scale, starting at 50%, and smoothly tapering down to 0%.</li>
 								<li><a href="/about/contracts.html#comptroller" target="_blank">CrowdSale Contract</a>: open-source, fully tested, independantly audited</li>
 							</ul>
 						</p>
@@ -2862,9 +2864,9 @@
 											Soft Cap
 										</td>
 										<td>
-											<b>25,000 Ether</b>: 30,000 Penny
+											<b>20,000 Ether</b>: 25,000 Penny
 											<div style='color: gray; font-size: 90%'>
-												<b>Total Supply</b>: 37,500 Penny
+												<b>Total Supply</b>: 31,250 Penny
 											</div>
 										</td>
 									</tr>
@@ -2873,9 +2875,9 @@
 											Hard Cap
 										</td>
 										<td>
-											<b>75,000 Ether</b>: 80,000 Penny
+											<b>50,000 Ether</b>: 55,000 Penny
 											<div style='color: gray; font-size: 90%'>
-												<b>Total Supply</b>: 100,000 Penny
+												<b>Total Supply</b>: 68,750 Penny
 											</div>
 										</td>
 									</tr>
@@ -2938,10 +2940,9 @@
 							<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 						    <script type="text/javascript">
 						    (function(){
-					    		const softCap = 25000;
-						    	const hardCap = 75000;
+					    		const softCap = 20000;
+						    	const hardCap = 50000;
 						    	const bonusCap = 20000;
-						    	const amtRaised = 50000;
 						    	const dailyFundLimit = 5;
 
 						    	Loader.onPageLoad.then(init);
@@ -2971,6 +2972,12 @@
 						    		const tokenChart = $("#charts .token-chart .ctnr")[0];
 						    		fChart = new google.visualization.PieChart(fundingChart);
 									tChart = new google.visualization.PieChart(tokenChart);
+									google.visualization.events.addListener(fChart, 'select', ()=>{
+										fChart.setSelection([{row: 0}]);
+									});
+									google.visualization.events.addListener(tChart, 'select', ()=>{
+										tChart.setSelection([{row: 0}]);
+									});
 									$slider.trigger("input");
 						    	}
 
@@ -2992,7 +2999,7 @@
 									var data = google.visualization.arrayToDataTable([
 										['Receiver', 'Amount'],
 										['Treasury', {v: trFunding, f: trStr}],
-										['Developers', {v: devFunding, f: devStr}]
+										['Capital', {v: devFunding, f: devStr}]
 									]);
 									var options = {
 										legend: "none",
@@ -3006,6 +3013,7 @@
 										backgroundColor: "transparent"
 									};
 									fChart.draw(data, options);
+									fChart.setSelection([{row: 0}]);
 								}
 								function updateTokenChart(numSoldTokens, numDevTokens){
 									const invStr = `${numSoldTokens.toLocaleString()} Penny`;
@@ -3027,6 +3035,7 @@
 										backgroundColor: "transparent"
 									};
 									tChart.draw(data, options);
+									tChart.setSelection([{row: 0}]);
 								}
 						    }());
 						    </script>
@@ -3057,7 +3066,7 @@
 								}
 								#charts .slider-ctnr-2 {
 									display: inline-block;
-									padding: 10px;
+									padding: 10px 15px;
 									background: linear-gradient(to top, #DDD 0%, #FFF 100%);
 									border-radius: 4px;
 									border: 1px inset #AAA;
@@ -3118,19 +3127,18 @@
 							<div class="head">Our Valuation</div>
 							<div class="body">
 								<p>
-									We chose our Soft Cap and Hard Cap based on two factors:
+									We chose our Soft Cap and Hard Cap based on three factors:
 									<ol>
 										<li>
-											<b>Revenue Potential</b>: We feel we're in a position to capitalize on blockchain dice via <a href="#games-instadice">InstaDice</a>, and that <a href="#games-penny-auctions">Penny Auctions</a> will prove to be a very populate type of blockchain gaming. We'd rather maintain 100% ownership of all future profits than to sell for under our Soft Cap.
+											<b>Our Structure</b>: Our CrowdSale is not typical. <b>Between 78% and 69% of Ether raised will end up in the Treasury as bankroll</b>, owned by all Token Holders, and redeemable at any time. Only the remaining 22% to 31% of Ether raised will be used as capital to fund development, marketing, advertising, and everything else.
+										</li>
+										<li>
+											<b>Revenue Potential</b>: We feel we're in a position to capitalize on blockchain dice via <a href="#games-instadice">InstaDice</a>, and that <a href="#games-penny-auctions">Penny Auctions</a> will prove to be a very successful blockchain game. Because we're effectively selling the rights to 80% of profits, we want to be sure we're adequately compensated.
 										</li>
 										<li>
 											<b>Our Competition</b>: We ask you to judge us against what our competition has produced (or even has promised to produce), how they are structured, and what they're currently valued at.
 										</li>
 									</ol>
-								</p>
-								<p>
-									Our SoftCap imputes a valuation of around 33,000 Ether, with half of that being backed by actual Ether, for a risk-adjusted total of around 16,500 Ether.<br><br>
-									Our HardCap imputes a valuation of around 90,000 Ether, with half of that being backed by actual Ether, for a risk-adjusted total of around 45,000 Ether.
 								</p>
 
 								<a id="competitive-landscape"></a>
@@ -3352,8 +3360,7 @@
 										<!--PennyEther-->
 										<td>
 											<span style="color: gray; font-style: italic">
-												approx 16,500 Eth to 45,000 Eth<br>
-												tbd by ICO
+												tbd by CrowdSale
 											</span>
 										</td>
 										<!--FunFair-->
