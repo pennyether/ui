@@ -55,6 +55,7 @@ var filenames = [
     "PennyAuctionFactory.json",
     "Registry.json",
     "Treasury.json",
+    "VideoPoker.json"
 ];
 
 // only pluck out the requested contracts

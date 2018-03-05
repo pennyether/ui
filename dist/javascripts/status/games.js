@@ -98,12 +98,12 @@ Loader.require("pac", "dice", "tr")
 	}
 
 	function refreshDice() {
+		const unresolved = Promise.all([dice.finalizeId(), dice.curId()]).then(arr=>(arr[0]-1) - arr[1]);
 		util.bindToElement(dice.version(), $("#DiceVersion"));
 		util.bindToElement(ethUtil.getBalance(dice.address).then(ethUtil.toEthStr), $("#DiceBalance"));
-		util.bindToElement(dice.funding().then(ethUtil.toEthStr), $("#DiceMinBankroll"));
-		util.bindToElement(dice.bankroll().then(ethUtil.toEthStr), $("#DiceBankroll"));
+		util.bindToElement(dice.funding().then(ethUtil.toEthStr), $("#DiceFunding"));
 		util.bindToElement(dice.curId(), $("#DiceTotalRolls"));
-		util.bindToElement(dice.getNumUnresolvedRolls(), $("#DiceNumUnresolved"));
+		util.bindToElement(dice.getNumUnfinalized(), $("#DiceNumUnfinalized"));
 		util.bindToElement(util.$getLogs(dice), $("#DiceLogs"), true);
 		
 		Promise.all([

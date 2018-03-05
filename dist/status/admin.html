@@ -237,14 +237,6 @@
 					</div>
 					<div class="field">
 						<div class="label">
-							<span class="tipLeft" title="The amount of Ether available to be used for potential payout. This is decremented any time a roll is created, and incremented when the roll is resolved (if it lost).">Bankroll:</span>
-						</div>
-						<div class="value">
-							<span id="DiceBankroll"></span>
-						</div>
-					</div>
-					<div class="field">
-						<div class="label">
 							<span class="tipLeft" title="The amount of Ether funded to InstaDice. Any bankroll exceeding this is considered profit, and can be sent to Treasury.">Funding:</span>
 						</div>
 						<div class="value">
@@ -261,10 +253,12 @@
 					</div>
 					<div class="field">
 						<div class="label">
-							<span class="tipLeft" title="Unresolved rolls happen when more than one bid occurs on the same block. When this happens, the bankroll is tied up until the roll is resolved. Note: there is always one unresolved roll: the last one!">Unresolved Rolls:</span>
+							<span title="Unfinalized rolls are rolls that have been wagered but have not yet been paid if won. Each new roll will finalize at least one previous roll, so this number should remain quite low.">
+								Unfinalized Rolls
+							</span>
 						</div>
 						<div class="value">
-							<span id="DiceNumUnresolved"></span>
+							<span id="DiceNumUnfinalized"></span>
 						</div>
 					</div>
 					

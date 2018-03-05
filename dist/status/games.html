@@ -267,17 +267,7 @@
 								</span>
 							</div>
 							<div class="value">
-								<span id="DiceMinBankroll"></span>
-							</div>
-						</div>
-						<div class="field">
-							<div class="label">
-								<span title="The bankroll of InstaDice. Will not allow bets that could cause this to go below zero. This value can be increased/decreased by the Admin.">
-									Bankroll
-								</span>
-							</div>
-							<div class="value">
-								<span id="DiceBankroll"></span>
+								<span id="DiceFunding"></span>
 							</div>
 						</div>
 						<div class="field">
@@ -322,12 +312,12 @@
 						</div>
 						<div class="field">
 							<div class="label">
-								<span title="Unresolved rolls occur when multiple rolls occur on the same block. Unresolved rolls, once resolved, will either pay out the winner or increase the bankroll. They can be resolved via the 'admin' interface, by anyone.">
-									Unresolved Rolls
+								<span title="Unfinalized rolls are rolls that have been wagered but have not yet been paid if won. Each new roll will finalize at least one previous roll, so this number should remain quite low.">
+									Unfinalized Rolls
 								</span>
 							</div>
 							<div class="value">
-								<span id="DiceNumUnresolved"></span>
+								<span id="DiceNumUnfinalized"></span>
 							</div>
 						</div>
 						<div class="field">

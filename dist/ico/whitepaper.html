@@ -413,15 +413,14 @@
 				font-size: 90%;
 			}
 			.wp-body .content a {
-				color: rgba(128,128,128,.8);
+				color: rgba(30,30,180,.8);
 				text-decoration: none;
 				border-bottom: 1px dotted rgba(0,0,255,.1);
-				transition: border .3s, color .3s;
+				transition: border .3s, color .3s, background .3s;
 			}
 			.wp-body .content a:hover {
 				color: blue;
-				border-bottom: 1px dotted blue;
-				transition: border .3s, color .3s;
+				border-bottom: 1px solid blue;
 			}
 		</style>
 		<div class="wp-body">
@@ -1382,7 +1381,7 @@
 									There are no "distribution periods" where the Tokens are frozen, and dividends are claimable at any time, <i>even if tokens are transferred</i>. After the ICO, tokens can never be minted again.
 								</p>
 								<p>
-									We've created <a href="/status/token.html">the Token UI</a> to help Token Holders view and/or claim their dividends. They can also claim them manually by calling a function on the contract.
+									We've created <a href="/status/tokens.html" target="_blank">the Token UI</a> to help Token Holders view and/or claim their dividends. They can also claim them manually by calling a function on the contract.
 								</p>
 								<p>
 									<div class="note">
@@ -2973,7 +2972,7 @@
 						    		fChart = new google.visualization.PieChart(fundingChart);
 									tChart = new google.visualization.PieChart(tokenChart);
 									google.visualization.events.addListener(fChart, 'select', ()=>{
-										fChart.setSelection([{row: 0}]);
+										fChart.setSelection([{row: 0}, {row: 1}, {row: 2}]);
 									});
 									google.visualization.events.addListener(tChart, 'select', ()=>{
 										tChart.setSelection([{row: 0}]);
@@ -2987,33 +2986,38 @@
 									const numDevTokens = Math.round(numSoldTokens * .25);
 									const bankroll = Math.round((numSoldTokens + numDevTokens) * .5);
 									const buffer = dailyFundLimit * 30;
-									const remaining = amtRaised - (bankroll + buffer);
+									const idFunding = 500;
+									const vpFunding = 500;
+									const remaining = amtRaised - (bankroll + buffer + idFunding + vpFunding);
 
-						    		updateFundingChart(bankroll+buffer, remaining);
+						    		updateFundingChart(bankroll+buffer, idFunding, vpFunding, remaining);
 									updateTokenChart(numSoldTokens, numDevTokens);
 						    	}
 
-						    	function updateFundingChart(trFunding, devFunding){
+						    	function updateFundingChart(trFunding, idFunding, vpFunding, devFunding){
 									const trStr = `${trFunding.toLocaleString()} Ether`;
 									const devStr = `${devFunding.toLocaleString()} Ether`;
+									const idStr = `${idFunding.toLocaleString()} Ether`;
+									const vpStr = `${vpFunding.toLocaleString()} Ether`;
 									var data = google.visualization.arrayToDataTable([
 										['Receiver', 'Amount'],
 										['Treasury', {v: trFunding, f: trStr}],
+										['InstaDice', {v: idFunding, f: idStr}],
+										['VideoPoker', {v: vpFunding, f: vpStr}],
 										['Capital', {v: devFunding, f: devStr}]
 									]);
 									var options = {
 										legend: "none",
 										titlePosition: 'none',
 										slices: {
-											0: {},
-											1: {color: "#888"}
+											3: {color: "#888"},
 										},
 										pieSliceText: "label",
-										chartArea: {width: "75%", height: "75%"},
+										chartArea: {width: "70%", height: "70%"},
 										backgroundColor: "transparent"
 									};
 									fChart.draw(data, options);
-									fChart.setSelection([{row: 0}]);
+									fChart.setSelection([{row: 0}, {row: 1}, {row: 2}]);
 								}
 								function updateTokenChart(numSoldTokens, numDevTokens){
 									const invStr = `${numSoldTokens.toLocaleString()} Penny`;
@@ -3027,11 +3031,10 @@
 										legend: "none",
 										titlePosition: 'none',
 										slices: {
-											0: {},
 											1: {color: "#888"}
 										},
 										pieSliceText: "label",
-										chartArea: {width: "75%", height: "75%"},
+										chartArea: {width: "70%", height: "70%"},
 										backgroundColor: "transparent"
 									};
 									tChart.draw(data, options);

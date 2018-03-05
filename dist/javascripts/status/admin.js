@@ -174,9 +174,8 @@ Loader.require("reg", "tr", "mc", "pac", "dice")
 		if (!dice) return alert("dice not loaded.");
 		util.bindToElement(ethUtil.getBalance(dice.address).then(ethUtil.toEthStr), $("#DiceBalance"));
 		util.bindToElement(dice.curId(), $("#DiceNumRolls"));
-		util.bindToElement(dice.getNumUnresolvedRolls(), $("#DiceNumUnresolved"));
+		util.bindToElement(dice.getNumUnfinalized(), $("#DiceNumUnfinalized"));
 		util.bindToElement(dice.getProfits().then(ethUtil.toEthStr), $("#DiceSendProfits"));
-		util.bindToElement(dice.bankroll().then(ethUtil.toEthStr), $("#DiceBankroll"));
 		util.bindToElement(dice.funding().then(ethUtil.toEthStr), $("#DiceFunding"));
 		util.bindToElement(dice.getAdmin(), $("#DiceAdmin"));
 		util.bindToInput(dice.feeBips(), $("#DiceFeeBips"));
