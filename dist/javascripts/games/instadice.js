@@ -2,6 +2,7 @@ Loader.require("dice")
 .then(function(dice){
 	ethUtil.onStateChanged((state)=>{
 		if (!state.isConnected) return;
+		refreshBetUiSettings();
 		refreshAllRolls(state);
 		refreshStats();
 		refreshLiveRolls();
@@ -21,26 +22,28 @@ Loader.require("dice")
 	const $payout = $(".better .payout");
 	const $multiple = $(".better .multiple");
 	const $odds = $(".better .odds");
+	var _rounding = .001;
 
 	// link the ranges to texts, and vice versa
 	$(".better .input").focus(function(){
 		$(this).select();
 	});
+	// function format(ether){
+	// 	const numDecimals = _rounding.toString().length - 2;
+	// 	ether = ether.toFixed(numDecimals);
+	// 	return ether.startsWith("0.")
+	// 		? ether.slice(1)
+	// 		: ether;
+	// }
 	$wagerText.on("input", function(){
-		const n = Number($(this).val());
-		if (Number.isNaN(n)) return;
-		$wagerRange.val(n*100);
+		const ether = Number($(this).val());
+		if (Number.isNaN(ether)) return;
+		$wagerRange.val(ether);
 		refreshPayout();
 	});
 	$wagerRange.on("input", function(){
-		function round(n, nearest){
-			const rounded = Math.round(n*nearest)/nearest;
-			return rounded == 0 ? n : rounded;
-		}
-		const n = Number($(this).val());
-		const rounded = round(n/100, 100);
-		$wagerText.val(rounded);
-		$(this).val(Math.round(rounded*100));
+		const ether = Number($(this).val());
+		$wagerText.val(ether);
 		refreshPayout();
 	});
 	$numberText.on("input", function(){
@@ -64,35 +67,49 @@ Loader.require("dice")
 	var _maxBet;
 	var _minNumber;
 	var _maxNumber;
-	var _bankroll;
 	var _feeBips;
 	function refreshBetUiSettings() {
 		Promise.all([
 			dice.minBet(),
 			dice.maxBet(),
+			dice.curMaxBet(),
 			dice.minNumber(),
 			dice.maxNumber(),
-			dice.bankroll(),
 			dice.feeBips()
 		]).then(arr=>{
 			$loader.hide();
 			_minBet = arr[0];
-			_maxBet = arr[1];
-			_minNumber = arr[2];
-			_maxNumber = arr[3];
-			_bankroll = arr[4];
+			_maxBet = BigNumber.min(arr[1], arr[2]);
+			_minNumber = arr[3];
+			_maxNumber = arr[4];
 			_feeBips = arr[5];
-			$wagerText
-				.attr("min", _minBet.div(1e18).toNumber())
-				.attr("max", _maxBet.div(1e18).toNumber());
 
-			let minBetHundreds = _minBet.div(1e16);
-			let maxBetHundreds = _maxBet.div(1e16);
-			$wagerRange
-				.attr("min", minBetHundreds.toNumber());
-			minBetHundreds.lt(1)
-				? $wagerRange.attr("max", maxBetHundreds.plus(minBetHundreds).toNumber())
-				: $wagerRange.attr("max", maxBetHundreds.toNumber());
+			// Determine a convenient _rounding step
+			let minBetEther = _minBet.div(1e18);
+			let maxBetEther = _maxBet.div(1e18);
+			let difference = maxBetEther.minus(minBetEther);
+			if (difference <= .1) _rounding = .001;
+			else _rounding = .01;
+
+			// set the wager inputs accordingly
+			let minBetRounded = minBetEther.div(_rounding).ceil().mul(_rounding).toNumber();
+			let maxBetRounded = maxBetEther.div(_rounding).floor().mul(_rounding).toNumber();
+			$wagerRange.attr("min", minBetRounded);
+			$wagerRange.attr("max", maxBetRounded);
+			$wagerRange.attr("step", _rounding);
+			$wagerText.attr("min", minBetRounded)
+			$wagerText.attr("max", maxBetRounded);
+			$wagerText.attr("step", _rounding);
+
+			// wagerRange to be positioned correctly relative to bet
+			var bet = Number($wagerText.val());
+			if (!Number.isNaN(bet)){
+				bet = Math.min(maxBetRounded, bet);
+				bet = Math.max(minBetRounded, bet);
+				$wagerText.val(bet);
+				$wagerRange.val(bet);
+			}
+
 			$numberText
 				.attr("min", _minNumber.toNumber())
 				.attr("max", _maxNumber.toNumber());
@@ -102,10 +119,7 @@ Loader.require("dice")
 
 			refreshPayout();
 		});
-		// refresh every 60 seconds in case min/max has changed
-		setTimeout(refreshBetUiSettings, 60000);
 	}
-	refreshBetUiSettings();
 
 	function refreshPayout() {
 		if (_minBet == null) { return; }
@@ -156,22 +170,12 @@ Loader.require("dice")
 		}
 		
 		const payout = computePayout(bet, number);
-		if (payout.gt(_bankroll)) {
-			$invalid.show();
-			$msg.empty().append(
-				`Currently the maximum payout allowed is ${ethUtil.toEthStr(_bankroll)}.
-				<br><br>
-				Try lowering your bet or increasing your odds.`
-			);
-			return;
-		}
 		const multiple = payout.div(bet).toFixed(2);
 		$valid.show();
 		$payout.text(ethUtil.toEthStr(payout));
 		$multiple.text(`${multiple}x return`);
 		$odds.text(`${number}% win odds`);
 	}
-	refreshPayout();
 
 	function computeResult(blockHash, id) {
         const hash = web3.sha3(blockHash + ethUtil.toBytesStr(id, 4), {encoding: "hex"});
@@ -334,7 +338,7 @@ Loader.require("dice")
 			? "refunded"
 			: roll.id.gt(curId)
 				? "syncing"
-				: curId.equals(roll.id) ? "waiting" : "unresolved"
+				: curId.equals(roll.id) ? "waiting" : "unfinalized"
 		roll.bet = event.args.bet;
 		roll.number = event.args.number;
 		roll.payout = event.name=="RollWagered"
@@ -360,11 +364,11 @@ Loader.require("dice")
 	}
 
 	// Collate the events into an object for each roll:
-	// - state (prepending, pending, refunded, waiting, unresolved, resolved, paid, paymentfailed)
+	// - state (prepending, pending, refunded, waiting, unfinalized, finalized, paid, paymentfailed)
 	// - id, bet, number, result, isWinner
 	// - refundReason, failReason
 	// - created (blockNumber, blockHash, txId, txIndex, time)
-	// - resolved (blockNumber, txId, time)
+	// - finalized (blockNumber, txId, time)
 	// - paid (blockNumber, txId, time)
 	// - paymentfailure (blockNumber, txId, time)
 	function refreshAllRolls(state) {
@@ -373,7 +377,7 @@ Loader.require("dice")
 			dice.curId(),
 			dice.getEvents("RollWagered", {user: state.account}, state.latestBlock.number - 256),
     		dice.getEvents("RollRefunded", {user: state.account}, state.latestBlock.number - 256),
-    		dice.getEvents("RollResolved", {user: state.account}, state.latestBlock.number - 256),
+    		dice.getEvents("RollFinalized", {user: state.account}, state.latestBlock.number - 256),
     		dice.getEvents("PayoutSuccess", {user: state.account}, state.latestBlock.number - 256),
     		dice.getEvents("PayoutFailure", {user: state.account}, state.latestBlock.number - 256),
     		_feeBipsPromise
@@ -381,7 +385,7 @@ Loader.require("dice")
 			const curId = arr[0];
 			const rollsWagered = arr[1];
 			const rollsRefunded = arr[2];
-			const rollsResolved = arr[3];
+			const rollsFinalized = arr[3];
 			const rollsPaid = arr[4];
 			const rollsUnpayable = arr[5];
 			const rolls = {};
@@ -390,14 +394,14 @@ Loader.require("dice")
 				const roll = getRollFromWageredOrRefunded(event, curId);
 				rolls[roll.id || event.transactionHash] = roll;
 			});
-			rollsResolved.forEach((event)=>{
+			rollsFinalized.forEach((event)=>{
 				const roll = rolls[event.args.id];
 				if (!roll) return;
 				if (!roll.result.equals(event.args.result))
 					console.error("Contract got different result than us!", roll);
 				roll.result = event.args.result;
-				roll.state = "resolved";
-				roll.resolved = {
+				roll.state = "finalized";
+				roll.finalized = {
 					blockNumber: event.blockNumber,
 					txId: event.transactionHash,
 					time: event.args.time
@@ -602,7 +606,7 @@ Loader.require("dice")
 				// lock this roll so it doesn't get updated.
 				_$lockedRolls[roll.id] = $e;
 				$e.addClass("claiming");
-				const p = dice.payoutRoll([roll.id], {gas: 55000});
+				const p = dice.payoutRoll([roll.id], {gas: 56000});
 				// disable button, show stuff.
 				$button.attr("disabled","disabled");
 				$claimStatus.show();
@@ -634,7 +638,7 @@ Loader.require("dice")
 
 		const $waiting = $result.find(".waiting").hide();
 		const $syncing = $result.find(".syncing").hide();
-		const $unresolved = $result.find(".unresolved").hide();
+		const $unfinalized = $result.find(".unfinalized").hide();
 		const $paid = $result.find(".paid").hide();
 		const $paymentFailure = $result.find(".paymentFailure").hide();
 		const $lostMsg = $result.find(".lostMsg").hide();
@@ -644,8 +648,8 @@ Loader.require("dice")
 				$waiting.show();
 			} else if (roll.state == "syncing") {
 				$syncing.show();
-			} else if (roll.state == "unresolved") {
-				$unresolved.show();
+			} else if (roll.state == "unfinalized") {
+				$unfinalized.show();
 			} else if (roll.state == "paid") {
 				$paid.empty()
 					.append(`✓ Your winnings of ${payoutStr} `)

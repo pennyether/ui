@@ -431,7 +431,7 @@
 					margin: 5px 0px;
 					color: #666;
 				}
-				.roll.unresolved .warning {
+				.roll.unfinalized .warning {
 					background: #FEE;
 					color: red;
 					border: 1px solid #FDD;
@@ -456,7 +456,7 @@
 					background: rgba(0,255,0,.2);
 					transition: background .5s;
 				}
-				.roll.unresolved .claim {
+				.roll.unfinalized .claim {
 					background: green;
 					color: white;
 				}
@@ -634,7 +634,7 @@
 							<div class="bottomLabel">ETH</div>
 						</div>
 						<div class="slider">
-							<input class="range" type="range" value="10" min="1" max="60" step="1">
+							<input class="range" type="range" value=".1" step=".01" min=".01" max=".60">
 						</div>
 					</div>
 					<div class="number">
@@ -769,7 +769,7 @@
 							Your provider is currently updating. Please wait a moment...
 						</div>
 					</div>
-					<div class="unresolved">
+					<div class="unfinalized">
 						<div class="warning">
 							Your roll was unable to be automatically paid.<br>You have <span class="blocksLeft"></span> to claim your winnings.
 						</div>
