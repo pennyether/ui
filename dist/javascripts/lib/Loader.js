@@ -154,7 +154,8 @@
 					"mc": [MainController, "MAIN_CONTROLLER"],
 					"pac": [PennyAuctionController, "PENNY_AUCTION_CONTROLLER"],
 					"paf": [PennyAuctionFactory, "PENNY_AUCTION_FACTORY"],
-					"dice": [InstaDice, "INSTADICE"]
+					"dice": [InstaDice, "INSTADICE"],
+					"vp": [VideoPoker, "VIDEO_POKER"]
 				};
 				strs.forEach(str => {
 					if (!mappings[str] && str!=="reg")

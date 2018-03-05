@@ -272,6 +272,16 @@
 						</div>
 						<div class="field">
 							<div class="label">
+								<span title="The maximum bet allowed, given the current balance. This ensures wins can always be paid.">
+									CurMaxBet()
+								</span>
+							</div>
+							<div class="value">
+								<span id="DiceCurMaxBet"></span>
+							</div>
+						</div>
+						<div class="field">
+							<div class="label">
 								<span title="The total amount of rolls.">
 									Total Rolls
 								</span>
@@ -326,6 +336,130 @@
 							</div>
 							<div class="value">
 								<div id="DiceLogs"></div>
+							</div>
+						</div>						
+					</div>
+				</div>
+			</div>
+
+			<a id="instadice"></a>
+			<div id="VideoPoker" class="subsection">
+				<div class="head">
+					Video Poker
+					<span class="refresh">refresh</span>
+				</div>
+				<div class="body">
+					<h3>Settings</h3>
+					<div class="stats">
+						<div class="field">
+							<div class="label">
+								<span title="The minimum allowed bet (ignoring bankroll constraints).">
+									Min Bet
+								</span>
+							</div>
+							<div class="value">
+								<span id="VpMinBet"></span>
+							</div>
+						</div>
+						<div class="field">
+							<div class="label">
+								<span title="The maximum allowed bet (ignoring bankroll constraints).">
+									Max Bet
+								</span>
+							</div>
+							<div class="value">
+								<span id="VpMaxBet"></span>
+							</div>
+						</div>
+						<div class="field">
+							<div class="label">
+								<span title="The currently selected pay table.">
+									Pay Table
+								</span>
+							</div>
+							<div class="value" id="VpCurPayTable">
+							</div>
+						</div>
+					</div>
+
+					<h3>Stats</h3>
+					<div class="stats">
+						<div class="field">
+							<div class="label">
+								<span title="This contract can be upgraded. This identifies which version is currently in use.">
+									Version
+								</span>
+							</div>
+							<div class="value">
+								<span id="VpVersion"></span>
+							</div>
+						</div>
+						<div class="field">
+							<div class="label">
+								<span title="The amount of Ether held in this contract.">
+									Balance
+								</span>
+							</div>
+							<div class="value">
+								<span id="VpBalance"></span>
+							</div>
+						</div>
+						<div class="field">
+							<div class="label">
+								<span title="The amount of Ether funded. Any balance above this is profit.">
+									Funding
+								</span>
+							</div>
+							<div class="value">
+								<span id="VpFunding"></span>
+							</div>
+						</div>
+						<div class="field">
+							<div class="label">
+								<span title="The total number of games played.">
+									Total Games
+								</span>
+							</div>
+							<div class="value">
+								<span id="VpTotalGames"></span>
+							</div>
+						</div>
+						<div class="field">
+							<div class="label">
+								<span title="The total amount wagered.">
+									Total Wagered
+								</span>
+							</div>
+							<div class="value">
+								<span id="VpTotalWagered"></span>
+							</div>
+						</div>
+						<div class="field">
+							<div class="label">
+								<span title="The total amount won by players.">
+									Total Won
+								</span>
+							</div>
+							<div class="value">
+								<span id="VpTotalWon"></span>
+							</div>
+						</div>
+						<div class="field">
+							<div class="label">
+								<span title="The house take: (Total Wagered) - (Total Won)">
+									Total Profit
+								</span>
+							</div>
+							<div class="value">
+								<span id="VpProfit"></span>
+							</div>
+						</div>
+						<div class="field">
+							<div class="label">
+								Logs
+							</div>
+							<div class="value">
+								<div id="VpLogs"></div>
 							</div>
 						</div>						
 					</div>

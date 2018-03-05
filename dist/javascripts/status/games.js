@@ -1,7 +1,7 @@
 var loadedHash = window.location.hash;
 
-Loader.require("pac", "dice", "tr")
-.then(function(pac, dice, tr){
+Loader.require("pac", "dice", "vp", "tr")
+.then(function(pac, dice, vp, tr){
 	
 	setTimeout(function goToLoadedHash(){
 		if (!loadedHash) return;
@@ -15,10 +15,12 @@ Loader.require("pac", "dice", "tr")
 	function refreshAll(){
 		refreshPac();
 		refreshDice();
+		refreshVp();
 	};
 
 	$("#PennyAuctions .head .refresh").click(refreshPac);
 	$("#InstaDice .head .refresh").click(refreshDice);
+	$("#VideoPoker .head .refresh").click(refreshVp);
 
 	function refreshPac() {
 		function getNumActiveAuctions() {
@@ -98,7 +100,6 @@ Loader.require("pac", "dice", "tr")
 	}
 
 	function refreshDice() {
-		const unresolved = Promise.all([dice.finalizeId(), dice.curId()]).then(arr=>(arr[0]-1) - arr[1]);
 		util.bindToElement(dice.version(), $("#DiceVersion"));
 		util.bindToElement(ethUtil.getBalance(dice.address).then(ethUtil.toEthStr), $("#DiceBalance"));
 		util.bindToElement(dice.funding().then(ethUtil.toEthStr), $("#DiceFunding"));
@@ -124,7 +125,41 @@ Loader.require("pac", "dice", "tr")
 		util.bindToElement(feePctPromise, $("#DiceHouseFee"));
 		util.bindToElement(dice.minBet().then(ethUtil.toEthStr), $("#DiceMinBet"));
 		util.bindToElement(dice.maxBet().then(ethUtil.toEthStr), $("#DiceMaxBet"));
+		util.bindToElement(dice.curMaxBet().then(ethUtil.toEthStr), $("#DiceCurMaxBet"));
 		util.bindToElement(dice.minNumber(), $("#DiceMinNumber"));
 		util.bindToElement(dice.maxNumber(), $("#DiceMaxNumber"));
+	}
+
+	function refreshVp() {
+		util.bindToElement(vp.version(), $("#VpVersion"));
+		util.bindToElement(ethUtil.getBalance(vp.address).then(ethUtil.toEthStr), $("#VpBalance"));
+		util.bindToElement(vp.funding().then(ethUtil.toEthStr), $("#VpFunding"));
+		util.bindToElement(vp.curId(), $("#VpTotalGames"));
+		util.bindToElement(util.$getLogs(vp), $("#VpLogs"), true);
+		
+		Promise.all([
+			vp.totalWagered(),
+			vp.totalWon()
+		]).then(arr=>{
+			const totalWagered = arr[0];
+			const totalWon = arr[1];
+			const totalProfit = totalWagered.minus(totalWon);
+			$("#VpTotalWagered").text(ethUtil.toEthStr(totalWagered));
+			$("#VpTotalWon").text(ethUtil.toEthStr(totalWon));
+			$("#VpTotalProfit").text(ethUtil.toEthStr(totalProfit));
+		})
+
+		vp.curPayTableId()
+			.then(id => vp.getPayTable([id]))
+			.then((arr)=>{
+				const names = ["Undefined", "Royal Flush", "Straight Flush", "Four of a Kind", "Full House",
+				"Flush", "Straight", "Three of a Kind", "Two Pair", "Jacks or Better", "High Card", "Invalid"]
+				const rows = arr.map((e,i) => `<tr><td>${names[i]}</td><td align=right>${e}</td></tr>`).join("\n");
+				$("#VpCurPayTable").empty().html(`<table>${rows}</table>`);
+			});
+
+		util.bindToElement(vp.minBet().then(ethUtil.toEthStr), $("#VpMinBet"));
+		util.bindToElement(vp.maxBet().then(ethUtil.toEthStr), $("#VpMaxBet"));
+		util.bindToElement(vp.curMaxBet().then(ethUtil.toEthStr), $("#VpCurMaxBet"));
 	}
 });
