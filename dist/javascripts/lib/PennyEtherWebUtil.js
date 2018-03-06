@@ -4,6 +4,11 @@
 		var _self = this;
 
 		this.bindToElement = function bindToElement(promise, element, doAppend) {
+			if (element.length == 0) {
+				console.warn("Element doesn't exist.");
+				return;
+			}
+
 			element.empty().text("loading...");
 			promise.then(function(res){
 				doAppend
@@ -15,6 +20,11 @@
 		};
 
 		this.bindToInput = 	function bindToInput(promise, element) {
+			if (element.length == 0) {
+				console.warn("Element doesn't exist.");
+				return;
+			}
+			
 			element.empty().text("loading...");
 			promise.then(function(res){
 				element.val(res);

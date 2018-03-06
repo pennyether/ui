@@ -4,12 +4,23 @@
 		<script src="/javascripts/lib/Loader.js"></script>
 		<script src="/javascripts/status/admin.js"></script>
 		<style>
-		.pacDefinedAuction {
+		.pacDefinedAuction,
+		.vpPayTable {
 			margin: 10px;
 			border: 1px solid gray;
 			background: #FAFAFA;
 			padding: 10px;
 		}
+
+		.pacDefinedAuction.template,
+		.vpPayTable.template {
+			display: none;
+		}
+
+		.vpPayTable.current {
+			background: #FAFFFA;
+		}
+
 		.field {
 			font-size: 90%;
 			display: table;
@@ -46,7 +57,7 @@
 			width: 130px;
 		}
 
-		.definedAuctionAction {
+		.itemAction {
 			display: inline-block;
 			width: 400px;
 			border: 1px dotted gray;
@@ -173,11 +184,12 @@
 				<div class="head">Penny Auction Controller <span class="pac refresh">refresh</span></div>
 				<div class="body">
 					<h3>Defined Auctions</h3>
-					<div class="pacDefinedAuctionTemplate" style="display: none;">
+					<div id="PacDefinedAuctions"></div>
+					<div class="pacDefinedAuction template">
 						<div class="definedIndex">
 							Index: <span class="index">loading...</span>
 						</div>
-						<div style="display: none;" class="values">
+						<div class="values">
 							<div class="line">
 								<span>Enabled:</span>
 								<span class="enabled"></span>
@@ -211,17 +223,16 @@
 								<input type=text class="initialBlocks">
 							</div>
 						</div>
-						<div class='definedAuctionAction'>
+						<div class='itemAction'>
 							<button class="change">Change</button>
 						</div>
-						<div class='definedAuctionAction'>
+						<div class='itemAction'>
 							<button class="enable">Enable</button>
 						</div>
-						<div class='definedAuctionAction'>
+						<div class='itemAction'>
 							<button class="disable">Disable</button>
 						</div>
 					</div>
-					<div id="PacDefinedAuctions"></div>
 				</div>
 			</div>
 
@@ -237,7 +248,7 @@
 					</div>
 					<div class="field">
 						<div class="label">
-							<span class="tipLeft" title="The amount of Ether funded to InstaDice. Any bankroll exceeding this is considered profit, and can be sent to Treasury.">Funding:</span>
+							<span class="tipLeft" title="The amount of Ether funded to InstaDice. Any balance exceeding this is considered profit, and can be sent to Treasury.">Funding:</span>
 						</div>
 						<div class="value">
 							<span id="DiceFunding"></span>
@@ -249,16 +260,6 @@
 						</div>
 						<div class="value">
 							<span id="DiceNumRolls"></span>
-						</div>
-					</div>
-					<div class="field">
-						<div class="label">
-							<span title="Unfinalized rolls are rolls that have been wagered but have not yet been paid if won. Each new roll will finalize at least one previous roll, so this number should remain quite low.">
-								Unfinalized Rolls
-							</span>
-						</div>
-						<div class="value">
-							<span id="DiceNumUnfinalized"></span>
 						</div>
 					</div>
 					
@@ -297,25 +298,35 @@
 						</div>
 					</div>
 
-					<h3>Resolve Rolls</h3>
+					<h3>Finalize Rolls</h3>
 					<div class="field">
 						<div class="label">
-							<span class="tipLeft" title="Unresolved rolls will still hold onto some bankroll. Resolving a roll will pay the winner or increase the bankroll.">Resolve Unresolved Rolls:</span>
-							<div class="note">callable by anyone</div>
+							<span class="tipLeft" title="Unfinalized rolls are rolls that have been wagered but have not yet been paid if won. Each new roll will finalize at least one previous roll, so this number should remain quite low.">
+								Unfinalized Rolls:
+							</span>
 						</div>
 						<div class="value">
-							<input type=text id="DiceResolveRolls" placeholder="number of rolls" value=100> rolls.
-							<br>
-							<button id="btnDiceResolveMany">Resolve Rolls</button>
+							<span id="DiceNumUnfinalized"></span>
 						</div>
 					</div>
 					<div class="field">
 						<div class="label">
-							<span class="tipLeft" title="Resolves the latest roll.">Resolve Last Roll:</span>
+							<span class="tipLeft" title="Unfinalized rolls will eventually be resolved as new rolls occur. However, it's fine to resolve them manually to pay out any pending wins.">Finalize Rolls:</span>
 							<div class="note">callable by anyone</div>
 						</div>
 						<div class="value">
-							<button id="btnDiceResolveLatest">Resolve Last Roll</button>
+							<input type=text id="DiceFinalizeRolls" placeholder="number of rolls" value=100> rolls.
+							<br>
+							<button id="btnDiceFinalizeMany">Finalize Rolls</button>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">
+							<span class="tipLeft" title="Finalizes the latest roll.">Finalize Last Roll:</span>
+							<div class="note">callable by anyone</div>
+						</div>
+						<div class="value">
+							<button id="btnDiceFinalizeLatest">Finalize Lastest Roll</button>
 						</div>
 					</div>
 
@@ -363,9 +374,155 @@
 					<div class="field">
 						<div class="label"></div>
 						<div class="value">
-							<button id="DiceChangeSettings">Save Changes</button>
+							<button id="btnDiceChangeSettings">Save Changes</button>
 						</div>
 					</div>
+				</div>
+			</div>
+
+			<a id="VideoPoker"></a>
+			<div class="subsection">
+				<div class="head">Video Poker <span class="vp refresh">refresh</span></div>
+				<div class="body">
+					<h3>Status</h3>
+					<div class="field">
+						<div class="label">Balance:</div>
+						<div class="value">
+							<span id="VpBalance"></span>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">
+							<span class="tipLeft" title="The amount of Ether funded to Video Poker. Any balance exceeding this is considered profit, and can be sent to Treasury.">Funding:</span>
+						</div>
+						<div class="value">
+							<span id="VpFunding"></span>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">
+							<span class="tipLeft" title="Total number of rolls.">Total Games:</span>
+						</div>
+						<div class="value">
+							<span id="VpNumGames"></span>
+						</div>
+					</div>
+					
+					<h3>Funding</h3>
+					<div class="field">
+						<div class="label">
+							<span class="tipLeft" title="Sends any amount over the funding to Treasury">Send Profits:</span>
+							<div class="note">callable by anyone</div>
+						</div>
+						<div class="value">
+							Profits: <span id="VpSendProfits" placeholder="eth"></span>
+							<br>
+							<button id="btnVpSendProfits">Send Profits</button>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">
+							<span class="tipLeft" title="Removes funding and sends it to treasury.">Remove Funding: </span>
+							<div class="note">admin only</div>
+						</div>
+						<div class="value">
+							<input type=text id="VpRemoveFunding" placeholder="eth"> ETH
+							<br>
+							<button id="btnVpRemoveFunding">Remove Funding</button>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">
+							<span class="tipLeft" title="Increases funding">Add Funding: </span>
+							<div class="note">callable by anyone</div>
+						</div>
+						<div class="value">
+							<input type=text id="VpAddFunding" placeholder="eth"> ETH
+							<br>
+							<button id="btnVpAddFunding">Add Funding</button>
+						</div>
+					</div>
+
+					<h3>Settings</h3>
+					<div class="field">
+						<div class="label">
+							<span>Min Bet:</span>
+						</div>
+						<div class="value">
+							<input type=text id="VpMinBet" placeholder="eth"> Eth
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">
+							<span>Max Bet:</span>
+						</div>
+						<div class="value">
+							<input type=text id="VpMaxBet" placeholder="eth"> Eth
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">
+							<span>CurPayTableId:</span>
+						</div>
+						<div class="value">
+							<input type=text id="VpCurPayTableId" placeholder="PayTable Index">
+						</div>
+					</div>
+					<div class="field">
+						<div class="label"></div>
+						<div class="value">
+							<button id="btnVpChangeSettings">Save Changes</button>
+						</div>
+					</div>
+
+					<h3>PayTables</h3>
+					<div id="VpPayTables"></div>
+					<div class="vpPayTable template">
+							<div class="definedIndex">
+								Index: <span class="index">loading...</span>
+							</div>
+							<div class="values">
+								<div class="line">
+									<span>Royal Flush:</span>
+									<input type=text class="rf"> x
+								</div>
+								<div class="line">
+									<span>Straight Flush:</span>
+									<input type=text class="sf"> x
+								</div>
+								<div class="line">
+									<span>Four of a Kind:</span>
+									<input type=text class="foak"> x
+								</div>
+								<div class="line">
+									<span>Full House:</span>
+									<input type=text class="fh"> x
+								</div>
+								<div class="line">
+									<span>Flush:</span>
+									<input type=text class="fl"> x
+								</div>
+								<div class="line">
+									<span>Straight:</span>
+									<input type=text class="st"> x
+								</div>
+								<div class="line">
+									<span>Three of a Kind:</span>
+									<input type=text class="toak"> x
+								</div>
+								<div class="line">
+									<span>Two Pair:</span>
+									<input type=text class="tp"> x
+								</div>
+								<div class="line">
+									<span>Jacks or Better:</span>
+									<input type=text class="jb"> x
+								</div>
+							</div>
+							<div class='itemAction'>
+								<button class="save">Save</button>
+							</div>
+						</div>
 				</div>
 			</div>
 		</div>
