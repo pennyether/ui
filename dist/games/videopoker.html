@@ -175,9 +175,11 @@
 				#Machine {
 					margin: 50px 10px;
 					border: 1px solid black;
-					padding: 10px;
+					overflow: hidden;
+					border-radius: 15px;
 				}
 				.Tabber {
+					padding: 10px;
 				}
 				.Tabber .inner-tab {
 					box-sizing: border-box;
@@ -234,362 +236,419 @@
 						</td>
 					</tr></table>
 				</div>
-				<style>
-					.Game {
-						margin: 20px 0px;
+				<div class="CurrentGame"></div>
+			</div>
+		</div>
+
+		<style>
+			.Game {
+				padding: 20px 0px;
+				border-top: 1px solid black;
+				background: radial-gradient(rgba(0,0,255,.9) 0%, rgba(50,50,128,1) 120%);
+			}
+
+			.Game .titleBar {
+				color: #EEE;
+				text-transform: uppercase;
+				font-size: 80%;
+				letter-spacing: .3em;
+				margin-bottom: 10px;
+				text-shadow: 1px 1px 1px black;
+				overflow: hidden;
+				text-align: center;
+			}
+			.Game .titleBar:before,
+			.Game .titleBar:after {
+				position: relative;
+				display: inline-block;
+				vertical-align: middle;
+				width: 50%;
+				top: -1px;
+				height: 1px;
+				border-top: 1px solid rgba(255,255,255,.3);
+				content: "";
+			}
+			.Game .titleBar:before {
+			  right: 0.2em;
+			  margin-left: -50%;
+			}
+			.Game .titleBar:after {
+			  left: 0.2em;
+			  margin-right: -50%;
+			}
+
+
+			.Game .payTable {
+				font-size: 90%;
+				border-radius: 5px;
+				overflow: hidden;
+			}
+			.Game .payTable tr:first-child {
+				font-weight: bold;
+				color: #333;
+				font-variant: small-caps;
+				/*text-decoration: underline;*/
+			}
+			.Game .payTable tr:nth-child(even) {
+				background: rgba(255,255,255,.6);
+			}
+			.Game .payTable tr:nth-child(odd) {
+				background: rgba(255,255,255,.55);
+			}
+
+			.Game .payTable td {
+				padding: 3px 0px;
+				transition: background 1s, color 1s, border 1s;
+			}
+			.Game .payTable td:first-child {
+				padding-left: 5px;
+			}
+			.Game .payTable td:not(:first-child) {
+				text-align: right;
+				padding-right: 7px;
+				border-left: 1px solid rgba(0,0,0,.1);
+			}
+			.Game .payTable td:nth-child(3) {
+				/*background: rgba(0,128,255,.15);*/
+				/*font-weight: bold;*/
+				text-shadow: 0px 0px 2px rgba(255,255,255,1);
+			}
+			.Game .payTable tr.won td {
+				color: white;
+				background: rgba(0,128,0,.8);
+				border: none;
+			}
+
+			.Game .info {
+				position: relative;
+				background: rgba(255,255,255,.9);
+				border-radius: 3px;
+				box-shadow: 2px 2px 4px 0px rgba(0,0,0,.5);
+				/*border: 1px solid #BBB;*/
+				overflow: hidden;
+			}
+				.Game .info .details {
+					border-bottom: 1px solid rgba(0,0,0,.1);
+					font-size: 70%;
+				}
+				.Game .info .details .bet {
+					padding: 2px 5px;
+					display: inline-block;
+					font-weight: bold;
+				}
+				.Game .info .details .id {
+					padding: 2px 5px;
+					display: inline-block;
+					position: absolute;
+					right: 0px;
+				}
+			.Game .info .body {
+				padding: 10px 10px;
+				text-align: center;
+			}
+			.Game .info.won .body {
+				font-weight: bold;
+				text-shadow: 0px 0px 5px white;
+				box-shadow: inset 0px 0px 15px 3px green;
+				background: rgba(0,200,0,.3);
+			}
+			.Game .info .required {
+				padding: 2px 0px 4px 0px;
+				border-top: 1px solid rgba(0,0,0,.1);
+				background: rgba(255,255,0,.15);
+				font-size: 80%;
+				color: gray;
+				text-align: center;
+			}
+
+				
+			.Game .actionArea {
+				background: linear-gradient(to top, rgba(250,250,250,.2) 0%, rgba(250,250,250,.3) 100%);
+				border-radius: 4px;
+				padding: 5px 0px;
+				margin-top: 15px;
+				box-shadow: 2px 2px 4px 0px rgba(0,0,0,.5);
+			}
+			.Game .tx {
+				margin-top: 10px;
+				border-top: 1px dotted rgba(255,255,255,.1);
+				padding: 10px 0px;
+				text-align: center;
+			}
+				
+			.Game .better {
+				display: table;
+				box-sizing: border-box;
+				width: 100%;
+			}
+				.Game .better .value {
+					display: table-cell;
+					text-align: center;
+				}
+					.Game .better .topLabel {
+						color: black;
+						text-transform: uppercase;
+						letter-spacing: .1em;
+						width: 140px;
+						font-size: 100%;
+						font-weight: bold;
+						text-align: center;
 					}
-						.Game .titleBar {
-							font-weight: bold;
-							font-size: 80%;
-							letter-spacing: .15em;
-							margin-bottom: 10px;
-							overflow: hidden;
-							text-align: center;
-						}
-						.Game .titleBar:before,
-						.Game .titleBar:after {
-							position: relative;
-							display: inline-block;
-							vertical-align: middle;
-							width: 50%;
-							top: -1px;
-							height: 1px;
-							border-top: 1px solid #CCC;
-							content: "";
-						}
-						.Game .titleBar:before {
-						  right: 0.2em;
-						  margin-left: -50%;
-						}
-						.Game .titleBar:after {
-						  left: 0.2em;
-						  margin-right: -50%;
-						}
+					.Game .better .bottomLabel {
+						font-size: 80%;
+						color: black;
+					}
+					.Game .better .betTxt {
+						display: block;
+						box-sizing: border-box;
+						width: 100%;
+						background: transparent;
+						padding: 0px 0px 0px 15px;
+						text-align: center;
+						font-size: 300%;
+						border: none;
+						color: lime;
+						margin-top: -5px;
+						margin-bottom: -5px;
+					}
+					.Game .better .betTxt:focus {
+						outline: none;
+					}
+				.Game .better .slider {
+					display: table-cell;
+					vertical-align: middle;
+					width: 100%;
+				}
+					.Game .better .betSlider {
+						width: 92%;
+						height: 40px;
+						cursor: pointer;
+					}
+					.Game .better .betErr {
+						position: absolute;
+						bottom: 5px;
+						width: 92%;
+						font-size: 80%;
+						color: yellow;
+						text-shadow: 1px 1px 0px rgba(0,0,0,.5);
+						letter-spacing: .1em;
+						text-align: center;
+					}
+				
+			.Game .statusArea {
+				display: none;
+				padding: 0px 10px;
+			}
+			.Game .statusArea .TxStatus {
+				font-size: 80%;
+				border-radius: 3px;
+				background: rgba(255,255,255,.5);
+			}
+			.Game .actionBtn {
+				font-size: 120%;
+				padding: 5px 0px;
+				margin: 0px 10px;
+				width: 120px;
+				letter-spacing: .1em;
+				border-radius: 5px;
+				cursor: pointer;
+				color: white;
+				background: blue;
+				transition: color .5s, background .5s, opacity .5s;
+			}
+			.Game .actionBtn.disabled {
+				cursor: not-allowed;
+				color: #DDD;
+				background: #888;
+				opacity: .9;
+			}
 
-
-						.Game .payTable {
-							font-size: 90%;
-							border-radius: 5px;
-							border: 1px solid gray;
-							overflow: hidden;
-						}
-						.Game .payTable tr {
-							
-						}
-						.Game .payTable tr:nth-child(odd) {
-							background: #DDD;
-						}
-						.Game .payTable tr:nth-child(even) {
-							background: #EEE;
-						}
-						.Game .payTable td {
-							padding: 3px 0px;
-							transition: background 1s, color 1s, border 1s;
-						}
-						.Game .payTable td:first-child {
-							padding-left: 5px;
-						}
-						.Game .payTable td:not(:first-child) {
-							text-align: right;
-							padding-right: 7px;
-							border-left: 1px solid gray;
-						}
-						.Game .payTable td:nth-child(3) {
-							background: rgba(0,128,255,.1);
-						}
-						.Game .payTable tr.won td {
-							color: white;
-							background: rgba(0,128,0,.8);
-							border: none;
-						}
-
-						.Game .info {
-							position: relative;
-							background: #DDD;
-							border-radius: 5px;
-							box-shadow: 2px 2px 4px 0px rgba(0,0,0,.1);
-							border: 1px solid #BBB;
-							overflow: hidden;
-						}
-							.Game .info .details {
-								border-bottom: 1px solid rgba(0,0,0,.1);
-								font-size: 70%;
-							}
-							.Game .info .details .bet {
-								padding: 2px 5px;
-								display: inline-block;
-								font-weight: bold;
-							}
-							.Game .info .details .id {
-								padding: 2px 5px;
-								display: inline-block;
-								position: absolute;
-								right: 0px;
-							}
-						.Game .info .body {
-							padding: 10px 10px;
-							text-align: center;
-						}
-						.Game .info.won .body {
-							font-weight: bold;
-							text-shadow: 0px 0px 5px white;
-							box-shadow: inset 0px 0px 15px 3px green;
-							background: rgba(0,200,0,.3);
-						}
-						.Game .info .required {
-							padding: 2px 0px 4px 0px;
-							border-top: 1px solid rgba(0,0,0,.1);
-							background: rgba(255,255,0,.15);
-							font-size: 80%;
-							color: gray;
-							text-align: center;
-						}
-
-						
-
-						
-						.Game .better {
-							display: table;
-							vertical-align: middle;
-							margin: 10px 0px;
-							width: 100%;
-						}
-							.Game .better .value {
-								display: table-cell;
-								text-align: center;
-								margin: 5px 0px;
-							}
-								.Game .better .topLabel {
-									color: #444;
-									width: 140px;
-									font-size: 100%;
-									font-weight: bold;
-								}
-								.Game .better .bottomLabel {
-									font-size: 80%;
-									color: #444;
-								}
-								.Game .better .input {
-									display: block;
-									box-sizing: border-box;
-									width: 100%;
-									background: transparent;
-									padding: 0px 0px 0px 15px;
-									text-align: center;
-									font-size: 300%;
-									border: none;
-									color: green;
-									margin-top: -5px;
-									margin-bottom: -5px;
-								}
-								.Game .better .input:focus {
-									outline: none;
-								}
-							.Game .better .slider {
-								display: table-cell;
-								vertical-align: middle;
-								width: 100%;
-							}
-								.Game .better .range {
-									width: 99%;
-									height: 40px;
-									cursor: pointer;
-								}
-						
-						.Game .actionBtn {
-							font-size: 120%;
-							letter-spacing: .1em;
-							background: blue;
-							border-radius: 5px;
-							color: white;
-							padding: 5px 35px;
-							cursor: pointer;
-						}
-
-						.Game .cards {
-							margin: 30px 15px;
-							text-align: center;
-						}
-						.Game .cards .card {
-							display: inline-block;
-							height: 168px;
-							border: 1px solid black;
-							border-radius: 10px;
-							width: 120px;
-							margin: 0px 7px;
-						}
-				</style>
-				<div class="Game">
-					<div class="top">
-						<table width="100%" style="box-sizing: border-box;" cellspacing="0" cellpadding=""><tr>
-							<td width="50%" style="padding: 0px 15px" valign="top">
-								<div class="titleBar">
-									Pay Table
+			.Game .cards {
+				padding: 0px 15px;
+				margin: 30px 0px 0px 0px;
+				text-align: center;
+			}
+			.Game .cards .card {
+				display: inline-block;
+				height: 168px;
+				border: 1px solid black;
+				border-radius: 10px;
+				width: 120px;
+				margin: 0px 7px;
+				background: linear-gradient(135deg, rgb(100,50,50) 0%, rgb(80,40,40) 100%);
+			}
+		</style>
+		<div class="Game template" style="display: none;">
+			<div class="top">
+				<table width="100%" style="box-sizing: border-box;" cellspacing="0" cellpadding=""><tr>
+					<td width="50%" style="padding: 0px 15px" valign="top">
+						<div class="titleBar">
+							Pay Table
+						</div>
+						<table class="payTable" cellpadding="0" cellspacing="0" width="100%">
+							<tr>
+								<td>Hand</td>
+								<td>&nbsp;&nbsp;&nbsp;Payout</td>
+								<td>Payout (for 0.250 ETH bet)</td>
+							</tr>
+							<tr>
+								<td>Royal Flush<span class="dots"></span></td>
+								<td>400 x</td>
+								<td>400 ETH</td>
+							</tr>
+							<tr>
+								<td>Straight Flush</td>
+								<td>50 x</td>
+								<td>50 ETH</td>
+							</tr>
+							<tr>
+								<td>Four of a Kind</td>
+								<td>25 x</td>
+								<td>25 ETH</td>
+							</tr>
+							<tr>
+								<td>Full House</td>
+								<td>9 x</td>
+								<td>9 ETH</td>
+							</tr>
+							<tr>
+								<td>Flush</td>
+								<td>6 x</td>
+								<td>6 ETH</td>
+							</tr>
+							<tr>
+								<td>Straight</td>
+								<td>4 x</td>
+								<td>4 ETH</td>
+							</tr>
+							<tr>
+								<td>Three of a Kind</td>
+								<td>3 x</td>
+								<td>3 ETH</td>
+							</tr>
+							<tr>
+								<td>Two Pair</td>
+								<td>2 x</td>
+								<td>2 ETH</td>
+							</tr>
+							<tr>
+								<td>Jacks or Better</td>
+								<td>1 x</td>
+								<td>1 ETH</td>
+							</tr>
+						</table>
+					</td>
+					<td width="50%" valign="top" style="padding: 0px 15px;" valign="top">
+						<div class="titleBar">
+							Status
+						</div>
+						<div>
+							<div class="bet" style="display: block;">
+								<div class="info">
+									<div class="body">
+										Choose a bet amount and click "Deal"
+									</div>
 								</div>
-								<table class="payTable" cellpadding="0" cellspacing="0" width="100%">
-									<tr>
-										<td>Hand</td>
-										<td>Payout</td>
-										<td>Payout (for 0.250 ETH bet)</td>
-									</tr>
-									<tr>
-										<td>Royal Flush<span class="dots"></span></td>
-										<td>400 x</td>
-										<td>400 ETH</td>
-									</tr>
-									<tr>
-										<td>Straight Flush</td>
-										<td>50 x</td>
-										<td>50 ETH</td>
-									</tr>
-									<tr>
-										<td>Four of a Kind</td>
-										<td>25 x</td>
-										<td>25 ETH</td>
-									</tr>
-									<tr>
-										<td>Full House</td>
-										<td>9 x</td>
-										<td>9 ETH</td>
-									</tr>
-									<tr>
-										<td>Flush</td>
-										<td>6 x</td>
-										<td>6 ETH</td>
-									</tr>
-									<tr>
-										<td>Straight</td>
-										<td>4 x</td>
-										<td>4 ETH</td>
-									</tr>
-									<tr>
-										<td>Three of a Kind</td>
-										<td>3 x</td>
-										<td>3 ETH</td>
-									</tr>
-									<tr class="won">
-										<td>Two Pair</td>
-										<td>2 x</td>
-										<td>2 ETH</td>
-									</tr>
-									<tr>
-										<td>Jacks or Better</td>
-										<td>1 x</td>
-										<td>1 ETH</td>
-									</tr>
-								</table>
-							</td>
-							<td width="50%" valign="top" style="padding: 0px 15px;" valign="top">
-								<div class="titleBar">
-									Status
-								</div>
-								<div>
-									<div class="bet" style="display: none;">
-										<div class="info">
-											<div class="body">
-												Choose a bet amount and click "Deal"
-											</div>
-										</div>
-										<div class="better" style="margin-top: 15px;">
-											<div class="value">
-												<div class="topLabel">Bet</div>
-												<input class="input" type="number" value=".1" step=".01" min=".01" max=".60">
-												<div class="bottomLabel">
+								<div class="actionArea">
+									<div class="better">
+										<div class="value">
+											<div class="topLabel">Bet</div>
+											<input class="betTxt" type="number" value=".1" step=".01" min=".01" max=".60">
+											<div class="bottomLabel">
+												<div class="hasCredits" style="display: none;">
 													<label><input type="radio" name="betUnit" checked>ETH</label>
 													<label><input type="radio" name="betUnit">Credits</label>
 												</div>
-											</div>
-											<div class="slider" style="position: relative;">
-												<input class="range" type="range" value=".1" step=".01" min=".01" max=".60">
+												<div class="hasNoCredits">
+													ETH
+												</div>
 											</div>
 										</div>
-										<div style="margin-top: 10px; text-align: center; border-top: 1px dotted rgba(0,0,0,.1); padding-top: 10px;">
-											<table align="center"><tr>
-												<td style="padding-right: 20px;">
-													<div class="gasSlider"></div>
-												</td>
-												<td>
-													<div class="deal">
-														<button class="actionBtn btnDeal">Deal</button>
-													</div>
-												</td>
-											</tr></table>
+										<div class="slider" style="position: relative;">
+											<input class="betSlider" type="range" value=".1" step=".01" min=".01" max=".60">
+											<div class="betErr"></div>
 										</div>
 									</div>
-									<div class="draw" style="display: none;">
-										<div class="info">
-											<div class="details">
-												<div class="bet">Current Bet: .25 ETH</div>
-												<div class="id">Game #12312</div>
-											</div>
-											<div class="body">
-												Initial hand dealt.<br>Select cards to hold, and click "Draw"
-											</div>
-											<div class="required tipLeft" title="The contract will not be able to validate your initial hand after 255 blocks.">You have 255 blocks (1hr 5m) to take action.</div>
-										</div>
-										<div style="margin-top: 15px; text-align: center">
-											<table align="center"><tr>
-												<td>
-													<div class="gasSlider"></div>
-												</td>
-												<td>
-													<div class="deal">
-														<button class="actionBtn btnDraw">Draw Cards</button>
-													</div>
-												</td>
-											</tr></table>
-											<div class="status"></div>
-										</div>
-									</div>
-									<div class="finalize" style="display: block;">
-										<div class="info won">
-											<div class="details">
-												<div class="bet">Current Bet: .25 ETH</div>
-												<div class="id">Game #12312</div>
-											</div>
-											<div class="body">
-												You won .425 ETH with Two Pair!<br>
-											</div>
-											<div class="required tipLeft" title="The contract does not yet know you've won. Choose an action below to be credited.">You have 255 blocks (1hr 5m) to take action.</div>
-										</div>
-										<div style="margin-top: 25px; text-align: center">
-											<table align="center"><tr>
-												<td style="padding-right: 20px;">
-													<div class="gasSlider"></div>
-												</td>
-												<td>
-													<div class="finalize">
-														<button class="actionBtn btnFinalize">Play Again</button>
-														<br>
-														or
-														<br>
-														<button class="actionBtn btnFinalize">Claim Credits</button>
-													</div>
-												</td>
-											</tr></table>
-											<div class="status"></div>
-										</div>
+									<div class="tx">
+										<table width="100%"><tr>
+											<td class="statusArea" width=100%></td>
+											<td align="center"><button class="actionBtn btnDeal">Deal</button></td>
+										</tr></table>
 									</div>
 								</div>
-							</td>
-						</tr></table>
+							</div>
+							<div class="draw" style="display: none;">
+								<div class="info">
+									<div class="details">
+										<div class="bet">Current Bet: .25 ETH</div>
+										<div class="id">Game #12312</div>
+									</div>
+									<div class="body">
+										Initial hand dealt.<br>Select cards to hold, and click "Draw"
+									</div>
+									<div class="required tipLeft" title="The contract will not be able to validate your initial hand after 255 blocks.">You have 255 blocks (1hr 5m) to take action.</div>
+								</div>
+								<div style="margin-top: 15px; text-align: center">
+									<table align="center"><tr>
+										<td>
+											<div class="gasSlider"></div>
+										</td>
+										<td>
+											<div class="deal">
+												<button class="actionBtn btnDraw">Draw Cards</button>
+											</div>
+										</td>
+									</tr></table>
+									<div class="status"></div>
+								</div>
+							</div>
+							<div class="finalize" style="display: none;">
+								<div class="info won">
+									<div class="details">
+										<div class="bet">Current Bet: .25 ETH</div>
+										<div class="id">Game #12312</div>
+									</div>
+									<div class="body">
+										You won .425 ETH with Two Pair!<br>
+									</div>
+									<div class="required tipLeft" title="The contract does not yet know you've won. Choose an action below to be credited.">You have 255 blocks (1hr 5m) to take action.</div>
+								</div>
+								<div style="margin-top: 25px; text-align: center">
+									<table align="center"><tr>
+										<td style="padding-right: 20px;">
+											<div class="gasSlider"></div>
+										</td>
+										<td>
+											<div class="finalize">
+												<button class="actionBtn btnFinalize">Play Again</button>
+												<br>
+												or
+												<br>
+												<button class="actionBtn btnFinalize">Claim Credits</button>
+											</div>
+										</td>
+									</tr></table>
+									<div class="status"></div>
+								</div>
+							</div>
+						</div>
+					</td>
+				</tr></table>
+			</div>
+			<div class="cards">
+				<div class="titleBar">
+					Cards
+				</div>
+				<div>
+					<div class="card">
 					</div>
-					<div class="cards">
-						<div class="titleBar">
-							Cards
-						</div>
-						<div>
-							<div class="card">
-							</div>
-							<div class="card">
-							</div>
-							<div class="card">
-							</div>
-							<div class="card">
-							</div>
-							<div class="card">
-							</div>
-						</div>
+					<div class="card">
+					</div>
+					<div class="card">
+					</div>
+					<div class="card">
+					</div>
+					<div class="card">
 					</div>
 				</div>
 			</div>

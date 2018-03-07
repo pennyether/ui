@@ -2,56 +2,27 @@ Loader.require("vp")
 .then(function(vp){
 	ethUtil.onStateChanged((state)=>{
 		if (!state.isConnected) return;
-		
 	});
-	const dealGps = util.getGasPriceSlider(20);
-	dealGps.refresh();
-	$(".bet .gasSlider").append(dealGps.$e);
-
-	const drawGps = util.getGasPriceSlider(20);
-	drawGps.refresh();
-	$(".draw .gasSlider").append(drawGps.$e);
-
-	const finalizeGps = util.getGasPriceSlider(20);
-	finalizeGps.refresh();
-	$(".finalize .gasSlider").append(drawGps.$e);
+	
+	const g = new Game(vp);
+	$(".CurrentGame").empty().append(g.$e);
+	g.setParams({
+		betPayTable: [800,50,25,9,6,4,3,2,1],
+		minBet: (new BigNumber(.01)).mul(1e18),
+		maxBet: (new BigNumber(.20)).mul(1e18),
+	});
 });
 
-function VideoPoker(_vp) {
-	const _$e = $(`
-		<div class='VideoPoker'>
-			<div class='payTable'>
-				<table>
-					<tr>
-						<th>Hand</th>
-						<th>Pay Out Multiple</th>
-						<th>Pay Out</th>
-					</tr>
-				</table>
-			</div>
-			<div class='bet'>
-				<div class='gasSlider'></div>
-				<input type=range class='betAmt'/>
-				<button>Bet</button>
-			</div>
-			<div class='draw'>
-				<div class='gasSlider'></div>
-				<button>Draw</button>
-			</div>
-			<div class='finalize'>
-				<div class='gasSlider'></div>
-				<button>Finalize</button>
-			</div>
-			<div class='logs'>
-				Every event goes here...
-			</div>
-		</div>
-	`);
+function Game(vp) {
+	const _$e = $(".Game.template").clone().show();
 	const _$payTable = _$e.find(".payTable");
 	const _$bet = _$e.find(".bet");
-	const _$draw = _$e.find(".draw").hide();
-	const _$finalize = _$e.find(".finalize").hide();
-	const _$logs = _$e.find(".logs").hide();
+	const _$betSlider = _$bet.find(".betSlider");
+	const _$betTxt = _$bet.find(".betTxt");
+	const _$betErr = _$bet.find(".betErr").hide();
+	// const _$draw = _$e.find(".draw").hide();
+	// const _$finalize = _$e.find(".finalize").hide();
+	// const _$logs = _$e.find(".logs").hide();
 
 	const _vp = vp;
 	var _betPayTable;
@@ -63,23 +34,185 @@ function VideoPoker(_vp) {
 	const _onDrawFns = [];
 	const _onFinalizeFns = [];
 
+	_$betTxt.on("focus", function(){
+		$(this).select();
+	});
+	_$betTxt.on("input", function(){
+		const ether = Number($(this).val());
+		if (Number.isNaN(ether)) return;
+		_$betSlider.val(ether);
+		_refreshBet();
+	});
+	_$betSlider.on("input", function(){
+		const ether = Number($(this).val());
+		_$betTxt.val(ether);
+		_refreshBet();
+	});
+
+
 	this.$e = _$e;
 	this.setOnBet = function(fn){ _onBetFns.push(fn); }
 	this.setOnDraw = function(fn){ _onDrawFns.push(fn); }
 	this.setOnFinalize = function(fn){ _onFinalizeFns.push(fn); }
-	this.setBetPayTable = function(betPayTable){
-		_betPayTable = betPayTable;
-		_updateBetPayTable();
+	this.setParams = function(params) {
+		// update betPayTable multipliers
+		_betPayTable = params.betPayTable;
+		const $rows = _$payTable.find("tr");
+		_betPayTable.forEach((v,i)=>{
+			$rows.eq(i+1).find("td").eq(1).text(`${v} x`);
+		});
+
+		// update betscale
+		_minBet = params.minBet;
+		_maxBet = params.maxBet;
+		_updateBetScale();
 	}
 
-	function _updateBetPayTable() {
-		// if "_canBet"
+	function _updateBetScale() {
+		// Determine a convenient _rounding step
+		let minBetEther = _minBet.div(1e18);
+		let maxBetEther = _maxBet.div(1e18);
+		let difference = maxBetEther.minus(minBetEther);
+		if (difference <= .1) _rounding = .001;
+		else _rounding = .01;
+
+		// set the wager inputs accordingly
+		let minBetRounded = minBetEther.div(_rounding).ceil().mul(_rounding).toNumber();
+		let maxBetRounded = maxBetEther.div(_rounding).floor().mul(_rounding).toNumber();
+		_$betSlider.attr("min", minBetRounded)
+			.attr("max", maxBetRounded)
+			.attr("step", _rounding);
+		_$betTxt.attr("min", minBetRounded)
+			.attr("max", maxBetRounded)
+			.attr("step", _rounding);
+
+		// wagerRange to be positioned correctly relative to bet
+		var bet = Number(_$betTxt.val());
+		if (!Number.isNaN(bet)){
+			bet = Math.min(maxBetRounded, bet);
+			bet = Math.max(minBetRounded, bet);
+			_$betTxt.val(bet);
+			_$betSlider.val(bet);
+		}
+
+		_refreshBet();
 	}
+
+	function _refreshBet() {
+		_$betErr.hide();
+
+		const bet = _getBet();
+		if (bet === null) {
+			_$betErr.text("Bet must be a number").show();
+			_refreshPayOuts();
+			return;
+		}
+
+		const betStr = ethUtil.toEthStr(bet);
+		const minBetStr = ethUtil.toEthStr(_minBet);
+		const maxBetStr = ethUtil.toEthStr(_maxBet);
+		if (bet.lt(_minBet)) {
+			_$betErr.text(`Bet must be above ${minBetStr}`).show();
+			return;
+		}
+		if (bet.gt(_maxBet)) {
+			_$betErr.text(`Bet must be below ${maxBetStr}`).show();
+			return;	
+		}
+		_refreshPayOuts();
+	}
+
+	function _refreshPayOuts() {
+		var bet = _getBet();
+		const $rows = _$payTable.find("tr");
+		if (bet!==null) {
+			bet = bet.div(1e18);
+			const betStr = bet.toFixed(3);
+			$rows.eq(0).find("td").eq(2).text(`Payout (for ${betStr} ETH bet)`);
+			_betPayTable.forEach((v,i)=>{
+				const payout = (bet * v).toFixed(3);
+				$rows.eq(i+1).find("td").eq(2).text(`${payout} ETH`);
+			});
+		} else {
+			_betPayTable.forEach((v,i)=>{
+				$rows.eq(i+1).find("td").eq(2).text(`--`);
+			});
+		}
+	}
+
+	function _getBet() {
+		var bet = _$betTxt.val();
+		try { bet = (new BigNumber(bet)).mul(1e18); }
+		catch (e) { bet = null; }
+		return bet;
+	}
+
+	function _initDealButton() {
+    	const gps = util.getGasPriceSlider(5);
+    	const $dealBtn = _$e.find(".btnDeal");
+    	const $dealTip = $("<div></div>").show().append(gps.$e);
+    	(function attachTip(){
+    		tippy($dealBtn[0], {
+				// arrow: false,
+				theme: "light",
+				animation: "fade",
+				placement: "top",
+				html: $dealTip[0],
+				trigger: "mouseenter",
+				onShow: function(){ gps.refresh(); },
+				onHidden: function(){
+					// fixes a firefox bug where the tip won't be displayed again.
+					$dealBtn[0]._tippy.destroy();
+					attachTip();
+				}
+			});
+    	}());
+
+		$dealBtn.click(function(){
+			this._tippy.hide(0);
+			$(this).blur();
+			if ($(this).is(".disabled")) return;
+			
+			const bet = _getBet();
+			if (bet===null) { return; }
+			
+			try {
+				const dealPromise = vp.bet([], {value: bet, gas: 130000, gasPrice: gps.getValue()});
+				const $txStatus = util.$getTxStatus(dealPromise, {
+					waitTimeMs: (gps.getWaitTimeS() || 30) * 1000,
+					successMsg: "Bet received! Please wait a moment to see your cards.",
+					onSuccess: (res)=>{
+						$txStatus.find(".clear").hide();
+						console.log("result:", res);
+					},
+					onClear: function(){
+						_$bet.find(".statusArea").empty().hide();
+					}
+				});
+				_$bet.find(".statusArea").empty().show().append($txStatus);
+
+				$dealBtn.attr("disabled","disabled").addClass("disabled").text("Dealing...");
+				dealPromise.then(()=>{
+					$dealBtn.text("Dealt!");
+				}).catch(()=>{
+					$dealBtn.removeAttr("disabled").removeClass("disabled").text("Deal");
+				});
+			} catch(e) {
+				ethStatus.open();
+			}
+			// try {
+			// 	var rollPromise = dice.roll({_number: number}, {value: bet, gas: 147000, gasPrice: gps.getValue()});
+			// 	rollPromise.waitTimeMs = (gps.getWaitTimeS() || 45) * 1000;
+			// } catch(e) {
+			// 	console.error(e);
+			// 	ethStatus.open();
+			// 	return;
+			// }
+	    })
+    }
 
 	(function _init() {
-		_vp.getCurPayTable().then(payTable => {
-			_curPayTable = payTable;
-		});
+		_initDealButton();
 	}());
 }
 
