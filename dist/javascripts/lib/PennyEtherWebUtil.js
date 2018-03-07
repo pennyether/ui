@@ -145,6 +145,10 @@
 			ret();
 			return ret;
 		}
+
+		this.delay = function(timeout, fn) {
+			return ()=>setTimeout(fn, timeout);
+		}
 	}
 
 	// loading bar that always looks like it'll take timeMs to complete.
@@ -159,7 +163,7 @@
 		const _$loaded = _$e.find(".loaded");
 		const _startTime = (+new Date());
 		const _speed = 1 - (speed || .75);
-		var _timeout;
+		var _finished;
 
 		const timeStr = util.toTime(Math.round(timeMs / 1000));
 		_$e.attr("title", `This is an estimate of time (~${timeStr}), based on the chosen gas price.`);
@@ -172,24 +176,25 @@
 		}
 
 		function _update() {
+			if (_finished) return;
 			const t = (+new Date()) - _startTime;
 			var pct = (1 - Math.pow(_speed, t/timeMs)) * 100
 			_$loaded.css("width", pct.toFixed(2) + "%");
-			_timeout = setTimeout(_update, 30);
+			window.requestAnimationFrame(_update);
 		}
 
 		this.finish = function(durationMs){
 			return new Promise((res,rej)=>{
-				clearTimeout(_timeout);
+				_finished = true;
 				const startTime = (+new Date());
 				const startPct = Number(_$loaded[0].style.width.slice(0, -1));
-				(function update(){
+				window.requestAnimationFrame(function update(){
 					const t = Math.min(1, (+new Date() - startTime)/durationMs);
 					const newPct = startPct + (100 - startPct)*t;
 					_$loaded.css("width", `${newPct.toFixed(2)}%`);
 					if (t == 1) res();
-					else setTimeout(update, 50);
-				}());
+					else window.requestAnimationFrame(update);
+				});
 			});
 		}
 		this.$e = _$e;
@@ -534,8 +539,15 @@
 		this.$refresh = _$refresh;
 	}
 
-	// A container that shows the progress of a txPromise
+	// A container that shows the progress of a NiceWeb3 txPromise
 	// Includes many options, and can be used to show non-tx errors
+	//
+	// Options:
+	//	- .miningMsg: what to show while waiting for promise
+	//  - .successMsg: what to show after successful promise
+	//  - .waitTimeMs: estimated wait time, controls status bar speed
+	//  - .onSuccess: (res)=>{} - called after tx succeeds
+	//  - .onClear: ()=>{} - called when user clears success/error message
 	function TxStatus(_util) {
 		const _$e = $(`
 			<div class='TxStatus'>
@@ -556,7 +568,7 @@
 			_addOpts(opts);
 			const miningMsg = _opts.miningMsg || "Your transaction is being mined...";
 			const successMsg = _opts.successMsg || "Your transaction was mined!";
-			const waitTimeMs = _opts.waitTimeMs || 15000;
+			const waitTimeMs = _opts.waitTimeMs || 30000;
 			const onSuccess = _opts.onSuccess || function(){};
 			var txId;
 			var loadingBar;
@@ -574,8 +586,8 @@
 
 			p.then(function(res){
 				if (loadingBar) {
-					_$clear.show();
 					loadingBar.finish(500).then(()=>{
+						_$clear.show();
 						_$status.empty().append(_util.$getTxLink(successMsg, txId));
 						onSuccess(res);
 					});
@@ -607,6 +619,7 @@
 		this.fail = (str) => { _$clear.show(); _$status.text(str); };
 		this.$e = _$e;
 		this.$status = _$status;
+		this.$clear = _$clear;
 	}
 	
 	window.PennyEtherWebUtil = PennyEtherWebUtil;
