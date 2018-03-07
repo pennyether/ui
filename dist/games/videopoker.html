@@ -254,7 +254,7 @@
 							width: 50%;
 							top: -1px;
 							height: 1px;
-							border-top: 1px dotted gray;
+							border-top: 1px solid #CCC;
 							content: "";
 						}
 						.Game .titleBar:before {
@@ -273,6 +273,9 @@
 							border: 1px solid gray;
 							overflow: hidden;
 						}
+						.Game .payTable tr {
+							
+						}
 						.Game .payTable tr:nth-child(odd) {
 							background: #DDD;
 						}
@@ -281,6 +284,7 @@
 						}
 						.Game .payTable td {
 							padding: 3px 0px;
+							transition: background 1s, color 1s, border 1s;
 						}
 						.Game .payTable td:first-child {
 							padding-left: 5px;
@@ -291,21 +295,64 @@
 							border-left: 1px solid gray;
 						}
 						.Game .payTable td:nth-child(3) {
-							background: rgba(0,255,0,.1);
+							background: rgba(0,128,255,.1);
+						}
+						.Game .payTable tr.won td {
+							color: white;
+							background: rgba(0,128,0,.8);
+							border: none;
 						}
 
 						.Game .info {
-							padding: 5px 0px;
+							position: relative;
 							background: #DDD;
 							border-radius: 5px;
+							box-shadow: 2px 2px 4px 0px rgba(0,0,0,.1);
+							border: 1px solid #BBB;
+							overflow: hidden;
+						}
+							.Game .info .details {
+								border-bottom: 1px solid rgba(0,0,0,.1);
+								font-size: 70%;
+							}
+							.Game .info .details .bet {
+								padding: 2px 5px;
+								display: inline-block;
+								font-weight: bold;
+							}
+							.Game .info .details .id {
+								padding: 2px 5px;
+								display: inline-block;
+								position: absolute;
+								right: 0px;
+							}
+						.Game .info .body {
+							padding: 10px 10px;
 							text-align: center;
 						}
+						.Game .info.won .body {
+							font-weight: bold;
+							text-shadow: 0px 0px 5px white;
+							box-shadow: inset 0px 0px 15px 3px green;
+							background: rgba(0,200,0,.3);
+						}
+						.Game .info .required {
+							padding: 2px 0px 4px 0px;
+							border-top: 1px solid rgba(0,0,0,.1);
+							background: rgba(255,255,0,.15);
+							font-size: 80%;
+							color: gray;
+							text-align: center;
+						}
+
+						
 
 						
 						.Game .better {
 							display: table;
 							vertical-align: middle;
 							margin: 10px 0px;
+							width: 100%;
 						}
 							.Game .better .value {
 								display: table-cell;
@@ -314,7 +361,7 @@
 							}
 								.Game .better .topLabel {
 									color: #444;
-									width: 120px;
+									width: 140px;
 									font-size: 100%;
 									font-weight: bold;
 								}
@@ -344,28 +391,38 @@
 								width: 100%;
 							}
 								.Game .better .range {
-									width: 100%;
+									width: 99%;
 									height: 40px;
 									cursor: pointer;
 								}
 						
+						.Game .actionBtn {
+							font-size: 120%;
+							letter-spacing: .1em;
+							background: blue;
+							border-radius: 5px;
+							color: white;
+							padding: 5px 35px;
+							cursor: pointer;
+						}
+
 						.Game .cards {
-							margin: 20px 15px;
+							margin: 30px 15px;
 							text-align: center;
 						}
 						.Game .cards .card {
 							display: inline-block;
-							height: 154px;
+							height: 168px;
 							border: 1px solid black;
 							border-radius: 10px;
-							width: 110px;
-							margin: 0px 20px;
+							width: 120px;
+							margin: 0px 7px;
 						}
 				</style>
 				<div class="Game">
 					<div class="top">
 						<table width="100%" style="box-sizing: border-box;" cellspacing="0" cellpadding=""><tr>
-							<td width="50%" style="padding: 0px 15px">
+							<td width="50%" style="padding: 0px 15px" valign="top">
 								<div class="titleBar">
 									Pay Table
 								</div>
@@ -373,85 +430,145 @@
 									<tr>
 										<td>Hand</td>
 										<td>Payout</td>
-										<td>Payout (in ETH)</td>
+										<td>Payout (for 0.250 ETH bet)</td>
 									</tr>
 									<tr>
 										<td>Royal Flush<span class="dots"></span></td>
-										<td>400</td>
+										<td>400 x</td>
 										<td>400 ETH</td>
 									</tr>
 									<tr>
 										<td>Straight Flush</td>
-										<td>50</td>
+										<td>50 x</td>
 										<td>50 ETH</td>
 									</tr>
 									<tr>
 										<td>Four of a Kind</td>
-										<td>25</td>
+										<td>25 x</td>
 										<td>25 ETH</td>
 									</tr>
 									<tr>
 										<td>Full House</td>
-										<td>9</td>
+										<td>9 x</td>
 										<td>9 ETH</td>
 									</tr>
 									<tr>
 										<td>Flush</td>
-										<td>6</td>
+										<td>6 x</td>
 										<td>6 ETH</td>
 									</tr>
 									<tr>
 										<td>Straight</td>
-										<td>4</td>
+										<td>4 x</td>
 										<td>4 ETH</td>
 									</tr>
 									<tr>
 										<td>Three of a Kind</td>
-										<td>3</td>
+										<td>3 x</td>
 										<td>3 ETH</td>
 									</tr>
-									<tr>
+									<tr class="won">
 										<td>Two Pair</td>
-										<td>2</td>
+										<td>2 x</td>
 										<td>2 ETH</td>
 									</tr>
 									<tr>
 										<td>Jacks or Better</td>
-										<td>1</td>
+										<td>1 x</td>
 										<td>1 ETH</td>
 									</tr>
 								</table>
 							</td>
-							<td width="50%" valign="top" style="padding: 0px 15px;">
+							<td width="50%" valign="top" style="padding: 0px 15px;" valign="top">
 								<div class="titleBar">
 									Status
 								</div>
 								<div>
-									<div class="bet">
+									<div class="bet" style="display: none;">
 										<div class="info">
-											To start a game, choose a wager.
-										</div>
-										<div class="better">
-											<div class="value">
-												<div class="topLabel">Wager</div>
-												<input class="input" type="number" value=".1" step=".01" min=".01" max=".60">
-												<div class="bottomLabel">ETH</div>
+											<div class="body">
+												Choose a bet amount and click "Deal"
 											</div>
-											<div class="slider">
+										</div>
+										<div class="better" style="margin-top: 15px;">
+											<div class="value">
+												<div class="topLabel">Bet</div>
+												<input class="input" type="number" value=".1" step=".01" min=".01" max=".60">
+												<div class="bottomLabel">
+													<label><input type="radio" name="betUnit" checked>ETH</label>
+													<label><input type="radio" name="betUnit">Credits</label>
+												</div>
+											</div>
+											<div class="slider" style="position: relative;">
 												<input class="range" type="range" value=".1" step=".01" min=".01" max=".60">
 											</div>
 										</div>
-										<div class="gasPrice">
-										</div>
-										<div class="deal">
-											<button>Deal</button>
+										<div style="margin-top: 10px; text-align: center; border-top: 1px dotted rgba(0,0,0,.1); padding-top: 10px;">
+											<table align="center"><tr>
+												<td style="padding-right: 20px;">
+													<div class="gasSlider"></div>
+												</td>
+												<td>
+													<div class="deal">
+														<button class="actionBtn btnDeal">Deal</button>
+													</div>
+												</td>
+											</tr></table>
 										</div>
 									</div>
-									<div class="draw">
-
+									<div class="draw" style="display: none;">
+										<div class="info">
+											<div class="details">
+												<div class="bet">Current Bet: .25 ETH</div>
+												<div class="id">Game #12312</div>
+											</div>
+											<div class="body">
+												Initial hand dealt.<br>Select cards to hold, and click "Draw"
+											</div>
+											<div class="required tipLeft" title="The contract will not be able to validate your initial hand after 255 blocks.">You have 255 blocks (1hr 5m) to take action.</div>
+										</div>
+										<div style="margin-top: 15px; text-align: center">
+											<table align="center"><tr>
+												<td>
+													<div class="gasSlider"></div>
+												</td>
+												<td>
+													<div class="deal">
+														<button class="actionBtn btnDraw">Draw Cards</button>
+													</div>
+												</td>
+											</tr></table>
+											<div class="status"></div>
+										</div>
 									</div>
-									<div class="finalize">
-
+									<div class="finalize" style="display: block;">
+										<div class="info won">
+											<div class="details">
+												<div class="bet">Current Bet: .25 ETH</div>
+												<div class="id">Game #12312</div>
+											</div>
+											<div class="body">
+												You won .425 ETH with Two Pair!<br>
+											</div>
+											<div class="required tipLeft" title="The contract does not yet know you've won. Choose an action below to be credited.">You have 255 blocks (1hr 5m) to take action.</div>
+										</div>
+										<div style="margin-top: 25px; text-align: center">
+											<table align="center"><tr>
+												<td style="padding-right: 20px;">
+													<div class="gasSlider"></div>
+												</td>
+												<td>
+													<div class="finalize">
+														<button class="actionBtn btnFinalize">Play Again</button>
+														<br>
+														or
+														<br>
+														<button class="actionBtn btnFinalize">Claim Credits</button>
+													</div>
+												</td>
+											</tr></table>
+											<div class="status"></div>
+										</div>
 									</div>
 								</div>
 							</td>

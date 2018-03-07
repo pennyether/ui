@@ -4,8 +4,17 @@ Loader.require("vp")
 		if (!state.isConnected) return;
 		
 	});
+	const dealGps = util.getGasPriceSlider(20);
+	dealGps.refresh();
+	$(".bet .gasSlider").append(dealGps.$e);
 
+	const drawGps = util.getGasPriceSlider(20);
+	drawGps.refresh();
+	$(".draw .gasSlider").append(drawGps.$e);
 
+	const finalizeGps = util.getGasPriceSlider(20);
+	finalizeGps.refresh();
+	$(".finalize .gasSlider").append(drawGps.$e);
 });
 
 function VideoPoker(_vp) {
