@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="../javascripts/lib/Loader.js"></script>
+		<script src="../javascripts/games/videopoker.js"></script>
+		<style>
+			/*********************************************/
+			/******** TITLE AND FEATURES *****************/
+			/*********************************************/
+			#Title {
+				padding: 20px 0px 20px 0px;
+				background: white;
+				text-align: center;
+			}
+				#Title .sup {
+					font-size: 180%;
+					text-shadow: 0px 0px 5px #AAB;
+				}
+				body.loaded #Title .sup {
+					letter-spacing: .20em;
+					text-shadow: 0px 0px 5px blue;
+					transition: letter-spacing 3s ease-out, text-shadow 3s ease-out;
+				}
+				#Title .sub {
+					font-size: 90%;
+				}
+				body.loaded #Title .sub {
+					letter-spacing: .2em;
+					transition: letter-spacing 3s ease-out;
+				}
+
+			.featureBox {
+				box-sizing: border-box;
+				width: 100%;
+				display: table;
+				background: linear-gradient(to bottom, #AAB 0%, #22A 100%);
+				padding: 15px 0px;
+				margin: 0px;
+			}
+			.featureBox > .left {
+				display: table-cell;
+				vertical-align: top;
+				padding-left: 40px;
+				width: 33%;
+			}
+			.featureBox > .middle {
+				display: table-cell;
+				vertical-align: top;
+				width: 33%;
+			}
+			.featureBox > .right {
+				display: table-cell;
+				vertical-align: top;
+				width: 33%;
+			}
+			.featureBox .block {
+				display: inline-block;
+				margin: 0px 40px;
+				text-shadow: 1px 1px 1px rgba(255,255,255,.4);
+			}
+			.featureBox .title {
+				text-align: center;
+				font-weight: bold;
+				font-size: 180%;
+				color: #FAFAFA;
+				letter-spacing: .1em;
+				padding-bottom: 4px;
+				text-shadow: 0px 0px 10px blue;
+			}
+			.featureBox .feature {
+				display: inline-block;
+				font-size: 90%;
+				margin: 4px 0px;
+				font-weight: bold;
+
+			}
+			.featureBox .tipLeft::before {
+				background: rgba(0,0,0,.1);
+			}
+
+			.featureBox .stats {
+				text-align: center;
+				margin-top: 20px;
+				white-space: nowrap;
+			}
+			.featureBox .stats .stat {
+				display: inline-block;
+				text-align: center;
+				padding: 3px 5px;
+				border-radius: 5px;
+				background: rgba(200,200,200,.5);
+				border: 1px inset rgba(200,200,200,.5);
+			}
+			.featureBox .stats .stat .value {
+				font-size: 120%;
+				color: blue;
+				margin-bottom: -5px;
+				text-shadow: 0px 0px 5px white;
+			}
+			.featureBox .stats .stat .label {
+				display: inline-block;
+				font-size: 70%;
+				color: #444;
+			}
+			.featureBox .stats .wagered {
+				margin-left: 50px;
+				margin-right: 50px;
+			}
+		</style>
+	</head>
+	<body>
+	<div id="Content">
+		<div id="Summary">
+			<div id="Title">
+				<div class="sup">Video Poker</div>
+				<div class="sub">the world's first blockchain video poker</div>
+			</div>
+			<div class="featureBox">
+				<div class="left">
+					<div class="block">
+						<div class="title">Fast</div>
+						<div class="feature tipLeft" title="No need to deposit Ether or fill out any forms.">
+							No deposit, no sign-up
+						</div><br>
+						<div class="feature tipLeft" title="See your initial hand as soon as your transaction is mined. See your final hand as soon as you submit your draws.">
+							Fast Gameplay
+						</div><br>
+						<div class="feature tipLeft" title="Our UI shows you what's happening every step of the way.">
+							Responsive UI
+						</div>
+					</div>
+				</div>
+				<div class="middle">
+					<div class="block">
+						<div class="title">Fair</div>
+						<div class="feature tipLeft" title="Our random numbers come from the blockchain, not from a third party.">
+							Results based on blockhash
+						</div><br>
+						<div class="feature tipLeft" title="You can read over our fully annotated source code.">
+							Fully transparent contract
+						</div>
+					</div>
+					<div class="stats">
+						<div class="stat games">
+							<div class="value">0</div>
+							<div class="label">games</div>
+						</div>
+						<div class="stat wagered">
+							<div class="value">0</div>
+							<div class="label">ETH wagered</div>
+						</div>
+						<div class="stat won">
+							<div class="value">0</div>
+							<div class="label">ETH won</div>
+						</div>
+					</div>
+				</div>
+				<div class="right">
+					<div class="block">
+						<div class="title">The Best</div>
+						<div class="feature tipLeft" title="Our pay table provides over 99% returns when played optimally.">
+							Generous Payoffs
+						</div><br>
+						<div class="feature tipLeft" title="View your initial hand as soon as you bet gets mined. View your results after your draws are mined.">
+							The fastest results
+						</div><br>
+						<div class="feature tipLeft" title="We strive to keep the gas cost low. For repeat players, a full game is typically under 100,000 gas!">
+							Low gas costs
+						</div><br>
+					</div>
+				</div>
+			</div>
+
+			<style>
+				#Machine {
+					margin: 50px 10px;
+					border: 1px solid black;
+					padding: 10px;
+				}
+				.Tabber {
+				}
+				.Tabber .inner-tab {
+					box-sizing: border-box;
+					width: 120px;
+					font-size: 80%;
+					background: #FAFAFA;
+					padding: 2px;
+					text-align: center;
+					border: 1px solid gray;
+					border-radius: 3px;
+					margin: 0px 5px;
+					transition: background .3s;
+				}
+				.Tabber .tab.new .inner-tab {
+					height: 100%;
+				}
+				.Tabber .inner-tab:hover {
+					background: #CCC;
+					border: 1px inset gray;
+				}
+				.Tabber .tab.selected .inner-tab {
+					border: 1px solid blue;
+					background: rgba(0,0,255,.2);
+				}
+				.Tabber .tab .title {
+					padding: 2px 4px;
+					border-bottom: 1px dotted rgba(0,0,0,.1);
+				}
+				.Tabber .tab .status {
+					color: gray;
+				}
+			</style>
+			<div id="Machine">
+				<div class="Tabber">
+					<table cellpadding="0" cellspacing="0"><tr>
+						<td class='tab selected'>
+							<div class="inner-tab">
+								<div class="title">Machine 1</div>
+								<div class="status">New</div>
+								<div class="bar">&nbsp;</div>
+							</div>
+						</td>
+						<td class='tab'>
+							<div class="inner-tab">
+								<div class="title">Machine 2</div>
+								<div class="status">Dealing...</div>
+								<div class="bar">&nbsp;</div>
+							</div>
+						</td>
+						<td class='tab new'>
+							<div class="inner-tab">
+								<div class="title">+ New...</div>
+							</div>
+						</td>
+					</tr></table>
+				</div>
+				<style>
+					.Game {
+						margin: 20px 0px;
+					}
+						.Game .titleBar {
+							font-weight: bold;
+							font-size: 80%;
+							letter-spacing: .15em;
+							margin-bottom: 10px;
+							overflow: hidden;
+							text-align: center;
+						}
+						.Game .titleBar:before,
+						.Game .titleBar:after {
+							position: relative;
+							display: inline-block;
+							vertical-align: middle;
+							width: 50%;
+							top: -1px;
+							height: 1px;
+							border-top: 1px dotted gray;
+							content: "";
+						}
+						.Game .titleBar:before {
+						  right: 0.2em;
+						  margin-left: -50%;
+						}
+						.Game .titleBar:after {
+						  left: 0.2em;
+						  margin-right: -50%;
+						}
+
+
+						.Game .payTable {
+							font-size: 90%;
+							border-radius: 5px;
+							border: 1px solid gray;
+							overflow: hidden;
+						}
+						.Game .payTable tr:nth-child(odd) {
+							background: #DDD;
+						}
+						.Game .payTable tr:nth-child(even) {
+							background: #EEE;
+						}
+						.Game .payTable td {
+							padding: 3px 0px;
+						}
+						.Game .payTable td:first-child {
+							padding-left: 5px;
+						}
+						.Game .payTable td:not(:first-child) {
+							text-align: right;
+							padding-right: 7px;
+							border-left: 1px solid gray;
+						}
+						.Game .payTable td:nth-child(3) {
+							background: rgba(0,255,0,.1);
+						}
+
+						.Game .info {
+							padding: 5px 0px;
+							background: #DDD;
+							border-radius: 5px;
+							text-align: center;
+						}
+
+						
+						.Game .better {
+							display: table;
+							vertical-align: middle;
+							margin: 10px 0px;
+						}
+							.Game .better .value {
+								display: table-cell;
+								text-align: center;
+								margin: 5px 0px;
+							}
+								.Game .better .topLabel {
+									color: #444;
+									width: 120px;
+									font-size: 100%;
+									font-weight: bold;
+								}
+								.Game .better .bottomLabel {
+									font-size: 80%;
+									color: #444;
+								}
+								.Game .better .input {
+									display: block;
+									box-sizing: border-box;
+									width: 100%;
+									background: transparent;
+									padding: 0px 0px 0px 15px;
+									text-align: center;
+									font-size: 300%;
+									border: none;
+									color: green;
+									margin-top: -5px;
+									margin-bottom: -5px;
+								}
+								.Game .better .input:focus {
+									outline: none;
+								}
+							.Game .better .slider {
+								display: table-cell;
+								vertical-align: middle;
+								width: 100%;
+							}
+								.Game .better .range {
+									width: 100%;
+									height: 40px;
+									cursor: pointer;
+								}
+						
+						.Game .cards {
+							margin: 20px 15px;
+							text-align: center;
+						}
+						.Game .cards .card {
+							display: inline-block;
+							height: 154px;
+							border: 1px solid black;
+							border-radius: 10px;
+							width: 110px;
+							margin: 0px 20px;
+						}
+				</style>
+				<div class="Game">
+					<div class="top">
+						<table width="100%" style="box-sizing: border-box;" cellspacing="0" cellpadding=""><tr>
+							<td width="50%" style="padding: 0px 15px">
+								<div class="titleBar">
+									Pay Table
+								</div>
+								<table class="payTable" cellpadding="0" cellspacing="0" width="100%">
+									<tr>
+										<td>Hand</td>
+										<td>Payout</td>
+										<td>Payout (in ETH)</td>
+									</tr>
+									<tr>
+										<td>Royal Flush<span class="dots"></span></td>
+										<td>400</td>
+										<td>400 ETH</td>
+									</tr>
+									<tr>
+										<td>Straight Flush</td>
+										<td>50</td>
+										<td>50 ETH</td>
+									</tr>
+									<tr>
+										<td>Four of a Kind</td>
+										<td>25</td>
+										<td>25 ETH</td>
+									</tr>
+									<tr>
+										<td>Full House</td>
+										<td>9</td>
+										<td>9 ETH</td>
+									</tr>
+									<tr>
+										<td>Flush</td>
+										<td>6</td>
+										<td>6 ETH</td>
+									</tr>
+									<tr>
+										<td>Straight</td>
+										<td>4</td>
+										<td>4 ETH</td>
+									</tr>
+									<tr>
+										<td>Three of a Kind</td>
+										<td>3</td>
+										<td>3 ETH</td>
+									</tr>
+									<tr>
+										<td>Two Pair</td>
+										<td>2</td>
+										<td>2 ETH</td>
+									</tr>
+									<tr>
+										<td>Jacks or Better</td>
+										<td>1</td>
+										<td>1 ETH</td>
+									</tr>
+								</table>
+							</td>
+							<td width="50%" valign="top" style="padding: 0px 15px;">
+								<div class="titleBar">
+									Status
+								</div>
+								<div>
+									<div class="bet">
+										<div class="info">
+											To start a game, choose a wager.
+										</div>
+										<div class="better">
+											<div class="value">
+												<div class="topLabel">Wager</div>
+												<input class="input" type="number" value=".1" step=".01" min=".01" max=".60">
+												<div class="bottomLabel">ETH</div>
+											</div>
+											<div class="slider">
+												<input class="range" type="range" value=".1" step=".01" min=".01" max=".60">
+											</div>
+										</div>
+										<div class="gasPrice">
+										</div>
+										<div class="deal">
+											<button>Deal</button>
+										</div>
+									</div>
+									<div class="draw">
+
+									</div>
+									<div class="finalize">
+
+									</div>
+								</div>
+							</td>
+						</tr></table>
+					</div>
+					<div class="cards">
+						<div class="titleBar">
+							Cards
+						</div>
+						<div>
+							<div class="card">
+							</div>
+							<div class="card">
+							</div>
+							<div class="card">
+							</div>
+							<div class="card">
+							</div>
+							<div class="card">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	</body>
+</html>

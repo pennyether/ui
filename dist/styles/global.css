@@ -116,10 +116,13 @@ body.dark {
 		transition: opacity .3s;
 		box-shadow: 3px 3px 4px 0px rgba(0,0,0,.15);
 		z-index: 3;
+		border-left: 1px solid #AAA;
+		border-right: 1px solid #AAA;
+		border-bottom: 1px solid #AAA;
 	}
 	#Top .menuItem:hover .subMenu {
 		display: block;
-		right: 0px;
+		right: -1px;
 		opacity: 1;
 	}
 	#Top .menuItem .subItem {

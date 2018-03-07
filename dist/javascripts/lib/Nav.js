@@ -37,6 +37,9 @@
 					name: "InstaDice",
 					url: "/games/instadice.html"
 				},{
+					name: "Video Poker",
+					url: "/games/videopoker.html"
+				},{
 					name: "Tasks",
 					url: "/games/tasks.html"
 				}]
