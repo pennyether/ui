@@ -570,6 +570,7 @@
 			const successMsg = _opts.successMsg || "Your transaction was mined!";
 			const waitTimeMs = _opts.waitTimeMs || 30000;
 			const onSuccess = _opts.onSuccess || function(){};
+			const onFailure = _opts.onFailure || function(){};
 			var txId;
 			var loadingBar;
 
@@ -601,9 +602,11 @@
 						_$status.empty()
 							.append(util.$getTxLink("Your tx failed.", txId))
 							.append(`<br>${e.message}`);
+						onFailure();
 					});
 				} else {
 					_$status.text(`${e.message.split("\n")[0]}`);	
+					onFailure();
 				}
 			});
 		}

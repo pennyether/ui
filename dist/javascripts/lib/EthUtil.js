@@ -70,6 +70,10 @@
 			}
 		};
 
+		this.getCurrentStateSync = function(){
+			return _curState;
+		}
+
 		this.pollForStateChange = function(timeMs){
 			(function pollState() {
 				timeMs = timeMs || 2000;
@@ -160,7 +164,7 @@
 		        });
 	        }).catch(e=>{
 	        	const paramsStr = JSON.stringify(params);
-	        	const name = `${method} (${paramsStr}`;
+	        	const name = `${method}(${paramsStr})`;
 	        	console.error(`Error with asyncCall: ${name} ${params}`, e);
 	        	throw e;
 	        });

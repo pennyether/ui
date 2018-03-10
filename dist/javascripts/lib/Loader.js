@@ -41,6 +41,7 @@
 	*/
 	function Loader(){
 		var _self = this;
+		var _network = "none";
 		
 		var _triggerPageLoaded;
 		this.onPageLoad = new Promise((resolve, reject)=>{
@@ -73,7 +74,6 @@
 			if (!window.Nav){ throw new Error("Unable to find Nav"); }
 			if (!window.EthStatus){ throw new Error("Unable to find EthStatus"); }
 			_triggerPageLoaded();
-			
 
 		    // create web3 object depending on if its from browser or not
 		    const _web3 = new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/"));
@@ -126,14 +126,19 @@
 
 		  	// done.
 		  	return statePromise.then((state)=>{
-		  		if (state.networkId > 10){
-		  			var registry = Registry.at("0xc1799a7a1eb5f3cbcafa181963e98e16b080d064");
-		  		} else {
-		  			var registry = Registry.at({
-		  				1: "0x0",
-		  				3: "0xb56db64b37897b24e0cadd9c2eb9dc0d23d11cd7"
-		  			}[state.networkId]);
-		  		}
+		  		const mappings = {1: "main", 3: "ropsten"};
+		  		const registries = {
+		  			"ropsten": "0xb56db64b37897b24e0cadd9c2eb9dc0d23d11cd7",
+		  			"local": "0xc4a1282aedb7397d10b8baa89639cfdaff2ee428"
+		  		};
+
+		  		// load network name
+		  		_network = state.networkId > 10
+		  			? "local"
+		  			: mappings[state.networkId] || "unknown";
+
+		  		// load registry depending on network name
+		  		const registry = Registry.at(registries[_network] || "0x0");
 		  		console.log("Loader is done setting things up.");
 		  		return registry;
 		  	})
@@ -190,6 +195,18 @@
 					});
 				}
 			}
+		}
+
+		this.mineBlock = function(){
+			return Promise.resolve().then(()=>{
+				if (_network == "local") {
+					return ethUtil.sendAsync("evm_mine", [1]).then(()=>{
+						console.log(`Mined 1 block to bypass ganace block.number bug.`);
+					});
+				} else {
+					return;
+				}
+			})
 		}
 	}
 	window.Loader = new Loader();

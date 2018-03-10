@@ -161,7 +161,7 @@
 						<div class="feature tipLeft" title="Our pay table provides over 99% returns when played optimally.">
 							Generous Payoffs
 						</div><br>
-						<div class="feature tipLeft" title="View your initial hand as soon as you bet gets mined. View your results after your draws are mined.">
+						<div class="feature tipLeft" title="View your initial hand as soon as your bet gets mined. View your results after your draws are mined.">
 							The fastest results
 						</div><br>
 						<div class="feature tipLeft" title="We strive to keep the gas cost low. For repeat players, a full game is typically under 100,000 gas!">
@@ -211,6 +211,10 @@
 				.Tabber .tab .status {
 					color: gray;
 				}
+				.Tabber .tab .refreshGames {
+					color: blue;
+					cursor: pointer;
+				}
 			</style>
 			<div id="Machine">
 				<div class="Tabber">
@@ -232,6 +236,11 @@
 						<td class='tab new'>
 							<div class="inner-tab">
 								<div class="title">+ New...</div>
+							</div>
+						</td>
+						<td class='tab new'>
+							<div class="inner-tab">
+								<div class="refreshGames">refresh</div>
 							</div>
 						</td>
 					</tr></table>
@@ -319,7 +328,7 @@
 				border: none;
 			}
 
-			.Game .info {
+			.Game .gameStatus {
 				position: relative;
 				background: rgba(255,255,255,.9);
 				border-radius: 3px;
@@ -327,39 +336,40 @@
 				/*border: 1px solid #BBB;*/
 				overflow: hidden;
 			}
-				.Game .info .details {
+				.Game .gameStatus .details {
 					border-bottom: 1px solid rgba(0,0,0,.1);
 					font-size: 70%;
 				}
-				.Game .info .details .bet {
+				.Game .gameStatus .details .gameBet {
 					padding: 2px 5px;
 					display: inline-block;
 					font-weight: bold;
 				}
-				.Game .info .details .id {
+				.Game .gameStatus .details .gameId {
 					padding: 2px 5px;
 					display: inline-block;
 					position: absolute;
 					right: 0px;
 				}
-			.Game .info .body {
-				padding: 10px 10px;
-				text-align: center;
-			}
-			.Game .info.won .body {
-				font-weight: bold;
-				text-shadow: 0px 0px 5px white;
-				box-shadow: inset 0px 0px 15px 3px green;
-				background: rgba(0,200,0,.3);
-			}
-			.Game .info .required {
-				padding: 2px 0px 4px 0px;
-				border-top: 1px solid rgba(0,0,0,.1);
-				background: rgba(255,255,0,.15);
-				font-size: 80%;
-				color: gray;
-				text-align: center;
-			}
+				.Game .gameStatus .msg {
+					padding: 10px 10px;
+					text-align: center;
+					transition: text-shadow .5s, box-shadow .5s, background .5s;
+				}
+				.Game.isWinner .gameStatus .msg {
+					font-weight: bold;
+					text-shadow: 0px 0px 5px white;
+					box-shadow: inset 0px 0px 15px 3px green;
+					background: rgba(0,200,0,.3);
+				}
+				.Game .gameStatus .required {
+					padding: 2px 0px 4px 0px;
+					border-top: 1px solid rgba(0,0,0,.1);
+					background: rgba(255,255,0,.15);
+					font-size: 80%;
+					color: gray;
+					text-align: center;
+				}
 
 				
 			.Game .actionArea {
@@ -463,12 +473,12 @@
 				opacity: .9;
 			}
 
-			.Game .cards {
+			.Game .cardsCtnr {
 				padding: 0px 15px;
 				margin: 30px 0px 0px 0px;
 				text-align: center;
 			}
-			.Game .cards .card {
+			.Game .cardsCtnr .card {
 				display: inline-block;
 				height: 168px;
 				border: 1px solid black;
@@ -476,6 +486,10 @@
 				width: 120px;
 				margin: 0px 7px;
 				background: linear-gradient(135deg, rgb(100,50,50) 0%, rgb(80,40,40) 100%);
+				transition: box-shadow .3s;
+			}
+			.Game .cardsCtnr .card.held {
+				box-shadow: 0px 0px 5px 2px cyan;
 			}
 		</style>
 		<div class="Game template" style="display: none;">
@@ -542,104 +556,105 @@
 						<div class="titleBar">
 							Status
 						</div>
-						<div>
-							<div class="bet" style="display: block;">
-								<div class="info">
-									<div class="body">
-										Choose a bet amount and click "Deal"
-									</div>
-								</div>
-								<div class="actionArea">
-									<div class="better">
-										<div class="value">
-											<div class="topLabel">Bet</div>
-											<input class="betTxt" type="number" value=".1" step=".01" min=".01" max=".60">
-											<div class="bottomLabel">
-												<div class="hasCredits" style="display: none;">
-													<label><input type="radio" name="betUnit" checked>ETH</label>
-													<label><input type="radio" name="betUnit">Credits</label>
-												</div>
-												<div class="hasNoCredits">
-													ETH
-												</div>
-											</div>
+						<div class="gameStatus">
+							<div class="details">
+								<div class="gameBet">Current Bet: .25 ETH</div>
+								<div class="gameId">Game #12312</div>
+							</div>
+							<div class="msg">
+								Initial hand dealt.<br>Select cards to hold, and click "Draw"
+							</div>
+							<div class="required">You have 255 blocks (1hr 5m) to take action.</div>
+						</div>
+						<div class="bet actionArea" style="display: block;">
+							<div class="better">
+								<div class="value">
+									<div class="topLabel">Bet</div>
+									<input class="betTxt" type="number" value=".1" step=".01" min=".01" max=".60">
+									<div class="bottomLabel">
+										<div class="hasCredits" style="display: none;">
+											<label><input type="radio" name="betUnit" checked>ETH</label>
+											<label><input type="radio" name="betUnit">Credits</label>
 										</div>
-										<div class="slider" style="position: relative;">
-											<input class="betSlider" type="range" value=".1" step=".01" min=".01" max=".60">
-											<div class="betErr"></div>
+										<div class="hasNoCredits">
+											ETH
 										</div>
 									</div>
-									<div class="tx">
-										<table width="100%"><tr>
-											<td class="statusArea" width=100%></td>
-											<td align="center"><button class="actionBtn btnDeal">Deal</button></td>
-										</tr></table>
-									</div>
+								</div>
+								<div class="slider" style="position: relative;">
+									<input class="betSlider" type="range" value=".1" step=".01" min=".01" max=".60">
+									<div class="betErr"></div>
 								</div>
 							</div>
-							<div class="draw" style="display: none;">
-								<div class="info">
-									<div class="details">
-										<div class="bet">Current Bet: .25 ETH</div>
-										<div class="id">Game #12312</div>
-									</div>
-									<div class="body">
-										Initial hand dealt.<br>Select cards to hold, and click "Draw"
-									</div>
-									<div class="required tipLeft" title="The contract will not be able to validate your initial hand after 255 blocks.">You have 255 blocks (1hr 5m) to take action.</div>
-								</div>
-								<div style="margin-top: 15px; text-align: center">
-									<table align="center"><tr>
-										<td>
-											<div class="gasSlider"></div>
-										</td>
-										<td>
-											<div class="deal">
-												<button class="actionBtn btnDraw">Draw Cards</button>
-											</div>
-										</td>
-									</tr></table>
-									<div class="status"></div>
-								</div>
-							</div>
-							<div class="finalize" style="display: none;">
-								<div class="info won">
-									<div class="details">
-										<div class="bet">Current Bet: .25 ETH</div>
-										<div class="id">Game #12312</div>
-									</div>
-									<div class="body">
-										You won .425 ETH with Two Pair!<br>
-									</div>
-									<div class="required tipLeft" title="The contract does not yet know you've won. Choose an action below to be credited.">You have 255 blocks (1hr 5m) to take action.</div>
-								</div>
-								<div style="margin-top: 25px; text-align: center">
-									<table align="center"><tr>
-										<td style="padding-right: 20px;">
-											<div class="gasSlider"></div>
-										</td>
-										<td>
-											<div class="finalize">
-												<button class="actionBtn btnFinalize">Play Again</button>
-												<br>
-												or
-												<br>
-												<button class="actionBtn btnFinalize">Claim Credits</button>
-											</div>
-										</td>
-									</tr></table>
-									<div class="status"></div>
-								</div>
+							<div class="tx">
+								<table width="100%"><tr>
+									<td class="statusArea" width=100%></td>
+									<td align="center"><button class="actionBtn btnDeal">Deal</button></td>
+								</tr></table>
 							</div>
 						</div>
+						<div class="draw actionArea" style="display: none;">
+							<div>
+								Select cards and click draw.
+							</div>
+							<div class="tx">
+								<table width="100%"><tr>
+									<td class="statusArea" width=100%></td>
+									<td align="center"><button class="actionBtn btnDraw">Draw</button></td>
+								</tr></table>
+							</div>
+						</div>
+						<div class="finalizeLoss actionArea">
+							<button class="actionBtn btnPlayAgain">Play Again</button>
+						</div>
+						<div class="finalizeWin actionArea">
+							<div>
+								Finalize this game to get credited.
+							</div>
+							<div class="tx">
+								<table width="100%"><tr>
+									<td class="statusArea" width=100%></td>
+									<td align="center"><button class="actionBtn btnFinalize">Finalize</button></td>
+								</tr></table>
+							</div>
+						</div>
+						<!-- <div class="finalize" style="display: none;">
+							<div class="info won">
+								<div class="details">
+									<div class="bet">Current Bet: .25 ETH</div>
+									<div class="id">Game #12312</div>
+								</div>
+								<div class="body">
+									You won .425 ETH with Two Pair!<br>
+								</div>
+								<div class="required tipLeft" title="The contract does not yet know you've won. Choose an action below to be credited.">You have 255 blocks (1hr 5m) to take action.</div>
+							</div>
+							<div style="margin-top: 25px; text-align: center">
+								<table align="center"><tr>
+									<td style="padding-right: 20px;">
+										<div class="gasSlider"></div>
+									</td>
+									<td>
+										<div class="finalize">
+											<button class="actionBtn btnFinalize">Play Again</button>
+											<br>
+											or
+											<br>
+											<button class="actionBtn btnFinalize">Claim Credits</button>
+										</div>
+									</td>
+								</tr></table>
+								<div class="status"></div>
+							</div>
+						</div> -->
 					</td>
 				</tr></table>
 			</div>
-			<div class="cards">
+			<div class="cardsCtnr">
 				<div class="titleBar">
 					Cards
 				</div>
-				<div>
+				<div class="cards">
 					<div class="card">
 					</div>
 					<div class="card">
