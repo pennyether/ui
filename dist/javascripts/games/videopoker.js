@@ -296,8 +296,7 @@ function Tabber() {
 			<div class='tab shrunken'>
 				<div class="remove">×</div>
 				<div class="title">Machine 1</div>
-				<div class="status">New</div>
-				<div class="bar">&nbsp;</div>
+				<div class="status"></div>
 			</div>
 		`).insertBefore(_$newTab).click(()=>{
 			_self.selectTab(tab);
@@ -309,8 +308,7 @@ function Tabber() {
 			_self.deleteTab(tab);
 		});
 		$e.find(".title").text(`Machine ${index}`);
-		$e.find(".status").hide();
-		$e.find(".bar").hide();
+		$e.find(".status").append(game.$miniStatus);
 
 		// set tab properties
 		tab.$e = $e;
@@ -352,21 +350,28 @@ function Game(vp) {
 	const _$gameBet = _$details.find(".gameBet");
 	const _$gameId = _$details.find(".gameId");
 	const _$required = _$status.find(".required");
+	// mini-status
+	const _$miniStatus = _$e.find(".mini-status").detach();
+	const _$msBet = _$miniStatus.find(".bet");
+	const _$msState = _$miniStatus.find(".state");
+	const _$msCards = _$miniStatus.find(".card");
+	const _$msLoading = _$miniStatus.find(".loading").hide();
+	const _$msStatus = _$miniStatus.find(".status");
 	// cards
 	const _$cards = _$e.find(".cards .card").click(_toggleHold);
 	// invalid action
-	const _$invalid = _$e.find(".invalid");
+	const _$invalid = _$e.find(".actionArea.invalid");
 	// bet action
-	const _$bet = _$e.find(".bet");
+	const _$bet = _$e.find(".actionArea.bet");
 	const _$betSlider = _$bet.find(".betSlider");
 	const _$betTxt = _$bet.find(".betTxt");
 	const _$betErr = _$bet.find(".betErr").hide();
 	// draw action
-	const _$draw = _$e.find(".draw").hide();
+	const _$draw = _$e.find(".actionArea.draw").hide();
 	// finalize action
-	const _$finalizeWin = _$e.find(".finalizeWin").hide();
-	const _$finalizeLoss = _$e.find(".finalizeLoss").hide();
-	const _$finalized = _$e.find(".finalized").hide();
+	const _$finalizeWin = _$e.find(".actionArea.finalizeWin").hide();
+	const _$finalizeLoss = _$e.find(".actionArea.finalizeLoss").hide();
+	const _$finalized = _$e.find(".actionArea.finalized").hide();
 	const _$btnPlayAgain = _$e.find(".btnPlayAgain").click(()=>{
 		_self.setGameState({state: "betting"});
 	})
@@ -405,6 +410,8 @@ function Game(vp) {
 
 
 	this.$e = _$e;
+	this.$miniStatus = _$miniStatus;
+
 	this.onEvent = (fn) => { _onEvent = fn; }
 
 	this.getGameState = ()=>_gameState;
@@ -441,6 +448,8 @@ function Game(vp) {
 	// Redraws entire game based on the state
 	// Called by "updateGameState"
 	const _refresh = util.debounce(10, function _refreshGame() {
+		_refreshMiniStatus();
+
 		_$invalid.hide();
 		_$bet.hide();
 		_$draw.hide();
@@ -516,23 +525,59 @@ function Game(vp) {
 		}
 	});
 
+	function _refreshMiniStatus() {
+		_$msState.removeClass("").addClass("mini-state");
+		_$msState.addClass(_gameState.state);
+		if (_gameState.id) {
+			_$msBet.text(`${ethUtil.toEth(_gameState.bet)} ETH`);
+		} else {
+			_$msBet.text(`-- ETH`);
+		}
+		if (_gameState.state == "invalid") {
+			_$msState.text("Invalid");
+			_$msStatus.text("invalid game");
+		} else if (_gameState.state == "betting") {
+			_$msState.text("New Game");
+			_$msStatus.text("select bet amount");
+		} else if (_gameState.state == "dealt") {
+			_$msState.text("Dealt");
+			_$msStatus.text("select cards to hold");
+		} else if (_gameState.state == "drawn") {
+			const isWinner = _gameState.dHand.isWinner();
+			if (isWinner){
+				_$msState.text("Winner!");
+				_$msStatus.text(_gameState.dHand.getRankString());
+			} else {
+				_$msState.text("Complete");
+				_$msStatus.text(_gameState.dHand.getRankString());
+			}
+		}
+	}
+
 	function _refreshHand(hand, draws) {
 		if (hand == null) {
-			_$cards.addClass("none");
-			_$cards.removeClass("held");
-			_$cards.empty();
+			_$cards.removeClass("held").empty();
+			_$msCards.removeClass("held").empty();
 			return;
 		}
 
 		if (draws.toNumber) draws = draws.toNumber();
 		hand.cards.forEach((c,i)=>{
-			const $card = _$cards.eq(i);
 			const isDrawn = draws & Math.pow(2, i);
-			$card.text(c.toString());
+			const $card = _$cards.eq(i);
+			const $msCard = _$msCards.eq(i);
+			
+			$card.empty().append(c.toString(true));
+			$msCard.empty().append(c.toString(true));
 			// update held status if they arent drawing right now
 			if (_gameState.state != "dealt") {
-				if (isDrawn) $card.removeClass("held");
-				else $card.addClass("held");
+				if (isDrawn) {
+					$card.removeClass("held");
+					$msCard.removeClass("held");
+				} else {
+					$card.addClass("held");
+					$msCard.addClass("held");
+				}
 			}
 		});
 	}
@@ -541,7 +586,12 @@ function Game(vp) {
 	function _toggleHold(){
 		if (_gameState.state != "dealt") return;
 		if (_isTransacting) return;
-		$(this).toggleClass("held");
+		_$cards.map((i,c) => {
+			if (c !== this) return;
+			_$cards.eq(i).toggleClass("held");
+			_$msCards.eq(i).toggleClass("held");
+		})
+		
 	}
 
 	// draws proper multipliers in the paytable, from gameState or curPayTable
@@ -693,7 +743,7 @@ function Game(vp) {
 			// change button state.
 			// create reset() function.
 			const uiid = Math.floor(Math.random()*1000000000000);
-			_isTransacting = true;
+			_isTransacting = "betting";
 			_gameState.uiid = uiid;
 			$btn.attr("disabled", "disabled").addClass("disabled").text("Dealing...");
 			const reset = ()=>{ 
@@ -704,8 +754,11 @@ function Game(vp) {
 
 			try {
 				const promise = vp.bet([uiid], {value: bet, gas: 130000, gasPrice: gps.getValue()});
+				const waitTimeMs = (gps.getWaitTimeS() || 30) * 1000;
+				_$msLoading.show().empty().append(util.$getLoadingBar(waitTimeMs, promise));
+
 				const $txStatus = util.$getTxStatus(promise, {
-					waitTimeMs: (gps.getWaitTimeS() || 30) * 1000,
+					waitTimeMs: waitTimeMs,
 					onClear: () => { $statusArea.hide(); },
 					onSuccess: (res) => {
 						const betSuccess = res.events.find(e=>e.name=="BetSuccess");
@@ -776,7 +829,7 @@ function Game(vp) {
 				return;
 			}
 			
-			_isTransacting = true;
+			_isTransacting = "drawing";
 			$btn.attr("disabled", "disabled").addClass("disabled").text("Drawing...");
 			const reset = ()=>{
 				_isTransacting = false;
@@ -785,8 +838,11 @@ function Game(vp) {
 			try {
 				const params = [_gameState.id, draws, _gameState.iBlockHash];
 				const promise = vp.draw(params, {gas: 130000, gasPrice: gps.getValue()});
+				const waitTimeMs = (gps.getWaitTimeS() || 30) * 1000;
+				_$msLoading.show().empty().append(util.$getLoadingBar(waitTimeMs, promise));
+
 				const $txStatus = util.$getTxStatus(promise, {
-					waitTimeMs: (gps.getWaitTimeS() || 30) * 1000,
+					waitTimeMs: waitTimeMs,
 					onClear: () => { $statusArea.hide(); },
 					onSuccess: (res) => {
 						const drawSuccess = res.events.find(e=>e.name=="DrawSuccess");
@@ -812,6 +868,7 @@ function Game(vp) {
 				});
 				$statusArea.empty().show().append($txStatus);
 			} catch(e) {
+				console.log(e);
 				reset();
 				ethStatus.open();
 			}
@@ -846,7 +903,7 @@ function Game(vp) {
 			$(this).blur();
 			if ($(this).is(".disabled")) return;
 			
-			_isTransacting = true;
+			_isTransacting = "finalizing";
 			$btn.attr("disabled", "disabled").addClass("disabled").text("Drawing...");
 			const reset = ()=>{
 				_isTransacting = false;
@@ -855,8 +912,11 @@ function Game(vp) {
 			try {
 				const params = [_gameState.id, _gameState.dBlockHash];
 				const promise = vp.finalize(params, {gas: 130000, gasPrice: gps.getValue()});
+				const waitTimeMs = (gps.getWaitTimeS() || 30) * 1000;
+				_$msLoading.show().empty().append(util.$getLoadingBar(waitTimeMs, promise));
+
 				const $txStatus = util.$getTxStatus(promise, {
-					waitTimeMs: (gps.getWaitTimeS() || 30) * 1000,
+					waitTimeMs: waitTimeMs,
 					onClear: () => { $statusArea.hide(); },
 					onSuccess: (res) => {
 						const success = res.events.find(e=>e.name=="FinalizeSuccess");
@@ -916,7 +976,7 @@ var PUtil = (function(){
 	                    val: cardNum % 13,
 	                    suit: Math.floor(cardNum / 13),
 	                    isAce: cardNum % 13 == 0,
-	                    toString: ()=>cardToString(cardNum)
+	                    toString: (asHtml)=>cardToString(cardNum, asHtml)
 	                };
 	            }
 
@@ -1053,8 +1113,8 @@ var PUtil = (function(){
 	            counts = counts.filter(c => !!c).sort();
 	            return arr.sort().every((exp,i) => exp===counts[i]);
 	        }
-	        function cardToString(cardNum) {
-				const valStr = (function(val){
+	        function cardToString(cardNum, asHtml, asUnicode) {
+	        	const valStr = (function(val){
                     if (val == 0) return 'A';
                     if (val <= 9) return `${val+1}`;
                     if (val == 10) return "J";
@@ -1062,12 +1122,20 @@ var PUtil = (function(){
                     if (val == 12) return "K";
                 }(cardNum % 13));
                 const suitStr = (function(suit){
-                    if (suit == 0) return 's';
-                    if (suit == 1) return 'h';
-                    if (suit == 2) return 'd';
-                    if (suit == 3) return 'c';
+                    if (suit == 0) return '♠';
+                    if (suit == 1) return '♥';
+                    if (suit == 2) return '♦';
+                    if (suit == 3) return '♣';
                 }(Math.floor(cardNum / 13)));
-                return `${valStr}${suitStr}`;
+                const suitClass = (function(suit){
+                    if (suit == 0) return 'spade';
+                    if (suit == 1) return 'heart';
+                    if (suit == 2) return 'diamond';
+                    if (suit == 3) return 'club';
+                }(Math.floor(cardNum / 13)));
+                return asHtml
+                	? `<span class="cardStr ${suitClass}">${valStr}${suitStr}</span>`
+                	: `${valStr}${suitStr}`;
 	        }
 	    }
 
