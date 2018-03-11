@@ -2,154 +2,194 @@ Loader.require("vp")
 .then(function(vp){
 	ethUtil.onStateChanged((state)=>{
 		if (!state.isConnected) return;
-		updateGames();
+		syncAllGames();
 	});
 
-	$(".refreshGames").click(updateGames)
+	const tabber = new Tabber();
+	tabber.onNewGame(()=>{
+		const game = new Game(vp);
+		game.setSettings(getVpSettings(false));
+		game.onEvent(updateGameFromEvent);
+		games.push(game);
+		tabber.addTab(game);
+	})
+	tabber.onSelected((game)=>{
+		$(".CurrentGame").children().detach();
+		$(".CurrentGame").append(game.$e);
+	})
+	$(".tabber-ctnr").append(tabber.$e);
 
-	// Get all games created in the last N blocks, and collate
-	//  their state to be up-to-date. (Eg: created / drawn / finalized).
+	// An array of Game objects, corresponding to the tabber.
+	const games = [];
+	// An id-mapping of gameState objects' blockchain values.
+	// These are generated from collating events, and may change
+	//  if there's a block re-org.
+	const gameStates = {};
+
+	// Updates a Game's settings and state, and optionally creates it.
+	function updateGame(gameState, settings, createIfNotFound) {
+		var game = games.find(g => {
+			return gameState.state == "dealt"
+				? g.getGameState().uiid == gameState.uiid
+				: g.getGameState().id == gameState.id;
+		});
+
+		// Create game if not found
+		if (!game && createIfNotFound) {
+			game = new Game(vp);
+			game.onEvent(updateGameFromEvent);
+			games.push(game);
+			tabber.addTab(game);
+		}
+
+		// Update game, if exists
+		if (game) {
+			// Load the payTable, so game can display payouts properly
+			getPayTable(gameState.payTableId).then(pt => {
+				gameState.payTable = pt;
+				if (settings) game.setSettings(settings);
+				game.setGameState(gameState);
+			});
+		}
+	}
+
+	// - Creates all bet or drawn+won Games.
+	// - Updates all drawn game's states.
+	// - Notifies falsely-existant game's of their perile.
+	function updateGames(settings) {
+		const touchedIds = {};
+		games.forEach(g => touchedIds[g.getGameState().id] = false);
+
+		Object.values(gameStates).forEach(gs => {
+			touchedIds[gs.id] = true;
+			if (gs.state == "dealt")
+				updateGame(gs, settings, true);
+			else if (gs.state == "drawn")
+				updateGame(gs, settings, (gs.dHand && gs.dHand.isWinner()))
+			else if (gs.state == "finalized")
+				updateGame(gs, settings, false);
+		});
+
+		const nonTouchedIds = Object.keys(touchedIds)
+			.filter(id => id!="undefined" && !touchedIds[id]);
+
+		// These ids exist in tabber, but not in our known gameState.
+		// Depending on their state, we may need to notify the user
+		//  that the game is no longer valid.
+		nonTouchedIds.forEach(id=>{
+			updateGame({id: id, state: "invalid"}, null, false);
+		});
+	}
+
+	// Collates event data into gameState, and updates the Game
+	// This should be called from within games when they receive an event.
+	function updateGameFromEvent(ev) {
+		console.log("collating event and updating", ev);
+		const gameState = updateGameStateFromEvent(ev);
+		updateGame(gameState);
+	}
+
+	// Updates a gameState from an event received.
+	function updateGameStateFromEvent(ev) {
+		const id = ev.args.id.toNumber();
+		var game = gameStates[id];
+		const curBlock = ethUtil.getCurrentStateSync().latestBlock.number;
+
+		// Clobber gameState with data from event.
+		if (ev.name == "BetSuccess") {
+			game = {
+				state: "dealt",
+				id: id,
+				uiid: ev.args.uiid.toNumber(),
+				bet: ev.args.bet,
+				payTableId: ev.args.payTableId,
+				iBlock: ev.blockNumber,
+				iBlockHash: ev.blockHash,
+				iHand: PUtil.getIHand(ev.blockHash, id),
+				draws: null,
+				dBlock: null,
+				dBlockHash: null,
+				dHand: null,
+				handRank: null,
+				payout: null,
+			};
+			if (game.iBlock + 255 < curBlock) {
+				game.iHand = null;
+			}
+			gameStates[id] = game;
+		}
+		// Tack on draw data, if we've seen the game bet.
+		else if (ev.name == "DrawSuccess") {
+			
+			if (!game) return;
+
+			game.state = "drawn";
+			game.draws = ev.args.draws;
+			game.dBlock = ev.blockNumber;
+			game.dBlockHash = ev.blockHash;
+			game.dHand = PUtil.getDHand(game.dBlockHash, id, game.iHand.toNumber(), ev.args.draws);
+
+			if (game.dBlock + 255 < curBlock) {
+				game.dHand = game.iHand;
+			}
+			return game;
+		}
+
+		// Tack on finalization data, if we've seen the game bet.
+		else if (ev.name == "FinalizeSuccess") {
+			if (!game) return;
+
+			game.state = "finalized";
+			game.dHand = game.dBlock
+				? PUtil.getDHand(game.dBlockHash, id, game.iHand.toNumber(), game.draws)
+				: game.iHand;
+			game.handRank = ev.args.handRank;
+			game.payout = ev.args.payout;
+		}
+
+		else {
+			throw new Error(`Unexpected event: ${ev.name}`);
+		}
+
+		return gameStates[id];
+	}
+
+	// - Loads all pending gameStates from events, adds to tabber.
+	// - Notifies any tabbed games (with no events) of error.
 	//
 	// Note: It's possible a user has created a game way in the past
 	//  and not taken any action. These games are still "alive"
 	//  but _this_ UI will not show them. Otherwise, calls to
 	//  the provider may become prohibitively expensive.
-	//
-	// For created games:
-	//	 - Update the corresponding gameObj, or create a gameObj.
-	// For drawn games:
-	//	 - Update the corresponding gameObj, or create one if the
-	//       the game resulted in a win. (If it's a loss, we assume
-	//       the user is no longer interested.)
-	// For finalized games:
-	//   - Update the corresponding gameObj, or do nothing.
-	//
-	// The above handles showing all active games correctly.
-	// 
-	// However, there may be GameObj's that are waiting for
-	//  some state change to occur (eg, bet, draw, finalized)
-	//  These gameObjs should be "updated" with no new state.
-	//  They should handle showing an error if it's been too long
-	//  since receiving a receipt and since expecting new state.
-	const gameObjs = [];
-	function updateGames() {
-		
-		function updateGameObj(gameState, settings, createIfNotFound) {
-			var gameObj = gameObjs.find(g => {
-				return gameState.state == "dealt"
-					? g.getGameState().uiid == gameState.uiid
-					: g.getGameState().id == gameState.id;
-			});
-
-			// create gameObj if not found
-			if (!gameObj && createIfNotFound) {
-				gameObj = new Game(vp);
-				$(".CurrentGame").prepend(gameObj.$e);
-				gameObjs.push(gameObj);
-			}
-
-			// update gameObj, if exists
-			if (gameObj) {
-				// load the payTable, so game can display properly
-				getPayTable(gameState.payTableId).then(pt => {
-					gameState.payTable = pt;
-					gameObj.setSettings(settings);
-					gameObj.setGameState(gameState);
-				});
-			}
-		}
-
-		console.log(`Updating all games...`);
+	function syncAllGames() {
 		const state = ethUtil.getCurrentStateSync();
 		const curUser = state.account;
-		const curBlock = state.latestBlock.number
-		const blockCutoff = curBlock - 11500; // approx 48 hrs.
+		if (!curUser) { return; }
+
+		const blockCutoff = state.latestBlock.number - 11500; // approx 48 hrs.
 		Promise.all([
 			vp.getEvents("BetSuccess", {user: curUser}, blockCutoff),
     		vp.getEvents("DrawSuccess", {user: curUser}, blockCutoff),
     		vp.getEvents("FinalizeSuccess", {user: curUser}, blockCutoff),
-    		getVpSettings()
+    		getVpSettings(true)
 		]).then(arr=>{
 			const settings = arr[3];
-			const gamesBet = arr[0];
-			const gamesDrawn = arr[1];
-			const gamesFinalized = arr[2];
-			const games = {};
+			const betEvents = arr[0];
+			const drawEvents = arr[1];
+			const finalizeEvents = arr[2];
 
-			gamesBet.forEach((ev) => {
-				const id = ev.args.id.toNumber();
-				games[id] = {
-					state: "dealt",
-					id: id,
-					uiid: ev.args.uiid.toNumber(),
-					bet: ev.args.bet,
-					payTableId: ev.args.payTableId,
-					iBlock: ev.blockNumber,
-					iBlockHash: ev.blockHash,
-					iHand: PUtil.getIHand(ev.blockHash, id),
-					draws: null,
-					dBlock: null,
-					dBlockHash: null,
-					dHand: null,
-					handRank: null,
-					payout: null,
-				};
-			});
-			gamesDrawn.forEach((ev) => {
-				const id = ev.args.id.toNumber();
-				const game = games[id];
-				if (!game) return;
+			// Update states of all the games we've gotten.
+			// This will ignore any non-bet games.
+			betEvents.forEach(updateGameStateFromEvent);
+			drawEvents.forEach(updateGameStateFromEvent);
+			finalizeEvents.forEach(updateGameStateFromEvent);
 
-				game.state = "drawn";
-				game.draws = ev.args.draws;
-				game.dBlock = ev.blockNumber;
-				game.dBlockHash = ev.blockHash;
-				game.dHand = PUtil.getDHand(game.dBlockHash, id, game.iHand.toNumber(), ev.args.draws);
-			});
-			gamesFinalized.forEach((ev) => {
-				const id = ev.args.id.toNumber();
-				const game = games[id];
-				if (!game) return;
-
-				game.state = "finalized";
-				game.dHand = game.dBlock
-					? PUtil.getDHand(game.dBlockHash, id, game.iHand.toNumber(), game.draws)
-					: games.iHand;
-				game.handRank = ev.args.handRank;
-				game.payout = ev.args.payout;
-			});
-
-			Object.values(games).forEach((game) => {
-				// modify hands based on block timeouts
-				if (game.state == "dealt") {
-					if (game.iBlock + 255 < curBlock) {
-						game.iHand = null;
-					}
-				} else if (game.state == "drawn") {
-					if (game.dBlock + 255 < curBlock) {
-						game.dHand = game.iHand;
-					}
-				}
-
-				// update game objects, create if necessary
-				if (game.state == "dealt")
-					updateGameObj(game, settings, true);
-				else if (game.state == "drawn")
-					updateGameObj(game, settings, (game.dHand && game.dHand.isWinner()))
-				else if (game.state == "finalized")
-					updateGameObj(game, settings, false);
-			});
+			// Update game objects, create if necessary.
+			// We create if: is bet, or is drawn+won
+			// We always update the game if it exists.
+			updateGames(settings);
 		});
 	}
-
-	(function(){
-		getVpSettings().then(settings=>{
-			const gameObj = new Game(vp);
-			gameObj.setSettings(settings);
-			$(".CurrentGame").prepend(gameObj.$e);
-			gameObjs.push(gameObj);
-		});
-	}());
 
 
 	//////////////////////////////////////////////////////////////
@@ -193,25 +233,115 @@ Loader.require("vp")
 	}());
 
 	// Returns settings that all games need to know about.
-	function getVpSettings() {
-		return Promise.all([
-			vp.minBet(),
-			vp.maxBet(),
-			vp.curMaxBet(),
-			vp.getCurPayTable(),
-			ethUtil.getCurrentState(false)
-		]).then(arr => {
-			return {
-				minBet: arr[0],
-				maxBet: BigNumber.min(arr[1], arr[2]),
-				curPayTable: arr[3].slice(1,-1),
-				latestBlock: arr[4].latestBlock,
-				avgBlockTime: getAverageBlockTime()
-			};
-		});
-	}
+	var getVpSettings = (function(){
+		var curSettings;
+
+		return function getVpSettings(fresh) {
+			if (!fresh) return curSettings;
+
+			return Promise.all([
+				vp.minBet(),
+				vp.maxBet(),
+				vp.curMaxBet(),
+				vp.getCurPayTable(),
+				ethUtil.getCurrentState(false)
+			]).then(arr => {
+				curSettings = {
+					minBet: arr[0],
+					maxBet: BigNumber.min(arr[1], arr[2]),
+					curPayTable: arr[3].slice(1,-1),
+					latestBlock: arr[4].latestBlock,
+					avgBlockTime: getAverageBlockTime()
+				};
+				return curSettings;
+			});
+		}
+	}());
 });
 
+// Simple tabber that understands what games are.
+// Listens for game events and displays summary in tab.
+// Only allows closing of tab for non-active games.
+function Tabber() {
+	const _self = this;
+
+	const _$e = $(`
+		<div class="Tabber">
+			<div class='tab new'>
+				<div>New Machine...</div>
+			</div>
+		</div>
+	`);
+
+	var _onNewGame = ()=>{};
+	var _onSelected = ()=>{};
+
+	const _$newTab = _$e.find(".tab.new").click(function(){
+		_onNewGame();
+	});
+
+	// an array of tabs to tabObjs
+	const _tabs = [];
+	var _selectedTabIndex = null;
+
+	this.onNewGame = function(fn) { _onNewGame = fn; };
+	this.onSelected = function(fn) { _onSelected = fn; };
+	this.addTab = function(game) {
+		const index = _tabs.length + 1;
+		const tab = {};
+		_tabs.push(tab);
+
+		// create tab element, clicking selects it
+		const $e = $(`
+			<div class='tab shrunken'>
+				<div class="remove">×</div>
+				<div class="title">Machine 1</div>
+				<div class="status">New</div>
+				<div class="bar">&nbsp;</div>
+			</div>
+		`).insertBefore(_$newTab).click(()=>{
+			_self.selectTab(tab);
+		});
+
+		// initialize the elements
+		const $remove = $e.find(".remove").click((e) => {
+			e.stopPropagation();
+			_self.deleteTab(tab);
+		});
+		$e.find(".title").text(`Machine ${index}`);
+		$e.find(".status").hide();
+		$e.find(".bar").hide();
+
+		// set tab properties
+		tab.$e = $e;
+		tab.game = game;
+
+		// animate and select tab
+		setTimeout(()=>{ $e.removeClass("shrunken"); }, 10);
+		_self.selectTab(tab);
+	}
+	this.deleteTab = function(tab) {
+		tab.$e.addClass("shrunken");
+		setTimeout(()=>{ tab.$e.remove(); }, 200);
+		const index = _tabs.indexOf(tab)
+		_tabs.splice(index, 1);
+		if (index == _selectedTabIndex) {
+			_self.selectTab(_tabs[index] ? _tabs[index] : _tabs[index-1]);
+		}
+	}
+	this.selectTab = function(tab){
+		if (!tab) return;
+		_tabs.forEach(t=>t.$e.removeClass("selected"));
+		tab.$e.addClass("selected");
+		_selectedTabIndex = _tabs.indexOf(tab);
+		_onSelected(tab.game);
+	}
+	this.$e = _$e;
+}
+
+// Game Object that gets it state set externally.
+// - Allows for pub/sub of txs, so that Tabber can display status.
+// - Allows for pub/sub of successful TXs, so controller can reload.
 function Game(vp) {
 	const _$e = $(".Game.template").clone().removeClass("template").show();
 	const _$payTable = _$e.find(".payTable");
@@ -224,6 +354,8 @@ function Game(vp) {
 	const _$required = _$status.find(".required");
 	// cards
 	const _$cards = _$e.find(".cards .card").click(_toggleHold);
+	// invalid action
+	const _$invalid = _$e.find(".invalid");
 	// bet action
 	const _$bet = _$e.find(".bet");
 	const _$betSlider = _$bet.find(".betSlider");
@@ -231,10 +363,10 @@ function Game(vp) {
 	const _$betErr = _$bet.find(".betErr").hide();
 	// draw action
 	const _$draw = _$e.find(".draw").hide();
-
 	// finalize action
 	const _$finalizeWin = _$e.find(".finalizeWin").hide();
 	const _$finalizeLoss = _$e.find(".finalizeLoss").hide();
+	const _$finalized = _$e.find(".finalized").hide();
 	const _$btnPlayAgain = _$e.find(".btnPlayAgain").click(()=>{
 		_self.setGameState({state: "betting"});
 	})
@@ -251,13 +383,10 @@ function Game(vp) {
 	var _avgBlockTime;
 
 	// state of the currentGame
-	var _gameState = {
-		state: "betting"
-	};
+	var _gameState = {state: "betting"};
+	var _isTransacting = false;
 
-	const _onBetFns = [];
-	const _onDrawFns = [];
-	const _onFinalizeFns = [];
+	var _onEvent = ()=>{};
 
 	_$betTxt.on("focus", function(){
 		$(this).select();
@@ -276,9 +405,7 @@ function Game(vp) {
 
 
 	this.$e = _$e;
-	this.setOnBet = function(fn){ _onBetFns.push(fn); }
-	this.setOnDraw = function(fn){ _onDrawFns.push(fn); }
-	this.setOnFinalize = function(fn){ _onFinalizeFns.push(fn); }
+	this.onEvent = (fn) => { _onEvent = fn; }
 
 	this.getGameState = ()=>_gameState;
 
@@ -289,28 +416,51 @@ function Game(vp) {
 		_curPayTable = settings.curPayTable;
 		_latestBlock = settings.latestBlock;
 		_avgBlockTime = settings.avgBlockTime;
-		_refreshBetScale();
-		_refreshPayTable();
+		_refresh();
 	}
 
 	this.setGameState = function(gameState) {
+		if (gameState.state != _gameState.state) _reset();
 		_gameState = gameState;
-		_refreshGame();
+		_refresh();
+	}
+
+	function _reset() {
+		_$bet.find(".statusArea").empty().hide();
+		_$bet.find(".actionBtn").removeClass("disabled").removeAttr("disabled").text("Deal");
+		_$draw.find(".statusArea").empty().hide();
+		_$draw.find(".actionBtn").removeClass("disabled").removeAttr("disabled").text("Draw");
+		_$finalizeWin.find(".statusArea").empty().hide();
+		_$finalizeWin.find(".actionBtn").removeClass("disabled").removeAttr("disabled").text("Finalize");
+		_$finalizeLoss.find(".statusArea").empty();
+		_$finalizeLoss.find(".actionBtn").removeClass("disabled").removeAttr("disabled").text("Finalize");
+		_$e.removeClass("isWinner");
+		_$payTable.find("tr").removeClass("won");
 	}
 
 	// Redraws entire game based on the state
 	// Called by "updateGameState"
-	function _refreshGame() {
+	const _refresh = util.debounce(10, function _refreshGame() {
+		_$invalid.hide();
 		_$bet.hide();
 		_$draw.hide();
 		_$finalizeWin.hide();
 		_$finalizeLoss.hide();
+		_$finalized.hide();
+		_$details.hide();
+		_$required.hide();
 
-		if (_gameState.state=="betting") {
-			_$bet.show();
-			_$msg.text(`Select a bet amount, and press "Deal"`)
-			_$details.hide();
-			_$required.hide();
+		if (_gameState.state=="betting" || _gameState.state=="invalid") {
+			if (_gameState.state=="betting"){
+				_$bet.show();
+				_$msg.text(`Select a bet amount, and press "Deal"`)
+			} else {
+				_$invalid.show();
+				_$msg.text(`This game is invalid.`);
+			}
+			_refreshHand(null);
+			_refreshBetScale();
+			_refreshPayTable();
 			return;
 		};
 
@@ -318,17 +468,17 @@ function Game(vp) {
 		_$details.show();
 		_$gameBet.text(`${_gameState.bet} ETH`);
 		_$gameId.text(`Game #${_gameState.id}`);
+		_$betTxt.val(_gameState.bet.div(1e18).toFixed(3));
 		if (_gameState.state == "dealt") {
 			_$draw.show();
 
 			const blocksLeft = 256 - (_latestBlock.number - _gameState.iBlock);
 			if (blocksLeft >= 1) {
 				_$msg.text(`Dealt. iHand: ${_gameState.iHand}.`);
-				_$required.text(`You should draw within ${blocksLeft} blocks.`).show();
+				_$required.show().text(`You should draw within ${blocksLeft} blocks.`);
 				_refreshHand(_gameState.iHand, 31);
 			} else {
 				_$msg.text(`Dealt, but iHand no longer available.`);
-				_$required.hide();
 				_refreshHand(null);
 			}
 		}
@@ -345,7 +495,7 @@ function Game(vp) {
 					_$payTable.find("tr").eq(_gameState.dHand.getRank()).addClass("won");
 				}, 100);
 				_$msg.empty().append(`You won!<br>iHand: ${_gameState.iHand}<br>dHand: ${_gameState.dHand}`);
-				_$required.text(`You should finalize within ${blocksLeft} blocks.`).show();
+				_$required.show().text(`You should finalize within ${blocksLeft} blocks.`);
 			} else {
 				_$finalizeLoss.show();
 				_$msg.empty().append(`You Lost.<br>iHand: ${_gameState.iHand}<br>dHand: ${_gameState.dHand}`);
@@ -361,9 +511,10 @@ function Game(vp) {
 				}, 100);
 				_refreshHand(_gameState.dHand, _gameState.draws);
 			}
+			_$finalized.show();
 			_$msg.empty().append(`Finalized with hand: ${_gameState.dHand}<br>Payout: ${_gameState.payout} ETH`);
 		}
-	}
+	});
 
 	function _refreshHand(hand, draws) {
 		if (hand == null) {
@@ -378,19 +529,64 @@ function Game(vp) {
 			const $card = _$cards.eq(i);
 			const isDrawn = draws & Math.pow(2, i);
 			$card.text(c.toString());
-			if (isDrawn) $card.removeClass("held");
-			else $card.addClass("held");
+			// update held status if they arent drawing right now
+			if (_gameState.state != "dealt") {
+				if (isDrawn) $card.removeClass("held");
+				else $card.addClass("held");
+			}
 		});
 	}
 
+	// Called when a card is clicked
 	function _toggleHold(){
 		if (_gameState.state != "dealt") return;
+		if (_isTransacting) return;
 		$(this).toggleClass("held");
+	}
+
+	// draws proper multipliers in the paytable, from gameState or curPayTable
+	function _refreshPayTable() {
+		const payTable = _gameState.state == "betting"
+			? _curPayTable
+			: _gameState.payTable;
+
+		if (!payTable) {
+			const $rows = _$payTable.find("tr").not(":first-child");
+			$rows.find("td").not(":first-child").text("--");
+			return;
+		}
+
+		const bet = _getBet();
+
+		// draw multipliers
+		const $rows = _$payTable.find("tr");
+		payTable.forEach((v,i)=>{
+			$rows.eq(i+1).find("td").eq(1).text(`${v} x`);
+		});
+
+		// draw null payouts
+		if (bet==null) {
+			payTable.forEach((v,i)=>{
+				$rows.eq(i+1).find("td").eq(2).text(`--`);
+			});
+			return
+		}
+
+		// draw ETH payouts
+		betEth = bet.div(1e18);
+		const betStr = betEth.toFixed(3);
+		$rows.eq(0).find("td").eq(2).text(`Payout (for ${betStr} ETH bet)`);
+		payTable.forEach((v,i)=>{
+			const payout = (betEth * v).toFixed(3);
+			$rows.eq(i+1).find("td").eq(2).text(`${payout} ETH`);
+		});
 	}
 
 	// Sets the "bet" range and text to accomodate new min/max bets
 	function _refreshBetScale() {
 		// Determine a convenient _rounding step
+		if (_minBet == null) _minBet = new BigNumber(0);
+		if (_maxBet == null) _maxBet = new BigNumber(0);
 		let minBetEther = _minBet.div(1e18);
 		let maxBetEther = _maxBet.div(1e18);
 		let difference = maxBetEther.minus(minBetEther);
@@ -417,36 +613,6 @@ function Game(vp) {
 		}
 
 		_refreshBet();
-	}
-
-	// draws proper multipliers in the paytable, from gameState or curPayTable
-	function _refreshPayTable() {
-		const payTable = _gameState.state == "betting"
-			? _curPayTable
-			: _gameState.payTable;
-
-		const bet = _getBet();
-
-		// draw multipliers
-		const $rows = _$payTable.find("tr");
-		payTable.forEach((v,i)=>{
-			$rows.eq(i+1).find("td").eq(1).text(`${v} x`);
-		});
-
-		// draw payouts
-		if (bet!==null) {
-			betEth = bet.div(1e18);
-			const betStr = betEth.toFixed(3);
-			$rows.eq(0).find("td").eq(2).text(`Payout (for ${betStr} ETH bet)`);
-			payTable.forEach((v,i)=>{
-				const payout = (betEth * v).toFixed(3);
-				$rows.eq(i+1).find("td").eq(2).text(`${payout} ETH`);
-			});
-		} else {
-			payTable.forEach((v,i)=>{
-				$rows.eq(i+1).find("td").eq(2).text(`--`);
-			});
-		}
 	}
 
 	// updates the bet txt and range, as well as payouts
@@ -480,6 +646,7 @@ function Game(vp) {
 		var bet = _$betTxt.val();
 		try { bet = (new BigNumber(bet)).mul(1e18); }
 		catch (e) { bet = null; }
+
 		return bet;
 	}
 
@@ -522,18 +689,20 @@ function Game(vp) {
 			const bet = _getBet();
 			if (bet===null) { return; }
 			
+			// set uiid (so upon receiving event we can link it to this game)
+			// change button state.
+			// create reset() function.
+			const uiid = Math.floor(Math.random()*1000000000000);
+			_isTransacting = true;
+			_gameState.uiid = uiid;
+			$btn.attr("disabled", "disabled").addClass("disabled").text("Dealing...");
+			const reset = ()=>{ 
+				_isTransacting = false;
+				delete _gameState.uiid;
+				$btn.removeAttr("disabled").removeClass("disabled").text("Deal");
+			}
+
 			try {
-				// set uiid (so upon receiving event we can link it to this game)
-				// change button state.
-				// create reset() function.
-				const uiid = Math.floor(Math.random()*1000000000000);
-				_gameState.uiid = uiid;
-				$btn.attr("disabled", "disabled").addClass("disabled").text("Dealing...");
-				const reset = ()=>{ 
-					delete _gameState.uiid;
-					$btn.removeAttr("disabled").removeClass("disabled").text("Deal");
-				}
-				
 				const promise = vp.bet([uiid], {value: bet, gas: 130000, gasPrice: gps.getValue()});
 				const $txStatus = util.$getTxStatus(promise, {
 					waitTimeMs: (gps.getWaitTimeS() || 30) * 1000,
@@ -547,6 +716,8 @@ function Game(vp) {
 							$txStatus.find(".status").append(msg);
 							$txStatus.find(".clear").hide();
 							$btn.text("Dealt!");
+							_isTransacting = false;
+							_onEvent(betSuccess);
 						} else if (betFailure) {
 							const msg = `<br>Your bet was refunded: ${betFailure.args.msg}`;
 							$txStatus.find(".status").append(msg);
@@ -600,14 +771,18 @@ function Game(vp) {
 				_gameState.state = "drawn";
 				_gameState.dHand = _gameState.iHand;
 				_gameState.dBlock = _gameState.iBlock;
+				_gameState.draws = new BigNumber(0);
 				_refreshGame();
 				return;
 			}
 			
+			_isTransacting = true;
+			$btn.attr("disabled", "disabled").addClass("disabled").text("Drawing...");
+			const reset = ()=>{
+				_isTransacting = false;
+				$btn.removeAttr("disabled").removeClass("disabled").text("Draw");
+			}
 			try {
-				$btn.attr("disabled", "disabled").addClass("disabled").text("Drawing...");
-				const reset = ()=>{ $btn.removeAttr("disabled").removeClass("disabled").text("Draw"); }
-				
 				const params = [_gameState.id, draws, _gameState.iBlockHash];
 				const promise = vp.draw(params, {gas: 130000, gasPrice: gps.getValue()});
 				const $txStatus = util.$getTxStatus(promise, {
@@ -621,6 +796,8 @@ function Game(vp) {
 							$txStatus.find(".status").append(msg);
 							$txStatus.find(".clear").hide();
 							$btn.text("Drawn!");
+							_isTransacting = false;
+							_onEvent(drawSuccess);
 						} else if (drawFailure) {
 							const msg = `<br>Drawing failed: ${drawFailure.args.msg}`;
 							$txStatus.find(".status").append(msg);
@@ -635,7 +812,6 @@ function Game(vp) {
 				});
 				$statusArea.empty().show().append($txStatus);
 			} catch(e) {
-				console.log(e);
 				reset();
 				ethStatus.open();
 			}
@@ -670,10 +846,13 @@ function Game(vp) {
 			$(this).blur();
 			if ($(this).is(".disabled")) return;
 			
+			_isTransacting = true;
+			$btn.attr("disabled", "disabled").addClass("disabled").text("Drawing...");
+			const reset = ()=>{
+				_isTransacting = false;
+				$btn.removeAttr("disabled").removeClass("disabled").text("Draw");
+			}
 			try {
-				$btn.attr("disabled", "disabled").addClass("disabled").text("Drawing...");
-				const reset = ()=>{ $btn.removeAttr("disabled").removeClass("disabled").text("Draw"); }
-				
 				const params = [_gameState.id, _gameState.dBlockHash];
 				const promise = vp.finalize(params, {gas: 130000, gasPrice: gps.getValue()});
 				const $txStatus = util.$getTxStatus(promise, {
@@ -687,6 +866,8 @@ function Game(vp) {
 							$txStatus.find(".status").append(msg);
 							$txStatus.find(".clear").hide();
 							$btn.text("Finalized!");
+							_isTransacting = false;
+							_onEvent(success);
 						} else if (failure) {
 							const msg = `<br>Finalizing failed: ${failure.args.msg}`;
 							$txStatus.find(".status").append(msg);
@@ -712,7 +893,7 @@ function Game(vp) {
 		_initDealButton();
 		_initDrawButton();
 		_initFinalizeButton();
-		_refreshGame();
+		_refresh();
 	}());
 }
 
