@@ -82,6 +82,13 @@
 		this.getLoadingBar = function(timeMs, speed) {
 			return new LoadingBar(timeMs, speed);
 		}
+		this.$getLoadingBar = function(timeMs, p) {
+			var lb = new LoadingBar(timeMs, null, false);
+			if (p.getTxHash) p.getTxHash.then(lb.start)
+			else lb.start();
+			p.then(()=>lb.finish(500), ()=>lb.finish(500));
+			return lb.$e;
+		}
 
 		this.toDateStr = function(timestampS){
 			if (timestampS.toNumber) timestampS = timestampS.toNumber();
@@ -154,15 +161,15 @@
 	// loading bar that always looks like it'll take timeMs to complete.
 	// speed tunes how fast the bar will load (but also the rate at which it slows)
 	// exponential functions are such a mathematical gem.
-	function LoadingBar(timeMs, speed) {
+	function LoadingBar(timeMs, speed, autoStart) {
 		const _$e = $(`
 			<div class='LoadingBar' style='font-size: 0px; height: 5px;'>
 				<div class='loaded' style='height: 100%; position: relative; left: 0px; width: 0%'>&nbsp;</div>
 			</div>
 		`);
 		const _$loaded = _$e.find(".loaded");
-		const _startTime = (+new Date());
 		const _speed = 1 - (speed || .75);
+		var _startTime;
 		var _finished;
 
 		const timeStr = util.toTime(Math.round(timeMs / 1000));
@@ -183,6 +190,10 @@
 			window.requestAnimationFrame(_update);
 		}
 
+		this.start = function(){ 
+			_startTime = (+new Date());
+			_update();
+		}
 		this.finish = function(durationMs){
 			return new Promise((res,rej)=>{
 				_finished = true;
@@ -201,7 +212,12 @@
 
 		if (_speed <= 0 || _speed >= 1)
 			throw new Error("Speed must be between 0 and 1");
-		_update();
+
+		autoStart = autoStart === undefined
+			? true
+			: !!autoStart;
+
+		if (autoStart) { console.log("starting"); _update(); }
 	}
 
 	/*
