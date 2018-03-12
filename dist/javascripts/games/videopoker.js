@@ -111,17 +111,20 @@ Loader.require("vp")
 				payTable: getPayTable(ev.args.payTableId.toNumber()),
 				iBlock: ev.blockNumber,
 				iBlockHash: ev.blockHash,
+				iBlocksLeft: null,
 				iHand: PUtil.getIHand(ev.blockHash, id),
 				draws: new BigNumber(0),
 				dBlock: null,
 				dBlockHash: null,
+				dBlocksLeft: null,
 				dHand: null,
 				handRank: null,
 				payout: null,
 				isActive: true,
 			};
 			// compute iHand, dHand
-			gs.iHand = gs.iBlock + 255 >= curBlock ? gs.iHand : new PUtil.Hand(0);
+			gs.iBlocksLeft = Math.max((gs.iBlock + 255) - curBlock, 0);
+			gs.iHand = gs.iBlocksLeft > 0 ? gs.iHand : new PUtil.Hand(0);
 			gameStates[id] = gs;
 			return gs;
 		}
@@ -136,9 +139,10 @@ Loader.require("vp")
 			gs.dBlockHash = ev.blockHash;
 			gs.iHand = new PUtil.Hand(ev.args.iHand);
 
-			// compute iHand, dHand, handRank, payout
+			// compute blocksLeft, iHand, dHand, handRank, payout
+			gs.dBlocksLeft = Math.max((gs.dBlock + 255) - curBlock, 0);
 			gs.dHand = PUtil.getDHand(gs.dBlockHash, id, gs.iHand.toNumber(), gs.draws)
-			gs.dHand = gs.dBlock + 255 >= curBlock ? gs.dHand : gs.iHand;
+			gs.dHand = gs.dBlocksLeft > 0 ? gs.dHand : gs.iHand;
 			gs.handRank = gs.dHand.getRank();
 			gs.payout = gs.bet.mul(gs.payTable[gs.handRank]);
 			gs.isActive = gs.payout.gt(0) ? true : false;
@@ -526,10 +530,9 @@ function Game(vp) {
 		if (_gameState.state == "dealt") {
 			_$draw.show();
 
-			const blocksLeft = 256 - (_latestBlock.number - _gameState.iBlock);
-			if (blocksLeft >= 1) {
+			if (_gameState.iBlocksLeft > 0) {
 				_$msg.html(`Your cards have been dealt.<br>Select cards to hold, and click "Draw"`);
-				_$required.show().text(`You must draw within ${blocksLeft} blocks.`);
+				_$required.show().text(`You must draw within ${_gameState.iBlocksLeft} blocks.`);
 				_refreshHand(_gameState.iHand, 31);
 			} else {
 				_$msg.html(`Your dealt cards are no longer availabe.<br>Please click "Draw" for a new hand.`);
@@ -543,11 +546,12 @@ function Game(vp) {
 
 			if (_gameState.payout.gt(0)){
 				_$finalizeWin.show();
-				const blocksLeft = 256 - (_latestBlock.number - _gameState.dBlock);
 				_$e.addClass("isWinner");
 				_$payTable.find("tr").eq(_gameState.handRank).addClass("won");
 				_$msg.empty().append(`You won ${ethUtil.toEth(_gameState.payout)} ETH with ${_gameState.dHand.getRankString()}!`);
-				_$required.show().text(`You must finalize within ${blocksLeft} blocks.`);
+				if (_gameState.dBlocksLeft > 0) {
+					_$required.show().text(`You must finalize within ${_gameState.dBlocksLeft} blocks.`);
+				}
 			} else {
 				_$finalizeLoss.show();
 				_$msg.empty().append(`You lost. Try again?`);
