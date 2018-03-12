@@ -674,7 +674,6 @@ body.dark {
 .LoadingBar {
 	height: 5px;
 	border: 1px solid rgba(0,0,0,.2);
-	width: 80%;
 	margin: 5px auto;
 }
 .LoadingBar .loaded {

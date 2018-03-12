@@ -163,7 +163,7 @@
 	// exponential functions are such a mathematical gem.
 	function LoadingBar(timeMs, speed, autoStart) {
 		const _$e = $(`
-			<div class='LoadingBar' style='font-size: 0px; height: 5px;'>
+			<div class='LoadingBar' style='font-size: 0px;'>
 				<div class='loaded' style='height: 100%; position: relative; left: 0px; width: 0%'>&nbsp;</div>
 			</div>
 		`);
