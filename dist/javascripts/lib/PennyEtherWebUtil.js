@@ -216,8 +216,7 @@
 		autoStart = autoStart === undefined
 			? true
 			: !!autoStart;
-
-		if (autoStart) { console.log("starting"); _update(); }
+		if (autoStart) _update();
 	}
 
 	/*

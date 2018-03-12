@@ -185,9 +185,21 @@
 					overflow: hidden;
 					border-radius: 15px;
 				}
+				.credits-cell {
+					vertical-align: middle;
+					background: linear-gradient(to top, rgba(0,0,0,.8) 0%, rgba(0,0,0,.6) 100%);
+					border-left: 1px dotted rgba(0,0,0,.5);
+				}
+				.credits-ctnr {
+					box-sizing: border-box;
+					width: 250px;
+					padding: 10px;
+					text-align: center;
+					color: white;
+				}
 				.Tabber {
 					padding: 5px 10px;
-					background: linear-gradient(to top, rgba(0,0,0,.8) 0%, rgba(0,0,0,.7) 100%);
+					background: linear-gradient(to top, rgba(0,0,0,.8) 0%, rgba(0,0,0,.6) 100%);
 				}
 				.Tabber .tab {
 					display: inline-block;
@@ -207,6 +219,12 @@
 					opacity: .5;
 					border: 1px solid #555;
 					transition: opacity .3s, box-shadow .3s, border .3s, width .2s, opacity .2s;
+				}
+				.Tabber .tab.new {
+					border: 1px solid rgb(0,0,200);
+					padding: 4px 6px;
+					background: blue;
+					/*width: initial;*/
 				}
 				.Tabber .tab:hover {
 					opacity: .7;
@@ -339,7 +357,7 @@
 							padding-top: 1px;
 							padding-bottom: 2px;
 							color: black;
-							background: rgba(255, 255, 255, .3);
+							background: rgba(255, 255, 255, .5);
 						}
 						.Tabber .mini-status .loading {
 							position: absolute;
@@ -365,8 +383,11 @@
 							
 			</style>
 			<div id="Machine">
-				<div class="tabber-ctnr"></div>
-				<div class="CurrentGame" style="background: black;"></div>
+				<table cellpadding="0" cellspacing="0"><tr>
+					<td width="100%"><div class="tabber-ctnr"></div></td>
+					<td class="credits-cell"><div class="credits-ctnr">Credits: 1000 ETH</div></td>
+				</tr></table>
+				<div class="game-ctnr" style="background: black;"></div>
 			</div>
 		</div>
 
@@ -789,7 +810,7 @@
 				<div class="titleBar">
 					Cards
 				</div>
-				<div class="cards">
+				<div class="hand">
 					<div class="card">
 					</div>
 					<div class="card">
