@@ -258,18 +258,25 @@ Loader.require("vp")
 		return function getVpSettings(fresh) {
 			if (!fresh) return curSettings;
 
+            const state = ethUtil.getCurrentStateSync();
+            const curUser = state.account;
+            const creditsPromise = curUser
+                ? vp.credits([curUser])
+                : Promise.resolve(new BigNumber(0));
+
 			return Promise.all([
 				vp.minBet(),
 				vp.maxBet(),
 				vp.curMaxBet(),
 				vp.getCurPayTable(),
-				ethUtil.getCurrentState(false)
+				creditsPromise
 			]).then(arr => {
 				curSettings = {
 					minBet: arr[0],
 					maxBet: BigNumber.min(arr[1], arr[2]),
 					curPayTable: arr[3],
-					latestBlock: arr[4].latestBlock,
+                    credits: arr[4],
+					latestBlock: state.latestBlock,
 					avgBlockTime: getAverageBlockTime()
 				};
 				return curSettings;
@@ -349,7 +356,7 @@ function Tabber() {
 		_self.refreshDeletable();
 	}
 	this.selectTab = function(tab){
-		if (!tab) return;
+		if (!tab || tab.isSelected) return;
 		_tabs.forEach(t => {
 			t.isSelected = t == tab;
 			t.isSelected ? t.$e.addClass("selected") : t.$e.removeClass("selected");
@@ -380,6 +387,8 @@ function Tabber() {
 function Game(vp) {
 	const _$e = $(".Game.template").clone().removeClass("template").show();
 	const _$payTable = _$e.find(".payTable");
+    // better
+    const _better = new Better();
 	// status
 	const _$status = _$e.find(".gameStatus");
 	const _$msg = _$status.find(".msg");
@@ -402,51 +411,33 @@ function Game(vp) {
 	const _$invalid = _$e.find(".actionArea.invalid");
 	// bet action
 	const _$bet = _$e.find(".actionArea.bet");
-	const _$betSlider = _$bet.find(".betSlider");
-	const _$betTxt = _$bet.find(".betTxt");
-	const _$betErr = _$bet.find(".betErr").hide();
 	// draw action
 	const _$draw = _$e.find(".actionArea.draw").hide();
-	// finalize action
+	// finalize actions
 	const _$finalizeWin = _$e.find(".actionArea.finalizeWin").hide();
 	const _$finalizeLoss = _$e.find(".actionArea.finalizeLoss").hide();
 	const _$finalized = _$e.find(".actionArea.finalized").hide();
+
 	const _$btnPlayAgain = _$e.find(".btnPlayAgain").click(()=>{
 		_self.setGameState({state: "betting"});
-	})
+	});
+    _better.onChange(_refreshPayTable);
 
 	// const _$logs = _$e.find(".logs").hide();
 	const _self = this;
 
 	// global params, set externally
 	const _vp = vp;
-	var _minBet;
 	var _maxBet;
 	var _curPayTable;
 	var _latestBlock;
 	var _avgBlockTime;
 
 	// state of the currentGame
-	var _gameState = {state: "betting"};
+	var _gameState = {};
 	var _isNotDrawing = false;
 
 	var _onEvent = ()=>{};
-
-	_$betTxt.on("focus", function(){
-		$(this).select();
-	});
-	_$betTxt.on("input", function(){
-		const ether = Number($(this).val());
-		if (Number.isNaN(ether)) return;
-		_$betSlider.val(ether);
-		_refreshBet();
-	});
-	_$betSlider.on("input", function(){
-		const ether = Number($(this).val());
-		_$betTxt.val(ether);
-		_refreshBet();
-	});
-
 
 	this.$e = _$e;
 	this.$ms = _$ms;
@@ -458,121 +449,151 @@ function Game(vp) {
 	// Sets global settings, so betUI and blocktimes are accurate.
 	this.setSettings = function(settings) {
 		if (!settings) return;
-		_minBet = settings.minBet;
 		_maxBet = settings.maxBet;
 		_curPayTable = settings.curPayTable;
 		_latestBlock = settings.latestBlock;
 		_avgBlockTime = settings.avgBlockTime;
-		_refresh();
+        _better.setMin(settings.minBet);
+        _better.setCredits(settings.credits);
+		_refreshDebounce();
 	}
 
 	this.setGameState = function(gameState) {
-		if (_isNotDrawing) {
+		if (_isNotDrawing && gameState.state=="dealt") {
 			// Skip re-updating state to "dealt" if we're skipping drawing.
 			const curHand = _gameState.iHand.toNumber();
 			const dealtHand = gameState.iHand.toNumber();
-			if (gameState.state=="dealt" && curHand==dealtHand) return;
+			if (curHand==dealtHand) return;
 		}
 		if (gameState.state != _gameState.state) _reset();
 		_gameState = Object.assign({}, gameState);
-		_refresh();
+		_refreshDebounce();
 	}
 
 	// Resets everything to reflect an empty state.
 	function _reset() {
 		_$e.removeClass("isWinner");
-		_$payTable.find("tr").removeClass("won");
-		_$msLoading.hide();
-		_$hand.removeClass("frozen");
+
+        // hide all stuff
+        _$invalid.hide();
+        _$bet.hide();
+        _$draw.hide();
+        _$finalizeWin.hide();
+        _$finalizeLoss.hide();
+        _$finalized.hide();
+        _$details.hide();
+        _$required.hide();
+        _$msLoading.hide();
+        _better.$e.detach();
+
+        // reset statusAreas and btns
 		_$bet.find(".statusArea").empty().hide();
-		_$bet.find(".actionBtn").removeClass("disabled").removeAttr("disabled").text("Deal");
+		_$bet.find(".btnDeal").removeClass("disabled").removeAttr("disabled").text("Deal");
 		_$draw.find(".statusArea").empty().hide();
-		_$draw.find(".actionBtn").removeClass("disabled").removeAttr("disabled").text("Draw");
+		_$draw.find(".btnDraw").removeClass("disabled").removeAttr("disabled").text("Draw");
 		_$finalizeWin.find(".statusArea").empty().hide();
-		_$finalizeWin.find(".actionBtn").removeClass("disabled").removeAttr("disabled").text("Finalize");
-		_$finalizeLoss.find(".statusArea").empty();
+		_$finalizeWin.find(".btnFinalize").removeClass("disabled").removeAttr("disabled").text("Get Credits");
+		_$finalizeLoss.find(".statusArea").empty().hide();
 		_$finalizeLoss.find(".actionBtn").removeClass("disabled").removeAttr("disabled").text("Finalize");
+
+        // reset misc
+        _$payTable.find("tr").removeClass("won");
+        _$hand.removeClass("frozen");
 	}
 
-	// Redraws entire game based on the state
-	// Called by "updateGameState"
-	const _refresh = util.debounce(10, function _refreshGame() {
-		_refreshMiniStatus();
+	// Redraws entire game based on the state.
+    // Called anytime settings or gamestate is altered.
+	function _refresh() {
+        _refreshMiniStatus();
+        _refreshPayTable();
 
-		_$invalid.hide();
-		_$bet.hide();
-		_$draw.hide();
-		_$finalizeWin.hide();
-		_$finalizeLoss.hide();
-		_$finalized.hide();
-		_$details.hide();
-		_$required.hide();
+        if (_gameState.state=="betting" || _gameState.state=="invalid") {
+            if (_gameState.state=="betting"){
+                _$bet.show();
+                _$msg.text(`Select a bet amount, and press "Deal"`)
+                _better.setMax(_maxBet);
+                _better.setMode("both");
+                _better.$e.prependTo(_$bet);
+            } else {
+                _$invalid.show();
+                _$msg.text(`This game is invalid.`);
+            }
+            _isNotDrawing = false;
+            _refreshHand(null);
+            return;
+        };
 
-		if (_gameState.state=="betting" || _gameState.state=="invalid") {
-			if (_gameState.state=="betting"){
-				_$bet.show();
-				_$msg.text(`Select a bet amount, and press "Deal"`)
-			} else {
-				_$invalid.show();
-				_$msg.text(`This game is invalid.`);
-			}
-			_refreshHand(null);
-			_refreshBetScale();
-			_refreshPayTable();
-			return;
-		};
+        // Always show bet and id. Preset better to current bet.
+        _$details.show();
+        _$gameBet.text(`Bet: ${ethUtil.toEth(_gameState.bet)} ETH`);
+        _$gameId.text(`Game #${_gameState.id}`);
+        _better.setBet(_gameState.bet);
 
-		_refreshPayTable();
-		_$details.show();
-		_$gameBet.text(`Bet: ${ethUtil.toEth(_gameState.bet)} ETH`);
-		_$gameId.text(`Game #${_gameState.id}`);
-		_$betTxt.val(_gameState.bet.div(1e18).toFixed(3));
-		if (_gameState.state == "dealt") {
-			_$draw.show();
+        // If it's dealt, show the state of the hand.
+        if (_gameState.state == "dealt") {
+            _$draw.show();
 
-			if (_gameState.iBlocksLeft > 0) {
-				_$msg.html(`Your cards have been dealt.<br>Select cards to hold, and click "Draw"`);
-				_$required.show().text(`You must draw within ${_gameState.iBlocksLeft} blocks.`);
-				_refreshHand(_gameState.iHand, 31);
-			} else {
-				_$msg.html(`Your dealt cards are no longer availabe.<br>Please click "Draw" for a new hand.`);
-				_$hand.addClass("frozen");
-				_refreshHand(null);
-			}
-			return;
-		}
-		if (_gameState.state == "drawn") {
-			_refreshHand(_gameState.dHand, _gameState.draws);
+            if (_gameState.iBlocksLeft > 0) {
+                _$msg.html(`Your cards have been dealt.<br>Select cards to hold, and click "Draw"`);
+                _$required.show().text(`You must draw within ${_gameState.iBlocksLeft} blocks.`);
+                _refreshHand(_gameState.iHand, 31);
+            } else {
+                _$msg.html(`Your dealt cards are no longer availabe.<br>Please click "Draw" for a new hand.`);
+                _$hand.addClass("frozen");
+                _refreshHand(null);
+            }
+            return;
+        }
 
-			if (_gameState.payout.gt(0)){
-				_$finalizeWin.show();
-				_$e.addClass("isWinner");
-				_$payTable.find("tr").eq(_gameState.handRank).addClass("won");
-				_$msg.empty().append(`You won ${ethUtil.toEth(_gameState.payout)} ETH with ${_gameState.dHand.getRankString()}!`);
-				if (_gameState.dBlocksLeft > 0) {
-					_$required.show().text(`You must finalize within ${_gameState.dBlocksLeft} blocks.`);
-				}
-			} else {
-				_$finalizeLoss.show();
-				_$msg.empty().append(`You lost. Try again?`);
-			}
-			return;
-		}
-		if (_gameState.state == "finalized") {
-			_$finalized.show();
-			if (_gameState.payout.gt(0)) {
-				_$e.addClass("isWinner");
-				_$payTable.find("tr").eq(_gameState.handRank).addClass("won");
-				_refreshHand(_gameState.dHand, _gameState.draws);
-			}
-			_$msg.empty().append(`You've been credited ${ethUtil.toEth(_gameState.payout)} ETH for ${_gameState.dHand.getRankString()}.`);
-			return;
-		}
+        // If it's drawn, show win/loss depending on dHand.
+        // dHand should be precomputed to be iHand if timedout.
+        if (_gameState.state == "drawn") {
+            if (_gameState.payout.gt(0)){
+                // Select the winning payTable row, and add styles
+                _$finalizeWin.show();
+                _$e.addClass("isWinner");
+                _$payTable.find("tr").eq(_gameState.handRank).addClass("won");
+                _$msg.empty().append(`You won ${ethUtil.toEth(_gameState.payout)} ETH with ${_gameState.dHand.getRankString()}!`);
+                
+                // Show hand with draws, or if timedout, with no draws.
+                if (_gameState.dBlocksLeft > 0) {
+                    _$required.show().text(`You must finalize within ${_gameState.dBlocksLeft} blocks.`);
+                    _refreshHand(_gameState.dHand, _gameState.draws);
+                } else {
+                    _refreshHand(_gameState.dHand, 0);
+                }
 
-		const msg = `Unexpected game state: ${_gameState.state}`;
-		_$msg.empty().append(msg)
-		throw new Error(msg);
-	});
+                // Allow user to bet only with credits, should they want to replay.
+                _better.setMode("credits");
+                _better.setMax(_gameState.payout);
+                _better.$e.prependTo(_$finalizeWin);
+            } else {
+                // They lost. Not much to do.
+                _$finalizeLoss.show();
+                _$msg.empty().append(`You lost. Try again?`);
+                _refreshHand(_gameState.dHand, _gameState.draws);
+            }
+            return;
+        }
+
+        // This occurs if they finalize (without rebet). Just show winning state.
+        if (_gameState.state == "finalized") {
+            _$finalized.show();
+            if (_gameState.payout.gt(0)) {
+                _$e.addClass("isWinner");
+                _$payTable.find("tr").eq(_gameState.handRank).addClass("won");
+                _refreshHand(_gameState.dHand, _gameState.draws);
+            }
+            _$msg.empty().append(`You've been credited ${ethUtil.toEth(_gameState.payout)} ETH for ${_gameState.dHand.getRankString()}.`);
+            return;
+        }
+
+        const msg = `Unexpected game state: ${_gameState.state}`;
+        _$msg.empty().append(msg)
+        throw new Error(msg);
+    }
+
+	const _refreshDebounce = util.debounce(10, _refresh);
 
 	function _refreshMiniStatus() {
 		// set mini-state class to state. set bet.
@@ -685,8 +706,9 @@ function Game(vp) {
 		});
 
 		// draw payouts depending on bet
-		const bet = _getBet();
+		const bet = _gameState.bet || _better.getValue();
 		if (bet==null) {
+            $rows.eq(0).find("td").eq(2).text(`Payout (for 0.000 ETH bet)`);
 			payTable.forEach((v,i)=>{
 				$rows.eq(i+1).find("td").eq(2).text(`--`);
 			});
@@ -699,74 +721,6 @@ function Game(vp) {
 				$rows.eq(i+1).find("td").eq(2).text(`${payout} ETH`);
 			});
 		}
-	}
-
-	// Sets the "bet" range and text to accomodate new min/max bets
-	function _refreshBetScale() {
-		// Determine a convenient _rounding step
-		if (_minBet == null) _minBet = new BigNumber(0);
-		if (_maxBet == null) _maxBet = new BigNumber(0);
-		let minBetEther = _minBet.div(1e18);
-		let maxBetEther = _maxBet.div(1e18);
-		let difference = maxBetEther.minus(minBetEther);
-		if (difference <= .1) _rounding = .001;
-		else _rounding = .01;
-
-		// set the wager inputs accordingly
-		let minBetRounded = minBetEther.div(_rounding).ceil().mul(_rounding).toNumber();
-		let maxBetRounded = maxBetEther.div(_rounding).floor().mul(_rounding).toNumber();
-		_$betSlider.attr("min", minBetRounded)
-			.attr("max", maxBetRounded)
-			.attr("step", _rounding);
-		_$betTxt.attr("min", minBetRounded)
-			.attr("max", maxBetRounded)
-			.attr("step", _rounding);
-
-		// wagerRange to be positioned correctly relative to bet
-		var bet = Number(_$betTxt.val());
-		if (!Number.isNaN(bet)){
-			bet = Math.min(maxBetRounded, bet);
-			bet = Math.max(minBetRounded, bet);
-			_$betTxt.val(bet);
-			_$betSlider.val(bet);
-		}
-
-		_refreshBet();
-	}
-
-	// updates the bet txt and range, as well as payouts
-	function _refreshBet() {
-		if (_gameState.state != "betting") return;
-
-		_$betErr.hide();
-		const bet = _getBet();
-		if (bet === null) {
-			_$betErr.text("Bet must be a number").show();
-			_refreshPayTable();
-			return;
-		}
-
-		const betStr = ethUtil.toEthStr(bet);
-		const minBetStr = ethUtil.toEthStr(_minBet);
-		const maxBetStr = ethUtil.toEthStr(_maxBet);
-		if (bet.lt(_minBet)) {
-			_$betErr.text(`Bet must be above ${minBetStr}`).show();
-			return;
-		}
-		if (bet.gt(_maxBet)) {
-			_$betErr.text(`Bet must be below ${maxBetStr}`).show();
-			return;	
-		}
-		_refreshPayTable();
-	}
-
-	function _getBet() {
-		if (_gameState.bet) { return _gameState.bet; }
-		var bet = _$betTxt.val();
-		try { bet = (new BigNumber(bet)).mul(1e18); }
-		catch (e) { bet = null; }
-
-		return bet;
 	}
 
 	function _getDraws() {
@@ -805,7 +759,8 @@ function Game(vp) {
 			$(this).blur();
 			if ($(this).is(".disabled")) return;
 			
-			const bet = _getBet();
+			const bet = _better.getValue();
+            const betType = _better.getBetType();
 			if (bet===null) { return; }
 			
 			// set uiid (so upon receiving event we can link it to this game)
@@ -821,13 +776,15 @@ function Game(vp) {
 			}
 
 			try {
-				const promise = vp.bet([uiid], {value: bet, gas: 130000, gasPrice: gps.getValue()});
+				const promise = betType == "eth"
+                    ? vp.bet([uiid], {value: bet, gas: 130000, gasPrice: gps.getValue()})
+                    : vp.betWithCredits([bet, uiid], {gas: 130000, gasPrice: gps.getValue()});
 				const waitTimeMs = (gps.getWaitTimeS() || 30) * 1000;
 				_$msLoading.show().removeClass("error").html(util.$getLoadingBar(waitTimeMs, promise));
 
 				const $txStatus = util.$getTxStatus(promise, {
 					waitTimeMs: waitTimeMs,
-					onClear: () => { $statusArea.hide(); },
+					onClear: () => { $statusArea.hide(); _$msLoading.hide(); },
 					onSuccess: (res) => {
 						const betSuccess = res.events.find(e=>e.name=="BetSuccess");
 						const betFailure = res.events.find(e=>e.name=="BetFailure");
@@ -917,7 +874,7 @@ function Game(vp) {
 
 				const $txStatus = util.$getTxStatus(promise, {
 					waitTimeMs: waitTimeMs,
-					onClear: () => { $statusArea.hide(); },
+					onClear: () => { $statusArea.hide();  _$msLoading.hide(); },
 					onSuccess: (res) => {
 						const drawSuccess = res.events.find(e=>e.name=="DrawSuccess");
 						const drawFailure = res.events.find(e=>e.name=="DrawFailure");
@@ -941,7 +898,6 @@ function Game(vp) {
 				});
 				$statusArea.empty().show().append($txStatus);
 			} catch(e) {
-				console.log(e);
 				reset();
 				ethStatus.open();
 			}
@@ -989,7 +945,7 @@ function Game(vp) {
 
 				const $txStatus = util.$getTxStatus(promise, {
 					waitTimeMs: waitTimeMs,
-					onClear: () => { $statusArea.hide(); },
+					onClear: () => { $statusArea.hide();  _$msLoading.hide(); },
 					onSuccess: (res) => {
 						const success = res.events.find(e=>e.name=="FinalizeSuccess");
 						const failure = res.events.find(e=>e.name=="FinalizeFailure");
@@ -1024,9 +980,217 @@ function Game(vp) {
 		_initDealButton();
 		_initDrawButton();
 		_initFinalizeButton();
-		_refresh();
 	}());
 }
+
+function Better() {
+    const _self = this;
+
+    const _$e = $(`
+        <div class="Better">
+            <div class="value">
+                <div class="topLabel">Bet</div>
+                <input class="betTxt" type="number" value=".1" step=".01" min=".01" max=".60">
+                <div class="bottomLabel">
+                    <div class="both">
+                        <label><input type="radio" name="betUnit" value="eth" checked>ETH</label>
+                        <label><input type="radio" name="betUnit" value="credits">Credits</label>
+                    </div>
+                    <div class="eth">
+                        ETH
+                    </div>
+                    <div class="credits">
+                        Credits
+                    </div>
+                </div>
+            </div>
+            <div class="slider">
+                <input class="betSlider" type="range" value=".1" step=".01" min=".01" max=".60">
+                <div class="betErr"></div>
+            </div>
+        </div>
+    `)
+    const _$slider = _$e.find(".betSlider");
+    const _$txt = _$e.find(".betTxt");
+    const _$err = _$e.find(".betErr").hide();
+    const _$both = _$e.find(".both").hide();
+    const _$eth = _$e.find(".eth").hide();
+    const _$credits = _$e.find(".credits").hide();
+    const _$label = _$e.find(".bottomLabel");
+    const _$radEth = _$label.find("input[value=eth]");
+    const _$radCredits = _$label.find("input[value=credits]");
+
+    var _minBet = new BigNumber(0);
+    var _maxBet = new BigNumber(0);
+    var _credits = new BigNumber(0);
+    var _mode = "eth";
+    var _betType = "eth";
+    var _onChange = ()=>{};
+
+    _$label.find("input").change(function(){
+        _betType = _$label.find("input:checked").val();
+        _refresh();
+    });
+    _$txt.on("focus", function(){
+        $(this).select();
+    });
+    _$txt.on("input", function(){
+        const ether = Number($(this).val());
+        if (Number.isNaN(ether)) return;
+        _$slider.val(ether);
+        _refreshBet();
+    });
+    _$slider.on("input", function(){
+        const ether = Number($(this).val());
+        _$txt.val(ether);
+        _refreshBet();
+    });
+
+    this.setCredits = function(v) {
+        _credits = v || new BigNumber(0);
+        _self.refresh();
+    };
+    this.setBet = function(v) {
+        v = new BigNumber(v);
+        _$txt.val(v.div(1e18));
+        _refreshBet();
+    }
+    this.setMax = function(v) {
+        _maxBet = v || new BigNumber(0);
+        _self.refresh();
+    };
+    this.setMin = function(v) {
+        _minBet = v || new BigNumber(0);
+        _self.refresh();
+    };
+    this.setMode = function(mode) {
+        mode = mode.toLowerCase();
+        const allowed = ["eth", "credits", "both"];
+        if (allowed.indexOf(mode) === -1)
+            throw new Error(`Incorrect mode: ${mode}. Allowed: ${allowed}`);
+
+        _mode = mode;
+        _betType = _mode=="both" ? _betType : _mode;
+        _self.refresh();
+    };
+    this.freeze = function(bool) {
+        if (bool) {
+            _$e.addClass("disabled");
+            _$txt.attr("disabled", "disabled");
+            _$slider.attr("disabled", "disabled");
+        } else {
+            _$e.removeClass("disabled");
+            _$txt.removeAttr("disabled");
+            _$slider.removeAttr("disabled");
+        }
+    };
+
+    // upates scale
+    this.refresh = util.debounce(10, _refresh);
+    this.onChange = function(fn) {
+        _onChange = fn;
+    }
+    this.getValue = function() {
+        var bet = _getBet();
+        if (!bet || bet.lt(_minBet) || bet.gt(_getMaxBet())) return null;
+        return bet;
+    }
+    this.getBetType = function() {
+        return _betType;
+    }
+    this.$e = _$e;
+
+    function _refresh() {
+        _refreshLabel();
+        _refreshScale();
+        _refreshBet();
+    }
+
+    // Display proper label, select proper radio box
+    function _refreshLabel() {
+        _$both.hide();
+        _$eth.hide();
+        _$credits.hide();
+        if (_mode == "both") {
+            if (_credits.equals(0)) {
+                _betType = "eth";
+                _$eth.show();
+            } else {
+                _$both.show();
+            }
+        } 
+        if (_mode == "eth") _$eth.show();
+        if (_mode == "credits") _$credits.show();
+    }
+
+    // Set scale of slider based on min/max
+    function _refreshScale() {
+        // Get min/max bet in ether
+        let minBetEther = _minBet.div(1e18);
+        let maxBetEther = _getMaxBet().div(1e18);       
+        let difference = maxBetEther.minus(minBetEther);
+        if (difference <= .1) _rounding = .001;
+        else _rounding = .01;
+
+        // set the wager inputs accordingly
+        let minBetRounded = minBetEther.div(_rounding).ceil().mul(_rounding).toNumber();
+        let maxBetRounded = maxBetEther.div(_rounding).floor().mul(_rounding).toNumber();
+        _$slider.attr("min", minBetRounded)
+            .attr("max", maxBetRounded)
+            .attr("step", _rounding);
+        _$txt.attr("min", minBetRounded)
+            .attr("max", maxBetRounded)
+            .attr("step", _rounding);
+
+        // wagerRange to be positioned correctly relative to bet
+        var bet = _getBet().div(1e18);
+        if (bet !== null){
+            bet = Math.min(maxBetRounded, bet);
+            bet = Math.max(minBetRounded, bet);
+            _$txt.val(bet);
+            _$slider.val(bet);
+        }
+    }
+
+    // updates the bet txt and range, as well as payouts
+    function _refreshBet() {
+        _onChange();
+        const bet = _getBet();
+
+        // Show error if it's not a number.
+        _$err.hide();
+        if (bet === null) {
+            _$err.text("Bet must be a number").show();
+            return;
+        }
+
+        // Show error if its too small or large
+        const minBet = _minBet;
+        const maxBet = _getMaxBet();
+        if (bet.lt(minBet))
+            _$err.text(`Bet must be above ${ethUtil.toEthStr(minBet)}`).show();
+        if (bet.gt(maxBet))
+            _$err.text(`Bet must be below ${ethUtil.toEthStr(maxBet)}`).show();
+    }
+
+    function _getBet() {
+        var bet = _$txt.val();
+        try { bet = (new BigNumber(bet)).mul(1e18); }
+        catch (e) { bet = null; }
+        return bet;
+    }
+
+    function _getMaxBet() {
+        return _betType == "credits"
+            ? BigNumber.min(_maxBet, _credits)
+            : _maxBet;
+    }
+
+    (function init(){
+        _refresh();
+    }())
+}
+
 
 var PUtil = (function(){
 	function PokerUtil() {

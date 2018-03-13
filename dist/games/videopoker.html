@@ -384,7 +384,16 @@
 			<div id="Machine">
 				<table cellpadding="0" cellspacing="0"><tr>
 					<td width="100%"><div class="tabber-ctnr"></div></td>
-					<td class="credits-cell"><div class="credits-ctnr">Credits: 1000 ETH</div></td>
+					<td class="credits-cell">
+						<div class="credits-ctnr">Credits: 1000 ETH</div>
+						<div style="display: table; width: 100%;">
+							<div style="display: table-cell; width: 50%; text-align: center;">
+								<button>Add Credits</button>
+							</div>
+							<div style="display: table-cell; width: 50%; text-align: center;">
+								<button>Cash Out</button>
+							</div>
+					</td>
 				</tr></table>
 				<div class="game-ctnr" style="background: black;"></div>
 			</div>
@@ -534,16 +543,16 @@
 				text-align: center;
 			}
 				
-			.Game .better {
+			.Better {
 				display: table;
 				box-sizing: border-box;
 				width: 100%;
 			}
-				.Game .better .value {
+				.Better .value {
 					display: table-cell;
 					text-align: center;
 				}
-					.Game .better .topLabel {
+					.Better .topLabel {
 						color: black;
 						text-transform: uppercase;
 						letter-spacing: .1em;
@@ -552,11 +561,11 @@
 						font-weight: bold;
 						text-align: center;
 					}
-					.Game .better .bottomLabel {
+					.Better .bottomLabel {
 						font-size: 80%;
 						color: black;
 					}
-					.Game .better .betTxt {
+					.Better .betTxt {
 						display: block;
 						box-sizing: border-box;
 						width: 100%;
@@ -569,21 +578,21 @@
 						margin-top: -5px;
 						margin-bottom: -5px;
 					}
-					.Game .better .betTxt:focus {
+					.Better .betTxt:focus {
 						outline: none;
 					}
-				.Game .better .slider {
+				.Better .slider {
 					position: relative;
 					display: table-cell;
 					vertical-align: middle;
 					width: 100%;
 				}
-					.Game .better .betSlider {
+					.Better .betSlider {
 						width: 92%;
 						height: 40px;
 						cursor: pointer;
 					}
-					.Game .better .betErr {
+					.Better .betErr {
 						position: absolute;
 						bottom: 5px;
 						width: 92%;
@@ -719,25 +728,6 @@
 							This game is no longer active. This may be due to the game being completed in another tab, or due to a blockchain re-org.
 						</div>
 						<div class="bet actionArea">
-							<div class="better">
-								<div class="value">
-									<div class="topLabel">Bet</div>
-									<input class="betTxt" type="number" value=".1" step=".01" min=".01" max=".60">
-									<div class="bottomLabel">
-										<div class="hasCredits" style="display: none;">
-											<label><input type="radio" name="betUnit" checked>ETH</label>
-											<label><input type="radio" name="betUnit">Credits</label>
-										</div>
-										<div class="hasNoCredits">
-											ETH
-										</div>
-									</div>
-								</div>
-								<div class="slider">
-									<input class="betSlider" type="range" value=".1" step=".01" min=".01" max=".60">
-									<div class="betErr"></div>
-								</div>
-							</div>
 							<div class="tx">
 								<table width="100%"><tr>
 									<td class="statusArea" width=100%></td>
@@ -760,48 +750,26 @@
 							<button class="actionBtn btnPlayAgain">Play Again</button>
 						</div>
 						<div class="finalizeWin actionArea">
-							<div>
-								Finalize this game to get credited.
+							<div class="rebet">
+								<div class="tx">
+									<table width="100%"><tr>
+										<td class="statusArea" width=100%></td>
+										<td align="center"><button class="actionBtn btnRebet">Play Again</button></td>
+									</tr></table>
+								</div>
 							</div>
-							<div class="tx">
-								<table width="100%"><tr>
-									<td class="statusArea" width=100%></td>
-									<td align="center"><button class="actionBtn btnFinalize">Finalize</button></td>
-								</tr></table>
+							<div class="get-credits">
+								<div class="tx">
+									<table width="100%"><tr>
+										<td class="statusArea" width=100%></td>
+										<td align="center"><button class="actionBtn btnFinalize">Get Credits</button></td>
+									</tr></table>
+								</div>
 							</div>
 						</div>
 						<div class="finalized actionArea">
 							<button class="actionBtn btnPlayAgain">Play Again</button>
 						</div>
-						<!-- <div class="finalize" style="display: none;">
-							<div class="info won">
-								<div class="details">
-									<div class="bet">Current Bet: .25 ETH</div>
-									<div class="id">Game #12312</div>
-								</div>
-								<div class="body">
-									You won .425 ETH with Two Pair!<br>
-								</div>
-								<div class="required tipLeft" title="The contract does not yet know you've won. Choose an action below to be credited.">You have 255 blocks (1hr 5m) to take action.</div>
-							</div>
-							<div style="margin-top: 25px; text-align: center">
-								<table align="center"><tr>
-									<td style="padding-right: 20px;">
-										<div class="gasSlider"></div>
-									</td>
-									<td>
-										<div class="finalize">
-											<button class="actionBtn btnFinalize">Play Again</button>
-											<br>
-											or
-											<br>
-											<button class="actionBtn btnFinalize">Claim Credits</button>
-										</div>
-									</td>
-								</tr></table>
-								<div class="status"></div>
-							</div>
-						</div> -->
 					</td>
 				</tr></table>
 			</div>
