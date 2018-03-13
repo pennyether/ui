@@ -57,7 +57,7 @@ Loader.require("vp")
 	}
 
 	// - Creates all bet or drawn+won Games.
-	// - Updates all drawn game's states.
+	// - Updates all displayed game's states.
 	// - Notifies falsely-existant game's of their perile.
 	function updateGames(settings) {
 		// Creating mapping of all game ids.
@@ -469,8 +469,8 @@ function Game(vp) {
 	this.setGameState = function(gameState) {
 		if (_isNotDrawing) {
 			// Skip re-updating state to "dealt" if we're skipping drawing.
-			const curHand = _gameState.iHand ? _gameState.iHand.toNumber() : 0;
-			const dealtHand = gameState.iHand ? gameState.iHand.toNumber() : 0;
+			const curHand = _gameState.iHand.toNumber();
+			const dealtHand = gameState.iHand.toNumber();
 			if (gameState.state=="dealt" && curHand==dealtHand) return;
 		}
 		if (gameState.state != _gameState.state) _reset();
@@ -675,34 +675,30 @@ function Game(vp) {
 			const $rows = _$payTable.find("tr").not(":first-child");
 			$rows.find("td").not(":first-child").text("--");
 			return;
-		} else {
-			payTable = payTable.slice(1,-1);
 		}
-
-		const bet = _getBet();
-
+			
 		// draw multipliers
+		payTable = payTable.slice(1,-1);
 		const $rows = _$payTable.find("tr");
 		payTable.forEach((v,i)=>{
 			$rows.eq(i+1).find("td").eq(1).text(`${v} x`);
 		});
 
-		// draw null payouts
+		// draw payouts depending on bet
+		const bet = _getBet();
 		if (bet==null) {
 			payTable.forEach((v,i)=>{
 				$rows.eq(i+1).find("td").eq(2).text(`--`);
 			});
-			return
+		} else {
+			betEth = bet.div(1e18);
+			const betStr = betEth.toFixed(3);
+			$rows.eq(0).find("td").eq(2).text(`Payout (for ${betStr} ETH bet)`);
+			payTable.forEach((v,i)=>{
+				const payout = (betEth * v).toFixed(3);
+				$rows.eq(i+1).find("td").eq(2).text(`${payout} ETH`);
+			});
 		}
-
-		// draw ETH payouts
-		betEth = bet.div(1e18);
-		const betStr = betEth.toFixed(3);
-		$rows.eq(0).find("td").eq(2).text(`Payout (for ${betStr} ETH bet)`);
-		payTable.forEach((v,i)=>{
-			const payout = (betEth * v).toFixed(3);
-			$rows.eq(i+1).find("td").eq(2).text(`${payout} ETH`);
-		});
 	}
 
 	// Sets the "bet" range and text to accomodate new min/max bets
@@ -1217,28 +1213,33 @@ var PUtil = (function(){
 	    // - blockhash: a string of hexEncoded 256 bit number
 	    // - gameId: a number or BigNumber
 	    function getIHand(blockhash, gameId) {
-	        const idHex = _toPaddedHex(gameId, 32);
+	        const idHex = toPaddedHex(gameId, 32);
 	        const hexHash = web3.sha3(blockhash + idHex, {encoding: "hex"});
-	        const cardNums = _getCardsFromHash(hexHash, 5);
+	        const cardNums = getCardsFromHash(hexHash, 5);
 	        return new Hand(cardNums);
 	    }
 
 	    // - blockhash: a string of hexEncoded 256 bit number
 	    // - gameId: a number or BigNumber
-	    // - iHand: number of the original hand.
-	    // - drawsNum: from 0 to 63.
-	    function getDHand(blockhash, gameId, iHandNum, drawsNum) {
+	    // - iHand: a Hand object of the original hand, or number
+	    // - drawsNum: from 0 to 31.
+	    function getDHand(blockhash, gameId, iHand, drawsNum) {
 	        // get 5 new cards
-	        const idHex = _toPaddedHex(gameId, 32);
+	        const idHex = toPaddedHex(gameId, 32);
 	        const hexHash = web3.sha3(blockhash + idHex, {encoding: "hex"});
-	        return _drawCardsFromHash(hexHash, iHandNum, drawsNum);
+	        return drawCardsFromHash(hexHash, iHand, drawsNum);
 	    }
 
-	    function _drawCardsFromHash(hexHash, iHandNum, drawsNum) {
-	        // get 5 cards
-	        const iHand = new Hand(iHandNum);
-	        const excludedCardNums = iHand.cards.map(c => c.cardNum);
-	        const newCards = _getCardsFromHash(hexHash, 5, excludedCardNums);
+	    // - hexHash: a string of hexEncoded 256 bit number
+	    // - iHand: a Hand object of the original hand, or number
+	    // - drawsNum: from 0 to 31
+	    function drawCardsFromHash(hexHash, iHand, drawsNum) {
+	        iHand = new Hand(iHand);
+	        if (drawsNum > 31) throw new Error(`Invalid drawsNum: ${drawsNum}`);
+	        if (!iHand.isValid() && drawsNum<31) throw new Error(`Cannot draw ${drawsNum} to an invalid hand.`);
+
+	        const excludedCardNums = iHand.isValid() ? iHand.cards.map(c => c.cardNum) : [];
+	        const newCards = getCardsFromHash(hexHash, 5, excludedCardNums);
 
 	        // swap out oldCards for newCards.
 	        const drawsArr = [0,0,0,0,0];
@@ -1256,7 +1257,7 @@ var PUtil = (function(){
 	        return new Hand(cards);
 	    }
 
-	    function _getCardsFromHash(hexHash, numCards, excludedCardNums) {
+	    function getCardsFromHash(hexHash, numCards, excludedCardNums) {
 	        if (!excludedCardNums) excludedCardNums = [];
 	        const cardNums = [];
 	        while (cardNums.length < numCards) {
@@ -1270,7 +1271,7 @@ var PUtil = (function(){
 	        return cardNums;
 	    }
 
-	    function _toPaddedHex(num, bits) {
+	    function toPaddedHex(num, bits) {
 	        num = new BigNumber(num);
 	        const targetLen = Math.ceil(bits / 4);
 	        const hexStr = num.toString(16);
@@ -1278,14 +1279,6 @@ var PUtil = (function(){
 	            throw new Error(`Cannot convert ${num} to ${bits} bits... it's too large.`);
 	        const zeroes = (new Array(targetLen-hexStr.length+1)).join("0");
 	        return `${zeroes}${hexStr}`;
-	    }
-
-	    function _cardToUnicode(i){
-	        const suit = String.fromCharCode(Math.floor(i/13) + 'A'.charCodeAt(0));
-	        var val = i % 13;
-	        if (val > 10) val = val+1;
-	        val = Number(val+1).toString(16);
-	        return String.fromCodePoint(code);
 	    }
 
 	    // Return an object with useful functions.
