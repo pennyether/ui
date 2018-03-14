@@ -23,9 +23,7 @@ Loader.require("vp")
 	})
 	$tabberCtnr.append(tabber.$e);
 
-	// An id-mapping of gameState objects' blockchain values.
-	// These are generated from collating events, and may change
-	//  if there's a block re-org.
+	// An id-mapping of gameState objects' blockchain values, reset each block.
 	var gameStates = {};
 
 	function createGame(gameState, settings) {
@@ -387,8 +385,10 @@ function Tabber() {
 function Game(vp) {
 	const _$e = $(".Game.template").clone().removeClass("template").show();
 	const _$payTable = _$e.find(".payTable");
-    // better
+    // better, hand
     const _better = new Better();
+    const _hd = new HandDisplay();
+    const _miniHd = new HandDisplay();
 	// status
 	const _$status = _$e.find(".gameStatus");
 	const _$msg = _$status.find(".msg");
@@ -400,13 +400,11 @@ function Game(vp) {
 	const _$ms = _$e.find(".mini-status").detach();
 	const _$msBet = _$ms.find(".bet");
 	const _$msState = _$ms.find(".state");
-	const _$msLoading = _$ms.find(".loading");
-	const _$msRank = _$ms.find(".rank");
-	const _$msCards = _$ms.find(".card");
-	const _$msStatus = _$ms.find(".status");
+    const _$msHand = _$ms.find(".hand");
+    const _$msLoading = _$ms.find(".loading");
+    const _$msStatus = _$ms.find(".status");
 	// cards
 	const _$hand = _$e.find(".hand");
-	const _$cards = _$hand.find(".card").click(_toggleHold);
 	// invalid action
 	const _$invalid = _$e.find(".actionArea.invalid");
 	// bet action
@@ -421,6 +419,10 @@ function Game(vp) {
 	const _$btnPlayAgain = _$e.find(".btnPlayAgain").click(()=>{
 		_self.setGameState({state: "betting"});
 	});
+
+    _hd.$e.appendTo(_$e.find(".hand-ctnr"));
+    _miniHd.$e.appendTo(_$msHand);
+    _miniHd.freeze(true);
     _better.onChange(_refreshPayTable);
 
 	// const _$logs = _$e.find(".logs").hide();
@@ -493,12 +495,12 @@ function Game(vp) {
 		_$draw.find(".btnDraw").removeClass("disabled").removeAttr("disabled").text("Draw");
 		_$finalizeWin.find(".statusArea").empty().hide();
 		_$finalizeWin.find(".btnFinalize").removeClass("disabled").removeAttr("disabled").text("Get Credits");
+        _$finalizeWin.find(".btnRebet").removeClass("disabled").removeAttr("disabled").text("Play Again");
 		_$finalizeLoss.find(".statusArea").empty().hide();
-		_$finalizeLoss.find(".actionBtn").removeClass("disabled").removeAttr("disabled").text("Finalize");
+		_$finalizeLoss.find(".btnPlayAgain").removeClass("disabled").removeAttr("disabled").text("Rebet");
 
         // reset misc
         _$payTable.find("tr").removeClass("won");
-        _$hand.removeClass("frozen");
 	}
 
 	// Redraws entire game based on the state.
@@ -536,11 +538,10 @@ function Game(vp) {
             if (_gameState.iBlocksLeft > 0) {
                 _$msg.html(`Your cards have been dealt.<br>Select cards to hold, and click "Draw"`);
                 _$required.show().text(`You must draw within ${_gameState.iBlocksLeft} blocks.`);
-                _refreshHand(_gameState.iHand, 31);
+                _refreshHand(_gameState.iHand, 31, false, false);
             } else {
                 _$msg.html(`Your dealt cards are no longer availabe.<br>Please click "Draw" for a new hand.`);
-                _$hand.addClass("frozen");
-                _refreshHand(null);
+                _refreshHand(null, null, true, false);
             }
             return;
         }
@@ -558,9 +559,9 @@ function Game(vp) {
                 // Show hand with draws, or if timedout, with no draws.
                 if (_gameState.dBlocksLeft > 0) {
                     _$required.show().text(`You must finalize within ${_gameState.dBlocksLeft} blocks.`);
-                    _refreshHand(_gameState.dHand, _gameState.draws);
+                    _refreshHand(_gameState.dHand, _gameState.draws, true, true);
                 } else {
-                    _refreshHand(_gameState.dHand, 0);
+                    _refreshHand(_gameState.dHand, 0, true, true);
                 }
 
                 // Allow user to bet only with credits, should they want to replay.
@@ -571,7 +572,7 @@ function Game(vp) {
                 // They lost. Not much to do.
                 _$finalizeLoss.show();
                 _$msg.empty().append(`You lost. Try again?`);
-                _refreshHand(_gameState.dHand, _gameState.draws);
+                _refreshHand(_gameState.dHand, _gameState.draws, true, true);
             }
             return;
         }
@@ -582,7 +583,7 @@ function Game(vp) {
             if (_gameState.payout.gt(0)) {
                 _$e.addClass("isWinner");
                 _$payTable.find("tr").eq(_gameState.handRank).addClass("won");
-                _refreshHand(_gameState.dHand, _gameState.draws);
+                _refreshHand(_gameState.dHand, _gameState.draws, true, true);
             }
             _$msg.empty().append(`You've been credited ${ethUtil.toEth(_gameState.payout)} ETH for ${_gameState.dHand.getRankString()}.`);
             return;
@@ -626,7 +627,6 @@ function Game(vp) {
 				_$msState.text("Complete");
 				_$msStatus.text("game complete");
 			}
-			_$msRank.text(_gameState.dHand.getRankString());
 			return;
 		}
 		if (_gameState.state == "finalized") {
@@ -638,7 +638,6 @@ function Game(vp) {
 				_$msState.text("Complete");
 				_$msStatus.text("play again?");
 			}
-			_$msRank.text(_gameState.dHand.getRankString());
 			return;
 		}
 
@@ -646,44 +645,10 @@ function Game(vp) {
 		throw new Error(`Unexpected game state: ${_gameState.state}`);
 	}
 
-	function _refreshHand(hand, draws) {
-		if (hand == null) {
-			_$cards.removeClass("held").empty();
-			_$msCards.removeClass("held").empty();
-			return;
-		}
-
-		if (draws.toNumber) draws = draws.toNumber();
-		hand.cards.forEach((c,i)=>{
-			const isDrawn = draws & Math.pow(2, i);
-			const $card = _$cards.eq(i);
-			const $msCard = _$msCards.eq(i);
-			
-			$card.empty().append(c.toString(true));
-			$msCard.empty().append(c.toString(true));
-			// update held status if they arent drawing right now
-			if (_gameState.state != "dealt") {
-				if (isDrawn) {
-					$card.removeClass("held");
-					$msCard.removeClass("held");
-				} else {
-					$card.addClass("held");
-					$msCard.addClass("held");
-				}
-			}
-		});
-	}
-
-	// Called when a card is clicked
-	function _toggleHold(){
-		if (_gameState.state != "dealt") return;
-		if (_$hand.is(".frozen")) return;
-		_$cards.map((i,c) => {
-			if (c !== this) return;
-			_$cards.eq(i).toggleClass("held");
-			_$msCards.eq(i).toggleClass("held");
-		})
-		
+	function _refreshHand(hand, draws, freeze, showHandRank) {
+        if (freeze === undefined) freeze = true;
+        _hd.setHand(hand, draws, freeze, showHandRank);
+        _miniHd.setHand(hand, draws, freeze, showHandRank);
 	}
 
 	// draws proper multipliers in the paytable, from gameState or curPayTable
@@ -721,14 +686,6 @@ function Game(vp) {
 				$rows.eq(i+1).find("td").eq(2).text(`${payout} ETH`);
 			});
 		}
-	}
-
-	function _getDraws() {
-		var drawsNum = 0;
-		_$cards.each(function(i,c){
-			drawsNum += $(c).is(".held") ? 0 : Math.pow(2,i);
-		});
-		return drawsNum;
 	}
 
 	function _initDealButton() {
@@ -843,7 +800,7 @@ function Game(vp) {
 			$(this).blur();
 			if ($(this).is(".disabled")) return;
 			
-			const draws = _getDraws();
+			const draws = _hd.getDraws();
 			if (draws == 0) {
 				_isNotDrawing = true;
 				_onEvent({
@@ -859,10 +816,10 @@ function Game(vp) {
 				return;
 			}
 			
-			_$hand.addClass("frozen");
+			_hd.freeze(true);
 			$btn.attr("disabled", "disabled").addClass("disabled").text("Drawing...");
 			const reset = ()=>{
-				_$hand.removeClass("frozen");
+				_hd.freeze(false);
 				$btn.removeAttr("disabled").removeClass("disabled").text("Draw");
 				_$msLoading.addClass("error");
 			}
@@ -945,7 +902,7 @@ function Game(vp) {
 
 				const $txStatus = util.$getTxStatus(promise, {
 					waitTimeMs: waitTimeMs,
-					onClear: () => { $statusArea.hide();  _$msLoading.hide(); },
+					onClear: () => { $statusArea.hide(); _$msLoading.hide(); },
 					onSuccess: (res) => {
 						const success = res.events.find(e=>e.name=="FinalizeSuccess");
 						const failure = res.events.find(e=>e.name=="FinalizeFailure");
@@ -1050,11 +1007,6 @@ function Better() {
         _credits = v || new BigNumber(0);
         _self.refresh();
     };
-    this.setBet = function(v) {
-        v = new BigNumber(v);
-        _$txt.val(v.div(1e18));
-        _refreshBet();
-    }
     this.setMax = function(v) {
         _maxBet = v || new BigNumber(0);
         _self.refresh();
@@ -1073,6 +1025,11 @@ function Better() {
         _betType = _mode=="both" ? _betType : _mode;
         _self.refresh();
     };
+    this.setBet = function(v) {
+        v = new BigNumber(v);
+        _$txt.val(v.div(1e18));
+        _refreshBet();
+    }
     this.freeze = function(bool) {
         if (bool) {
             _$e.addClass("disabled");
@@ -1085,7 +1042,6 @@ function Better() {
         }
     };
 
-    // upates scale
     this.refresh = util.debounce(10, _refresh);
     this.onChange = function(fn) {
         _onChange = fn;
@@ -1191,6 +1147,144 @@ function Better() {
     }())
 }
 
+function HandDisplay() {
+    const _self = this;
+    const _$e = $(`
+        <div class='HandDisplay'>
+            <div class="hand-rank">Hand Rank</div>
+        </div>
+    `);
+    (function(){
+        const html = `
+            <div class="card-ctnr">
+                <div class="card">
+                    <div class="back"></div>
+                    <div class="face">
+                        <div class="cardIcon">
+                            <div class="corner"></div>
+                            <div class="suit"></div>
+                        </div>
+                        <div class="heldIcon">HELD</div>
+                    </div>
+                </div>
+            </div>
+        `;
+        for (var i=0; i<5; i++) _$e.append($(html));
+    }())
+    const _$cards = _$e.find(".card").data("card", {cardNum: -1});
+    const _$handRank = _$e.find(".hand-rank");
+
+    var _curHandNumber = 0;
+    var _isFrozen = false;
+    const _EMPTY_CARD = {cardNum: -1};
+
+    // Events
+    _$cards.click(_toggleHeld);
+
+    this.$e = _$e;
+
+    // do not allow clicking to hold a card
+    this.freeze = function(bool) {
+        _isFrozen = bool;
+        _isFrozen ? _$e.addClass("frozen") : _$e.removeClass("frozen");
+    }
+
+    // animate in/out any changed cards, and set cards as held
+    this.setHand = function(hand, draws, freeze, showHandRank) {
+        if (!draws) draws = 0;
+        if (draws.toNumber) draws = draws.toNumber();
+        const isEmpty = !hand || !hand.isValid();
+        _self.freeze(freeze);
+
+        // Do not double-set the same hand.
+        // It screws up animations.
+        const handNumber = hand ? hand.toNumber() : 0;
+        if (_curHandNumber == handNumber) return;
+        _curHandNumber = handNumber;
+
+        // update "card" data and "held" for each card.
+        // track any cards that have changed, we will animate them.
+        const changedCards = [];
+        _$cards.map((i,c) => {
+            const $card = $(c);
+            if (isEmpty) {
+                const isChanged = !!$card.data("card");
+                $card.removeClass("held")
+                $card.data("card", _EMPTY_CARD);
+                if (isChanged) changedCards.push($card);
+            } else {
+                const card = hand.cards[i];
+                const isDrawn = draws & Math.pow(2, i);
+                const isChanged = $card.data("card").cardNum != card.cardNum;
+                isDrawn ? $card.removeClass("held") : $card.addClass("held");
+                $card.data("card", card);
+                if (isChanged) changedCards.push($card);
+            }
+        });
+        
+        // animate any changed cards
+        var pauseTime = 0;
+        if (changedCards.length) {
+            const flipInterval = 100;
+            const flipDuration = 400;
+
+            // hide shown cards, from left to right, pausing flipInterval between each
+            changedCards.forEach($card => {
+                if ($card.hasClass("show")) {
+                    setTimeout(() => $card.removeClass("show"), pauseTime);
+                    pauseTime += flipInterval;
+                }
+            });
+
+            // show cards, from left to right, pausing flipInterval between each.
+            if (pauseTime) pauseTime += 200;
+            changedCards.forEach($card => {
+                const card = $card.data("card");
+                if (card.cardNum == -1) return;
+                setTimeout(() => {
+                    const $cardIcon = $card.find(".cardIcon");
+                    $cardIcon.removeClass().addClass("cardIcon").addClass(card.toClass());
+                    $cardIcon.find(".corner").html(card.toValString() + card.toSuitString());
+                    $cardIcon.find(".suit").html(card.toSuitString());
+                    $card.addClass("show");
+                }, pauseTime);
+                pauseTime += flipInterval;
+            });
+        }
+
+        // show handRank
+        _$cards.removeClass("hilited");
+        _$handRank.removeClass("show");
+        if (showHandRank) {
+            if (!hand) return;
+            setTimeout(()=>{ 
+                hand.getWinningCards().forEach(i => _$cards.eq(i).addClass("hilited"));
+                hand.isWinner()
+                    ? _$handRank.addClass("winner")
+                    : _$handRank.removeClass("winner");
+                _$handRank.text(hand.getRankString());
+                _$handRank.addClass("show");
+            }, pauseTime);
+        }
+    }
+
+    this.getDraws = function() {
+        var drawsNum = 0;
+        _$cards.each(function(i,c){
+            drawsNum += $(c).is(".held") ? 0 : Math.pow(2,i);
+        });
+        return drawsNum;
+    }
+
+    function _toggleHeld(e) {
+        if (_isFrozen) return;
+        _$cards.each((i,c) => {
+            if (c !== e.currentTarget) return;
+            _$cards.eq(i).toggleClass("held");
+        });
+    }
+}
+
 
 var PUtil = (function(){
 	function PokerUtil() {
@@ -1206,13 +1300,7 @@ var PUtil = (function(){
 	            if (!numOrArray) return [];
 	            function cardFromNum(cardNum) {
 	                if (typeof cardNum !== "number") return null;
-	                return {
-	                    cardNum: cardNum,
-	                    val: cardNum % 13,
-	                    suit: Math.floor(cardNum / 13),
-	                    isAce: cardNum % 13 == 0,
-	                    toString: (asHtml)=>cardToString(cardNum, asHtml)
-	                };
+	                return new Card(cardNum);
 	            }
 
 	            var arr;
@@ -1267,6 +1355,20 @@ var PUtil = (function(){
 	        this.isWinner = function(){
 	        	return this.getRank() <= 9;
 	        }
+
+            // Returns an array of card indexes that contribute to winning hand.
+            this.getWinningCards = function() {
+                const rank = this.getRank();
+                if (rank == 11 || rank == 10) return [];
+                // rf, sf, fh, fl, st: return all cards
+                if ([1,2,4,5,6].indexOf(rank)!==-1) return [0,1,2,3,4];
+                // cards that have non-unique values
+                const counts = (new Array(13)).fill(0);
+                _cards.forEach(c => counts[c.val]++);
+                return _cards
+                    .map((c,i)=>counts[c.val] > 1 ? i : null)
+                    .filter(i=>i!=null);
+            }
 
 	        this.getRank = function(){
 	            if (this.isValid()) {
@@ -1348,31 +1450,37 @@ var PUtil = (function(){
 	            counts = counts.filter(c => !!c).sort();
 	            return arr.sort().every((exp,i) => exp===counts[i]);
 	        }
-	        function cardToString(cardNum, asHtml, asUnicode) {
-	        	const valStr = (function(val){
+	    }
+
+        function Card(cardNum) {
+            this.cardNum = cardNum;
+            this.val = cardNum % 13;
+            this.suit = Math.floor(cardNum / 13);
+            this.isAce = cardNum % 13 == 0;
+        }
+        Card.prototype = {
+            toValString: function() {
+                return (function(val){
                     if (val == 0) return 'A';
                     if (val <= 9) return `${val+1}`;
                     if (val == 10) return "J";
                     if (val == 11) return "Q";
                     if (val == 12) return "K";
-                }(cardNum % 13));
-                const suitStr = (function(suit){
-                    if (suit == 0) return '♠';
-                    if (suit == 1) return '♥';
-                    if (suit == 2) return '♦';
-                    if (suit == 3) return '♣';
-                }(Math.floor(cardNum / 13)));
-                const suitClass = (function(suit){
-                    if (suit == 0) return 'spade';
-                    if (suit == 1) return 'heart';
-                    if (suit == 2) return 'diamond';
-                    if (suit == 3) return 'club';
-                }(Math.floor(cardNum / 13)));
+                }(this.val));
+            },
+            toSuitString: function() {
+                return (['♠','♥','♦','♣'])[this.suit];    
+            },
+            toClass: function() {
+                return (['spade','heart','diamond','club'])[this.suit];
+            },
+            toString: function(asHtml) {
+                const str = this.toValString() + this.toSuitString();
                 return asHtml
-                	? `<span class="cardStr ${suitClass}">${valStr}${suitStr}</span>`
-                	: `${valStr}${suitStr}`;
-	        }
-	    }
+                    ? `<span class="cardStr ${this.toClass()}">${str}</span>`
+                    : str;
+            }
+        }
 
 	    // - blockhash: a string of hexEncoded 256 bit number
 	    // - gameId: a number or BigNumber

@@ -293,58 +293,34 @@
 						right: 4px;
 						color: green;
 					}
-					.Tabber .mini-status .rank {
-						position: absolute;
-						z-index: 1;
-						top: 37px;
-						left: 0;
-						right: 0;
-						margin: 0px auto;
-						width: 120px;
-						border-radius: 2px;
-					    opacity: 0;
-					    transition: opacity .3s;
+					.Tabber .mini-status .HandDisplay {
+						margin-top: 10px;
+						font-size: 50%;
+						opacity: .8;
 					}
-						.Tabber .mini-status.drawn .rank,
-						.Tabber .mini-status.finalized .rank {
-							opacity: .8;
-							color: #CCC;
-							background: rgba(100, 100, 100, 1);
-							box-shadow: inset 0px 0px 10px black;
-						}
-						.Tabber .mini-status.winner .rank {
-							background: green;
-							box-shadow: inset 0px 0px 10px lime;
-							color: white;
-							letter-spacing: .1em;
-						}
-
-					.Tabber .mini-status .hand {
-						text-align: center;
-						padding-top: 8px;
+					.Tabber .mini-status .HandDisplay .card-ctnr {
+						height: 32px;
+						width: 23px;
+						margin: 0px 2px;
 					}
-						.Tabber .mini-status .card {
-							display: inline-block;
-							vertical-align: middle;
-							height: 32px;
-							width: 23px;
-							line-height: 15px;
-							font-size: 9px;
-							border: 1px solid black;
-							border-radius: 2px;
-							background: linear-gradient(135deg, rgb(100,50,50) 0%, rgb(80,40,40) 100%);
-							transition: box-shadow .3s;
+						.Tabber .mini-status .HandDisplay .card {
+							border-radius: 3px;
 						}
-						.Tabber .mini-status .cardStr {
-							opacity: .8;
-							font-weight: bold;
+						.Tabber .mini-status .HandDisplay .card .heldIcon {
+							display: none;
 						}
-						.Tabber .mini-status .card.held {
-							box-shadow: 0px 0px 2px 1px rgba(0,255,255,.5);
+						.Tabber .mini-status .HandDisplay .card .suit {
+							display: none;
 						}
-						.Tabber .mini-status .card.win {
-							box-shadow: 0px 0px 2px 1px lime;
+						.Tabber .mini-status .HandDisplay .card .corner {
+							margin-top: -3px;
+							margin-left: -4px;
 						}
+					.Tabber .mini-status .HandDisplay .hand-rank {
+						padding: 0px 4px;
+						color: white;
+					}
+						
 
 					.Tabber .mini-status .bottom {
 						position: relative;
@@ -542,7 +518,34 @@
 				padding: 10px 0px;
 				text-align: center;
 			}
-				
+			.Game .statusArea {
+				display: none;
+				padding: 0px 10px;
+			}
+			.Game .statusArea .TxStatus {
+				font-size: 80%;
+				border-radius: 3px;
+				background: rgba(255,255,255,.5);
+			}
+			.Game .actionBtn {
+				font-size: 120%;
+				padding: 5px 0px;
+				margin: 0px 10px;
+				width: 120px;
+				letter-spacing: .1em;
+				border-radius: 5px;
+				cursor: pointer;
+				color: white;
+				background: blue;
+				transition: color .5s, background .5s, opacity .5s;
+			}
+			.Game .actionBtn.disabled {
+				cursor: not-allowed;
+				color: #DDD;
+				background: #888;
+				opacity: .9;
+			}
+
 			.Better {
 				display: table;
 				box-sizing: border-box;
@@ -602,53 +605,135 @@
 						letter-spacing: .1em;
 						text-align: center;
 					}
-				
-			.Game .statusArea {
-				display: none;
-				padding: 0px 10px;
-			}
-			.Game .statusArea .TxStatus {
-				font-size: 80%;
-				border-radius: 3px;
-				background: rgba(255,255,255,.5);
-			}
-			.Game .actionBtn {
-				font-size: 120%;
-				padding: 5px 0px;
-				margin: 0px 10px;
-				width: 120px;
-				letter-spacing: .1em;
-				border-radius: 5px;
-				cursor: pointer;
-				color: white;
-				background: blue;
-				transition: color .5s, background .5s, opacity .5s;
-			}
-			.Game .actionBtn.disabled {
-				cursor: not-allowed;
-				color: #DDD;
-				background: #888;
-				opacity: .9;
-			}
 
-			.Game .cardsCtnr {
+			.Game .hand-ctnr {
 				padding: 0px 15px;
 				margin: 30px 0px 0px 0px;
+			}
+			
+			.HandDisplay {
+				position: relative;
 				text-align: center;
 			}
-			.Game .cardsCtnr .card {
+			.HandDisplay .hand-rank {
+				position: absolute;
+				bottom: 14%;
+				left: 50%;
+				transform: translateX(-50%);
+				padding: 5px 20px;
+
+				font-size: 200%;
+				color: white;
+				border: 1px solid black;
+				background: rgba(100, 100, 100, 1);
+				box-shadow: inset 0px 0px 10px black, 3px 3px 5px 0px rgba(0,0,0,.6);
+
+				opacity: 0;
+				transition: opacity .5s;
+			}
+			.HandDisplay .hand-rank.winner {
+				background: green;
+				border: 1px solid green;
+				text-shadow: 0px 0px 8px lime;
+				box-shadow: inset 0px 0px 15px 3px lime, 3px 3px 5px 0px rgba(0,0,0,.6);
+				color: white;
+				letter-spacing: .1em;
+			}
+			.HandDisplay .hand-rank.show {
+				z-index: 3;
+				opacity: .95;
+			}
+
+			.HandDisplay .card-ctnr {
 				display: inline-block;
 				height: 168px;
+				width: 120px;
+				margin: 0px 10px;
+				perspective: 1000px;
+			}
+			
+			.HandDisplay .card {
+				position: relative;
+				box-sizing: border-box;
+				width: 100%;
+				height: 100%;
 				border: 1px solid black;
 				border-radius: 10px;
-				width: 120px;
-				margin: 0px 7px;
-				background: linear-gradient(135deg, rgb(100,50,50) 0%, rgb(80,40,40) 100%);
-				transition: box-shadow .3s;
+				cursor: pointer;
+				transform-style: preserve-3d;
+				transition: 0.4s;
 			}
-			.Game .cardsCtnr .card.held {
-				box-shadow: 0px 0px 5px 2px cyan;
-			}
+				.HandDisplay.frozen .card { cursor: default; }
+				.HandDisplay .card.show { transform: rotateY(180deg); }
+				.HandDisplay .card.held { border: 1px solid black; }
+
+				/* front and back styles */
+				.HandDisplay .card .back,
+				.HandDisplay .card .face {
+					position: absolute;
+					top: 0;
+					left: 0;
+					width: 100%;
+					height: 100%;
+					border-radius: inherit;
+					backface-visibility: hidden;
+				}
+				.HandDisplay .card .back {
+					z-index: 2;
+					transform: rotateY(0deg);
+					background: linear-gradient(135deg, rgb(100,50,50) 0%, rgb(80,40,40) 100%);
+				}
+				.HandDisplay .card .face {
+					transform: rotateY(180deg);
+					background: linear-gradient(135deg, rgb(240,240,240) 0%, rgb(180,180,180) 100%);
+				}
+				.HandDisplay .card.hilited .face {
+					background: linear-gradient(135deg, rgb(225, 255, 225) 0%, rgb(0, 200, 0) 100%);
+				}
+					.HandDisplay .card .heldIcon {
+						position: absolute;
+						left: 0;
+						right: 0;
+						width: 80%;
+						margin: auto;
+						top: 50%;
+    					transform: translateY(-50%);
+
+						color: white;
+						text-align: center;
+						background: rgba(0,105,165,.8);
+						font-size: 90%;
+						padding: 3px;
+						border-radius: 5px;
+						letter-spacing: .2em;
+						
+						opacity: 0;
+						transition: opacity .2s;
+					}
+					.HandDisplay .card.held .heldIcon {
+						opacity: 1;
+					}
+					.HandDisplay .card .cardIcon .corner {
+						position: relative;
+						padding: 5px;
+						text-align: left;
+						line-height: 1em;
+						font-size: 180%;
+					}
+					.HandDisplay .card .cardIcon .suit {
+						position: absolute;
+						font-size: 400%;
+						left: 0;
+						right: 0;
+						margin: 0 auto;
+						top: 50%;
+    					transform: translateY(-50%);
+					}
+
+				.HandDisplay .card .cardIcon.heart,
+				.HandDisplay .card .cardIcon.diamond { color: red; }
+				.HandDisplay .card .cardIcon.spade,
+				.HandDisplay .card .cardIcon.club { color: black; }
 		</style>
 		<div class="Game template" style="display: none;">
 			<div class="top">
@@ -750,14 +835,14 @@
 							<button class="actionBtn btnPlayAgain">Play Again</button>
 						</div>
 						<div class="finalizeWin actionArea">
-							<div class="rebet">
+							<!-- <div class="rebet">
 								<div class="tx">
 									<table width="100%"><tr>
 										<td class="statusArea" width=100%></td>
 										<td align="center"><button class="actionBtn btnRebet">Play Again</button></td>
 									</tr></table>
 								</div>
-							</div>
+							</div> -->
 							<div class="get-credits">
 								<div class="tx">
 									<table width="100%"><tr>
@@ -773,35 +858,16 @@
 					</td>
 				</tr></table>
 			</div>
-			<div class="cardsCtnr">
+			<div class="hand-ctnr">
 				<div class="titleBar">
 					Cards
-				</div>
-				<div class="hand">
-					<div class="card">
-					</div>
-					<div class="card">
-					</div>
-					<div class="card">
-					</div>
-					<div class="card">
-					</div>
-					<div class="card">
-					</div>
 				</div>
 			</div>
 			<div class="mini-status">
 				<div>&nbsp;</div>
 				<div class="bet"></div>
 				<div class="state"></div>
-				<div class="rank"></div>
-				<div class="hand">
-					<div class="card"></div>
-					<div class="card"></div>
-					<div class="card"></div>
-					<div class="card"></div>
-					<div class="card"></div>
-				</div>
+				<div class="hand"></div>
 				<div class="bottom">
 					<div class="status"></div>
 					<div class="loading"></div>
