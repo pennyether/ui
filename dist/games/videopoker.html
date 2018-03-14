@@ -132,8 +132,8 @@
 						<div class="feature tipLeft" title="See your initial hand as soon as your transaction is mined. See your final hand as soon as you submit your draws.">
 							Fast Gameplay
 						</div><br>
-						<div class="feature tipLeft" title="Our UI shows you what's happening every step of the way.">
-							Responsive UI
+						<div class="feature tipLeft" title="Our UI automatically reloads any pending games, allows you to easily choose gas prices, and tracks the progress of all transactions.">
+							Intelligent UI
 						</div>
 					</div>
 				</div>
@@ -168,10 +168,10 @@
 						<div class="feature tipLeft" title="Our pay table provides over 99% returns when played optimally.">
 							Generous Payoffs
 						</div><br>
-						<div class="feature tipLeft" title="View your initial hand as soon as your bet gets mined. View your results after your draws are mined.">
-							The fastest results
+						<div class="feature tipLeft" title="It's easy to play several hands at the same time.">
+							Play Multiple Games
 						</div><br>
-						<div class="feature tipLeft" title="We strive to keep the gas cost low. For repeat players, a full game is typically under 100,000 gas!">
+						<div class="feature tipLeft" title="We strive to keep the gas costs low. For repeat players, a full game is typically under 100,000 gas!">
 							Low gas costs
 						</div><br>
 					</div>
@@ -517,44 +517,61 @@
 				margin-top: 15px;
 				box-shadow: 2px 2px 4px 0px rgba(0,0,0,.5);
 			}
-			.Game .actionFooter {
-				margin-top: 10px;
-				padding-top: 10px;
-				border-top: 1px dotted rgba(255,255,255,.1);
-				text-align: center;
-			}
-			.Game .statusArea {
-				display: none;
-				padding: 0px 10px;
-			}
-			.Game .statusArea .TxStatus {
-				font-size: 80%;
-				border-radius: 3px;
-				background: rgba(255,255,255,.5);
-			}
-			.Game .actionBtn {
-				font-size: 120%;
-				padding: 5px 20px;
-				margin: 0px 10px;
-				white-space: nowrap;
-				letter-spacing: .1em;
-				border-radius: 5px;
-				cursor: pointer;
-				color: white;
-				background: blue;
-				transition: color .5s, background .5s, opacity .5s;
-			}
-			.Game .actionBtn.disabled {
-				cursor: not-allowed;
-				color: #DDD;
-				background: #888;
-				opacity: .9;
-			}
+				.Game .actionArea .statusArea {
+					padding: 0px 10px;
+				}
+				.Game .actionArea .actionFooter {
+					margin-top: 10px;
+					padding-top: 10px;
+					border-top: 1px dotted rgba(255,255,255,.1);
+					text-align: center;
+				}
+				.Game .actionArea .statusArea .TxStatus {
+					font-size: 80%;
+					border-radius: 3px;
+					background: rgba(255,255,255,.5);
+				}
+				.Game .actionArea .actionBtn {
+					font-size: 120%;
+					padding: 5px 20px;
+					margin: 0px 10px;
+					white-space: nowrap;
+					letter-spacing: .1em;
+					border-radius: 5px;
+					cursor: pointer;
+					color: white;
+					background: blue;
+					transition: color .5s, background .5s, opacity .5s;
+				}
+				.Game .actionArea .actionBtn.disabled {
+					cursor: not-allowed;
+					color: #DDD;
+					background: #888;
+					opacity: .9;
+				}
+				.Game .finalizeWin .bulletList {
+					display: inline-block;
+					text-align: left;
+					white-space: nowrap;
+					padding-bottom: 10px;
+					font-size: 90%;
+				}
+				.Game .finalizeWin .bulletList .bullet {
+
+				}
+				.Game .finalizeWin .bulletList .bullet:before {
+					content: "✓ ";
+				}
 
 			.Better {
 				display: table;
 				box-sizing: border-box;
 				width: 100%;
+				opacity: 1;
+				transition: opacity .5s;
+			}
+			.Better.disabled {
+				opacity: .5;
 			}
 				.Better .value {
 					display: table-cell;
@@ -816,6 +833,15 @@
 							</div>
 							<div class="required">You have 255 blocks (1hr 5m) to take action.</div>
 						</div>
+						<!--
+							- Each .actionArea is shown depending on the gameState.state:
+							- Upon each gameState.state change:
+								- all .actionBtn's are reset
+								- all .statusArea's are emptied out
+							- Upon a TX:
+								- .statusArea is shown and auto-populated with .TxStatus
+								- .actionBtn's text is auto-populated depending on TX state
+						-->
 						<div class="invalid actionArea" style="text-align: center;">
 							This game is no longer active. This may be due to the game being completed in another tab, or due to a blockchain re-org.
 						</div>
@@ -843,14 +869,16 @@
 							</div>
 						</div>
 						<div class="finalizeWin actionArea">
-							<table width="100%"><tr>
-								<td class="statusArea" width=100%></td>
-								<td align="center">
-									<button class="actionBtn btnFinalize" data-txt-default="Get Credits" data-txt-pending="Crediting..." data-txt-success="Credited!"></button>
-									<br>
-									<label class="tipRight dontTip playAgain" title="By checking this, some or all of your winnings will be used to play another hand."><input type=checkbox checked> and play another hand</label>
-								</td>
-							</tr></table>
+							<div style="text-align: center">
+								<div class="bulletList">
+									<div class="bullet">.001 ETH will be bet on a new hand.</div>
+									<div class="bullet">.004 ETH will be credited to your account.</div>
+								</div>
+								<button class="actionBtn btnFinalize" data-txt-default="Claim Winnings" data-txt-pending="Claiming..." data-txt-success="Claimed!"></button>
+								<br>
+								<label class="playAgain"><input type=checkbox checked> and bet .001 ETH</label>
+							</div>
+							<div class="actionFooter statusArea"></div>
 						</div>
 						<div class="finalized actionArea">
 							<div style="text-align: center;">

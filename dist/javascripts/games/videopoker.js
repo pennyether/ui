@@ -421,6 +421,7 @@ function Game(vp) {
     _hd.onHoldToggled(_onHoldToggled);
     _miniHd.$e.appendTo(_$msHand);
     _miniHd.freeze(true);
+    _better.$e.prependTo(_$bet);
 
     // Events
     _$btnPlayAgain.click(()=>{
@@ -491,7 +492,6 @@ function Game(vp) {
         _$details.hide();
         _$required.hide();
         _$msLoading.hide();
-        _better.$e.detach();
 
         // reset statusAreas and btns
 		_$e.find(".statusArea").empty().hide();
@@ -509,7 +509,7 @@ function Game(vp) {
                 _$bet.show();
                 _$msg.text(`Select a bet amount, and press "Deal"`)
                 _better.setMode("both");
-                _better.$e.prependTo(_$bet);
+                _better.freeze(false);
             } else {
                 _$invalid.show();
                 _$msg.text(`This game is invalid.`);
@@ -557,11 +557,6 @@ function Game(vp) {
                 } else {
                     _refreshHand(_gameState.dHand, 0, true, true);
                 }
-
-                // Allow user to bet only with credits, should they want to replay.
-                _better.setMode("credits");
-                _better.setCredits(_gameState.payout);
-                _better.$e.prependTo(_$finalizeWin);
             } else {
                 // They lost. Not much to do.
                 _$finalizeLoss.show();
@@ -767,6 +762,7 @@ function Game(vp) {
             if (bet===null) { return; }
 
             try {
+                _better.freeze(true);
                 _gameState.uiid = Math.floor(Math.random() * 1000000000000);
                 return _better.getBetType() == "eth"
                     ? vp.bet([_gameState.uiid], {value: bet, gas: 130000, gasPrice: gasPrice})
@@ -788,7 +784,11 @@ function Game(vp) {
                 obj.reject("Did not receive an expected event!");
             }
         };
-        _initActionButton($btn, getPromiseFn, callbackFn);
+        const errFn = () => {
+            _better.freeze(false);
+        };
+
+        _initActionButton($btn, getPromiseFn, callbackFn, errFn);
     }
 
 	
@@ -828,10 +828,8 @@ function Game(vp) {
                 obj.resolve(`Your drawn cards will be shown shortly...`);
                 _onEvent(drawSuccess);
             } else if (drawFailure) {
-                _hd.freeze(false);
                 obj.reject(`Drawing failed: ${drawFailure.args.msg}`);
             } else {
-                _hd.freeze(false);
                 obj.reject(`Did not receive an expected event!`);
             }
         };
@@ -968,12 +966,10 @@ function Better() {
     this.freeze = function(bool) {
         if (bool) {
             _$e.addClass("disabled");
-            _$txt.attr("disabled", "disabled");
-            _$slider.attr("disabled", "disabled");
+            _$e.find("input").attr("disabled", "disabled");
         } else {
             _$e.removeClass("disabled");
-            _$txt.removeAttr("disabled");
-            _$slider.removeAttr("disabled");
+            _$e.find("input").removeAttr("disabled");
         }
     };
 
@@ -1130,33 +1126,40 @@ function HandDisplay() {
         if (!draws) draws = 0;
         if (draws.toNumber) draws = draws.toNumber();
         const isEmpty = !hand || !hand.isValid();
+
+        // Set frozen, and set held cards
         _self.freeze(freeze);
-
-        // Do not double-set the same hand.
-        // It screws up animations.
-        const handNumber = hand ? hand.toNumber() : 0;
-        if (_curHandNumber == handNumber) return;
-        _curHandNumber = handNumber;
-
-        // update "card" data and "held" for each card.
-        // track any cards that have changed, we will animate them.
-        const changedCards = [];
-        _$cards.map((i,c) => {
+        _$cards.map((i,c)=>{
             const $card = $(c);
-            if (isEmpty) {
-                const isChanged = !!$card.data("card");
-                $card.removeClass("held")
-                $card.data("card", _EMPTY_CARD);
-                if (isChanged) changedCards.push($card);
-            } else {
-                const card = hand.cards[i];
+            if (isEmpty) $card.removeClass("held");
+            else {
                 const isDrawn = draws & Math.pow(2, i);
-                const isChanged = $card.data("card").cardNum != card.cardNum;
                 isDrawn ? $card.removeClass("held") : $card.addClass("held");
-                $card.data("card", card);
-                if (isChanged) changedCards.push($card);
             }
         });
+
+        // Check to see if hand is the same as we currently have.
+        const handNumber = hand ? hand.toNumber() : 0;
+        const isNewHand = _curHandNumber != handNumber;
+        _curHandNumber = handNumber;
+
+        // update cards, keep track of those that changed
+        const changedCards = [];
+        if (isNewHand) {
+            _$cards.map((i,c) => {
+                const $card = $(c);
+                if (isEmpty) {
+                    const isChanged = !!$card.data("card");
+                    $card.data("card", _EMPTY_CARD);
+                    if (isChanged) changedCards.push($card);
+                } else {
+                    const card = hand.cards[i];
+                    const isChanged = $card.data("card").cardNum != card.cardNum;
+                    $card.data("card", card);
+                    if (isChanged) changedCards.push($card);
+                }
+            });
+        }
         
         // animate any changed cards
         var pauseTime = 0;
@@ -1189,11 +1192,10 @@ function HandDisplay() {
         }
 
         // show handRank
-        _$cards.removeClass("hilited");
-        _$handRank.removeClass("show");
         if (showHandRank) {
             if (!hand) return;
             setTimeout(()=>{ 
+                _$handRank.addClass("show");
                 hand.getWinningCards().forEach(i => _$cards.eq(i).addClass("hilited"));
                 if (hand.isWinner()) {
                     _$handRank.addClass("winner");
@@ -1202,8 +1204,10 @@ function HandDisplay() {
                     _$handRank.removeClass("winner");
                     _$handRank.text(hand.getRankString());
                 }
-                _$handRank.addClass("show");
             }, pauseTime);
+        } else {
+            _$cards.removeClass("hilited");
+            _$handRank.removeClass("show");
         }
     }
 
@@ -1350,7 +1354,7 @@ var PUtil = (function(){
 	                8: "Two Pair",
 	                9: "Jacks or Better",
 	                10: isLowPair() ? "Low Pair" : "High Card",
-	                11: "Not Computable"
+	                11: "Invalid Hand"
 	            })[rank];
 	        }
 
