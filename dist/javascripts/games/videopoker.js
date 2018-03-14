@@ -385,16 +385,16 @@ function Tabber() {
 function Game(vp) {
 	const _$e = $(".Game.template").clone().removeClass("template").show();
 	const _$payTable = _$e.find(".payTable");
-    // better, hand
+    // better, hand, miniHand
     const _better = new Better();
     const _hd = new HandDisplay();
     const _miniHd = new HandDisplay();
 	// status
 	const _$status = _$e.find(".gameStatus");
-	const _$msg = _$status.find(".msg");
 	const _$details = _$status.find(".details");
 	const _$gameBet = _$details.find(".gameBet");
 	const _$gameId = _$details.find(".gameId");
+    const _$msg = _$status.find(".msg");
 	const _$required = _$status.find(".required");
 	// mini-status
 	const _$ms = _$e.find(".mini-status").detach();
@@ -403,8 +403,6 @@ function Game(vp) {
     const _$msHand = _$ms.find(".hand");
     const _$msLoading = _$ms.find(".loading");
     const _$msStatus = _$ms.find(".status");
-	// cards
-	const _$hand = _$e.find(".hand");
 	// invalid action
 	const _$invalid = _$e.find(".actionArea.invalid");
 	// bet action
@@ -415,14 +413,19 @@ function Game(vp) {
 	const _$finalizeWin = _$e.find(".actionArea.finalizeWin").hide();
 	const _$finalizeLoss = _$e.find(".actionArea.finalizeLoss").hide();
 	const _$finalized = _$e.find(".actionArea.finalized").hide();
+    // buttons
+	const _$btnPlayAgain = _$e.find(".btnPlayAgain");
 
-	const _$btnPlayAgain = _$e.find(".btnPlayAgain").click(()=>{
-		_self.setGameState({state: "betting"});
-	});
-
+    // Insert hand objects to correct spots
     _hd.$e.appendTo(_$e.find(".hand-ctnr"));
+    _hd.onHoldToggled(_onHoldToggled);
     _miniHd.$e.appendTo(_$msHand);
     _miniHd.freeze(true);
+
+    // Events
+    _$btnPlayAgain.click(()=>{
+        _self.setGameState({state: "betting"});
+    });
     _better.onChange(_refreshPayTable);
 
 	// const _$logs = _$e.find(".logs").hide();
@@ -456,55 +459,47 @@ function Game(vp) {
 		_latestBlock = settings.latestBlock;
 		_avgBlockTime = settings.avgBlockTime;
         _better.setMin(settings.minBet);
+        _better.setMax(settings.maxBet);
         _better.setCredits(settings.credits);
 		_refreshDebounce();
 	}
 
 	this.setGameState = function(gameState) {
+        // Skip re-updating state to "dealt" if we're skipping drawing.
+        // Unless there's a new hand -- then we should show it.
 		if (_isNotDrawing && gameState.state=="dealt") {
-			// Skip re-updating state to "dealt" if we're skipping drawing.
 			const curHand = _gameState.iHand.toNumber();
 			const dealtHand = gameState.iHand.toNumber();
 			if (curHand==dealtHand) return;
 		}
+        // Skip resetting if state didn't change.
+        // There may workflow going on (eg, a pending TX)
 		if (gameState.state != _gameState.state) _reset();
+        // Copy gameState, and refresh everything
 		_gameState = Object.assign({}, gameState);
 		_refreshDebounce();
 	}
 
 	// Resets everything to reflect an empty state.
 	function _reset() {
+        // reset winning classes
 		_$e.removeClass("isWinner");
+        _$payTable.find("tr").removeClass("won");
 
         // hide all stuff
-        _$invalid.hide();
-        _$bet.hide();
-        _$draw.hide();
-        _$finalizeWin.hide();
-        _$finalizeLoss.hide();
-        _$finalized.hide();
+        _$e.find(".actionArea").hide();
         _$details.hide();
         _$required.hide();
         _$msLoading.hide();
         _better.$e.detach();
 
         // reset statusAreas and btns
-		_$bet.find(".statusArea").empty().hide();
-		_$bet.find(".btnDeal").removeClass("disabled").removeAttr("disabled").text("Deal");
-		_$draw.find(".statusArea").empty().hide();
-		_$draw.find(".btnDraw").removeClass("disabled").removeAttr("disabled").text("Draw");
-		_$finalizeWin.find(".statusArea").empty().hide();
-		_$finalizeWin.find(".btnFinalize").removeClass("disabled").removeAttr("disabled").text("Get Credits");
-        _$finalizeWin.find(".btnRebet").removeClass("disabled").removeAttr("disabled").text("Play Again");
-		_$finalizeLoss.find(".statusArea").empty().hide();
-		_$finalizeLoss.find(".btnPlayAgain").removeClass("disabled").removeAttr("disabled").text("Rebet");
-
-        // reset misc
-        _$payTable.find("tr").removeClass("won");
+		_$e.find(".statusArea").empty().hide();
+        _$e.find(".actionBtn").removeClass("disabled").removeAttr("disabled")
+            .each((i,e)=>{ $(e).text($(e).data("txt-default")); });
 	}
 
-	// Redraws entire game based on the state.
-    // Called anytime settings or gamestate is altered.
+	// Draws miniStatus, payTable, hand, and shows correct actionArea
 	function _refresh() {
         _refreshMiniStatus();
         _refreshPayTable();
@@ -513,7 +508,6 @@ function Game(vp) {
             if (_gameState.state=="betting"){
                 _$bet.show();
                 _$msg.text(`Select a bet amount, and press "Deal"`)
-                _better.setMax(_maxBet);
                 _better.setMode("both");
                 _better.$e.prependTo(_$bet);
             } else {
@@ -558,7 +552,7 @@ function Game(vp) {
                 
                 // Show hand with draws, or if timedout, with no draws.
                 if (_gameState.dBlocksLeft > 0) {
-                    _$required.show().text(`You must finalize within ${_gameState.dBlocksLeft} blocks.`);
+                    _$required.show().text(`You must claim your winnings within ${_gameState.dBlocksLeft} blocks.`);
                     _refreshHand(_gameState.dHand, _gameState.draws, true, true);
                 } else {
                     _refreshHand(_gameState.dHand, 0, true, true);
@@ -566,7 +560,7 @@ function Game(vp) {
 
                 // Allow user to bet only with credits, should they want to replay.
                 _better.setMode("credits");
-                _better.setMax(_gameState.payout);
+                _better.setCredits(_gameState.payout);
                 _better.$e.prependTo(_$finalizeWin);
             } else {
                 // They lost. Not much to do.
@@ -622,7 +616,7 @@ function Game(vp) {
 			if (_gameState.payout.gt(0)){
 				_$ms.addClass("winner");
 				_$msState.text("Winner!");
-				_$msStatus.text(`finalize for ${ethUtil.toEth(_gameState.payout)} ETH`);
+				_$msStatus.text(`claim credits: ${ethUtil.toEth(_gameState.payout)} ETH`);
 			} else {
 				_$msState.text("Complete");
 				_$msStatus.text("game complete");
@@ -688,249 +682,190 @@ function Game(vp) {
 		}
 	}
 
-	function _initDealButton() {
-    	const gps = util.getGasPriceSlider(5);
-    	const $btn = _$bet.find(".btnDeal");
-    	const $statusArea = _$bet.find(".statusArea");
-    	const $tip = $("<div></div>").show().append(gps.$e);
-
-    	(function attachTip(){
-    		tippy($btn[0], {
-				// arrow: false,
-				theme: "light",
-				animation: "fade",
-				placement: "top",
-				html: $tip[0],
-				trigger: "mouseenter",
-				onShow: function(){ gps.refresh(); },
-				onHidden: function(){
-					// fixes a firefox bug where the tip won't be displayed again.
-					$btn[0]._tippy.destroy();
-					attachTip();
-				}
-			});
-    	}());
-
-		$btn.click(function(){
-			this._tippy.hide(0);
-			$(this).blur();
-			if ($(this).is(".disabled")) return;
-			
-			const bet = _better.getValue();
-            const betType = _better.getBetType();
-			if (bet===null) { return; }
-			
-			// set uiid (so upon receiving event we can link it to this game)
-			// change button state.
-			// create reset() function.
-			const uiid = Math.floor(Math.random()*1000000000000);
-			_gameState.uiid = uiid;
-			$btn.attr("disabled", "disabled").addClass("disabled").text("Dealing...");
-			const reset = ()=>{ 
-				delete _gameState.uiid;
-				$btn.removeAttr("disabled").removeClass("disabled").text("Deal");
-				_$msLoading.addClass("error");
-			}
-
-			try {
-				const promise = betType == "eth"
-                    ? vp.bet([uiid], {value: bet, gas: 130000, gasPrice: gps.getValue()})
-                    : vp.betWithCredits([bet, uiid], {gas: 130000, gasPrice: gps.getValue()});
-				const waitTimeMs = (gps.getWaitTimeS() || 30) * 1000;
-				_$msLoading.show().removeClass("error").html(util.$getLoadingBar(waitTimeMs, promise));
-
-				const $txStatus = util.$getTxStatus(promise, {
-					waitTimeMs: waitTimeMs,
-					onClear: () => { $statusArea.hide(); _$msLoading.hide(); },
-					onSuccess: (res) => {
-						const betSuccess = res.events.find(e=>e.name=="BetSuccess");
-						const betFailure = res.events.find(e=>e.name=="BetFailure");
-						if (betSuccess) {
-							const id = betSuccess.args.id.toNumber();
-							const msg = `<br>Your cards will be shown shortly...`;
-							$txStatus.find(".status").append(msg);
-							$txStatus.find(".clear").hide();
-							$btn.text("Dealt!");
-							_onEvent(betSuccess);
-						} else if (betFailure) {
-							const msg = `<br>Your bet was refunded: ${betFailure.args.msg}`;
-							$txStatus.find(".status").append(msg);
-							reset();
-						} else {
-							const msg = `<br>Did not receive an expected event!`
-							$txStatus.find(".status").append(msg);
-							reset();
-						}
-					},
-					onFailure: () => { reset(); }
-				});
-				$statusArea.empty().show().append($txStatus);
-			} catch(e) {
-				reset();
-				ethStatus.open();
-			}
-	    });
+    function _onHoldToggled() {
+        const numDraws = _hd.getNumDraws();
+        const cardsStr = numDraws == "1" ? "Card" : "Cards"
+        _$e.find(".btnDraw").text(`Draw ${numDraws} ${cardsStr}`);
     }
 
+    // Abstracts out having a button fire a transaction.
+    function _initActionButton($btn, getPromiseFn, callbackFn, errFn) {
+        const gps = util.getGasPriceSlider(5);
+        const $statusArea = $btn.closest(".actionArea").find(".statusArea");
+        const $tip = $("<div></div>").show().append(gps.$e);
+
+        // Attach tip to button that lets user pick gas price
+        (function attachTip(){
+            tippy($btn[0], {
+                // arrow: false,
+                theme: "light",
+                animation: "fade",
+                placement: "top",
+                html: $tip[0],
+                trigger: "mouseenter",
+                onShow: function(){ gps.refresh(); },
+                onHidden: function(){
+                    // fixes a firefox bug where the tip won't be displayed again.
+                    $btn[0]._tippy.destroy();
+                    attachTip();
+                }
+            });
+        }());
+
+        $btn.click(function(){
+            this._tippy.hide(0);
+            $(this).blur();
+            
+            const defaultTxt = $(this).data("txt-default");
+            const pendingTxt = $(this).data("txt-pending");
+            const successTxt = $(this).data("txt-success");
+            const promise = getPromiseFn(gps.getValue());
+            if (!promise) return;
+
+            const waitTimeMs = (gps.getWaitTimeS() || 30) * 1000;            
+            // on failure, reset the $btn and set _$msLoading to error
+            const onFailure = () => {
+                $btn.removeAttr("disabled").removeClass("disabled").text(defaultTxt);
+                _$msLoading.addClass("error");
+                if (errFn) errFn();
+            }
+            // on success, call callbackFn and update status according to result.
+            const onSuccess = (res) => {
+                const obj = {
+                    resolve: function(msg){
+                        $btn.text(successTxt);
+                        $txStatus.find(".status").append($("<div></div>").append(msg));
+                        $txStatus.find(".clear").hide();
+                    },
+                    reject: function(msg){
+                        $txStatus.find(".status").append($("<div></div>").append(msg));
+                        onFailure();
+                    }
+                }
+                callbackFn(res, obj);
+            }
+
+            // update dom elements
+            $statusArea.empty().show();
+            _$msLoading.show().removeClass("error").html(util.$getLoadingBar(waitTimeMs, promise));
+            $btn.attr("disabled", "disabled").addClass("disabled").text(pendingTxt);
+
+            // create $txStatus object, with proper callbacks
+            const $txStatus = util.$getTxStatus(promise, {
+                waitTimeMs: waitTimeMs,
+                onClear: () => { $statusArea.hide(); _$msLoading.hide(); },
+                onSuccess: onSuccess,
+                onFailure: onFailure
+            }).appendTo($statusArea);
+        });
+    }
+
+    function _initDealButton() {
+        const $btn = _$bet.find(".btnDeal");
+        const getPromiseFn = (gasPrice) => {
+            const bet = _better.getValue();
+            if (bet===null) { return; }
+
+            try {
+                _gameState.uiid = Math.floor(Math.random() * 1000000000000);
+                return _better.getBetType() == "eth"
+                    ? vp.bet([_gameState.uiid], {value: bet, gas: 130000, gasPrice: gasPrice})
+                    : vp.betWithCredits([bet, _gameState.uiid], {gas: 130000, gasPrice: gasPrice});
+            } catch (e) {
+                console.error(e);
+                ethStatus.open();
+            }
+        }
+        const callbackFn = (res, obj) => {
+            const betSuccess = res.events.find(e=>e.name=="BetSuccess");
+            const betFailure = res.events.find(e=>e.name=="BetFailure");
+            if (betSuccess) {
+                obj.resolve("Your cards will be shown shortly...");
+                _onEvent(betSuccess);
+            } else if (betFailure) {
+                obj.reject(`Your bet was refunded: ${betFailure.args.msg}`);
+            } else {
+                obj.reject("Did not receive an expected event!");
+            }
+        };
+        _initActionButton($btn, getPromiseFn, callbackFn);
+    }
+
+	
     function _initDrawButton() {
-    	const gps = util.getGasPriceSlider(5);
-    	const $statusArea = _$draw.find(".statusArea");
-    	const $btn = _$draw.find(".btnDraw");
-    	const $tip = $("<div></div>").show().append(gps.$e);
-
-    	(function attachTip(){
-    		tippy($btn[0], {
-				// arrow: false,
-				theme: "light",
-				animation: "fade",
-				placement: "top",
-				html: $tip[0],
-				trigger: "mouseenter",
-				onShow: function(){ gps.refresh(); },
-				onHidden: function(){
-					// fixes a firefox bug where the tip won't be displayed again.
-					$btn[0]._tippy.destroy();
-					attachTip();
-				}
-			});
-    	}());
-
-		$btn.click(function(){
-			this._tippy.hide(0);
-			$(this).blur();
-			if ($(this).is(".disabled")) return;
-			
-			const draws = _hd.getDraws();
-			if (draws == 0) {
-				_isNotDrawing = true;
-				_onEvent({
-					name: "DrawSuccess",
-					blockHash: _gameState.iBlockHash,
-					blockNumber: _gameState.iBlock,
-					args: {
-						id: new BigNumber(_gameState.id),
-						iHand: _gameState.iHand,
-						draws: new BigNumber(0)
-					}
-				});
-				return;
-			}
-			
-			_hd.freeze(true);
-			$btn.attr("disabled", "disabled").addClass("disabled").text("Drawing...");
-			const reset = ()=>{
-				_hd.freeze(false);
-				$btn.removeAttr("disabled").removeClass("disabled").text("Draw");
-				_$msLoading.addClass("error");
-			}
-			try {
-				const params = [_gameState.id, draws, _gameState.iBlockHash];
-				const promise = vp.draw(params, {gas: 130000, gasPrice: gps.getValue()});
-				const waitTimeMs = (gps.getWaitTimeS() || 30) * 1000;
-				_$msLoading.show().removeClass("error").html(util.$getLoadingBar(waitTimeMs, promise));
-
-				const $txStatus = util.$getTxStatus(promise, {
-					waitTimeMs: waitTimeMs,
-					onClear: () => { $statusArea.hide();  _$msLoading.hide(); },
-					onSuccess: (res) => {
-						const drawSuccess = res.events.find(e=>e.name=="DrawSuccess");
-						const drawFailure = res.events.find(e=>e.name=="DrawFailure");
-						if (drawSuccess) {
-							const msg = `<br>Your drawn cards will be shown shortly...`;
-							$txStatus.find(".status").append(msg);
-							$txStatus.find(".clear").hide();
-							$btn.text("Drawn!");
-							_onEvent(drawSuccess);
-						} else if (drawFailure) {
-							const msg = `<br>Drawing failed: ${drawFailure.args.msg}`;
-							$txStatus.find(".status").append(msg);
-							reset();
-						} else {
-							const msg = `<br>Did not receive an expected event!`
-							$txStatus.find(".status").append(msg);
-							reset();
-						}
-					},
-					onFailure: () => { reset(); }
-				});
-				$statusArea.empty().show().append($txStatus);
-			} catch(e) {
-				reset();
-				ethStatus.open();
-			}
-	    });
+        const $btn = _$draw.find(".btnDraw");
+        const getPromiseFn = (gasPrice) => {
+            const draws = _hd.getDraws();
+            if (draws == 0) {
+                _isNotDrawing = true;
+                _onEvent({
+                    name: "DrawSuccess",
+                    blockHash: _gameState.iBlockHash,
+                    blockNumber: _gameState.iBlock,
+                    args: {
+                        id: new BigNumber(_gameState.id),
+                        iHand: _gameState.iHand,
+                        draws: new BigNumber(0)
+                    }
+                });
+                return;
+            }
+            
+            try {
+                _hd.freeze(true);
+                const params = [_gameState.id, draws, _gameState.iBlockHash];
+                return vp.draw(params, {gas: 130000, gasPrice: gasPrice});
+            } catch(e) {
+                console.error(e);
+                _hd.freeze(false);
+                ethStatus.open();
+            }
+        };
+        const callbackFn = (res, obj) => {
+            const drawSuccess = res.events.find(e=>e.name=="DrawSuccess");
+            const drawFailure = res.events.find(e=>e.name=="DrawFailure");
+            if (drawSuccess) {
+                obj.resolve(`Your drawn cards will be shown shortly...`);
+                _onEvent(drawSuccess);
+            } else if (drawFailure) {
+                _hd.freeze(false);
+                obj.reject(`Drawing failed: ${drawFailure.args.msg}`);
+            } else {
+                _hd.freeze(false);
+                obj.reject(`Did not receive an expected event!`);
+            }
+        };
+        const errFn = () => {
+            _hd.freeze(false);
+            _onHoldToggled();
+        }
+        _initActionButton($btn, getPromiseFn, callbackFn, errFn);
     }
 
     function _initFinalizeButton() {
-		const gps = util.getGasPriceSlider(5);
-		const $statusArea = _$finalizeWin.find(".statusArea");
-    	const $btn = _$finalizeWin.find(".btnFinalize");
-    	const $tip = $("<div></div>").show().append(gps.$e);
-
-    	(function attachTip(){
-    		tippy($btn[0], {
-				// arrow: false,
-				theme: "light",
-				animation: "fade",
-				placement: "top",
-				html: $tip[0],
-				trigger: "mouseenter",
-				onShow: function(){ gps.refresh(); },
-				onHidden: function(){
-					// fixes a firefox bug where the tip won't be displayed again.
-					$btn[0]._tippy.destroy();
-					attachTip();
-				}
-			});
-    	}());
-
-		$btn.click(function(){
-			this._tippy.hide(0);
-			$(this).blur();
-			if ($(this).is(".disabled")) return;
-			
-			$btn.attr("disabled", "disabled").addClass("disabled").text("Finalizing...");
-			const reset = ()=>{
-				$btn.removeAttr("disabled").removeClass("disabled").text("Finalize");
-				_$msLoading.addClass("error");
-			}
-			try {
-				const params = [_gameState.id, _gameState.dBlockHash];
-				const promise = vp.finalize(params, {gas: 130000, gasPrice: gps.getValue()});
-				const waitTimeMs = (gps.getWaitTimeS() || 30) * 1000;
-				_$msLoading.show().removeClass("error").html(util.$getLoadingBar(waitTimeMs, promise));
-
-				const $txStatus = util.$getTxStatus(promise, {
-					waitTimeMs: waitTimeMs,
-					onClear: () => { $statusArea.hide(); _$msLoading.hide(); },
-					onSuccess: (res) => {
-						const success = res.events.find(e=>e.name=="FinalizeSuccess");
-						const failure = res.events.find(e=>e.name=="FinalizeFailure");
-						if (success) {
-							const msg = `<br>Finalization success. Credited: ${success.args.payout} Eth`;
-							$txStatus.find(".status").append(msg);
-							$txStatus.find(".clear").hide();
-							$btn.text("Finalized!");
-							_onEvent(success);
-						} else if (failure) {
-							const msg = `<br>Finalizing failed: ${failure.args.msg}`;
-							$txStatus.find(".status").append(msg);
-							reset();
-						} else {
-							const msg = `<br>Did not receive an expected event!`
-							$txStatus.find(".status").append(msg);
-							reset();
-						}
-					},
-					onFailure: () => { reset(); }
-				});
-				$statusArea.empty().show().append($txStatus);
-			} catch(e) {
-				console.log(e);
-				reset();
-				ethStatus.open();
-			}
-	    });
+		const $btn = _$finalizeWin.find(".btnFinalize");
+    	const getPromiseFn = (gasPrice) => {
+            try {
+                const params = [_gameState.id, _gameState.dBlockHash];
+                return vp.finalize(params, {gas: 130000, gasPrice: gasPrice});
+            } catch(e) {
+                console.error(e);
+                ethStatus.open();
+            }
+        };
+        const callbackFn = (res, obj) => {
+            const success = res.events.find(e=>e.name=="FinalizeSuccess");
+            const failure = res.events.find(e=>e.name=="FinalizeFailure");
+            if (success) {
+                obj.resolve(`Finalization success. Credited: ${success.args.payout} Eth`)
+                _onEvent(success);
+            } else if (failure) {
+                obj.reject(`Finalizing failed: ${failure.args.msg}`);
+            } else {
+                obj.reject(`Did not receive an expected event!`);
+            }
+        };
+        _initActionButton($btn, getPromiseFn, callbackFn);
     }
 
 	(function _init() {
@@ -1176,6 +1111,7 @@ function HandDisplay() {
 
     var _curHandNumber = 0;
     var _isFrozen = false;
+    var _onHoldToggled = (numDraws)=>{};
     const _EMPTY_CARD = {cardNum: -1};
 
     // Events
@@ -1259,10 +1195,13 @@ function HandDisplay() {
             if (!hand) return;
             setTimeout(()=>{ 
                 hand.getWinningCards().forEach(i => _$cards.eq(i).addClass("hilited"));
-                hand.isWinner()
-                    ? _$handRank.addClass("winner")
-                    : _$handRank.removeClass("winner");
-                _$handRank.text(hand.getRankString());
+                if (hand.isWinner()) {
+                    _$handRank.addClass("winner");
+                    _$handRank.text(hand.getRankString() + "!");    
+                } else {
+                    _$handRank.removeClass("winner");
+                    _$handRank.text(hand.getRankString());
+                }
                 _$handRank.addClass("show");
             }, pauseTime);
         }
@@ -1276,11 +1215,20 @@ function HandDisplay() {
         return drawsNum;
     }
 
+    this.getNumDraws = function(){
+        return 5 - _$cards.filter(".held").length;
+    }
+
+    this.onHoldToggled = function(fn) {
+        _onHoldToggle = fn;
+    }
+
     function _toggleHeld(e) {
         if (_isFrozen) return;
         _$cards.each((i,c) => {
             if (c !== e.currentTarget) return;
             _$cards.eq(i).toggleClass("held");
+            _onHoldToggle();
         });
     }
 }
@@ -1293,6 +1241,8 @@ var PUtil = (function(){
 	    // Can return the Hand as a number, can rank the hand, and can
 	    //  test if the hand is valid.
 	    function Hand(numOrArray) {
+            const _self = this;
+
 	        // _cards will be set to an array of cards between 0-51
 	        // If any card is invalid, _cards will be an empty array.
 	        // Does not check for duplicates.
@@ -1314,7 +1264,7 @@ var PUtil = (function(){
 	                    return cardFromNum(cardNum);
 	                });
 	            }
-	            arr = arr.filter(c => !!c);
+	            arr = arr.filter(c => !!c && c.cardNum <= 51);
 	            if (arr.length != 5) arr = [];
 	            return arr;
 	        }());
@@ -1372,15 +1322,15 @@ var PUtil = (function(){
 
 	        this.getRank = function(){
 	            if (this.isValid()) {
-	                if (this.isRoyalFlush()) return 1;
-	                else if (this.isStraightFlush()) return 2;
-	                else if (this.isFourOfAKind()) return 3;
-	                else if (this.isFullHouse()) return 4;
-	                else if (this.isFlush()) return 5;
-	                else if (this.isStraight()) return 6;
-	                else if (this.isThreeOfAKind()) return 7;
-	                else if (this.isTwoPair()) return 8;
-	                else if (this.isJacksOrBetter()) return 9;
+	                if (isRoyalFlush()) return 1;
+	                else if (isStraightFlush()) return 2;
+	                else if (isFourOfAKind()) return 3;
+	                else if (isFullHouse()) return 4;
+	                else if (isFlush()) return 5;
+	                else if (isStraight()) return 6;
+	                else if (isThreeOfAKind()) return 7;
+	                else if (isTwoPair()) return 8;
+	                else if (isJacksOrBetter()) return 9;
 	                else return 10;
 	            } else {
 	                return 11;
@@ -1388,6 +1338,7 @@ var PUtil = (function(){
 	        }
 
 	        this.getRankString = function(){
+                const rank = this.getRank();
 	            return ({
 	                1: "Royal Flush",
 	                2: "Straight Flush",
@@ -1398,29 +1349,29 @@ var PUtil = (function(){
 	                7: "Three of a Kind",
 	                8: "Two Pair",
 	                9: "Jacks or Better",
-	                10: "High Card",
+	                10: isLowPair() ? "Low Pair" : "High Card",
 	                11: "Not Computable"
-	            })[this.getRank()];
+	            })[rank];
 	        }
 
-	        this.isRoyalFlush = function() {
+	        function isRoyalFlush() {
 	            const hasAce = _cards.some(c => c.isAce);
 	            const highVal = max(_cards.map(c => c.val));
-	            return hasAce && highVal == 12 && this.isStraightFlush();
+	            return hasAce && highVal == 12 && isStraightFlush();
 	        }
-	        this.isStraightFlush = function() {
-	            return this.isStraight() && this.isFlush();
+	        function isStraightFlush() {
+	            return isStraight() && isFlush();
 	        }
-	        this.isFourOfAKind = function(){
+	        function isFourOfAKind(){
 	            return hasCounts([4,1]);
 	        }
-	        this.isFullHouse = function(){
+	        function isFullHouse(){
 	            return hasCounts([3,2]);
 	        }
-	        this.isFlush = function(){
+	        function isFlush(){
 	            return _cards.every(c => c.suit == _cards[0].suit);
 	        }
-	        this.isStraight = function(){
+	        function isStraight(){
 	            if (!hasCounts([1,1,1,1,1])) return;
 	            const hasAce = _cards.some(c => c.isAce);
 	            const highValNonAce = max(_cards.map(c => c.isAce ? 0 : c.val));
@@ -1429,18 +1380,21 @@ var PUtil = (function(){
 	                ? highValNonAce == 4 || lowValNonAce == 9
 	                : highValNonAce - lowValNonAce == 4;
 	        }
-	        this.isThreeOfAKind = function(){
+	        function isThreeOfAKind(){
 	            return hasCounts([3,1,1]);
 	        }
-	        this.isTwoPair = function(){
+	        function isTwoPair(){
 	            return hasCounts([2,2,1]);
 	        }
-	        this.isJacksOrBetter = function(){
+	        function isJacksOrBetter(){
 	            if (!hasCounts([2,1,1,1])) return;
 	            const counts = (new Array(13)).fill(0);
 	            _cards.forEach(c => counts[c.val]++);
 	            return [0, 10,11,12,13].some(val => counts[val]>1);
 	        }
+            function isLowPair() {
+                return hasCounts([2,1,1,1]);
+            }
 
 	        function min(arr){ return Math.min.apply(Math, arr); }
 	        function max(arr){ return Math.max.apply(Math, arr); }
