@@ -147,7 +147,8 @@
 			var i;
 			const ret = function(){
 				clearTimeout(i);
-				i = setTimeout(fn, timeout);
+				const args = arguments;
+				i = setTimeout(()=>fn.apply(null, args), timeout);
 			}
 			ret();
 			return ret;
