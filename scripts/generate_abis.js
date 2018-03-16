@@ -32,13 +32,27 @@ of the fees collected, as well as a fixed amount per auction ended.`,
         setPennyAuctionRewards: `Changes the rewards paid for .startPennyAuction() and \
 .refreshPennyAuctions()`
     },
+
     PennyAuction: {
         fallback: `Places a bid on a Penny Auction. Refunds the bid if for any reason sender \
 is not set to the currentWinner.`,
         sendPrize: `Sends the prize money to the winner of the auction.`
     },
+
     InstaDice: {
         roll: `Rolls the dice, if number lands <= number, you win.`
+    },
+
+    VideoPoker: {
+        bet: `Starts a new hand using ETH sent.`,
+        betWithCredits: `Starts a new hand using the user's credits.`,
+        betFromGame: `Starts a new game using credits from a winning game. \
+Credits the remaining winnings, if any, to the user.`,
+        draw: `Updates the user's hand by discarding and redrawing selected cards. \
+This is passed "hashCheck" to ensure the user is drawing against the expected hand. \
+For example, there may be a blockchain re-org and the user may not want to draw \
+cards against a different hand.`,
+        finalize: `Credits the user any winnings for the hand.`
     }
 };
 

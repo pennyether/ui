@@ -203,11 +203,14 @@ Loader.require("reg", "tr", "mc", "pac", "dice", "vp")
 	/********* DICE ACTIONS *******************************/
 	function updateDice() {
 		if (!dice) return alert("dice not loaded.");
+		const acct = ethUtil.getCurrentStateSync().account;
 		util.bindToElement(ethUtil.getBalance(dice.address).then(ethUtil.toEthStr), $("#DiceBalance"));
+		util.bindToElement(dice.funding().then(ethUtil.toEthStr), $("#DiceFunding"));
+		util.bindToElement(dice.getCollateral().then(ethUtil.toEthStr), $("#DiceCollateral"));
+		util.bindToElement(dice.getProfits().then(ethUtil.toEthStr), $("#DiceProfits"));
 		util.bindToElement(dice.curId(), $("#DiceNumRolls"));
 		util.bindToElement(dice.getNumUnfinalized(), $("#DiceNumUnfinalized"));
-		util.bindToElement(dice.getProfits().then(ethUtil.toEthStr), $("#DiceSendProfits"));
-		util.bindToElement(dice.funding().then(ethUtil.toEthStr), $("#DiceFunding"));
+		util.bindToInput(dice.amtFunded([acct]).then(ethUtil.toEth), $("#DiceRemoveFunding"));
 		util.bindToInput(dice.feeBips(), $("#DiceFeeBips"));
 		util.bindToInput(dice.minBet().then(ethUtil.toEth), $("#DiceMinBet"));
 		util.bindToInput(dice.maxBet().then(ethUtil.toEth), $("#DiceMaxBet"));
@@ -268,10 +271,14 @@ Loader.require("reg", "tr", "mc", "pac", "dice", "vp")
 	/********* VIDEO POKER ACTIONS *******************************/
 	function updateVp() {
 		if (!vp) return alert("vp not loaded.");
+		const acct = ethUtil.getCurrentStateSync(false).account;
 		util.bindToElement(ethUtil.getBalance(vp.address).then(ethUtil.toEthStr), $("#VpBalance"));
-		util.bindToElement(vp.curId(), $("#VpNumGames"));
-		util.bindToElement(vp.getProfits().then(ethUtil.toEthStr), $("#VpSendProfits"));
 		util.bindToElement(vp.funding().then(ethUtil.toEthStr), $("#VpFunding"));
+		util.bindToElement(vp.getCollateral().then(ethUtil.toEthStr), $("#VpCollateral"));
+		util.bindToElement(vp.getProfits().then(ethUtil.toEthStr), $("#VpProfits"));
+		util.bindToElement(vp.curId(), $("#VpNumGames"));
+
+		util.bindToInput(vp.amtFunded([acct]).then(ethUtil.toEth), $("#VpRemoveFunding"));
 		util.bindToInput(vp.minBet().then(ethUtil.toEth), $("#VpMinBet"));
 		util.bindToInput(vp.maxBet().then(ethUtil.toEth), $("#VpMaxBet"));
 		util.bindToInput(vp.curPayTableId(), $("#VpCurPayTableId"));

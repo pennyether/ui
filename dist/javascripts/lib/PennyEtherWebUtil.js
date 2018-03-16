@@ -79,11 +79,11 @@
 				: name;
 			return niceWeb3.ethUtil.$getLink(shortName, tx || name, "tx");
 		}
-		this.getLoadingBar = function(timeMs, speed) {
-			return new LoadingBar(timeMs, speed);
+		this.getLoadingBar = function(timeMs, speed, hideTip) {
+			return new LoadingBar(timeMs, speed, true, hideTip);
 		}
-		this.$getLoadingBar = function(timeMs, p) {
-			var lb = new LoadingBar(timeMs, null, false);
+		this.$getLoadingBar = function(timeMs, p, hideTip) {
+			var lb = new LoadingBar(timeMs, null, false, hideTip);
 			if (p.getTxHash) p.getTxHash.then(lb.start)
 			else lb.start();
 			p.then(()=>lb.finish(500), ()=>lb.finish(500));
@@ -162,7 +162,7 @@
 	// loading bar that always looks like it'll take timeMs to complete.
 	// speed tunes how fast the bar will load (but also the rate at which it slows)
 	// exponential functions are such a mathematical gem.
-	function LoadingBar(timeMs, speed, autoStart) {
+	function LoadingBar(timeMs, speed, autoStart, hideTip) {
 		const _$e = $(`
 			<div class='LoadingBar' style='font-size: 0px;'>
 				<div class='loaded' style='height: 100%; position: relative; left: 0px; width: 0%'>&nbsp;</div>
@@ -174,13 +174,15 @@
 		var _finished;
 
 		const timeStr = util.toTime(Math.round(timeMs / 1000));
-		_$e.attr("title", `This is an estimate of time (~${timeStr}), based on the chosen gas price.`);
-		if (tippy) {
-			tippy(_$e[0], {
-				trigger: "mouseenter",
-				placement: "top",
-				animation: "fade"
-			});
+		if (!hideTip) {
+			_$e.attr("title", `This is an estimate of time (~${timeStr}), based on the chosen gas price.`);
+			if (tippy) {
+				tippy(_$e[0], {
+					trigger: "mouseenter",
+					placement: "top",
+					animation: "fade"
+				});
+			}
 		}
 
 		function _update() {
@@ -188,7 +190,7 @@
 			const t = (+new Date()) - _startTime;
 			var pct = (1 - Math.pow(_speed, t/timeMs)) * 100
 			_$loaded.css("width", pct.toFixed(2) + "%");
-			window.requestAnimationFrame(_update);
+			setTimeout(_update, 100);
 		}
 
 		this.start = function(){ 
@@ -217,7 +219,7 @@
 		autoStart = autoStart === undefined
 			? true
 			: !!autoStart;
-		if (autoStart) _update();
+		if (autoStart) this.start();
 	}
 
 	/*
@@ -567,7 +569,7 @@
 	function TxStatus(_util) {
 		const _$e = $(`
 			<div class='TxStatus'>
-				<div class='clear'>clear</div>
+				<div class='clear'>×</div>
 				<div class='status'></div>
 			</div>
 		`);
@@ -613,6 +615,7 @@
 				}
 			}).catch((e)=>{
 				_$clear.show();
+				_$e.addClass("error");
 				if (txId) {
 					loadingBar.finish(500).then(()=>{
 						_$status.empty()

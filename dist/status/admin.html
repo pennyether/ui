@@ -256,6 +256,22 @@
 					</div>
 					<div class="field">
 						<div class="label">
+							<span class="tipLeft" title="The amount of ETH held in reserve. Cannot be withdrawn for profits or to refund funding.">Collateral: </span>
+						</div>
+						<div class="value">
+							<div id="DiceCollateral"></div>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">
+							<span class="tipLeft" title="The amount of ETH available to be sent as profits; any balance that exceeds the sum of funding and collateral.">Profits: </span>
+						</div>
+						<div class="value">
+							<div id="DiceProfits"></div>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">
 							<span class="tipLeft" title="Total number of rolls.">Total Rolls:</span>
 						</div>
 						<div class="value">
@@ -270,15 +286,13 @@
 							<div class="note">callable by anyone</div>
 						</div>
 						<div class="value">
-							Profits: <span id="DiceSendProfits" placeholder="eth"></span>
-							<br>
 							<button id="btnDiceSendProfits">Send Profits</button>
 						</div>
 					</div>
 					<div class="field">
 						<div class="label">
-							<span class="tipLeft" title="Removes funding and sends it to treasury.">Remove Funding: </span>
-							<div class="note">admin only</div>
+							<span class="tipLeft" title="Removes funding and sends it to the caller, provided there is sufficient balance.">Remove Funding: </span>
+							<div class="note">callable by anyone</div>
 						</div>
 						<div class="value">
 							<input type=text id="DiceRemoveFunding" placeholder="eth"> ETH
@@ -288,7 +302,7 @@
 					</div>
 					<div class="field">
 						<div class="label">
-							<span class="tipLeft" title="Increases funding (and bankroll)">Add Funding: </span>
+							<span class="tipLeft" title="Adds funding to the contract. Can be removed later by the same user.">Add Funding: </span>
 							<div class="note">callable by anyone</div>
 						</div>
 						<div class="value">
@@ -401,6 +415,22 @@
 					</div>
 					<div class="field">
 						<div class="label">
+							<span class="tipLeft" title="The amount of ETH held in reserve. Cannot be withdrawn for profits or to refund funding.">Collateral: </span>
+						</div>
+						<div class="value">
+							<div id="VpCollateral"></div>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">
+							<span class="tipLeft" title="The amount of ETH available to be sent as profits; any balance that exceeds the sum of funding and collateral.">Profits: </span>
+						</div>
+						<div class="value">
+							<div id="VpProfits"></div>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">
 							<span class="tipLeft" title="Total number of rolls.">Total Games:</span>
 						</div>
 						<div class="value">
@@ -415,15 +445,13 @@
 							<div class="note">callable by anyone</div>
 						</div>
 						<div class="value">
-							Profits: <span id="VpSendProfits" placeholder="eth"></span>
-							<br>
 							<button id="btnVpSendProfits">Send Profits</button>
 						</div>
 					</div>
 					<div class="field">
 						<div class="label">
-							<span class="tipLeft" title="Removes funding and sends it to treasury.">Remove Funding: </span>
-							<div class="note">admin only</div>
+							<span class="tipLeft" title="Removes funding and sends it to caller, provided there is sufficient balance.">Remove Funding: </span>
+							<div class="note">callable by anyone</div>
 						</div>
 						<div class="value">
 							<input type=text id="VpRemoveFunding" placeholder="eth"> ETH
@@ -433,7 +461,7 @@
 					</div>
 					<div class="field">
 						<div class="label">
-							<span class="tipLeft" title="Increases funding">Add Funding: </span>
+							<span class="tipLeft" title="Increases funding, and allows caller to remove funding later.">Add Funding: </span>
 							<div class="note">callable by anyone</div>
 						</div>
 						<div class="value">
