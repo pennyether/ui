@@ -690,15 +690,79 @@ body.dark {
 		color: maroon;
 	}
 
+.Better {
+	display: table;
+	box-sizing: border-box;
+	width: 100%;
+	opacity: 1;
+	transition: opacity .5s;
+}
+.Better.disabled {
+	opacity: .5;
+}
+	.Better .value {
+		display: table-cell;
+		text-align: center;
+	}
+		.Better .topLabel {
+			color: black;
+			text-transform: uppercase;
+			letter-spacing: .1em;
+			font-size: 100%;
+			font-weight: bold;
+			text-align: center;
+		}
+		.Better .bottomLabel {
+			font-size: 80%;
+			color: black;
+		}
+		/* you may want to explicitly set a width on this element */
+		.Better .betTxt {
+			display: block;
+			box-sizing: border-box;
+			background: transparent;
+			padding-left: 15px; /* makes it look centered */
+			text-align: center;
+			font-size: 300%;
+			border: none;
+			color: lime;
+			margin-top: -5px;
+			margin-bottom: -5px;
+		}
+		.Better .betTxt:focus {
+			outline: none;
+		}
+	.Better .slider {
+		position: relative;
+		display: table-cell;
+		vertical-align: middle;
+		width: 100%;
+	}
+		.Better .betSlider {
+			width: 92%;
+			height: 40px;
+			cursor: pointer;
+		}
+		.Better .betErr {
+			position: absolute;
+			bottom: 5px;
+			width: 92%;
+			font-size: 80%;
+			color: yellow;
+			text-shadow: 1px 1px 0px rgba(0,0,0,.5);
+			letter-spacing: .1em;
+			text-align: center;
+		}
+
 .LoadingBar {
 	height: 5px;
 	border: 1px solid rgba(0,0,0,.2);
 	margin: 5px auto;
 }
-.LoadingBar .loaded {
-	background: rgba(0,128,0,.7);
-	box-shadow: 0px 0px 8px 1px rgba(0,255,0,.5);
-}
+	.LoadingBar .loaded {
+		background: rgba(0,128,0,.7);
+		box-shadow: 0px 0px 8px 1px rgba(0,255,0,.5);
+	}
 
 .ib {
 	display: inline-block;
