@@ -38,7 +38,7 @@ Loader.require("vp")
 	}
 
 	// Updates a Game's settings and state, and optionally creates it.
-	function updateGame(gameState, settings, createIfNotFound) {
+	function updateGame(gameState, settings, createIfNotFound, forceUpdate) {
 		var game = tabber.getGames().find(g => {
             // If game is dealt, look for matching UIID.
             // UIID was sent along with the bet.
@@ -51,7 +51,7 @@ Loader.require("vp")
             // Update settings, if passed.
             if (settings) game.setSettings(settings);
             // Update gameState if we have a newer version of it
-            if (gameState.blockLoaded > (game.getGameState().blockLoaded || 0)) {
+            if (forceUpdate || gameState.blockLoaded > (game.getGameState().blockLoaded || 0)) {
                 game.setGameState(gameState);
                 tabber.refreshDeletable(game);
             }
@@ -90,7 +90,7 @@ Loader.require("vp")
 	function updateGameFromEvent(ev) {
 		const gameState = updateGameStateFromEvent(ev);
         gameState.blockLoaded = ev.blockNumber;
-		updateGame(gameState);
+		updateGame(gameState, null, false, true);
 	}
 
 	// Updates a gameState from an event received.
@@ -414,11 +414,9 @@ function Game(vp) {
 	const _$required = _$status.find(".required");
 	// mini-status
 	const _$ms = _$e.find(".mini-status").detach();
-	const _$msBet = _$ms.find(".bet");
 	const _$msState = _$ms.find(".state");
     const _$msHand = _$ms.find(".hand");
     const _$msLoading = _$ms.find(".loading");
-    const _$msStatus = _$ms.find(".status");
 	// state = invalid
 	const _$invalid = _$e.find(".actionArea.invalid");
 	// state = betting
@@ -465,6 +463,7 @@ function Game(vp) {
 	// state of the currentGame
 	var _gameState = {};
 	var _isSkippingDrawing = false;
+    var _isTransacting = false;
 
 	var _onEvent = ()=>{};
 
@@ -496,9 +495,13 @@ function Game(vp) {
 			const dealtHand = gameState.iHand.toNumber();
 			if (curHand==dealtHand) return;
 		}
-        // Do not reset unless .state has changed.
+        // These are resets that should only happen once per game.
+        if (gameState.id !== _gameState.id) {
+            _isSkippingDrawing = false; // no longer skipping (case: dealt -> fake-drawn)
+            _refreshHand(null, 31);     // reset cards to empty (case: finalize -> dealt)
+        }
+        // These are resets that should happen once per state.
         if (gameState.state != _gameState.state) _reset();
-        if (gameState.id !== _gameState.id) _refreshHand(null, 31);
         _gameState = Object.assign({}, gameState);
         _refreshDebounce();
 	}
@@ -523,7 +526,7 @@ function Game(vp) {
         // reset any other state-specific settings
         _better.freeze(false);
         _$chkBetAgain.removeAttr("disabled");
-        _isSkippingDrawing = false;
+        _isTransacting = false;
 	}
 
 	// Draws miniStatus, payTable, hand, and shows correct actionArea
@@ -558,7 +561,7 @@ function Game(vp) {
             if (_gameState.iBlocksLeft > 0) {
                 _$msg.html(`Your cards have been dealt.<br>Select cards to hold, and click "Draw"`);
                 _$required.show().text(`You must draw within ${_gameState.iBlocksLeft} blocks.`);
-                _refreshHand(_gameState.iHand, null, false);
+                _refreshHand(_gameState.iHand, null, _isTransacting ? null : false);
             } else {
                 _$msg.html(`Your dealt cards are no longer availabe.<br>Please click "Draw" for a new hand.`);
                 _refreshHand(null, 31, true);
@@ -632,52 +635,45 @@ function Game(vp) {
     function _refreshHand(hand, draws, freeze, showHandRank) {
         if (freeze === undefined) freeze = true;
         _hd.setHand(hand, draws, freeze, showHandRank);
-        _miniHd.setHand(hand, draws, freeze, showHandRank);
+        _miniHd.setHand(hand, draws, true, showHandRank);
     }
 
 	const _refreshDebounce = util.debounce(10, _refresh);
 
 	function _refreshMiniStatus() {
-		// set mini-state class to state. set bet.
+		// Reset _$ms state. We can't remove all, 
+        const isError = _$ms.hasClass("isError");
 		_$ms.removeClass().addClass("mini-status").addClass(_gameState.state);
-		_gameState.id 
-			? _$msBet.text(`${_eth(_gameState.bet)}`)
-			: _$msBet.text(`-- ETH`);
+        if (_isTransacting) _$ms.addClass("isTransacting");
+        if (isError) _$ms.addClass("isError");
 
 		if (_gameState.state == "invalid") {
-			_$msState.text("Invalid");
-			_$msStatus.text("invalid game");
+			if (!_isTransacting) _$msState.text("Invalid");
 			return;
 		}
 		if (_gameState.state == "betting") {
-			_$msState.text("New Game");
-			_$msStatus.text("select bet amount");
+			if (!_isTransacting) _$msState.text("New Game");
 			return;
 		}
 		if (_gameState.state == "dealt") {
-			_$msState.text("Dealt");
-			_$msStatus.text("select cards to hold");
+			if (!_isTransacting) _$msState.text("Dealt");
 			return;
 		}
 		if (_gameState.state == "drawn") {
 			if (_gameState.payout.gt(0)){
-				_$ms.addClass("winner");
-				_$msState.text("Winner!");
-				_$msStatus.text(`claim credits: ${_eth(_gameState.payout)}`);
+				_$ms.addClass("isWinner");
+				if (!_isTransacting) _$msState.text("Winner!");
 			} else {
-				_$msState.text("Complete");
-				_$msStatus.text("game complete");
+				if (!_isTransacting) _$msState.text("Complete");
 			}
 			return;
 		}
 		if (_gameState.state == "finalized") {
 			if (_gameState.payout.gt(0)){
-				_$ms.addClass("winner");
-				_$msState.text("Paid");
-				_$msStatus.text(`credited: ${_eth(_gameState.payout)}`);
+				_$ms.addClass("isWinner");
+				if (!_isTransacting) _$msState.text("Paid");
 			} else {
-				_$msState.text("Complete");
-				_$msStatus.text("play again?");
+				if (!_isTransacting) _$msState.text("Complete");
 			}
 			return;
 		}
@@ -760,16 +756,23 @@ function Game(vp) {
             const defaultTxt = $(this).data("txt-default");
             const pendingTxt = $(this).data("txt-pending");
             const successTxt = $(this).data("txt-success");
-            const promise = getPromiseFn(gps.getValue());
+            var promise;
+            try {
+                promise = getPromiseFn(gps.getValue());
+            } catch(e) {
+                console.error(e);
+                ethStatus.open();
+                errFn();
+            }
             if (!promise) return;
 
-            const waitTimeMs = (gps.getWaitTimeS() || 30) * 1000;            
-            // on failure, reset the $btn and set _$msLoading to error
             const onFailure = () => {
-                $btn.removeAttr("disabled").removeClass("disabled").text(defaultTxt);
-                _$msLoading.addClass("error");
-                if (errFn) errFn();
+                _$ms.addClass("isError");
+                _$msState.text(`Error ${pendingTxt}`);
+                $txStatus.addClass("error");
             }
+
+            const waitTimeMs = (gps.getWaitTimeS() || 30) * 1000;
             // on success, call callbackFn and update status according to result.
             const onSuccess = (res) => {
                 const obj = {
@@ -786,15 +789,28 @@ function Game(vp) {
                 callbackFn(res, obj);
             }
 
-            // update dom elements
+            // Mark as transacting. This means keep hand frozen, and don't change _$ms.state
+            _isTransacting = true;
+            // Update DOM elements. Reset them upon clearing the error.
+            _$ms.addClass("isTransacting").removeClass("isError");
+            _$msState.text(pendingTxt);
+            _$msLoading.show().html(util.$getLoadingBar(waitTimeMs, promise, true));
             $statusArea.empty().show();
-            _$msLoading.show().removeClass("error").html(util.$getLoadingBar(waitTimeMs, promise));
             $btn.attr("disabled", "disabled").addClass("disabled").text(pendingTxt);
+            const resetDom = () => {
+                _isTransacting = false;
+                _refreshMiniStatus();
+                _$ms.removeClass("isError");
+                _$msLoading.hide();
+                $statusArea.hide();
+                $btn.removeAttr("disabled").removeClass("disabled").text(defaultTxt);
+                if (errFn) errFn();
+            }
 
             // create $txStatus object, with proper callbacks
             const $txStatus = util.$getTxStatus(promise, {
                 waitTimeMs: waitTimeMs,
-                onClear: () => { $statusArea.hide(); _$msLoading.hide(); },
+                onClear: resetDom,
                 onSuccess: onSuccess,
                 onFailure: onFailure
             }).appendTo($statusArea);
@@ -803,20 +819,16 @@ function Game(vp) {
 
     function _initDealButton() {
         const $btn = _$bet.find(".btnDeal");
+
         const getPromiseFn = (gasPrice) => {
             const bet = _better.getValue();
             if (bet===null) { return; }
 
-            try {
-                _better.freeze(true);
-                _gameState.uiid = Math.floor(Math.random() * 1000000000000);
-                return _better.getBetType() == "eth"
-                    ? vp.bet([_gameState.uiid], {value: bet, gas: 130000, gasPrice: gasPrice})
-                    : vp.betWithCredits([bet, _gameState.uiid], {gas: 130000, gasPrice: gasPrice});
-            } catch (e) {
-                console.error(e);
-                ethStatus.open();
-            }
+            _better.freeze(true);
+            _gameState.uiid = Math.floor(Math.random() * 1000000000000);
+            return _better.getBetType() == "eth"
+                ? vp.bet([_gameState.uiid], {value: bet, gas: 130000, gasPrice: gasPrice})
+                : vp.betWithCredits([bet, _gameState.uiid], {gas: 130000, gasPrice: gasPrice});
         }
         const callbackFn = (res, obj) => {
             const betSuccess = res.events.find(e=>e.name=="BetSuccess");
@@ -855,16 +867,10 @@ function Game(vp) {
                     }
                 });
                 return;
-            }
-            
-            try {
+            } else {
                 _hd.freeze(true);
                 const params = [_gameState.id, draws, _gameState.iBlockHash];
                 return vp.draw(params, {gas: 130000, gasPrice: gasPrice});
-            } catch(e) {
-                console.error(e);
-                _hd.freeze(false);
-                ethStatus.open();
             }
         };
         const callbackFn = (res, obj) => {
@@ -890,15 +896,10 @@ function Game(vp) {
 		const $btn = _$finalizeWin.find(".btnFinalize");
     	const getPromiseFn = (gasPrice) => {
             _$chkBetAgain.attr("disabled", "disabled");
-            try {
-                const params = [_gameState.id, _gameState.dBlockHash];
-                return _$chkBetAgain.is(":checked")
-                    ? vp.betFromGame(params.concat(_gameState.uiid), {gas: 130000, gasPrice: gasPrice})
-                    : vp.finalize(params, {gas: 130000, gasPrice: gasPrice});
-            } catch(e) {
-                console.error(e);
-                ethStatus.open();
-            }
+            const params = [_gameState.id, _gameState.dBlockHash];
+            return _$chkBetAgain.is(":checked")
+                ? vp.betFromGame(params.concat(_gameState.uiid), {gas: 130000, gasPrice: gasPrice})
+                : vp.finalize(params, {gas: 130000, gasPrice: gasPrice});
         };
         const callbackFn = (res, obj) => {
             const success = res.events.find(e=>e.name=="FinalizeSuccess");
@@ -928,7 +929,7 @@ function Game(vp) {
         const errFn = () => {
             _$chkBetAgain.removeAttr("disabled");
         }
-        _initActionButton($btn, getPromiseFn, callbackFn);
+        _initActionButton($btn, getPromiseFn, callbackFn, errFn);
     }
 
     function _eth(v) {
@@ -1190,6 +1191,7 @@ function HandDisplay() {
 
     // do not allow clicking to hold a card
     this.freeze = function(bool) {
+        if (bool === null) return;
         _isFrozen = bool;
         _isFrozen ? _$e.addClass("frozen") : _$e.removeClass("frozen");
     }
@@ -1275,10 +1277,10 @@ function HandDisplay() {
                 _$handRank.addClass("show");
                 hand.getWinningCards().forEach(i => _$cards.eq(i).addClass("hilited"));
                 if (hand.isWinner()) {
-                    _$handRank.addClass("winner");
+                    _$handRank.addClass("isWinner");
                     _$handRank.text(hand.getRankString() + "!");    
                 } else {
-                    _$handRank.removeClass("winner");
+                    _$handRank.removeClass("isWinner");
                     _$handRank.text(hand.getRankString());
                 }
             }, pauseTime);

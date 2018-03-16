@@ -218,28 +218,40 @@
 					border-radius: 3px;
 					user-select: none;
 					cursor: pointer;
-
-					opacity: .5;
-					border: 1px solid #555;
-					transition: opacity .3s, box-shadow .3s, border .3s, width .2s, opacity .2s;
 				}
-				.Tabber .tab.new {
-					border: 1px solid rgb(100,100,100);
-					padding: 4px 6px;
-					background: #111;
-				}
-				.Tabber .tab:hover {
+				.Tabber .tab:not(.new) {
 					opacity: .7;
+					filter: saturate(15%);
+					box-shadow: none;
+					border: 1px solid #555;
+					transition: filter .3s, opacity .3s, box-shadow .3s, border .3s, width .2s;
 				}
-				.Tabber .tab.selected {
+				.Tabber .tab:not(.new):hover {
+					/*opacity: .7;*/
+					filter: saturate(50%);
+				}
+				.Tabber .tab:not(.new).selected {
+					opacity: .9;
 					box-shadow: 3px 3px 3px 0px rgba(0,0,0,.3);
 					border: 1px solid gray;
-					opacity: .9;
+					filter: saturate(100%);
 				}
 				.Tabber .tab.shrunken {
 					width: 0px;
 					opacity: .1;
 				}
+
+				.Tabber .tab.new {
+					border: 1px solid rgb(100,100,100);
+					padding: 4px 6px;
+					background: #111;
+					opacity: .5;
+					transition: opacity .3s;
+				}
+				.Tabber .tab.new:hover {
+					opacity: .9;
+				}
+				
 
 				.Tabber .tab .remove {
 					position: absolute;
@@ -277,27 +289,9 @@
 					position: relative;
 					color: #999;
 					background: radial-gradient(rgba(0,0,255,1) 0%, rgba(0,0,128,.5) 100%);
-					transition: opacity .3s;
+					padding-top: 8px;
 				}
-					.Tabber .mini-status .state {
-						position: absolute;
-						text-transform: uppercase;
-						letter-spacing: .1em;
-						top: 1px;
-						left: 4px;
-						transition: color .3s;
-					}
-					.Tabber .mini-status.winner .state {
-						color: lime;
-					}
-					.Tabber .mini-status .bet {
-						position: absolute;
-						top: 1px;
-						right: 4px;
-						color: green;
-					}
 					.Tabber .mini-status .HandDisplay {
-						margin-top: 10px;
 						font-size: 50%;
 						opacity: .8;
 					}
@@ -334,19 +328,43 @@
 					.Tabber .mini-status .bottom {
 						position: relative;
 						margin-top: 8px;
+						text-align: center;
+						padding: 1px 0px;
+						background: rgba(255, 255, 255, .5);
 					}
-						.Tabber .mini-status .status {
+						.Tabber .mini-status .state {
 							position: relative;
 							z-index: 2;
-							padding-top: 1px;
-							padding-bottom: 2px;
+							display: inline-block;
+							padding: 1px 4px;
+							border-radius: 2px;
+
 							color: black;
-							background: rgba(255, 255, 255, .5);
+							font-variant: small-caps;
+							letter-spacing: .1em;
+							font-size: 120%;
+							transition: color .3s, background .3s;
+						}
+						.Tabber .mini-status.isWinner.drawn .state {
+							color: white;
+							background: green;
+							font-weight: bold;
+						}
+						.Tabber .mini-status.isTransacting .state {
+							color: blue !important;
+							background: none !important;
+							font-weight: bold;
+							text-shadow: 0px 0px 1px rgba(255,255,255,.8);
+						}
+						.Tabber .mini-status.isError .state {
+							color: white;
+							background: maroon;
+							color: maroon !important;
 						}
 						.Tabber .mini-status .loading {
 							position: absolute;
 							z-index: 1;
-						    top: 0px;
+						    top: 0;
 						    left: 0;
 						    width: 100%;
 						    height: 100%;
@@ -358,11 +376,11 @@
 							}
 							.Tabber .mini-status .loading .LoadingBar .loaded {
 								height: 100%;
-								background: green;
+								background: rgba(0,128,0,.5);
 								box-shadow: none;
 							}
-							.Tabber .mini-status .loading.error .LoadingBar .loaded {
-								background: red;
+							.Tabber .mini-status.isError .loading .LoadingBar .loaded {
+								background: rgba(255,0,0,.5);
 							}
 							
 			</style>
@@ -430,7 +448,7 @@
 
 
 			.Game .payTable {
-				font-size: 90%;
+				font-size: 80%;
 				border-radius: 5px;
 				overflow: hidden;
 			}
@@ -448,7 +466,7 @@
 			}
 
 			.Game .payTable td {
-				padding: 3px 0px;
+				padding: 2px 0px;
 				transition: background 1s, color 1s, border 1s, text-shadow 1s;
 			}
 			.Game .payTable td:first-child {
@@ -534,8 +552,6 @@
 				}
 				.Game .actionArea .statusArea .TxStatus {
 					font-size: 80%;
-					border-radius: 3px;
-					background: rgba(255,255,255,.5);
 				}
 				.Game .actionArea .actionBtn {
 					font-size: 120%;
@@ -672,7 +688,7 @@
 				opacity: 0;
 				transition: opacity .5s;
 			}
-			.HandDisplay .hand-rank.winner {
+			.HandDisplay .hand-rank.isWinner {
 				background: green;
 				border: 1px solid green;
 				text-shadow: 0px 0px 8px lime;
@@ -704,7 +720,7 @@
 				transform-style: preserve-3d;
 				transition: 0.4s;
 			}
-				.HandDisplay.frozen .card { cursor: default; }
+				.HandDisplay.frozen .card { cursor: inherit; }
 				.HandDisplay .card.show { transform: rotateY(180deg); }
 				.HandDisplay .card.held { border: 1px solid black; }
 
@@ -924,12 +940,9 @@
 				</div>
 			</div>
 			<div class="mini-status">
-				<div>&nbsp;</div>
-				<div class="bet"></div>
-				<div class="state"></div>
 				<div class="hand"></div>
 				<div class="bottom">
-					<div class="status"></div>
+					<div class="state"></div>
 					<div class="loading"></div>
 				</div>
 			</div>
