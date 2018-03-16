@@ -357,9 +357,8 @@
 							text-shadow: 0px 0px 1px rgba(255,255,255,.8);
 						}
 						.Tabber .mini-status.isError .state {
-							color: white;
-							background: maroon;
 							color: maroon !important;
+							background: none !important;
 						}
 						.Tabber .mini-status .loading {
 							position: absolute;
@@ -414,6 +413,11 @@
 			}
 			.Game.flash {
 				opacity: 1;
+			}
+			.Game.isInvalid .payTable,
+			.Game.isInvalid .field-ctnr > div:not(.invalid),
+			.Game.isInvalid .hd-ctnr {
+				opacity: .5;
 			}
 
 			.Game .titleBar {
@@ -533,7 +537,21 @@
 					text-align: center;
 				}
 
-				
+			.Game .field-ctnr {
+				border: 0;
+    			padding: 0;
+    			margin: 0;
+			}
+			.Game .invalid {
+				font-size: 70%;
+				margin-bottom: 15px;
+				padding: 10px 0px;
+				border-radius: 4px;
+				background: rgba(255,255,0,.9);
+				color: black;
+				text-align: center;
+				box-shadow: 2px 2px 4px 0px rgba(0,0,0,.5);
+			}	
 			.Game .actionArea {
 				background: linear-gradient(to top, rgba(250,250,250,.2) 0%, rgba(250,250,250,.3) 100%);
 				border-radius: 4px;
@@ -595,71 +613,6 @@
 				.Game .finalizeWin .bulletList .bullet:before {
 					content: "✓ ";
 				}
-
-			.Better {
-				display: table;
-				box-sizing: border-box;
-				width: 100%;
-				opacity: 1;
-				transition: opacity .5s;
-			}
-			.Better.disabled {
-				opacity: .5;
-			}
-				.Better .value {
-					display: table-cell;
-					text-align: center;
-				}
-					.Better .topLabel {
-						color: black;
-						text-transform: uppercase;
-						letter-spacing: .1em;
-						width: 140px;
-						font-size: 100%;
-						font-weight: bold;
-						text-align: center;
-					}
-					.Better .bottomLabel {
-						font-size: 80%;
-						color: black;
-					}
-					.Better .betTxt {
-						display: block;
-						box-sizing: border-box;
-						width: 100%;
-						background: transparent;
-						padding: 0px 0px 0px 15px;
-						text-align: center;
-						font-size: 300%;
-						border: none;
-						color: lime;
-						margin-top: -5px;
-						margin-bottom: -5px;
-					}
-					.Better .betTxt:focus {
-						outline: none;
-					}
-				.Better .slider {
-					position: relative;
-					display: table-cell;
-					vertical-align: middle;
-					width: 100%;
-				}
-					.Better .betSlider {
-						width: 92%;
-						height: 40px;
-						cursor: pointer;
-					}
-					.Better .betErr {
-						position: absolute;
-						bottom: 5px;
-						width: 92%;
-						font-size: 80%;
-						color: yellow;
-						text-shadow: 1px 1px 0px rgba(0,0,0,.5);
-						letter-spacing: .1em;
-						text-align: center;
-					}
 
 			.Game .hand-ctnr {
 				padding: 0px 15px;
@@ -853,84 +806,87 @@
 							</tr>
 						</table>
 					</td>
-					<td width="50%" valign="top" style="padding: 0px 15px;" valign="top">
+					<td width="50%" valign="top" style="padding: 0px 15px;" valign="top">						
 						<div class="titleBar">
 							Status
 						</div>
-						<div class="gameStatus">
-							<div class="details">
-								<div class="gameBet">Current Bet: .25 ETH</div>
-								<div class="gameId">Game #12312</div>
+						<fieldset class="field-ctnr">
+							<div class="invalid">
+								<b>Your provider does not see this game on the blockchain.</b>
+								<br>There may have been a blockchain reorg, or your provider may be lagging.<br>You can try clicking the "Refresh All Games" button above, or refreshing the page.
 							</div>
-							<div class="msg">
-								Initial hand dealt.<br>Select cards to hold, and click "Draw"
+							<div class="gameStatus">
+								<div class="details">
+									<div class="gameBet">Current Bet: .25 ETH</div>
+									<div class="gameId">Game #12312</div>
+								</div>
+								<div class="msg">
+									Initial hand dealt.<br>Select cards to hold, and click "Draw"
+								</div>
+								<div class="required">You have 255 blocks (1hr 5m) to take action.</div>
 							</div>
-							<div class="required">You have 255 blocks (1hr 5m) to take action.</div>
-						</div>
-						<!--
-							- Each .actionArea is shown depending on the gameState.state:
-							- Upon each gameState.state change:
-								- all .actionBtn's are reset
-								- all .statusArea's are emptied out
-							- Upon a TX:
-								- .statusArea is shown and auto-populated with .TxStatus
-								- .actionBtn's text is auto-populated depending on TX state
-						-->
-						<div class="invalid actionArea" style="text-align: center;">
-							Your provider does not see this game on the blockchain. There may have been a blockchain reorg, or your provider may be lagging.<br><br>You can try clicking the "Refresh All Games" button above, or refreshing the page.
-						</div>
-						<div class="bet actionArea">
-							<div class="actionFooter">
+							<!--
+								- Each .actionArea is shown depending on the gameState.state:
+								- Upon each gameState.state change:
+									- all .actionBtn's are reset
+									- all .statusArea's are emptied out
+								- Upon a TX:
+									- .statusArea is shown and auto-populated with .TxStatus
+									- .actionBtn's text is auto-populated depending on TX state
+							-->
+							<div class="bet actionArea">
+								<div class="actionFooter">
+									<table width="100%"><tr>
+										<td class="statusArea" width=100%></td>
+										<td align="center">
+											<button class="actionBtn btnDeal" data-txt-default="Deal" data-txt-pending="Dealing..." data-txt-success="Dealt!"></button>
+										</td>
+									</tr></table>
+								</div>
+							</div>
+							<div class="draw actionArea">
 								<table width="100%"><tr>
 									<td class="statusArea" width=100%></td>
 									<td align="center">
-										<button class="actionBtn btnDeal" data-txt-default="Deal" data-txt-pending="Dealing..." data-txt-success="Dealt!"></button>
+										<button class="actionBtn btnDraw" data-txt-default="Draw 5 Cards" data-txt-pending="Drawing..." data-txt-success="Drawn!"></button>
 									</td>
 								</tr></table>
 							</div>
-						</div>
-						<div class="draw actionArea">
-							<table width="100%"><tr>
-								<td class="statusArea" width=100%></td>
-								<td align="center">
-									<button class="actionBtn btnDraw" data-txt-default="Draw 5 Cards" data-txt-pending="Drawing..." data-txt-success="Drawn!"></button>
-								</td>
-							</tr></table>
-						</div>
-						<div class="finalizeLoss actionArea">
-							<div style="text-align: center;">
-								<button class="actionBtn btnPlayAgain" data-txt-default="Play Again"></button>
-							</div>
-						</div>
-						<div class="finalizeWin actionArea">
-							<div style="text-align: center">
-								<button class="actionBtn btnFinalize" data-txt-default="Claim Winnings" data-txt-pending="Claiming..." data-txt-success="Claimed!"></button>
-								<label class="lbl-bet-again">
-									<input type=checkbox class="chk-bet-again" checked> and bet <span class="eth"></span>
-								</label>
-								<br>
-								<div class="bulletList">
-									<div class="bullet will-bet-full">
-										Your winnings of <span class="eth"></span> will be bet.
-									</div>
-									<div class="bullet will-credit-full">
-										Your winnings of <span class="eth"></span> will be credited.
-									</div>
-									<div class="bullet will-bet-some">
-										<span class="eth"></span> of your winnings will be bet.
-									</div>
-									<div class="bullet will-credit-some">
-										The remaining <span class="eth"></span> will be credited.
-									</div>
+							<div class="finalizeLoss actionArea">
+								<div style="text-align: center;">
+									<button class="actionBtn btnPlayAgain" data-txt-default="Play Again"></button>
 								</div>
 							</div>
-							<div class="actionFooter statusArea"></div>
-						</div>
-						<div class="finalized actionArea">
-							<div style="text-align: center;">
-								<button class="actionBtn btnPlayAgain" data-txt-default="Play Again"></button>
+							<div class="finalizeWin actionArea">
+								<div style="text-align: center">
+									<button class="actionBtn btnFinalize" data-txt-default="Claim Winnings" data-txt-pending="Claiming..." data-txt-success="Claimed!"></button>
+									<label class="lbl-bet-again">
+										<input type=checkbox class="chk-bet-again" checked> and bet <span class="eth"></span>
+									</label>
+									<br>
+									<div class="bulletList">
+										<div class="bullet will-bet-full">
+											Your winnings of <span class="eth"></span> will be bet.
+										</div>
+										<div class="bullet will-credit-full">
+											Your winnings of <span class="eth"></span> will be credited.
+										</div>
+										<div class="bullet will-bet-some">
+											<span class="eth"></span> of your winnings will be bet.
+										</div>
+										<div class="bullet will-credit-some">
+											The remaining <span class="eth"></span> will be credited.
+										</div>
+									</div>
+								</div>
+								<div class="actionFooter statusArea"></div>
 							</div>
-						</div>
+							<div class="finalized actionArea">
+								<div style="text-align: center;">
+									<button class="actionBtn btnPlayAgain" data-txt-default="Play Again"></button>
+								</div>
+							</div>
+						</fieldset>
 					</td>
 				</tr></table>
 			</div>
@@ -938,6 +894,7 @@
 				<div class="titleBar">
 					Cards
 				</div>
+				<div class="hd-ctnr"></div>
 			</div>
 			<div class="mini-status">
 				<div class="hand"></div>
