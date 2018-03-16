@@ -79,6 +79,7 @@ Loader.require("vp")
             // Game exists in tabber, but not on blockchain! It's invalid.
             gs.state = "invalid";
             gs.isActive = false;
+            gs.blockLoaded = settings.latestBlock.number;
             updateGame(gs);
         });
 
