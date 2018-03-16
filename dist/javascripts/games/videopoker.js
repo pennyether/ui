@@ -48,10 +48,10 @@ Loader.require("vp")
 		});
 
 		if (game) {
-            // Always update the settings.
-            // Update game if we have a more recent state of it.
-            game.setSettings(settings);
-            if (gameState.latestBlockNumber >= (game.getGameState().latestBlockNumber || 0)) {
+            // Update settings, if passed.
+            if (settings) game.setSettings(settings);
+            // Update gameState if we have a newer version of it
+            if (gameState.blockLoaded > (game.getGameState().blockLoaded || 0)) {
                 game.setGameState(gameState);
                 tabber.refreshDeletable(game);
             }
@@ -60,16 +60,15 @@ Loader.require("vp")
 		}
 	}
 
-	// - Creates all bet or drawn+won Games.
-	// - Updates all displayed game's states.
-	// - Notifies falsely-existant game's of their perile.
-	function updateGames(settings) {
-		// Update games (create if necessary)
-		Object.values(gameStates).forEach(gs => {
-			updateGame(gs, settings, gs.isActive);
-		});
+    // - Creates all bet or drawn+won Games.
+    // - Updates all displayed game's states.
+    // - Notifies falsely-existant game's of their perile.
+    function updateSyncedGames(settings) {
+        // Update games (create if necessary)
+        Object.values(gameStates).forEach(gs => updateGame(gs, settings, gs.isActive));
 
-		const touchedIds = Object.values(gameStates).map(gs => gs.id);
+        // Go through tabber's games, and make sure they're all updated.
+        const touchedIds = Object.values(gameStates).map(gs => gs.id);
         tabber.getGames().forEach(g => {
             const gs = g.getGameState();
             const id = gs.id;
@@ -77,24 +76,20 @@ Loader.require("vp")
             if (!id) { g.setSettings(settings); return; }
             // It's already been updated. Do nothing.
             if (touchedIds.indexOf(id) >= 0) return;
-            // Game exists in tabber, but not on blockchain! It may be invalid.
-            // Let's make sure the gameState is at least 1 block old before
-            //  deciding it is invalid. This is because the provider will sometimes
-            //  return the latest block, but not all of the events for it.
-            if (settings.latestBlock.number > (gs.latestBlockNumber || 0)) {
-                gs.state = "invalid";
-                gs.isActive = false;
-                updateGame(gs);
-            }
+            // Game exists in tabber, but not on blockchain! It's invalid.
+            gs.state = "invalid";
+            gs.isActive = false;
+            updateGame(gs);
         });
 
-		if (!tabber.hasTabs()) createGame(null, settings);
-	}
+        if (!tabber.hasTabs()) createGame(null, settings);
+    }
 
 	// Collates event data into gameState, and updates the Game
-	// This should be called from within games when they receive an event.
+	// This should be called when games complete a transaction.
 	function updateGameFromEvent(ev) {
 		const gameState = updateGameStateFromEvent(ev);
+        gameState.blockLoaded = ev.blockNumber;
 		updateGame(gameState);
 	}
 
@@ -103,6 +98,7 @@ Loader.require("vp")
 		const id = ev.args.id.toNumber();
 		var gs = gameStates[id];
 		const curBlock = ethUtil.getCurrentStateSync().latestBlock.number;
+        const blockLoaded = Math.max(curBlock, ev.blockNumber);
 
 		// Clobber gameState with data from event.
 		if (ev.name == "BetSuccess") {
@@ -125,13 +121,13 @@ Loader.require("vp")
 				handRank: null,
 				payout: null,
                 isActive: null,
-                latestBlockNumber: null
+                blockLoaded: null
 			};
 			// compute iHand, dHand
 			gs.iBlocksLeft = Math.max((gs.iBlock + 255) - curBlock, 0);
 			gs.iHand = gs.iBlocksLeft > 0 ? gs.iHand : new PUtil.Hand(0);
             gs.isActive = true;
-            gs.latestBlockNumber = ev.blockNumber;
+            gs.blockLoaded = blockLoaded;
 			gameStates[id] = gs;
 			return gs;
 		}
@@ -154,7 +150,7 @@ Loader.require("vp")
 			gs.handRank = gs.dHand.getRank();
 			gs.payout = gs.bet.mul(gs.payTable[gs.handRank]);
 			gs.isActive = gs.payout.gt(0) ? true : false;
-            gs.latestBlockNumber = ev.blockNumber;
+            gs.blockLoaded = blockLoaded;
 			return gs;
 		}
 
@@ -167,7 +163,7 @@ Loader.require("vp")
 			gs.handRank = ev.args.handRank.toNumber();
 			gs.payout = ev.args.payout;
 			gs.isActive = false;
-            gs.latestBlockNumber = ev.blockNumber;
+            gs.blockLoaded = blockLoaded;
 			return gs;
 		}
 
@@ -188,23 +184,31 @@ Loader.require("vp")
 
 		const blockCutoff = state.latestBlock.number - 11520; // approx 48 hrs.
 		return Promise.all([
+            getVpSettings(true),
 			vp.getEvents("BetSuccess", {user: curUser}, blockCutoff),
     		vp.getEvents("DrawSuccess", {user: curUser}, blockCutoff),
     		vp.getEvents("FinalizeSuccess", {user: curUser}, blockCutoff),
-    		getVpSettings(true),
     		loadPayTables()
 		]).then(arr=>{
-			// Reset known gameStates to nothing.
-			gameStates = {};
+            const settings = arr[0];
+
+			// Delete games older than a block. They will be repopulated.
+            // This assumes the provider has an event lag of at most 1 block.
+			Object.keys(gameStates).forEach(id=>{
+                const gs = gameStates[id];
+                if (settings.latestBlock.number > gs.blockLoaded) {
+                    delete gameStates[id];
+                }
+            });
 
 			// Update states of all the games we've gotten.
 			// First BetSuccess, then DrawSuccess, then FinalizeSuccess.
-			arr[0].forEach(updateGameStateFromEvent);
 			arr[1].forEach(updateGameStateFromEvent);
 			arr[2].forEach(updateGameStateFromEvent);
+			arr[3].forEach(updateGameStateFromEvent);
 
 			// Update game objects, creating tabs if necessary
-			updateGames(arr[3]);
+			updateSyncedGames(settings);
 		});
 	}
 
@@ -493,7 +497,6 @@ function Game(vp) {
 			if (curHand==dealtHand) return;
 		}
         // Do not reset unless .state has changed.
-        console.log(`called with ${gameState.state} against ${_gameState.state}`);
         if (gameState.state != _gameState.state) _reset();
         if (gameState.id !== _gameState.id) _refreshHand(null, 31);
         _gameState = Object.assign({}, gameState);
@@ -1065,7 +1068,7 @@ function Better() {
         _$eth.hide();
         _$credits.hide();
         if (_mode == "both") {
-            if (_credits.equals(0)) {
+            if (_credits.lt(_minBet)) {
                 _betType = "eth";
                 _$eth.show();
             } else {
