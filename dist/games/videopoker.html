@@ -310,8 +310,14 @@
 							border-radius: 3px;
 						}
 						.Tabber .mini-status .HandDisplay .card .heldIcon {
-							display: none;
+						    font-size: 5px;
+						    margin-top: 5px;
+						    letter-spacing: initial;
+						    padding: 2px;
+    						border-radius: 2px;
+    						filter: opacity(50%);
 						}
+
 						.Tabber .mini-status .HandDisplay .card .suit {
 							display: none;
 						}
@@ -388,7 +394,7 @@
 				opacity: .7;
 				transition: opacity .5s;
 			}
-			.Game.shown {
+			.Game.flash {
 				opacity: 1;
 			}
 
@@ -553,11 +559,22 @@
 					display: inline-block;
 					text-align: left;
 					white-space: nowrap;
-					padding-bottom: 10px;
+					padding-top: 10px;
 					font-size: 90%;
 				}
+				.Game .finalizeWin .lbl-bet-again {
+					font-variant: small-caps;
+					font-weight: bold;
+					padding: 5px 5px;
+					background: rgba(0,0,0,.3);
+					border-radius: 3px;
+					color: #CCC;
+				}
 				.Game .finalizeWin .bulletList .bullet {
-
+					color: #AAA;
+				}
+				.Game .finalizeWin .bulletList .bullet .eth {
+					color: #4A4;
 				}
 				.Game .finalizeWin .bulletList .bullet:before {
 					content: "✓ ";
@@ -715,6 +732,7 @@
 					background: linear-gradient(135deg, rgb(225, 255, 225) 0%, rgb(0, 200, 0) 100%);
 				}
 					.HandDisplay .card .heldIcon {
+						box-sizing: border-box;
 						position: absolute;
 						left: 0;
 						right: 0;
@@ -843,7 +861,7 @@
 								- .actionBtn's text is auto-populated depending on TX state
 						-->
 						<div class="invalid actionArea" style="text-align: center;">
-							This game is no longer active. This may be due to the game being completed in another tab, or due to a blockchain re-org.
+							Your provider does not see this game on the blockchain. There may have been a blockchain reorg, or your provider may be lagging.<br><br>You can try clicking the "Refresh All Games" button above.
 						</div>
 						<div class="bet actionArea">
 							<div class="actionFooter">
@@ -870,13 +888,25 @@
 						</div>
 						<div class="finalizeWin actionArea">
 							<div style="text-align: center">
-								<div class="bulletList">
-									<div class="bullet">.001 ETH will be bet on a new hand.</div>
-									<div class="bullet">.004 ETH will be credited to your account.</div>
-								</div>
 								<button class="actionBtn btnFinalize" data-txt-default="Claim Winnings" data-txt-pending="Claiming..." data-txt-success="Claimed!"></button>
+								<label class="lbl-bet-again">
+									<input type=checkbox class="chk-bet-again" checked> and bet <span class="eth"></span>
+								</label>
 								<br>
-								<label class="playAgain"><input type=checkbox checked> and bet .001 ETH</label>
+								<div class="bulletList">
+									<div class="bullet will-bet-full">
+										Your winnings of <span class="eth"></span> will be bet.
+									</div>
+									<div class="bullet will-credit-full">
+										Your winnings of <span class="eth"></span> will be credited.
+									</div>
+									<div class="bullet will-bet-some">
+										<span class="eth"></span> of your winnings will be bet.
+									</div>
+									<div class="bullet will-credit-some">
+										The remaining <span class="eth"></span> will be credited.
+									</div>
+								</div>
 							</div>
 							<div class="actionFooter statusArea"></div>
 						</div>
