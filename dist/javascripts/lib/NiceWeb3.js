@@ -5,7 +5,7 @@
 //	- Result object contains useful details:
 //		- the original call data
 //		- the TX receipt
-//		- all logs, nicely parsed
+//		- all logs, nicely decoded
 //  - Unfortunately still subject to the retardation of MetaMask
 //		- events may not work
 //		- other shit might randomly not work
@@ -120,11 +120,6 @@
 		this.contract = _web3.eth.contract(abi);
 		this.contractName = contractName;
 
-		// Creates a new instance, which is a standard web3 contract
-		// with a few extras added on:
-		// 		- niceContractFactory
-		//		- getDecodedEvent(<event>)
-		// 
 		// Returns a promise resolved with the NiceContract instance.
 		// You can also do return.getTxHash().then()
 		this.new = function(inputsObj, options){

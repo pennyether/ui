@@ -346,21 +346,23 @@
 			catch (e) { throw new Error(`${val} is not convertable to a BigNumber`); }
 			return bn.div(1e18);
 		}
-		this.toEthStr = function(val, digits, unit) {
+		this.toEthStr = function(wei, digits, unit, trimZeros) {
 			if (digits===undefined) digits = 4;
 			if (!unit) unit = "Ether";
-			val = _self.toEth(val);
-			if (val.equals(0)) {}
-			else if (val.abs().lt(".00000000000001")) { val = val.mul(1e18); unit = `wei-${unit}`; }
-			else if (val.abs().lt(".0001")) { digits = 6; }
-			return val.toFixed(digits) + ` ${unit}`;
+			var eth = _self.toEth(wei);
+			if (eth.equals(0)) {}
+			else if (eth.abs().lt(".00000000000001")) { eth = eth.mul(1e18); unit = `wei-${unit}`; }
+			else if (eth.abs().lt(".0001")) { digits = 6; }
+			var ethStr = eth.toFixed(digits);
+			if (trimZeros) ethStr = ethStr.replace(/(\.?0+)$/, '');
+			return `${ethStr} ${unit}`;
 		}
-		this.toTokenStr = function(val, digits) {
-			return _self.toEthStr(val, digits, "Penny");
+		this.toTokenStr = function(wei, digits) {
+			return _self.toEthStr(wei, digits, "Penny");
 		}
-		this.toWei = function(val) {
-			try { var bn = new BigNumber(val); }
-			catch (e) { throw new Error(`${val} is not convertable to a BigNumber`); }
+		this.toWei = function(eth) {
+			try { var bn = new BigNumber(eth); }
+			catch (e) { throw new Error(`${eth} is not convertable to a BigNumber`); }
 			return bn.mul(1e18);
 		}
 		// returns a link to Etherscan
