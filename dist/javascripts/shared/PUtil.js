@@ -5,22 +5,33 @@
 		const _vp = vp;
 		const _ethUtil = ethUtil;
 		const _gameStates = {};
+		var _user = null;
+		var _numBlocks = null;
 
+		this.setSettings = (user, numBlocks) => {
+			// delete existing _gameStates if new user.
+			if (_user != user) {
+				Object.keys(_gameStates).forEach(k => delete _gameStates[k]);
+			}
+			// set _user and _numBlocks
+			_user = user;
+			_numBlocks = numBlocks;
+		}
 		this.getGameStates = ()=>Object.values(_gameStates);
 		this.getLatestGameStates = _getLatestGameStates;
 		this.updateGameStateFromEvent = _updateGameStateFromEvent;
 
 		// Updates _gameStates to contain gameStates of a user in the last numBlocks.
 		// Will remove any gameStates that were updated over a block ago.
-		function _getLatestGameStates(user, numBlocks) {
-			if (!user) return;
+		function _getLatestGameStates() {
+			if (!_user || !_numBlocks) return _gameStates;
 
 			const curBlockNum = _ethUtil.getCurrentStateSync().latestBlock.number;
-			const blockCutoff = curBlockNum - numBlocks;
+			const blockCutoff = curBlockNum - _numBlocks;
 			return Promise.all([
-				vp.getEvents("BetSuccess", {user: user}, blockCutoff),
-	    		vp.getEvents("DrawSuccess", {user: user}, blockCutoff),
-	    		vp.getEvents("FinalizeSuccess", {user: user}, blockCutoff),
+				vp.getEvents("BetSuccess", {user: _user}, blockCutoff),
+	    		vp.getEvents("DrawSuccess", {user: _user}, blockCutoff),
+	    		vp.getEvents("FinalizeSuccess", {user: _user}, blockCutoff),
 	    		_loadPayTables()
 			]).then(arr=>{
 				// Delete games older than a block. They will be repopulated.
@@ -73,6 +84,7 @@
 	                betEvent: ev,
 	                drawEvent: null,
 	                finalizeEvent: null,
+	                latestEvent: ev,
 	                isWinner: false,
 	                isInvalid: false,
 	                isActive: null,
@@ -93,6 +105,7 @@
 
 				gs.state = "drawn";
 	            gs.drawEvent = ev;
+	            gs.latestEvent = ev;
 				gs.draws = ev.args.draws;
 				gs.dBlock = ev.blockNumber;
 				gs.dBlockHash = ev.blockHash;
@@ -116,6 +129,7 @@
 
 				gs.state = "finalized";
 	            gs.finalizeEvent = ev;
+	            gs.latestEvent = ev;
 				gs.dHand = new PUtil.Hand(ev.args.dHand);
 	            // They skipped drawing. We set iHand and dHandRaw to final hand.
 	            if (!gs.dHandRaw) {
@@ -158,25 +172,86 @@
 	}
 
 	function GameHistoryViewer(gameStates) {
+		const _self = this;
 
-		this.$e = $getHistory(gameStates);
-
-		function $getHistory(gameStates) {
-	        const $e = $(`
-	            <table class="GameTable" cellpadding="0" cellspacing="0">
+		const _$e = $(`
+            <table class="GameTable" cellpadding="0" cellspacing="0">
+            	<thead>
 	                <tr class="header">
-	                    <td>ID</td>
-	                    <td>Bet</td>
-	                    <td>State</td>
-	                    <td class="txs">TXs</td>
+	                    <td data-sort-prop="id">ID</td>
+	                    <td data-sort-prop="bet.toNumber()">Bet</td>
+	                    <td data-sort-prop="state">State</td>
+	                    <td class="txs" data-sort-prop="latestEvent.args.time.toNumber()">TXs</td>
 	                    <td class="hand">Hand</td>
-	                    <td>Result</td>
-	                    <td>Payout</td>
+	                    <td data-sort-prop="dHand.getRank()">Result</td>
+	                    <td data-sort-prop="payout.toNumber()">Payout</td>
 	                </tr>
-	            </table>
-	        `);
-	        const t = +new Date();
-	        gameStates.forEach(gs=>{
+                </thead>
+                <tbody></tbody>
+            </table>
+        `);
+        const _$tbody = _$e.find("tbody");
+        const _$headers = _$e.find("thead td").click((e) => {
+        	const $header = $(e.currentTarget);
+        	var key = $header.data("sort-prop");
+        	if (!key) return;
+        	_self.setSort(key, $header.is(".sort-asc") ? "desc" : "asc");
+        }).toArray();
+		var _gameStates = [];
+        var _sort = [];
+
+        const _cmp = (function(){
+        	function getVal(obj, key) {
+        		const chunks = key.split(".");
+        		while (chunks.length) {
+        			const key = chunks.shift();
+        			try { obj = key.endsWith("()") ? obj[key.slice(0,-2)]() : obj[key]; }
+        			catch (e) { obj = null; }
+        		}
+        		return obj;
+        	}
+        	return (a, b) => {
+	        	const val_a = getVal(a, _sort[0]);
+	        	const val_b = getVal(b, _sort[0]);
+	        	const ret = val_a == val_b
+	        		? 0
+	        		: val_a < val_b ? -1 : 1;
+	        	return _sort[1]=="asc" ? ret : -1*ret;
+	        }
+        }());
+
+        this.$e = _$e;
+
+        this.setSort = function(key, ascOrDesc) {
+        	if (ascOrDesc!=="asc" && ascOrDesc!=="desc")
+        		throw new Error(`Must provide sort direction.`);
+        	const $header = $(_$headers.find((e) => $(e).data("sort-prop")==key));
+        	if ($header.length==0)
+        		throw new Error(`Invalid sort key: ${key}`);
+
+        	// remove sorts.
+        	_$headers.forEach((e)=>$(e).removeClass("sort-asc sort-desc"));
+        	$header.addClass(`sort-${ascOrDesc}`);
+
+        	// apply sort to existing _gameStates
+        	_sort = [`gs.${key}`, ascOrDesc];
+        	const $rows = _$tbody.detach().children().detach();
+        	_gameStates.stableSort(_cmp).forEach((obj, i) => {
+        		_$tbody.append($rows.eq(obj.i));
+        		obj.i = i;
+        	});
+        	_$e.append(_$tbody)
+        };
+
+        this.setGameStates = function(gameStates) {
+        	_gameStates = gameStates.slice(0)
+        		.map((gs, i) => { return {i: i, gs: gs}; })
+        		.stableSort(_cmp);
+
+        	_$tbody.detach().empty();
+        	_gameStates.forEach((obj,i) => {
+        		obj.i = i;
+        		const gs = obj.gs;
 	            const $game = $(`
 	                <tr class='GameHistory'>
 	                    <td class="id"></td>
@@ -191,9 +266,9 @@
 	                    <td class="rank"></div>
 	                    <td class="payout"></div>
 	                </tr>
-	            `).appendTo($e);
-	            var fHand;
+	            `).appendTo(_$tbody);
 
+	            var fHand;
 	            $game.find(".id").text(gs.id);
 	            $game.find(".bet").text(ethUtil.toEthStr(gs.bet));
 	            $game.find(".state").text(gs.state);
@@ -208,7 +283,7 @@
 	            $game.find(".txs").append($getTx(gs.betEvent));
 	            if (gs.drawEvent) $game.find(".txs").append($getTx(gs.drawEvent));
 	            if (gs.finalizeEvent) $game.find(".txs").append($getTx(gs.finalizeEvent));
-	            $game.click(()=>console.log(gs));
+	            if (gs.isWinner) $game.addClass("is-winner");
 
 	            function $getTx(ev) {
 	                const $e = $(`<div class="tx"></div>`);
@@ -261,9 +336,13 @@
 	                    if (wCards.indexOf(i)!==-1) $fCards.eq(i).addClass("winning");
 	                }
 	            }());
-	        });
-	        return $e;
-	    }
+        	});
+        	_$e.append(_$tbody);
+        };
+
+        (function _init(){
+        	_self.setSort(`id`, `desc`);
+        }());
 	}
 
 

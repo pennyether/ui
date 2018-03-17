@@ -2,24 +2,24 @@ Loader.require("vp")
 .then(function(vp){
     if (!PUtil) throw new Error("This requires PUtil to be loaded.");
 
-    var once;
 	ethUtil.onStateChanged((state)=>{
 		if (!state.isConnected) return;
-		syncGames().then(syncUserCredits).then(()=>{
-            if (!once) {
-                // const ghv = new PUtil.GameHistoryViewer(controller.getGameStates());
-                // $("#History").empty().append(ghv.$e);
-                // once = true;
-            }
-        });
+        const user = ethUtil.getCurrentStateSync().account;
+        controller.setSettings(user, 11520);  // 48 hours
+		syncGames().then(syncUserCredits);
 	});
 
+    const ghv = new PUtil.GameHistoryViewer();
     const controller = new PUtil.VpController(vp, ethUtil);
     const tabber = new Tabber();
     tabber.$e.appendTo($("#Machine .tabber-ctnr"));
+    ghv.$e.appendTo("#History .history-ctnr");
 
 	const $gameCtnr = $("#Machine .game-ctnr");
 	const $credits = $("#Machine .credits-ctnr");
+    $("#History .refresh").click(()=>{
+        ghv.setGameStates(controller.getGameStates());
+    });
 	
     // Tabber events.
 	tabber.onNewGame(()=>{
@@ -35,9 +35,8 @@ Loader.require("vp")
 
     // Get all fresh gameStates, and update our games.
     function syncGames() {
-        const user = ethUtil.getCurrentStateSync().account;
         return Promise.all([
-            controller.getLatestGameStates(user, 11520),
+            controller.getLatestGameStates(),
             getVpSettings(true)
         ]).then(arr => {
             createAndUpdateGames(arr[0], arr[1]);
@@ -119,7 +118,7 @@ Loader.require("vp")
 		const state = ethUtil.getCurrentStateSync();
 		const curUser = state.account;
 		if (!curUser) {
-			$credits.text("No account");
+			$credits.text("No account.");
 			return;
 		}
 		vp.credits([curUser]).then(eth=>{
@@ -417,7 +416,7 @@ function Game(vp) {
 
         // reset all things that may change within the same state.
         _$fieldCtnr.removeAttr("disabled");
-        _$e.removeClass("isWinner isInvalid");
+        _$e.removeClass("is-winner is-invalid");
         _$e.find(".actionArea").hide();
         _$invalid.hide();
         _$payTable.find("tr").removeClass("won");
@@ -426,7 +425,7 @@ function Game(vp) {
 
         // If game is invalid, show invalid message and disable all form elements.
         if (_gameState.isInvalid) {
-            _$e.addClass("isInvalid");
+            _$e.addClass("is-invalid");
             _$invalid.show();
             _$fieldCtnr.attr("disabled", "disabled");
         } 
@@ -450,7 +449,7 @@ function Game(vp) {
 
         // It's a winner, add class and hilite paytable entry.
         if (_gameState.isWinner) {
-            _$e.addClass("isWinner");
+            _$e.addClass("is-winner");
             _$payTable.find("tr").eq(_gameState.handRank).addClass("won");
         }
 
@@ -515,12 +514,12 @@ function Game(vp) {
 	function _refreshMiniStatus() {
 		// Add class for state, transacting, and error.
 		_$ms.removeClass().addClass("mini-status").addClass(_gameState.state);
-        if (_isTransacting) _$ms.addClass("isTransacting");
-        if (_isError) _$ms.addClass("isError");
+        if (_isTransacting) _$ms.addClass("is-transacting");
+        if (_isError) _$ms.addClass("is-error");
 
         // Update the isWinner class.
         if (_gameState.isWinner){
-            _$ms.addClass("isWinner");
+            _$ms.addClass("is-winner");
         }
 
         // update the state
@@ -539,7 +538,7 @@ function Game(vp) {
 
         // if it's invalid, show it as such.
         if (_gameState.isInvalid) {
-            _$ms.addClass("isError");
+            _$ms.addClass("is-error");
             _$msState.text(`${_$msState.text()} [Invalid]`);
         }
 	}
@@ -672,7 +671,7 @@ function Game(vp) {
             // Called immediately if TX fails or callbackFn rejects
             const onFailure = () => {
                 _isError = true;
-                _$ms.addClass("isError");
+                _$ms.addClass("is-error");
                 _$msState.text(`Error ${pendingTxt}`);
                 $txStatus.addClass("error");
             };
@@ -960,10 +959,10 @@ function HandDisplay() {
             setTimeout(()=>{ 
                 _$handRank.addClass("show");
                 if (hand.isWinner()) {
-                    _$handRank.addClass("isWinner");
+                    _$handRank.addClass("is-winner");
                     _$handRank.text(hand.getRankString() + "!");    
                 } else {
-                    _$handRank.removeClass("isWinner");
+                    _$handRank.removeClass("is-winner");
                     _$handRank.text(hand.getRankString());
                 }
                 _$cards.removeClass("hilited");
