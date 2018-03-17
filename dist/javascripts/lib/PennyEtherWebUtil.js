@@ -695,6 +695,7 @@
 	    const _$radEth = _$label.find("input[value=eth]");
 	    const _$radCredits = _$label.find("input[value=credits]");
 
+	    var _prevBet = null;
 	    var _minBet = new BigNumber(0);
 	    var _maxBet = new BigNumber(0);
 	    var _credits = new BigNumber(0);
@@ -704,7 +705,7 @@
 
 	    _$label.find("input").change(function(){
 	        _betType = _$label.find("input:checked").val();
-	        _refresh();
+	        _refreshBet();
 	    });
 	    _$txt.on("focus", function(){
 	        $(this).select();
@@ -764,7 +765,7 @@
 	    }
 	    this.getValue = function() {
 	        var bet = _getBet();
-	        if (!bet || bet.lt(_minBet) || bet.gt(_getMaxBet())) return null;
+	        if (!bet || bet.lt(_minBet) || bet.gt(_getMaxAllowedBet())) return null;
 	        return bet;
 	    }
 	    this.getBetType = function() {
@@ -799,7 +800,7 @@
 	    function _refreshScale() {
 	        // Get min/max bet in ether
 	        let minBetEther = _minBet.div(1e18);
-	        let maxBetEther = _getMaxBet().div(1e18);       
+	        let maxBetEther = _maxBet.div(1e18);       
 	        let difference = maxBetEther.minus(minBetEther);
 	        if (difference <= .1) _rounding = .001;
 	        else _rounding = .01;
@@ -826,23 +827,19 @@
 
 	    // updates the bet txt and range, as well as payouts
 	    function _refreshBet() {
-	        _onChange();
 	        const bet = _getBet();
 
 	        // Show error if it's not a number.
 	        _$err.hide();
-	        if (bet === null) {
-	            _$err.text("Bet must be a number").show();
-	            return;
-	        }
+	        if (bet === null) _$err.text("Bet must be a number").show();
+	        else if (bet.lt(_minBet)) _$err.text(`Bet must be above ${_eth(_minBet)}`).show();
+	        else if (bet.gt(_maxBet)) _$err.text(`Bet must be below ${_eth(_maxBet)}`).show();
+	        else if (bet.gt(_getMaxAllowedBet())) _$err.text(`You do not have enough credits.`).show();
 
-	        // Show error if its too small or large
-	        const minBet = _minBet;
-	        const maxBet = _getMaxBet();
-	        if (bet.lt(minBet))
-	            _$err.text(`Bet must be above ${_eth(minBet)}`).show();
-	        if (bet.gt(maxBet))
-	            _$err.text(`Bet must be below ${_eth(maxBet)}`).show();
+	        const newBet = _self.getValue();
+	        const betChanged = newBet==null || _prevBet==null ? newBet!==_prevBet : !newBet.equals(_prevBet);
+	        _prevBet = newBet;
+	        if (betChanged) _onChange();
 	    }
 
 	    function _getBet() {
@@ -852,7 +849,7 @@
 	        return bet;
 	    }
 
-	    function _getMaxBet() {
+	    function _getMaxAllowedBet() {
 	        return _betType == "credits"
 	            ? BigNumber.min(_maxBet, _credits)
 	            : _maxBet;

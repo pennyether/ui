@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<script src="../javascripts/lib/Loader.js"></script>
+		<script src="../javascripts/shared/PUtil.js"></script>
 		<script src="../javascripts/games/videopoker.js"></script>
 		<style>
 			/*********************************************/
@@ -182,16 +183,23 @@
 				#History {}
 				#History .GameTable {
 					width: 100%;
+					border-collapse: collapse;
+				}
+				#History .GameTable td {
+					border: 1px solid rgba(0,0,0,.1);
+					padding: 5px;
+					vertical-align: top;
+				}
+				#History .GameTable td.hand,
+				#History .GameTable td.txs {
+					width: 1px;
+					white-space: nowrap;
 				}
 				#History table tr:first-child td {
 					font-weight: bold;
 				}
 				#History tr:nth-child(even) {
 					background: #EEE;
-				}
-				#History td {
-					vertical-align: top;
-					padding: 3px;
 				}
 				#History .Card {
 					font-size: 11px;
@@ -581,7 +589,7 @@
 					text-align: center;
 				}
 
-			.Game .field-ctnr {
+			.Game fieldset {
 				border: 0;
     			padding: 0;
     			margin: 0;
@@ -627,7 +635,7 @@
 					background: blue;
 					transition: color .5s, background .5s, opacity .5s;
 				}
-				.Game .actionArea .actionBtn.disabled {
+				.Game .actionArea .actionBtn:disabled {
 					cursor: not-allowed;
 					color: #DDD;
 					background: #888;
@@ -883,7 +891,9 @@
 									<table width="100%"><tr>
 										<td class="statusArea" width=100%></td>
 										<td align="center">
-											<button class="actionBtn btnDeal" data-txt-default="Deal" data-txt-pending="Dealing..." data-txt-success="Dealt!"></button>
+											<fieldset class="canDeal">
+												<button class="actionBtn btnDeal" data-txt-default="Deal" data-txt-pending="Dealing..." data-txt-success="Dealt!"></button>
+											</fieldset>
 										</td>
 									</tr></table>
 								</div>
