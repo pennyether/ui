@@ -107,10 +107,10 @@
 				margin-right: 50px;
 			}
 
-			.cardStr.club, .cardStr.spade {
+			.Card.club, .Card.spade {
 				color: rgba(0,0,0,.7);
 			}
-			.cardStr.heart, .cardStr.diamond {
+			.Card.heart, .Card.diamond {
 				color: rgba(255,0,0,.7);
 			}
 		</style>
@@ -177,6 +177,50 @@
 					</div>
 				</div>
 			</div>
+
+			<style>
+				#History {}
+				#History .GameTable {
+					width: 100%;
+				}
+				#History table tr:first-child td {
+					font-weight: bold;
+				}
+				#History tr:nth-child(even) {
+					background: #EEE;
+				}
+				#History td {
+					vertical-align: top;
+					padding: 3px;
+				}
+				#History .Card {
+					font-size: 11px;
+					height: 28px;
+					width: 20px;
+					display: inline-block;
+					margin: 0px 2px;
+					border: 1px solid black;
+					border-radius: 3px;
+				}
+				#History .dHand, #History .fHand { margin-top: 2px; }
+				#History .dHand.no-draws {
+					box-sizing: border-box;
+					padding-top: 5px;
+					height: 34px;
+					text-align: center;
+					color: gray; 
+				}
+				#History .txs .tx {
+					height: 34px;
+				}
+				#History .Card.held { background: rgba(0,128,128,.2); }
+				#History .Card.timedout { background: rgba(0,0,0,.15); }
+				#History .Card.winning { background: rgba(0,128,0,.3); }
+				#History .rank, #History .payout {
+					padding-top: 68px;
+				}
+			</style>
+			<div id="History"></div>
 
 			<style>
 				#Machine {
