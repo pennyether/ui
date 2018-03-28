@@ -22,15 +22,13 @@ if (!fs.existsSync(inputDir) || !fs.lstatSync(inputDir).isDirectory()){
 }
 
 const comments = {
-    MainController: {
+    TaskManager: {
         startPennyAuction: `Starts a pre-defined Penny Auction for a given index, \
 provided it can be started. On success, rewards the caller.`,
         refreshPennyAuctions: `For each active auction, will send the collected fees \
 to the Treasury. For any auction that has ended, will pay the winner and move \
 the auction to the endedAuctions array. Rewards the caller with a percentage \
 of the fees collected, as well as a fixed amount per auction ended.`,
-        setPennyAuctionRewards: `Changes the rewards paid for .startPennyAuction() and \
-.refreshPennyAuctions()`
     },
 
     PennyAuction: {
@@ -63,13 +61,15 @@ var filenames = [
     "DividendToken.json",
     "DividendTokenLocker.json",
     "InstaDice.json",
-    "MainController.json",
     "PennyAuction.json",
     "PennyAuctionController.json",
     "PennyAuctionFactory.json",
     "Registry.json",
+    "TaskManager.json",
     "Treasury.json",
-    "VideoPoker.json"
+    "VideoPoker.json",
+    "Ledger.json",
+    "Bankrollable.json"
 ];
 
 // only pluck out the requested contracts

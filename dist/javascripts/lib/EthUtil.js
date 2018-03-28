@@ -348,7 +348,7 @@
 		}
 		this.toEthStr = function(wei, digits, unit, trimZeros) {
 			if (digits===undefined) digits = 4;
-			if (!unit) unit = "Ether";
+			if (unit===undefined) unit = "Ether";
 			var eth = _self.toEth(wei);
 			if (eth.equals(0)) {}
 			else if (eth.abs().lt(".00000000000001")) { eth = eth.mul(1e18); unit = `wei-${unit}`; }

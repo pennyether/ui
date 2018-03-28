@@ -175,13 +175,28 @@ body.dark {
 /** GLOBAL STYLES ******************************/
 /***********************************************/
 
-.pageTitle {
-	font-size: 150%;
+.header {
 	text-align: center;
 	padding: 20px 0px;
-	letter-spacing: .2em;
-	text-shadow: 3px 3px 3px rgba(0,0,0,.15);
 }
+	.header .pageTitle {
+		font-size: 170%;
+		letter-spacing: .2em;
+		text-shadow: 3px 3px 3px rgba(0,0,0,.15);
+	}
+	.header .links {
+		color: gray;
+		font-size: 90%;
+		padding-top: 10px;
+		text-align: center;
+	}
+	.header .links a {
+		opacity: .6;
+		transition: opacity .3s;
+	}
+	.header .links a:hover {
+		opacity: 1;
+	}
 
 /* Sections are commonly used chunks of related info */
 .section {
@@ -227,6 +242,7 @@ body.dark {
 .tipLeft::before,
 .infoLeft::before {
 	content: "i";
+	text-transform: lowercase;
 	font-family: serif;
 	font-weight: bold;
 	font-size: 80%;

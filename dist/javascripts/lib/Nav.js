@@ -52,16 +52,25 @@
 					url: "/status/system.html"
 				},{
 					name: "Treasury Status",
-					url: "/status/treasury.html"
+					url: "/status/treasury2.html"
 				},{
-					name: "Game Controllers",
-					url: "/status/games.html"
+					name: "Monarchy Status",
+					url: "/status/monarchy.html"
+				},{
+					name: "InstaDice Status",
+					url: "/status/instadice.html"
+				},{
+					name: "VideoPoker Status",
+					url: "/status/videopoker.html"
+				},{
+					name: "Admin UI",
+					url: "/status/admin.html",
 				},{
 					name: "Token Holder UI",
 					url: "/status/tokens.html"
 				},{
-					name: "Admin UI",
-					url: "/status/admin.html",
+					name: "DAO UI",
+					url: "/status/dao.html"
 				}]
 			},
 			{

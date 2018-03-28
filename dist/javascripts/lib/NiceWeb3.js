@@ -125,10 +125,14 @@
 		this.new = function(inputsObj, options){
 			const _contractFactory = _self.contract;
 			const oldNew = _contractFactory.new.bind(_contractFactory);
-			const constructorDef = abi.find(def=>def.type==='constructor');
-			if (!constructorDef)
-				throw new Error(`${contractName} ABI doesn't define a constructor.`);
-
+			var constructorDef = abi.find(def=>def.type==='constructor');
+			if (!constructorDef) {
+				constructorDef = {
+					inputs: [],
+					payable: false,
+        			type: "constructor"
+        		};
+			}
 			return getCallFn(oldNew, constructorDef, null)(inputsObj, options);
 		};
 		this.newEstimateGas = function(inputsObj, options) {

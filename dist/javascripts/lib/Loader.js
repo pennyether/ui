@@ -42,11 +42,26 @@
 	function Loader(){
 		var _self = this;
 		var _network = "none";
+		var _regMappings = {};
 		
 		var _triggerPageLoaded;
 		this.onPageLoad = new Promise((resolve, reject)=>{
 			_triggerPageLoaded = resolve;
 		});
+
+		this.registry = () => _registry;
+
+		this.nameOf = (addr) => {
+			const foundName = Object.keys(_regMappings)
+				.find(name => _regMappings[name].toLowerCase() === addr.toLowerCase());
+			return foundName || addr;
+		}
+
+		this.addressOf = (name) => {
+			if (!_regMappings[name])
+				throw new Error(`Registry does not contain an entry for ${name}.`);
+			return _regMappings[name];
+		}
 
 		this.promise = Promise.all([
 			new Promise((res, rej)=>{ window.addEventListener('load', res); }),
@@ -98,7 +113,6 @@
 
 		  	// tell ethUtil to poll for state change
 		  	ethUtil.pollForStateChange();
-		  	const statePromise = ethUtil.getCurrentState(true);
 
 		  	// make public all ContractFactories.
 		  	Object.keys(ABIs).forEach((contractName) => {
@@ -124,8 +138,8 @@
 		  	// add class for initial transitions
 		  	$("body").addClass("loaded");
 
-		  	// done.
-		  	return statePromise.then((state)=>{
+		  	// Get the current Registry, and its mappings.
+		  	return ethUtil.getCurrentState(true).then(state => {
 		  		const mappings = {1: "main", 3: "ropsten"};
 		  		const registries = {
 		  			"ropsten": "0xb56db64b37897b24e0cadd9c2eb9dc0d23d11cd7",
@@ -138,10 +152,15 @@
 		  			: mappings[state.networkId] || "unknown";
 
 		  		// load registry depending on network name
-		  		const registry = Registry.at(registries[_network] || "0x0");
-		  		console.log("Loader is done setting things up.");
-		  		return registry;
-		  	})
+		  		_registry = Registry.at(registries[_network] || "0x0");
+		  	}).then(() => {
+		  		return _registry.mappings().then(arr => {
+		  			const names = arr[0].map(web3.toUtf8);
+		  			const addresses = arr[1];
+		  			names.forEach((name,i) => _regMappings[name] = addresses[i]);
+		  			console.log("Loaded registry mappings", _regMappings);
+		  		});
+		  	});
 		});
 
 		// Loads items from the registry, and also ensures that ethUtil
@@ -152,41 +171,26 @@
 			var _callback = null;
 			const strs = Array.prototype.slice.call(arguments);
 
-			const p = Promise.resolve(_self.promise).then((reg)=>{
-				const mappings = {
+			const p = Promise.resolve(_self.promise).then(() => {
+				const requirements = {
 					"comp": [Comptroller, "COMPTROLLER"],
 					"tr": [Treasury, "TREASURY"],
-					"mc": [MainController, "MAIN_CONTROLLER"],
+					"tm": [TaskManager, "TASK_MANAGER"],
 					"pac": [PennyAuctionController, "PENNY_AUCTION_CONTROLLER"],
-					"paf": [PennyAuctionFactory, "PENNY_AUCTION_FACTORY"],
 					"dice": [InstaDice, "INSTADICE"],
 					"vp": [VideoPoker, "VIDEO_POKER"]
 				};
-				strs.forEach(str => {
-					if (!mappings[str] && str!=="reg")
+				// For each string, map it to the type at the mapped address.
+				return strs.map((str)=>{
+					if (!requirements[str] && str!=="reg")
 						throw new Error(`Unknown requirement: ${str}`);
+					if (str==="reg") return _registry;
+					const type = requirements[str][0];
+					const name = requirements[str][1];
+					const addr = _self.addressOf(name);
+					return type.at.call(type, addr)
 				});
-
-				return Promise.all(
-					strs.map((str)=>{
-						if (str==="reg") return reg;
-						const type = mappings[str][0];
-						const name = mappings[str][1];
-						return reg.addressOf([name]).then(addr => {
-							const instance = type.at.call(type, addr);
-							window[str] = instance;
-							console.log(`found ${str} @ ${addr}`);
-							return instance;
-						}).catch((e)=>{
-							console.error(`Could not find address of ${name}: ${e.message}`);
-							throw e;
-						});
-					})
-				)
-			}).then((arr)=>{
-				console.log(`Loader finished requirements: ${strs}`)
-				return arr;
-			})
+			});
 
 			return {
 				then: function(cb) {
