@@ -68,16 +68,36 @@
 				/*min-height: 100px;*/
 			}
 
+				.cell .table {
+					font-size: 90%;
+					border-collapse: collapse;
+				}
+				.cell .table td {
+					padding: 4px;
+					border: 1px solid rgba(0,0,0,.1);
+				}
+				.cell .table thead td {
+					background: rgba(0,0,0,.2);
+					font-weight: bold;
+				}
+				.cell .table td:nth-child(n+2) {
+					text-align: right;
+				}
 
-			.reserve.bar {
-				position: relative;
-				border-radius: 3px;
-				background: #CCC;
-				width: 100%;
-				height: 20px;
-				border: 1px solid gray;
+
+			.reserve .not-applicable {
+				text-align: center;
+				color: green;
 			}
-				.reserve.bar > .amt {
+				.reserve .bar {
+					position: relative;
+					border-radius: 3px;
+					background: #CCC;
+					width: 100%;
+					height: 20px;
+					border: 1px solid gray;
+				}
+				.reserve .bar > .amt {
 					position: relative;
 					height: 100%;
 					border-radius: 2px;
@@ -85,7 +105,7 @@
 					box-shadow: 0px 0px 10px 1px lime;
 					transition: width .5s;
 				}
-				.reserve.bar > .txt {
+				.reserve .bar > .txt {
 					position: absolute;
 					width: 100%;
 					top: 2px;
@@ -140,6 +160,50 @@
 				}
 				.allocation .blob .eth {
 					font-size: 70%;
+				}
+				.allocation .table-ctnr {
+					padding: 5px;
+				}
+
+			.governance .requests {
+				max-height: 300px;
+				overflow: auto;
+			}
+			.governance .request {
+				border: 1px solid gray;
+				border-radius: 3px;
+				background: #EEE;
+				margin: 10px 5px;
+				font-size: 90%;
+				overflow: hidden;
+			}
+				.governance .request .title {
+					padding: 2px 4px 3px 4px;
+					background: #CCC;
+					color: #555;
+				}
+				.governance .request .description-ctnr {
+					text-align: center;
+					padding: 2px 4px;
+				}
+				.governance .request .type,
+				.governance .request .target,
+				.governance .request .eth {
+					font-weight: bold;
+					color: black;
+				}
+				.governance .details {
+					white-space: nowrap;
+				}
+				.governance .request .status-ctnr {
+					text-align: center;
+				}
+				.governance .request .status {
+					display: inline-block;
+					padding: 2px 6px;
+					background: green;
+					color: white;
+					border-radius: 4px;
 				}
 
 			.funding-status .met {
@@ -230,7 +294,18 @@
 										</td>
 									</tr></table>
 								</div>
-								<div class="data"></div>
+								<div class="table-ctnr">
+									<table width="100%" class="table">
+										<thead>
+											<tr>
+												<td>Contract</td>
+												<td>Allocated</td>
+												<td>Recallable</td>
+											</tr>
+										</thead>
+										<tbody></tbody>
+									</table>
+								</div>
 							</div>
 						</div>
 					</div></td>
@@ -319,54 +394,19 @@
 							--><span class="tipLeft" data-tippy-trigger="mouseenter" title="The Capital Allocation and Target are controller by the Admin (soon to be a DAO). A Governance request will require one week to execute -- should there be a mistake or security incident, the request can be cancelled within a week.">Governance</span><!--
 						--></div>
 						<div class="body">
-							<div class="legend">
+							<div class="loading">
+								Loading...
+							</div>
+							<div class="error hide">
+								Error loading: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
 								<select>
+									<option>All</option>
 									<option>Pending</option>
 									<option>Executed</option>
 									<option>Cancelled</option>
 								</select>
-								<style>
-									.governance .requests {
-										max-height: 300px;
-										overflow: auto;
-									}
-									.governance .request {
-										border: 1px solid gray;
-										border-radius: 3px;
-										background: #EEE;
-										margin: 10px 5px;
-										font-size: 90%;
-										overflow: hidden;
-									}
-										.governance .request .title {
-											padding: 2px 4px 3px 4px;
-											background: #CCC;
-											color: #555;
-										}
-										.governance .request .description-ctnr {
-											text-align: center;
-											padding: 2px 4px;
-										}
-										.governance .request .type,
-										.governance .request .target,
-										.governance .request .eth {
-											font-weight: bold;
-											color: black;
-										}
-										.governance .details {
-											white-space: nowrap;
-										}
-										.governance .request .status-ctnr {
-											text-align: center;
-										}
-										.governance .request .status {
-											display: inline-block;
-											padding: 2px 6px;
-											background: green;
-											color: white;
-											border-radius: 4px;
-										}
-								</style>
 								<div class="request template" style="display: none;">
 									<div class="title">
 										<span class="type">SendCapital</span>

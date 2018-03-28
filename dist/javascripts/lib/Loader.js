@@ -55,13 +55,21 @@
 			const foundName = Object.keys(_regMappings)
 				.find(name => _regMappings[name].toLowerCase() === addr.toLowerCase());
 			return foundName || addr;
-		}
+		};
+
+		this.linkOf = (addr) => {
+			var name = _self.nameOf(addr);
+			name = name[0].toUpperCase() + name.toLowerCase().slice(1);
+			name = name.replace(/_([a-z])/g, (m, w)=>w.toUpperCase())
+			name = name.replace(/PennyAuctionController/, "Monarchy");
+			return name;
+		};
 
 		this.addressOf = (name) => {
 			if (!_regMappings[name])
 				throw new Error(`Registry does not contain an entry for ${name}.`);
 			return _regMappings[name];
-		}
+		};
 
 		this.promise = Promise.all([
 			new Promise((res, rej)=>{ window.addEventListener('load', res); }),
@@ -177,7 +185,7 @@
 					"tr": [Treasury, "TREASURY"],
 					"tm": [TaskManager, "TASK_MANAGER"],
 					"pac": [PennyAuctionController, "PENNY_AUCTION_CONTROLLER"],
-					"dice": [InstaDice, "INSTADICE"],
+					"dice": [InstaDice, "INSTA_DICE"],
 					"vp": [VideoPoker, "VIDEO_POKER"]
 				};
 				// For each string, map it to the type at the mapped address.
@@ -199,7 +207,7 @@
 					});
 				}
 			}
-		}
+		};
 
 		this.mineBlock = function(){
 			return Promise.resolve().then(()=>{
@@ -211,7 +219,7 @@
 					return;
 				}
 			})
-		}
+		};
 	}
 	window.Loader = new Loader();
 }());

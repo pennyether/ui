@@ -216,7 +216,7 @@
 			const abiInputs = def.inputs;
 			const isPayable = def.payable;
 			const fnName = def.name || "<constructor>";
-			const inputStr = def.inputs.map(input=>input.name).join(",");
+			const inputStr = def.inputs.map(input=>input.name || input.type).join(",");
 			const callName = isConstructor 
 				? `new ${contractName}(${inputStr})`
 				: `${contractName}.${fnName}(${inputStr})`;
@@ -265,7 +265,10 @@
 				};
 				const p = _doPromisifiedCall(oldCallFn, metadata);
 				niceWeb3.notifyCall(p);
-				return p;
+				return p.catch(e => {
+					e.message = `${callName} failed: ${e.message}`;
+					throw e;
+				});
 			}
 		}
 

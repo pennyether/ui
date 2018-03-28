@@ -95,7 +95,7 @@ Loader.require("reg", "comp", "tr")
 			);
 		}).then(recallable => {
 			recallable.forEach((amt, i) => {
-				balances[i].recallable = amt;
+				balances[i].recallable = BigNumber.min(amt, balances[i].allocated);
 				capRecallable = capRecallable.plus(amt);
 			});
 			doRefresh();
@@ -113,7 +113,7 @@ Loader.require("reg", "comp", "tr")
 		const $capAllocated = $e.find(".cap-allocated");
 		const $capRecallable = $e.find(".cap-recallable");
 		const $capTotal = $e.find(".cap-total");
-		const $data = $e.find(".data");
+		const $tbody = $e.find(".table tbody");
 		function doRefresh() {
 			const format = (v)=>ethUtil.toEthStr(v, 2, "", true);
 			$capAvailable.text(format(capAvailable));
@@ -122,10 +122,10 @@ Loader.require("reg", "comp", "tr")
 			$capTotal.text(format(capAvailable.plus(capRecallable)));
 
 			balances.forEach(obj=>{
-				const name = Loader.nameOf(obj.addr);
+				const name = Loader.linkOf(obj.addr);
 				const allocated = _toEthStr(obj.allocated);
 				const recallable = _toEthStr(obj.recallable);
-				$data.append(`<div>${name}: ${allocated} (${recallable} recallable)</div>`);
+				$tbody.append(`<tr><td>${name}</td><td>${allocated}</td><td>${recallable}</td></tr>`);
 			})
 		}
 	}
@@ -183,7 +183,10 @@ Loader.require("reg", "comp", "tr")
 	}
 
 	function _initGovernance() {
-
+		const $e = $(".governance");
+		const $select = $e.find("select").change(function(){
+			_refreshGovernance();
+		});
 	}
 	function _refreshGovernance() {
 		const $e = $(".governance");
@@ -191,14 +194,29 @@ Loader.require("reg", "comp", "tr")
 		const $error = $e.find(".error").hide();
 		const $doneLoading = $e.find(".done-loading").hide();
 
+		const state = $e.find("select").val().toLowerCase();
+		const getNumFn = () => {
+			if (state=="all") return tr.curRequestId();
+			if (state=="pending") return tr.numPendingRequests();
+			if (state=="executed") return tr.numCompletedRequests();
+			if (state=="cancelled") return tr.numCancelledRequests();
+			throw new Error(`Unknown request state: ${state}`);
+		};
+		const getRequestFn = (index) => {
+			if (state=="all") return tr.getRequest([index+1]);
+			if (state=="pending") return tr.pendingRequestIds([index]).then((id)=>tr.getRequest([id]))
+			if (state=="executed") return tr.completedRequestIds([index]).then((id)=>tr.getRequest([id]))
+			if (state=="cancelled") return tr.cancelledRequestIds([index]).then((id)=>tr.getRequest([id]))
+			throw new Error(`Unknown request state: ${state}`);
+		};
+
 		var requests = [];
-		const promise = tr.numCompletedRequests()
-		promise.then(num => {
-			const end = num;
-			const start = Math.max(num - 5, 1);
+		getNumFn().then(num => {
+			const end = num - 1;
+			const start = Math.max(end - 5, 0);
 			const pArr = [];
 			for (var i=end; i>=start; i--) {
-				pArr.push(tr.getRequest([i]));
+				pArr.push(getRequestFn(i));
 			}
 			return Promise.all(pArr);
 		}).then(pArr => {
@@ -214,7 +232,7 @@ Loader.require("reg", "comp", "tr")
 		}).then(()=>{
 			$loading.hide();
 			$doneLoading.show();
-		}, e=>{
+		}).catch(e => {
 			$loading.hide();
 			$error.show();
 			$error.find(".error-msg").text(e.message);
@@ -224,7 +242,7 @@ Loader.require("reg", "comp", "tr")
 		const $ctnr = $e.find(".requests").empty();
 		function doRefresh() {
 			if (requests.length == 0) {
-				$ctnr.text("There are no Requests.");
+				$ctnr.text(`There are no ${state} Requests.`);
 				return;
 			}
 			requests.forEach(r => {
@@ -233,7 +251,7 @@ Loader.require("reg", "comp", "tr")
 				const status = r.dateExecuted.gt(0)
 					? "Executed"
 					: r.dateCancelled.gt(0) ? "Cancelled" : "Pending";
-				const target = Loader.nameOf(r.target);
+				const target = Loader.linkOf(r.target);
 				
 				$e.find(".type").text(type);
 				if (type == "SendCapital"){
