@@ -3,12 +3,14 @@ Loader.require("reg", "comp", "tr")
 	ethUtil.getCurrentState().then(_refreshAll);
 
 	_initGovernance();
+	_initProfits();
 
 	function _refreshAll() {
 		_refreshReserve();
 		_refreshCapitalAllocation();
 		_refreshFundingStatus();
 		_refreshGovernance();
+		_refreshProfits();
 	}
 
 	function _refreshReserve() {
@@ -183,10 +185,7 @@ Loader.require("reg", "comp", "tr")
 	}
 
 	function _initGovernance() {
-		const $e = $(".governance");
-		const $select = $e.find("select").change(function(){
-			_refreshGovernance();
-		});
+		$(".cell.governance select").change(_refreshGovernance);
 	}
 	function _refreshGovernance() {
 		const $e = $(".governance");
@@ -281,6 +280,66 @@ Loader.require("reg", "comp", "tr")
 					$e.find(".date-cancelled").text(util.toDateStr(r.dateCancelled));
 					$e.find(".result").text(`Reason: ${r.cancelledMsg}`);
 				}
+			});
+		}
+	}
+
+	function _initProfits() {
+		const $select = $(".cell.profits select").change(_refreshProfits);
+		ethUtil.getAverageBlockTime().then(sPerBlock => {
+			sPerBlock = sPerBlock.toNumber();
+			[30, 90, 180].forEach(days => {
+				const lookbackS = days * 24 * 60;
+				const blocks = Math.floor(lookbackS / sPerBlock);
+				$select.append(`<option value=${blocks}>Last ~${days} Days (${blocks} blocks)</option>`)
+			})
+		})
+	}
+	function _refreshProfits() {
+		const $e = $(".profits");
+		const $loading = $e.find(".loading").show();
+		const $error = $e.find(".error").hide();
+		const $doneLoading = $e.find(".done-loading").hide();
+
+		const lookbackBlocks = $e.find("select").val();
+		const curBlock = ethUtil.getCurrentBlockHeight().toNumber();
+		const targetBlock = lookbackBlocks == "all"
+			? curBlock
+			: Math.max(curBlock - lookbackBlocks, 0);
+
+		const bankrollables = Loader.getBankrollables();
+		const profits = [];	// array of {addr, profits}		
+		Promise.all(
+			// Get current and previous value of `uint profitsSent`.
+			// This should be slot #1 for all Bankrollable contracts.
+			bankrollables.map(addr => {
+				const cur = Bankrollable.at(addr).profitsSent();
+				const prev = targetBlock==curBlock
+					? 0
+					: _niceWeb3.ethUtil.getStorageAt(addr, 1, targetBlock);
+				return Promise.all([cur, prev]);
+			})
+		).then(arr => {
+			arr.forEach((data, i) => {
+				const profitsSent = data[0].minus(data[1]);
+				profits.push({address: bankrollables[i], profitsSent: profitsSent});
+			});
+			doRefresh();
+		}).then(()=>{
+			$loading.hide();
+			$doneLoading.show();
+		}, e=>{
+			$loading.hide();
+			$error.show();
+			$error.find(".error-msg").text(e.message);
+		});
+
+		const $tbody = $e.find(".table tbody").empty();
+		function doRefresh() {
+			profits.forEach(obj => {
+				const name = Loader.linkOf(obj.address);
+				const val = _toEthStr(obj.profitsSent);
+				$tbody.append(`<tr><td>${name}</td><td>${val}</td><td>123</td></tr>`);
 			});
 		}
 	}

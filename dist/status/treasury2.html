@@ -50,11 +50,11 @@
 				content: "";
 			}
 			.cell .titleBar:before {
-				right: 0.5em;
+				right: 0em;
 				margin-left: -50%;
 			}
 			.cell .titleBar:after {
-			 	left: 0.2em;
+			 	left: 0em;
 			 	margin-right: -50%;
 			}
 
@@ -68,21 +68,55 @@
 				/*min-height: 100px;*/
 			}
 
-				.cell .table {
-					font-size: 90%;
-					border-collapse: collapse;
+			.cell .select-ctnr {
+				text-align: center;
+			}
+
+				.cell .tiny-bar {
+					margin-bottom: 8px;
 				}
-				.cell .table td {
-					padding: 4px;
-					border: 1px solid rgba(0,0,0,.1);
+					.cell .tiny-bar .label {
+						display: inline-block;
+						font-size: 90%;
+						margin-bottom: 5px;
+					}
+					.cell .tiny-bar .txt {
+						display: inline-block;
+						font-size: 90%;
+						font-weight: bold;
+					}
+					.cell .tiny-bar .bar {
+						position: relative;
+						background: #CCC;
+						width: 100%;
+						height: 10px;
+						border: 1px solid gray;
+					}
+					.cell .tiny-bar .amt {
+						position: relative;
+						height: 100%;
+						background: green;
+						transition: width .5s;
+					}
+
+				.cell .table-ctnr {
+					padding: 5px;
 				}
-				.cell .table thead td {
-					background: rgba(0,0,0,.2);
-					font-weight: bold;
-				}
-				.cell .table td:nth-child(n+2) {
-					text-align: right;
-				}
+					.cell .table {
+						font-size: 90%;
+						border-collapse: collapse;
+					}
+					.cell .table td {
+						padding: 4px;
+						border: 1px solid rgba(0,0,0,.1);
+					}
+					.cell .table thead td {
+						background: rgba(0,0,0,.2);
+						font-weight: bold;
+					}
+					.cell .table td:nth-child(n+2) {
+						text-align: right;
+					}
 
 
 			.reserve .not-applicable {
@@ -114,33 +148,6 @@
 					color: white;
 				}
 
-			.cell .tiny-bar {
-				margin-bottom: 8px;
-			}
-				.cell .tiny-bar .label {
-					display: inline-block;
-					font-size: 90%;
-					margin-bottom: 5px;
-				}
-				.cell .tiny-bar .txt {
-					display: inline-block;
-					font-size: 90%;
-					font-weight: bold;
-				}
-				.cell .tiny-bar .bar {
-					position: relative;
-					background: #CCC;
-					width: 100%;
-					height: 10px;
-					border: 1px solid gray;
-				}
-				.cell .tiny-bar .amt {
-					position: relative;
-					height: 100%;
-					background: green;
-					transition: width .5s;
-				}
-
 			.allocation .blob {
 				margin: 5px;
 				padding: 3px;
@@ -160,9 +167,6 @@
 				}
 				.allocation .blob .eth {
 					font-size: 70%;
-				}
-				.allocation .table-ctnr {
-					padding: 5px;
 				}
 
 			.governance .requests {
@@ -223,9 +227,11 @@
 			<div class="row one">
 				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
 					<td width="33%"><div class="reserve cell">
-						<div class="titleBar"><!--
-							--><span class="tipLeft" data-tippy-trigger="mouseenter" title="The Treasury holds Ether in reserve to guarantee that all PENNY Tokens can be burned for .5 Ether each.">Reserve<span><!--
-						--></div>
+						<div class="titleBar">
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="The Treasury holds Ether in reserve to guarantee that all PENNY Tokens can be burned for .5 Ether each.">
+								Reserve
+							<span>
+						</div>
 						<div class="body">
 							<div class="loading">
 								Loading...
@@ -251,9 +257,11 @@
 						</div>
 					</div></td>
 					<td width="33%"><div class="cell allocation">
-						<div class="titleBar"><!--
-							--><span class="tipLeft" data-tippy-trigger="mouseenter" title="The Treasury uses its Capital to fund 'Bankrollable' contracts. The Treasury can recall some of its allocated capital at any time. The allocation of Capital is controlled via Governance.">Capital Allocation</span><!--
-						--></div>
+						<div class="titleBar">
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="The Treasury uses its Capital to fund 'Bankrollable' contracts. The Treasury can recall some of its allocated capital at any time. The allocation of Capital is controlled via Governance.">
+								Capital Allocation
+							</span>
+						</div>
 						<div class="body">
 							<div class="loading">
 								Loading...
@@ -310,9 +318,11 @@
 						</div>
 					</div></td>
 					<td width="33%"><div class="cell funding-status">
-						<div class="titleBar"><!--
-							--><span class="tipLeft" data-tippy-trigger="mouseenter" title="If more Capital is desired, the 'Capital Target' value can be increased via Governance. If Capital is ever needed, the Comptroller will raise Capital by selling PENNY Tokens.">Funding Status</span><!--
-						--></div>
+						<div class="titleBar">
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="If more Capital is desired, the 'Capital Target' value can be increased via Governance. If Capital is ever needed, the Comptroller will raise Capital by selling PENNY Tokens.">
+								Funding Status
+							</span>
+						</div>
 						<div class="body">
 							<div class="loading">
 								Loading...
@@ -350,27 +360,46 @@
 			</div>
 			<div class="row two">
 				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
-					<td width="33%"><div class="cell">
-						<div class="titleBar"><!--
-							--><span class="tipLeft" data-tippy-trigger="mouseenter" title="All profits generated by bankrolled contracts are sent to the Treasury. These profits can then be distributed to PENNY Token holders at any time, by anyone.">Profits</span><!--
-						--></div>
+					<td width="33%"><div class="cell profits">
+						<div class="titleBar">
+							<span>
+								<span class="tipLeft" data-tippy-trigger="mouseenter" title="All profits generated by bankrolled contracts are sent to the Treasury. These profits can then be distributed to PENNY Token holders at any time, by anyone.">
+									Profits
+								</span>
+							</span>
+						</div>
 						<div class="body">
-							<select>
-								<option>All Time</option>
-								<option>Last 30 Days</option>
-								<option>Last 60 Days</option>
-								<option>Last 90 Days</option>
-							</select>
-							<div>
-								Go through all Registry items that we know
-								are Bankrollable and get their profitsSent()
-								delta between estimated blocks. Break out pie
-								chart by Registry name (or nice version)
+							<div class="loading">
+								Loading...
+							</div>
+							<div class="error hide">
+								Error loading profits: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								<div class="select-ctnr">
+									<select>
+										<option value=all selected>All Time</option>
+									</select>
+								</div>
+								<div class="table-ctnr">
+									<table width="100%" class="table">
+										<thead>
+											<tr>
+												<td>Contract</td>
+												<td>Profits Sent</td>
+												<td class="tipLeft" data-tippy-trigger="mouseenter" title="Test">Run Rate</td>
+											</tr>
+										</thead>
+										<tbody></tbody>
+									</table>
+								</div>
 							</div>
 						</div>
 					</div></td>
 					<td width="66%"><div class="cell">
-						<div class="titleBar">Profits History</div>
+						<div class="titleBar">
+							Total Profits
+						</div>
 						<div class="body">
 							<select>
 								<option>All Time</option>
@@ -390,23 +419,29 @@
 			<div class="row two">
 				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
 					<td width="50%"><div class="cell governance">
-						<div class="titleBar"><!--
-							--><span class="tipLeft" data-tippy-trigger="mouseenter" title="The Capital Allocation and Target are controller by the Admin (soon to be a DAO). A Governance request will require one week to execute -- should there be a mistake or security incident, the request can be cancelled within a week.">Governance</span><!--
-						--></div>
+						<div class="titleBar">
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="The Capital Allocation and Target are controller by the Admin (soon to be a DAO). A Governance request will require one week to execute -- should there be a mistake or security incident, the request can be cancelled within a week.">
+								Governance
+							</span>
+						</div>
 						<div class="body">
-							<div class="loading">
-								Loading...
-							</div>
-							<div class="error hide">
-								Error loading: <span class="error-msg"></span>
+							<div>
+								<div class="select-ctnr">
+									<select>
+										<option selected>All</option>
+										<option>Pending</option>
+										<option>Executed</option>
+										<option>Cancelled</option>
+									</select>
+								</div>
+								<div class="loading">
+									Loading...
+								</div>
+								<div class="error hide">
+									Error loading: <span class="error-msg"></span>
+								</div>
 							</div>
 							<div class="done-loading hide">
-								<select>
-									<option>All</option>
-									<option>Pending</option>
-									<option>Executed</option>
-									<option>Cancelled</option>
-								</select>
 								<div class="request template" style="display: none;">
 									<div class="title">
 										<span class="type">SendCapital</span>
@@ -444,7 +479,9 @@
 						</div>
 					</div></td>
 					<td width="50%"><div class="cell">
-						<div class="titleBar">Events</div>
+						<div class="titleBar">
+							Events
+						</div>
 						<div class="body">
 							<div class="legend">
 								<label><input type=checkbox checked> Capital</label>

@@ -65,6 +65,14 @@
 			return name;
 		};
 
+		this.getBankrollables = () => {
+			return Object.keys(_regMappings).filter(name => {
+				name = name.toLowerCase();
+				const names = ["penny_auction_controller", "insta_dice", "video_poker"];
+				return names.some(tName => name.indexOf(tName) >= 0);
+			}).map(name => _regMappings[name]);
+		};
+
 		this.addressOf = (name) => {
 			if (!_regMappings[name])
 				throw new Error(`Registry does not contain an entry for ${name}.`);
@@ -99,42 +107,78 @@
 			_triggerPageLoaded();
 
 		    // create web3 object depending on if its from browser or not
-		    const _web3 = new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/"));
 			if (typeof web3 !== 'undefined') {
 				window.hasWeb3 = true;
 		    	window.web3 = new Web3(web3.currentProvider);
+		    	console.log(`Using browser-provided web3.`);
 		  	} else {
 		  		window.hasWeb3 = false;
-		  		window.web3 = _web3;
+		  		window.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545/"));
+		  		console.log(`No browser-provided web3. Using localhost.`);
 		  	}
 
-		  	// these are back-up web3's, in case Metamask shits the bed.
-		  	window._web3 = _web3;
-		  	window._niceWeb3 = new NiceWeb3(_web3, ethAbi, EthUtil);
-
-		  	// public things.
+		  	// Public things.
 		  	window.niceWeb3 = new NiceWeb3(web3, ethAbi, EthUtil); 
 		  	window.ethUtil = niceWeb3.ethUtil;
 		  	window.BigNumber = web3.toBigNumber().constructor;
 		  	window.util = new PennyEtherWebUtil(niceWeb3);
 		  	window.ethStatus = new EthStatus(ethUtil, niceWeb3);
 
-		  	// tell ethUtil to poll for state change
-		  	ethUtil.pollForStateChange();
-
-		  	// make public all ContractFactories.
+		  	// Expose all ABIs as NiceWeb3 contract factories, since web3 is... um... "beta".
 		  	Object.keys(ABIs).forEach((contractName) => {
 		  		var abi = ABIs[contractName];
 		  		window[contractName] = niceWeb3.createContractFactory(contractName, abi.abi, abi.unlinked_binary);
-				window[`_${contractName}`] = _web3.eth.contract(abi.abi);
 		  	});
 
-		  	// load nav
+		  	// Get the current network, and set up _web3
+		  	const networkPromise = ethUtil.getCurrentState(true).then(state => {
+		  		// Load network name
+		  		const mappings = {1: "main", 3: "ropsten"};
+		  		_network = state.networkId > 10
+		  			? "local"
+		  			: mappings[state.networkId] || "unknown";
+		  		console.log(`Detected network: ${_network}`);
+
+		  		// Load registry depending on web3 network name
+		  		const registryAddr = ({
+		  			"ropsten": "0xb56db64b37897b24e0cadd9c2eb9dc0d23d11cd7",
+		  			"local": "0xc4a1282aedb7397d10b8baa89639cfdaff2ee428"
+		  		})[_network];
+		  		_registry = Registry.at(registryAddr || "0x0");
+		  		console.log(`Registry for ${_network} is ${registryAddr}`);
+
+		  		// Create a backup _web3, since MetaMask's web3 is... um... "beta".
+		  		const providerUrl = ({
+		  			"main": "https://mainnet.infura.io/",
+		  			"ropsten": "https://ropsten.infura.io/",
+		  			"local": "http://localhost:8545/"
+		  		})[_network];
+		  		window._web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
+		  		window._niceWeb3 = new NiceWeb3(_web3, ethAbi, EthUtil);
+		  		console.log(`Created _web3 @ ${providerUrl}`);
+
+		  		// Load all registry mappings
+		  		return _registry.mappings().then(arr => {
+		  			const names = arr[0].map(web3.toUtf8);
+		  			const addresses = arr[1];
+		  			names.forEach((name,i) => _regMappings[name] = addresses[i]);
+		  			console.log("Loaded registry mappings", _regMappings);
+		  		});
+		  	});
+
+		  	/////////////////////////////////////////////////////////////////////////////
+		  	///////////// SET UP EVERYTHING ELSE WHILE NETWORK LOADS ////////////////////
+		  	/////////////////////////////////////////////////////////////////////////////
+
+		  	// Tell ethUtil to poll for state change
+		  	ethUtil.pollForStateChange();
+
+		  	// Load nav
 		  	const nav = new Nav();
 		  	nav.setEthStatusElement(ethStatus.$e)
 		  	$("#Content").prepend(nav.$e);
 
-		  	// attach Tippies
+		  	// Attach Tippies
 		  	tippy.defaults.trigger = "click";
 		  	tippy.defaults.interactive = true;
 		  	tippy.defaults.sticky = true;
@@ -143,32 +187,10 @@
 		  	tippy('.tipLeft:not(.dontTip)', {placement: "top"});
 		  	tippy('.tipRight:not(.dontTip)', {placement: "right"});
 
-		  	// add class for initial transitions
+		  	// Add class for initial transitions
 		  	$("body").addClass("loaded");
 
-		  	// Get the current Registry, and its mappings.
-		  	return ethUtil.getCurrentState(true).then(state => {
-		  		const mappings = {1: "main", 3: "ropsten"};
-		  		const registries = {
-		  			"ropsten": "0xb56db64b37897b24e0cadd9c2eb9dc0d23d11cd7",
-		  			"local": "0xc4a1282aedb7397d10b8baa89639cfdaff2ee428"
-		  		};
-
-		  		// load network name
-		  		_network = state.networkId > 10
-		  			? "local"
-		  			: mappings[state.networkId] || "unknown";
-
-		  		// load registry depending on network name
-		  		_registry = Registry.at(registries[_network] || "0x0");
-		  	}).then(() => {
-		  		return _registry.mappings().then(arr => {
-		  			const names = arr[0].map(web3.toUtf8);
-		  			const addresses = arr[1];
-		  			names.forEach((name,i) => _regMappings[name] = addresses[i]);
-		  			console.log("Loaded registry mappings", _regMappings);
-		  		});
-		  	});
+		  	return networkPromise;
 		});
 
 		// Loads items from the registry, and also ensures that ethUtil
