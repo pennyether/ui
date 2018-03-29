@@ -4,13 +4,16 @@ Loader.require("reg", "comp", "tr")
 
 	_initGovernance();
 	_initProfits();
+	_initTotalProfits();
 
 	function _refreshAll() {
-		_refreshReserve();
-		_refreshCapitalAllocation();
-		_refreshFundingStatus();
-		_refreshGovernance();
-		_refreshProfits();
+		return Promise.all([
+			_refreshReserve(),
+			_refreshCapitalAllocation(),
+			_refreshFundingStatus(),
+			_refreshGovernance(),
+			_refreshProfits(),
+		]);
 	}
 
 	function _refreshReserve() {
@@ -286,40 +289,41 @@ Loader.require("reg", "comp", "tr")
 
 	function _initProfits() {
 		const $select = $(".cell.profits select").change(_refreshProfits);
-		ethUtil.getAverageBlockTime().then(sPerBlock => {
-			sPerBlock = sPerBlock.toNumber();
-			[30, 90, 180].forEach(days => {
-				const lookbackS = days * 24 * 60;
-				const blocks = Math.floor(lookbackS / sPerBlock);
-				$select.append(`<option value=${blocks}>Last ~${days} Days (${blocks} blocks)</option>`)
-			})
-		})
 	}
 	function _refreshProfits() {
+		function getTargetBlock(numDays) {
+			numDays = Number(numDays);
+			const DAY_TO_S = 60*60*24;
+			const curTime = ethUtil.getCurrentBlockTime();
+			return ethUtil.getBlockNumberAtTimestamp(curTime - numDays*DAY_TO_S, DAY_TO_S);
+		};
+
 		const $e = $(".profits");
 		const $loading = $e.find(".loading").show();
 		const $error = $e.find(".error").hide();
 		const $doneLoading = $e.find(".done-loading").hide();
 
-		const lookbackBlocks = $e.find("select").val();
+		const lookbackDays = $e.find("select").val();
 		const curBlock = ethUtil.getCurrentBlockHeight().toNumber();
-		const targetBlock = lookbackBlocks == "all"
-			? curBlock
-			: Math.max(curBlock - lookbackBlocks, 0);
+		const targetBlock = lookbackDays == "all"
+			? Promise.resolve(curBlock)
+			: getTargetBlock(lookbackDays)
 
 		const bankrollables = Loader.getBankrollables();
-		const profits = [];	// array of {addr, profits}		
-		Promise.all(
-			// Get current and previous value of `uint profitsSent`.
-			// This should be slot #1 for all Bankrollable contracts.
-			bankrollables.map(addr => {
-				const cur = Bankrollable.at(addr).profitsSent();
-				const prev = targetBlock==curBlock
-					? 0
-					: _niceWeb3.ethUtil.getStorageAt(addr, 1, targetBlock);
-				return Promise.all([cur, prev]);
-			})
-		).then(arr => {
+		const profits = [];	// array of {addr, profits}
+		targetBlock.then((targetBlock)=>{
+			return Promise.all(
+				// Get current and previous value of `uint profitsSent`.
+				// This should be slot #1 for all Bankrollable contracts.
+				bankrollables.map(addr => {
+					const cur = Bankrollable.at(addr).profitsSent();
+					const prev = targetBlock==curBlock
+						? 0
+						: _niceWeb3.ethUtil.getStorageAt(addr, 1, targetBlock);
+					return Promise.all([cur, prev]);
+				})
+			);
+		}).then(arr => {
 			arr.forEach((data, i) => {
 				const profitsSent = data[0].minus(data[1]);
 				profits.push({address: bankrollables[i], profitsSent: profitsSent});
@@ -339,10 +343,57 @@ Loader.require("reg", "comp", "tr")
 			profits.forEach(obj => {
 				const name = Loader.linkOf(obj.address);
 				const val = _toEthStr(obj.profitsSent);
-				$tbody.append(`<tr><td>${name}</td><td>${val}</td><td>123</td></tr>`);
+				const runrate = 
+				$tbody.append(`<tr><td>${name}</td><td>${val}</td></tr>`);
 			});
 		}
 	}
+
+	function _initTotalProfits() {
+		const $select = $(".cell.total-profits select");
+		buildOptions(new BigNumber(15));
+		//ethUtil.getAverageBlockTime.then(buildOptions);
+		function buildOptions(blocktimeS) {
+			blocktimeS = blocktimeS.toNumber();
+			const blocksPerDay = Math.floor(60*60*24 / blocktimeS);
+			const blocksPerWeek = blocksPerDay*7;
+			const blocksPerMonth = Math.floor((blocksPerDay*365)/12);
+			const optParams = [
+				{
+					name: `Last 30 Days (~${blocksPerDay.toLocaleString()} blocks per day)`,
+					interval: blocksPerDay,
+					numIntervals: 30,
+				},
+				{
+					name: `Last 26 Weeks (~${blocksPerWeek.toLocaleString()} blocks per week)`,
+					interval: blocksPerWeek,
+					numIntervals: 26
+				},
+				{
+					name: `Last 12 Months (~${blocksPerMonth.toLocaleString()} blocks per month)`,
+					interval: blocksPerMonth,
+					numIntervals: 12
+				}
+			];
+
+			optParams.forEach((params,i) => {
+				const $option = $("<option></option>")
+					.text(params.name).val(i+1)
+					.data("params", params)
+					.appendTo($select);
+			})
+			$select.change(function(){
+				_refreshTotalProfits($select.find(":selected").data("params"));
+			});
+		}
+	}
+	function _refreshTotalProfits(params) {
+		if (!params) return;
+		// Todo: this part.
+		// Empty graph, and create entry from front to back. Should update as we go.
+		// Each entry: get block date, get profitsTotal value (storageAt), get delta
+	}
+
 
 	function _refreshXyz() {
 		const $e = $(".funding-status");

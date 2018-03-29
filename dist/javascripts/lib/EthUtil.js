@@ -240,28 +240,57 @@
 			return _self.doEthCall("getBlock", [blockNum]);
 		};
 		// finds the first block mined on or after a given date.
-		this.getBlockNumberAtTimestamp = function(timestamp) {
-			if (!Number.isInteger(timestamp))
-				throw new Error('Invalid timestamp: ${timestamp}');
-			return _self.getBlockNumber().then(cur => {
-				return new Promise((res, ref)=>{
-					var front = 0;
-					var back = cur;
+		this.getBlockNumberAtTimestamp = (function(){
+			const knownBlocks = {};
+			function getFirstKnownBefore(target) {
+				// go from latest block until we encounter one that is before target
+				return Object.keys(knownBlocks).map(x => Number(x))
+					.sort().reverse().find(num => knownBlocks[num] <= target);
+			}
+			function getFirstKnownAfter(target) {
+				// go from earliest block until we encounter one that is after target
+				return Object.keys(knownBlocks).map(x => Number(x))
+					.sort().find(num => knownBlocks[num] >= target);
+			}
+			return function(timestamp, toleranceS) {
+				if (!Number.isInteger(timestamp))
+					throw new Error('Invalid timestamp: ${timestamp}');
+				if (toleranceS === undefined)
+					toleranceS = 60*60*24;
+
+				return new Promise((res, rej) => {
+					var count = 0;
+					var earliest = getFirstKnownBefore(timestamp) || 0;
+					var latest = getFirstKnownAfter(timestamp) || _self.getCurrentBlockHeight().toNumber();
+					var mid = null;
 					iterate();
 
+					// resolves promise
+					function finish(num){
+						console.log(`Found tolerable block in ${count} tries.`);
+						res(num);
+					}
+
 					function iterate(){
-						const mid = Math.floor((front + back)/2);
-						if (mid == front) { res(mid+1); return; }
-						_self.getBlock(mid).then((block)=>{
-							if (block.timestamp == timestamp){ res(mid); return; }
-							if (block.timestamp > timestamp) back = mid;
-							else front = mid;
+						// calculate mid, return if it's as accurate as possible.
+						mid = Math.floor((earliest + latest)/2);
+						if (mid == earliest) return finish(mid + 1);
+
+						// get mid, memoize, finish if is tolerable, otherwise recurse.
+						_self.getBlock(mid).then(block => {
+							count++;
+							knownBlocks[mid] = block.timestamp;
+							if (Math.abs(block.timestamp - timestamp) <= toleranceS) return finish(mid);
+							else if (block.timestamp > timestamp) latest = mid;
+							else earliest = mid;
 							iterate();
-						}) ;
+						});
 					}
 				});
-			});
-		}
+			}
+		}());
+
+			
 		// gets storage value from a contract address at a given blocknum
 		// Note: metamask doesnt support this at the moment... it caches
 		//       results or something.
