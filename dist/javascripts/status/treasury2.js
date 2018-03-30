@@ -4,7 +4,6 @@ Loader.require("reg", "comp", "tr")
 
 	_initGovernance();
 	_initProfits();
-	_initTotalProfits();
 
 	function _refreshAll() {
 		return Promise.all([
@@ -13,7 +12,9 @@ Loader.require("reg", "comp", "tr")
 			_refreshFundingStatus(),
 			_refreshGovernance(),
 			_refreshProfits(),
-		]);
+		]).then(()=>{
+			_initTotalProfits();
+		});
 	}
 
 	function _refreshReserve() {
@@ -25,7 +26,7 @@ Loader.require("reg", "comp", "tr")
 		var reserve;
 		var token;
 		var totalSupply;
-		Promise.all([
+		return Promise.all([
 			tr.token(),
 			tr.reserve()
 		]).then(arr => {
@@ -44,15 +45,15 @@ Loader.require("reg", "comp", "tr")
 			$error.find(".error-msg").text(e.message);
 		});
 
-
-		const $bar = $e.find(".bar").hide();
-		const $barAmt = $e.find(".amt");
-		const $barTxt = $e.find(".txt");
-		const $na = $e.find(".not-applicable").hide();
-		const $met = $e.find(".met").hide();
-		const $unmet = $e.find(".unmet").hide();
-		const $totalSupply = $e.find(".total-supply");
 		function doRefresh() {
+			const $bar = $e.find(".bar").hide();
+			const $barAmt = $e.find(".amt");
+			const $barTxt = $e.find(".txt");
+			const $na = $e.find(".not-applicable").hide();
+			const $met = $e.find(".met").hide();
+			const $unmet = $e.find(".unmet").hide();
+			const $totalSupply = $e.find(".total-supply");
+
 			if (totalSupply.lte(1)) {
 				$na.show();
 				return;
@@ -68,7 +69,6 @@ Loader.require("reg", "comp", "tr")
 			} else {
 				$unmet.show();
 			}
-			
 		}
 	}
 
@@ -82,7 +82,7 @@ Loader.require("reg", "comp", "tr")
 		var capAvailable;
 		var capAllocated = new BigNumber(0);
 		var capRecallable = new BigNumber(0);
-		Promise.all([
+		return Promise.all([
 			tr.capital(),
 			tr.capitalLedger()
 		]).then(arr => {
@@ -114,12 +114,13 @@ Loader.require("reg", "comp", "tr")
 			throw e;
 		});
 
-		const $capAvailable = $e.find(".cap-available");
-		const $capAllocated = $e.find(".cap-allocated");
-		const $capRecallable = $e.find(".cap-recallable");
-		const $capTotal = $e.find(".cap-total");
-		const $tbody = $e.find(".table tbody");
 		function doRefresh() {
+			const $capAvailable = $e.find(".cap-available");
+			const $capAllocated = $e.find(".cap-allocated");
+			const $capRecallable = $e.find(".cap-recallable");
+			const $capTotal = $e.find(".cap-total");
+			const $tbody = $e.find(".table tbody");
+
 			const format = (v)=>ethUtil.toEthStr(v, 2, "", true);
 			$capAvailable.text(format(capAvailable));
 			$capAllocated.text(format(capAllocated));
@@ -143,7 +144,7 @@ Loader.require("reg", "comp", "tr")
 
 		var capitalRaised;
 		var capitalTarget;
-		Promise.all([
+		return Promise.all([
 			tr.capitalRaised(),
 			tr.capitalRaisedTarget()
 		]).then(arr => {
@@ -159,13 +160,14 @@ Loader.require("reg", "comp", "tr")
 			$error.find(".error-msg").text(e.message);
 		});
 
-		const $targetTxt = $e.find(".target .txt");
-		const $targetAmt = $e.find(".target .amt");
-		const $raisedTxt = $e.find(".raised .txt");
-		const $raisedAmt = $e.find(".raised .amt");
-		const $met = $e.find(".met").hide();
-		const $notmet = $e.find(".not-met").hide();
 		function doRefresh() {
+			const $targetTxt = $e.find(".target .txt");
+			const $targetAmt = $e.find(".target .amt");
+			const $raisedTxt = $e.find(".raised .txt");
+			const $raisedAmt = $e.find(".raised .amt");
+			const $met = $e.find(".met").hide();
+			const $notmet = $e.find(".not-met").hide();
+
 			$targetTxt.text(ethUtil.toEthStr(capitalTarget));
 			$raisedTxt.text(ethUtil.toEthStr(capitalRaised));
 			var max = BigNumber.max(capitalTarget, capitalRaised);
@@ -213,7 +215,7 @@ Loader.require("reg", "comp", "tr")
 		};
 
 		var requests = [];
-		getNumFn().then(num => {
+		return getNumFn().then(num => {
 			const end = num - 1;
 			const start = Math.max(end - 5, 0);
 			const pArr = [];
@@ -240,9 +242,10 @@ Loader.require("reg", "comp", "tr")
 			$error.find(".error-msg").text(e.message);
 		});
 
-		const $template = $e.find(".request.template");
-		const $ctnr = $e.find(".requests").empty();
 		function doRefresh() {
+			const $template = $e.find(".request.template");
+			const $ctnr = $e.find(".requests").empty();
+
 			if (requests.length == 0) {
 				$ctnr.text(`There are no ${state} Requests.`);
 				return;
@@ -311,7 +314,7 @@ Loader.require("reg", "comp", "tr")
 
 		const bankrollables = Loader.getBankrollables();
 		const profits = [];	// array of {addr, profits}
-		targetBlock.then((targetBlock)=>{
+		return targetBlock.then((targetBlock)=>{
 			return Promise.all(
 				// Get current and previous value of `uint profitsSent`.
 				// This should be slot #1 for all Bankrollable contracts.
@@ -338,8 +341,8 @@ Loader.require("reg", "comp", "tr")
 			$error.find(".error-msg").text(e.message);
 		});
 
-		const $tbody = $e.find(".table tbody").empty();
 		function doRefresh() {
+			const $tbody = $e.find(".table tbody").empty();
 			profits.forEach(obj => {
 				const name = Loader.linkOf(obj.address);
 				const val = _toEthStr(obj.profitsSent);
@@ -350,48 +353,44 @@ Loader.require("reg", "comp", "tr")
 	}
 
 	function _initTotalProfits() {
-		const $select = $(".cell.total-profits select");
-		buildOptions(new BigNumber(15));
-		//ethUtil.getAverageBlockTime.then(buildOptions);
-		function buildOptions(blocktimeS) {
-			blocktimeS = blocktimeS.toNumber();
-			const blocksPerDay = Math.floor(60*60*24 / blocktimeS);
-			const blocksPerWeek = blocksPerDay*7;
-			const blocksPerMonth = Math.floor((blocksPerDay*365)/12);
-			const optParams = [
-				{
-					name: `Last 30 Days (~${blocksPerDay.toLocaleString()} blocks per day)`,
-					interval: blocksPerDay,
-					numIntervals: 30,
-				},
-				{
-					name: `Last 26 Weeks (~${blocksPerWeek.toLocaleString()} blocks per week)`,
-					interval: blocksPerWeek,
-					numIntervals: 26
-				},
-				{
-					name: `Last 12 Months (~${blocksPerMonth.toLocaleString()} blocks per month)`,
-					interval: blocksPerMonth,
-					numIntervals: 12
-				}
-			];
+		// todo: implement for Treasury. Hard to test, though.
+		return Promise.all([
+			_niceWeb3.ethUtil.getAverageBlockTime(),
+			_niceWeb3.ethUtil.getBlock("latest")
+		]).then(arr=>{
+			const avgBlocktime = arr[0].toNumber();
+			const curBlock = arr[1].number;
 
-			optParams.forEach((params,i) => {
-				const $option = $("<option></option>")
-					.text(params.name).val(i+1)
-					.data("params", params)
-					.appendTo($select);
-			})
-			$select.change(function(){
-				_refreshTotalProfits($select.find(":selected").data("params"));
+			const graph = new EthGraph(_niceWeb3);
+			const totalWeiWonAtBlock = (block) => {
+				return _niceWeb3.ethUtil
+					.getStorageAt("0x048717Ea892F23Fb0126F00640e2b18072efd9D2", 14, block)
+					.then(gwei => {
+						if (gwei == "0x") return null;
+						return (new BigNumber(gwei)).mul(1e9);
+					});
+			}
+			graph.setOpts({
+				avgBlocktime: avgBlocktime,
+				values: [{
+					name: "totalGWeiWon",
+					label: "totalGWeiWon",
+					valueFn: totalWeiWonAtBlock,
+					type: "bar"
+				}],
+				preview: {
+					newest: curBlock - 1,
+					oldest: 1,
+					numPoints: 20
+				}
 			});
-		}
-	}
-	function _refreshTotalProfits(params) {
-		if (!params) return;
-		// Todo: this part.
-		// Empty graph, and create entry from front to back. Should update as we go.
-		// Each entry: get block date, get profitsTotal value (storageAt), get delta
+			graph.setWindow({
+				duration: {seconds: 60*60*2}
+			});
+
+			const $e = $(".total-profits");
+			$e.find(".graph-ctnr").append(graph.$e);
+		});
 	}
 
 

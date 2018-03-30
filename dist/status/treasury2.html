@@ -3,6 +3,7 @@
 	<head>
 		<script src="/javascripts/lib/Loader.js"></script>
 		<script src="/javascripts/status/treasury2.js"></script>
+		<script src="/javascripts/lib/EthGraph.js"></script>
 		<style>
 		</style>
 	</head>
@@ -405,18 +406,7 @@
 						<div class="body">
 							<div>Total Profits: (all time dividends)</div>
 							<div>Total Dividends: (all time dividends)</div>
-							<div class="chart">
-								<div class="select-ctnr">
-									Graph: <select>
-										<option>Select a timeframe</option>
-									</select>
-								</div>
-								<div style="height: 200px; margin: 5px; background: white; border-radius: 5px; padding: 10px;">
-									Show a line chart of profits over time.<br>
-									Also show profits per unit of time (as a bar).<br>
-									Generate chart from .storageAt(profitsTotal) at various points.
-								</div>
-							</div>
+							<div class="graph-ctnr"></div>
 						</div>
 					</div></td>
 				</tr></table>

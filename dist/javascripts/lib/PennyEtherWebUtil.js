@@ -124,27 +124,26 @@
 				console.error("Val expected to be a number", timeS);
 				return "<unknown>";
 			}
-			const days = timeS.div(60*60*24).floor();
-			timeS = timeS.minus(days.mul(60*60*24));
-			const hours = timeS.div(60*60).floor();
-			timeS = timeS.minus(hours.mul(60*60));
-			const minutes = timeS.div(60).floor();
-			const seconds = timeS.minus(minutes.mul(60));
-			if (days.gt(0)){
-				if (numUnits == 1) return `${days}d`;
-				if (numUnits == 2) return `${days}d ${hours}h`;
-				return `${days}d ${hours}m ${minutes}m`;
-			}
-			if (hours.gt(0)) {
-				if (numUnits == 1) return `${hours}h`;
-				if (numUnits == 2) return `${hours}h ${minutes}m`;
-				return `${hours}h ${minutes}m ${seconds}s`;
-			}
-			if (minutes.gt(0)) {
-				if (numUnits == 1) return `${minutes}m`;
-				return `${minutes}m ${seconds}s`;
-			}
-			return `${timeS}s`;
+
+			const units = [
+				{label: "w", seconds: 60*60*24*7},
+				{label: "d", seconds: 60*60*24},
+				{label: "h", seconds: 60*60},
+				{label: "m", seconds: 60}
+			];
+
+			var chunks = [];
+			var count = 0;
+			units.forEach(obj => {
+				if (count >= numUnits) return;
+				const val = timeS.div(obj.seconds).floor();
+				timeS = timeS.minus(val.mul(obj.seconds));
+				if (val.gt(0) || count>0) {
+					chunks.push(`${val}${obj.label}`);
+					count++;
+				}
+			});
+			return chunks.join(" ");
 		}
 
 		this.debounce = function(timeout, fn) {

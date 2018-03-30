@@ -48,6 +48,10 @@
 		this.onPageLoad = new Promise((resolve, reject)=>{
 			_triggerPageLoaded = resolve;
 		});
+		var _triggerWeb3Ready;
+		this.onWeb3Ready = new Promise((resolve, reject)=>{
+			_triggerWeb3Ready = resolve;
+		});
 
 		this.registry = () => _registry;
 
@@ -104,7 +108,6 @@
 			if (!window.PennyEtherWebUtil){ throw new Error("Unable to find PennyEtherWebUtil."); }
 			if (!window.Nav){ throw new Error("Unable to find Nav"); }
 			if (!window.EthStatus){ throw new Error("Unable to find EthStatus"); }
-			_triggerPageLoaded();
 
 		    // create web3 object depending on if its from browser or not
 			if (typeof web3 !== 'undefined') {
@@ -139,14 +142,6 @@
 		  			: mappings[state.networkId] || "unknown";
 		  		console.log(`Detected network: ${_network}`);
 
-		  		// Load registry depending on web3 network name
-		  		const registryAddr = ({
-		  			"ropsten": "0xb56db64b37897b24e0cadd9c2eb9dc0d23d11cd7",
-		  			"local": "0xc4a1282aedb7397d10b8baa89639cfdaff2ee428"
-		  		})[_network];
-		  		_registry = Registry.at(registryAddr || "0x0");
-		  		console.log(`Registry for ${_network} is ${registryAddr}`);
-
 		  		// Create a backup _web3, since MetaMask's web3 is... um... "beta".
 		  		const providerUrl = ({
 		  			"main": "https://mainnet.infura.io/",
@@ -156,6 +151,15 @@
 		  		window._web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
 		  		window._niceWeb3 = new NiceWeb3(_web3, ethAbi, EthUtil);
 		  		console.log(`Created _web3 @ ${providerUrl}`);
+		  		_triggerWeb3Ready();
+
+		  		// Load registry depending on web3 network name
+		  		const registryAddr = ({
+		  			"ropsten": "0xb56db64b37897b24e0cadd9c2eb9dc0d23d11cd7",
+		  			"local": "0xc4a1282aedb7397d10b8baa89639cfdaff2ee428"
+		  		})[_network];
+		  		_registry = Registry.at(registryAddr || "0x0");
+		  		console.log(`Registry for ${_network} is ${registryAddr}`);
 
 		  		// Load all registry mappings
 		  		return _registry.mappings().then(arr => {
@@ -189,6 +193,7 @@
 
 		  	// Add class for initial transitions
 		  	$("body").addClass("loaded");
+		  	_triggerPageLoaded();
 
 		  	return networkPromise;
 		});
