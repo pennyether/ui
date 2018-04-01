@@ -17,104 +17,111 @@
             height: 300px;
             background: #FAFAFA;
         }
-        .EthGraph .preview {
+        .EthGraph .preview-ctnr {
             position: relative;
             height: 60px;
         }
-            .EthGraph .mini-graph {
-                position: relative;
-                height: 100%;
-                width: 100%;
-            }
-                .EthGraph .mini-graph .group {
-                    position: absolute;
-                    height: 100%;
-                    bottom: 0px;
-                }
-                    .EthGraph .mini-graph .bar {
-                        position: absolute;
-                        bottom: 0px;
-                        width: 5px;
-                        background: linear-gradient(to bottom, #888 0%, #CCC 100%);
-                    }
 
-            .EthGraph .window {
-                box-sizing: border-box;
-                position: absolute;
-                height: 100%;
-                width: 20%;
-                left: 50px;
-                top: 0;
-                user-select: none;
-            }
-            .EthGraph .window .view {
-                box-sizing: border-box;
-                position: absolute;
-                width: 100%;
-                height: 100%;
-                top: 0;
-                left: 0;
-                cursor: move; /* fallback if grab cursor is unsupported */
-                cursor: grab;
-                cursor: -moz-grab;
-                cursor: -webkit-grab;
-                border-top: 1px solid rgba(0,0,0,.2);
-                border-bottom: 1px solid rgba(0,0,0,.2);
-                background: rgba(0,0,255,.2);
-                transition: background .3s;
-            }
-                .EthGraph:not(.resizing) .window .view:hover,
-                .EthGraph.dragging .window .view {
-                    background: rgba(0,0,255,.3);
-                }
+    .Preview {
+        width: 100%;
+        height: 100%;
+        background: #AAA;
+    }
 
-            .EthGraph .window .left-handle,
-            .EthGraph .window .right-handle {
+    .Preview .mini-graph {
+        position: relative;
+        height: 100%;
+        width: 100%;
+    }
+        .Preview .mini-graph .group {
+            position: absolute;
+            height: 100%;
+            bottom: 0px;
+        }
+            .Preview .mini-graph .bar {
                 position: absolute;
-                top: 0;
-                height: 100%;
-                width: 3px;
-                background: rgba(0,0,0,.5);
-                cursor: ew-resize;
-                transition: background .3s;
-            }
-                .EthGraph .window .left-handle:hover,
-                .EthGraph .window .right-handle:hover,
-                .EthGraph.resizing .window .left-handle,
-                .EthGraph.resizing .window .right-handle {
-                    background: rgba(0,0,128,.5);
-                }
-            .EthGraph .window .left-handle {
-                left: 0;
-            }
-            .EthGraph .window .right-handle {
-                right: 0;
+                bottom: 0px;
+                width: 5px;
+                background: linear-gradient(to bottom, #888 0%, #CCC 100%);
             }
 
-            .EthGraph .window .info-ctnr {
-                position: absolute;
-                text-align: center;
-                top: -20px;
-                left: 50%;
-                transform: translateX(-50%);
-                opacity: 0;
-                transition: opacity .5s, top .5s;
-            }
-                .EthGraph .window:hover .info-ctnr,
-                .EthGraph.resizing .window .info-ctnr,
-                .EthGraph.dragging .window .info-ctnr {
-                    top: -35px;
-                    opacity: .9;
-                }
-                .EthGraph .window .info {
-                    display: inline-block;
-                    font-size: 80%;
-                    white-space: nowrap;
-                    padding: 2px 4px;
-                    border-radius: 5px;
-                    box-shadow: 3px 3px 3px 0px rgba(0,0,0,.2);
-                    background: linear-gradient(to bottom, #CCC 0%, #999 100%);
-                }
+    .Preview .window {
+        box-sizing: border-box;
+        position: absolute;
+        height: 100%;
+        width: 20%;
+        left: 50px;
+        top: 0;
+        user-select: none;
+    }
+    .Preview .window .view {
+        box-sizing: border-box;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        cursor: move; /* fallback if grab cursor is unsupported */
+        cursor: grab;
+        cursor: -moz-grab;
+        cursor: -webkit-grab;
+        border-top: 1px solid rgba(0,0,0,.2);
+        border-bottom: 1px solid rgba(0,0,0,.2);
+        background: rgba(0,0,255,.2);
+        transition: background .3s;
+    }
+        .Preview:not(.resizing) .window .view:hover,
+        .Preview.dragging .window .view {
+            background: rgba(0,0,255,.3);
+        }
+
+    .Preview .window .left-handle,
+    .Preview .window .right-handle {
+        position: absolute;
+        top: 0;
+        height: 100%;
+        width: 3px;
+        background: rgba(0,0,0,.5);
+        cursor: ew-resize;
+        transition: background .3s;
+    }
+        .Preview .window .left-handle:hover,
+        .Preview .window .right-handle:hover,
+        .Preview.resizing .window .left-handle,
+        .Preview.resizing .window .right-handle {
+            background: rgba(0,0,128,.5);
+        }
+    .Preview .window .left-handle {
+        left: 0;
+    }
+    .Preview .window .right-handle {
+        right: 0;
+    }
+
+    .Preview .window .info-ctnr {
+        position: absolute;
+        text-align: center;
+        top: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity .5s, top .5s;
+    }
+        .Preview .window:hover .info-ctnr,
+        .Preview.resizing .window .info-ctnr,
+        .Preview.dragging .window .info-ctnr {
+            top: -35px;
+            opacity: .9;
+        }
+        .Preview .window .info {
+            display: inline-block;
+            font-size: 80%;
+            white-space: nowrap;
+            padding: 2px 4px;
+            border-radius: 5px;
+            box-shadow: 3px 3px 3px 0px rgba(0,0,0,.2);
+            background: linear-gradient(to bottom, #CCC 0%, #999 100%);
+        }
 `;
     const style = document.createElement("style");
     style.type = 'text/css';
@@ -124,55 +131,211 @@
 }());
 
 function EthGraph(niceWeb3) {
-    /*
-        Opts:
-            - avgBlocktime,
-            - values: [{
-                  name: "",
-                  $label: <text-or-dom>,
-                  valueFn: < fn(blockNum) => Promise(<BigNumber>) >,
-                  tipFn: < fn({block, value}) => <dom> >
-                  decorateFn: < fn( {point: <dom>, line: <dom>, bar: <dom>} ) => void >,
-                  type: "bar" || "line",
-                  showInPreview: < boolean > || true
-              }, ...]
-            - preview: {
-                  numPoints: <number> || 20,
-                  newest: < blockNum >,
-                  oldest: < blockNum >
-              }
-    */
     var _self = this;
-    var _opts;
-    var _cancelRefreshGraph = ()=>{};
-    var _cancelRefreshPreview = ()=>{};
-    var _ethUtil = niceWeb3.ethUtil;
+    var _preview;
+    var _graph;
 
 	const _$e = $(`
 		<div class="EthGraph">
-			<div class="graph">
-				No data to show.
-			</div>
-			<div class="preview">
-				<div class="mini-graph"></div>
-				<div class="window">
-                    <div class="view"></div>
-					<div class="left-handle"></div>
-					<div class="right-handle"></div>
-                    <div class="info-ctnr">
-                        <div class="info">
-                            <span class="oldest">4,439,342</span> to <span class="newest">5,342,123</span><br>
-                            <span class="total">1,383,092</span> blocks. <span class="time">(~4 months)</span>
-                        </div>
-                    </div>
-				</div>
-			</div>
+			<div class="graph-ctnr"></div>
+			<div class="preview-ctnr"></div>
 		</div>
 	`);
-    const _$graph = _$e.find(".graph");
-    const _$preview = _$e.find(".preview");
-    const _$miniGraph = _$preview.find(".mini-graph");
-    const _$window = _$preview.find(".window");
+    const _$graphCtnr = _$e.find(".graph-ctnr");
+    const _$previewCtnr = _$e.find(".preview-ctnr");
+
+
+	this.$e = _$e;
+
+    /*
+        Opts:
+            - sequences: [{
+                  name: "",
+                  valueFn: < fn(blockNum) => Promise(<BigNumber>) >,
+                  maxPoints: 25,
+                  showInPreview
+              }, ...]
+            - low
+            - high
+            - numPreviewPoints
+            - timeStrFn
+    */
+	this.init = function(params) {
+        if (!params.sequences)  
+            throw new Error(`Must provide "params.sequences"`);
+        if (params.low === undefined)
+            throw new Error(`Must provide "params.low"`);
+        if (params.high === undefined)
+            throw new Error(`Must provide "params.high"`);
+        if (params.numPreviewPoints === undefined)
+            throw new Error(`Must provide "params.numPreviewPoints"`);
+        if (params.timeStrFn === undefined)
+            throw new Error(`Must provide "params.timeStrFn"`);
+
+        // Create graph sequences.
+        const graphSequences = params.sequences.map(obj => {
+            obj = Object.assign({}, obj);
+            const seq = new Sequence();
+            seq.init(obj);
+            return seq;
+        })
+        _graph = new SvgGraph();
+        _$graphCtnr.empty().append(_graph.$e);
+        _graph.init({
+            name: "MainGraph",
+            exact: false,
+            sequences: graphSequences
+        });
+
+        // Create preview sequences (only ones we want to show)
+        const previewSequences = params.sequences.map(obj => {
+            if (!obj.showInPreview) return null;
+            obj = Object.assign({}, obj);
+            obj.maxPoints = params.numPreviewPoints;
+            const seq = new Sequence();
+            seq.init(obj)
+            return seq;
+        }).filter(seq => seq !== null);
+
+        _preview = new Preview();
+        _$previewCtnr.empty().append(_preview.$e);
+        _preview.init({
+            low: params.low,
+            high: params.high,
+            numPoints: params.numPreviewPoints,
+            timeStrFn: params.timeStrFn,
+            sequences: previewSequences
+        });
+        _preview.onViewChanged((view)=>{
+            _graph.setBounds(view.low, view.high);
+        });
+        
+	};
+
+    this.setView = function(low, high){
+        _preview.setView(low, high);
+    };
+}
+
+function Sequence() {
+    const _maxQueueLength = 30;
+    const _vals = {};
+    const _valStack = [];
+    const _valPromises = {};
+    var _numLoading = 0;
+
+    // Adds to stack to get a value. If stack is too large,
+    //  previous entries are discarded (rejected). There is no
+    //  guarantee this will succeed, but it will resolve/reject.
+    this.getValue = function(x) {
+        if (_vals[x]) return Promise.resolve(_vals[x]);
+        else return _push(x);
+    };
+    this.init = function(params) {
+        if (!params.name)
+            throw new Error(`Sequence must be passed params.name`);
+        if (!params.valFn)
+            throw new Error(`Sequence must be passed params.valFn`);
+        _name = params.name;
+        _valFn = params.valFn;
+    };
+    this.name = () => _name;
+    this.setMaxQueueLength = (num) => _maxQueueLength = num;
+
+    // A promise that can resolve / reject itself.
+    function CreateDeferred() {
+        var resolve, reject;
+        const promise = new Promise((res, rej)=>{
+            resolve = res;
+            reject = rej;
+        });
+        promise.resolve = (val) => { resolve(val); return promise; };
+        promise.reject = (e) => { reject(e); return promise; };
+        return promise;
+    }
+
+    // Adds item to top of stack, and returns a Promise for it.
+    // Promise will be resolved with val, or rejected if kicked of queue.
+    function _push(x) {
+        // If it's in the queue, move it to front and return promise.
+        const index = _valStack.indexOf(x);
+        if (index !== -1) {
+            _valStack.splice(index, 1);
+            _valStack.push(x);
+            return _valPromises[x];
+        }
+        // If it's not in queue, but is in flight, return promise.
+        if (_valPromises[x]) {
+            return _valPromises[x];
+        }
+        
+        // Push it to end, create promise, execute if able.
+        _valStack.push(x);
+        _valPromises[x] = CreateDeferred();
+        _pop();
+
+        // Delete from front if stack too big.
+        if (_valStack.length > _maxQueueLength) {
+            const toDelete = _valStack.shift();
+            _valPromises[toDelete].reject(new Error(`Kicked off queue.`));
+            delete _valPromises[toDelete];
+        }
+        
+        return _valPromises[x];
+    }
+    // Do as many requests if possible.
+    // Increment _numLoading and Resolve _valPromises[x] with valFn(x).
+    //  - On success, store val
+    //  - Always call _onLoaded afterwards
+    function _pop() {
+        if (_valStack.length == 0 || _numLoading >= 2) return;
+        
+        _numLoading++;
+        const x = _valStack.pop();
+        const onLoaded = ()=>_onLoaded(x);
+        _valPromises[x].resolve(
+            _valFn(x).then(val => {
+                onLoaded();
+                return _vals[x] = val;
+            }, onLoaded)
+        );
+        _pop();
+    }
+    // Remove from _valPromises, decrement _numLoading, execute more.
+    function _onLoaded(x) {
+        _numLoading--;
+        delete _valPromises[x];
+        _pop();
+    }
+}
+
+function Preview() {
+    var _high;
+    var _low;
+    var _numPoints;
+    var _avgBlocktime;
+    var _sequences;
+    var _graph;
+
+    var _viewChangedCb = (view)=>{};
+
+    const _$e = $(`
+        <div class="Preview">
+            <div class="mini-graph"></div>
+            <div class="window">
+                <div class="view"></div>
+                <div class="left-handle"></div>
+                <div class="right-handle"></div>
+                <div class="info-ctnr">
+                    <div class="info">
+                        <span class="lowest"></span> to <span class="highest"></span><br>
+                        <span class="size"></span> blocks. <span class="time"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `);
+    const _$window = _$e.find(".window");
     const _$view = _$window.find(".view");
     const _$leftHandle = _$window.find(".left-handle");
     const _$rightHandle = _$window.find(".right-handle");
@@ -191,7 +354,7 @@ function EthGraph(niceWeb3) {
             _startWidth = _$window.width();
             $(document).bind("mousemove", onMove)
             $(document).bind("mouseup", unBindAll);
-            const isBoth = _dir=="both" || _dir=="both-reverse";
+            const isBoth = _dir=="both";
             $("body").addClass(isBoth ? "dragging" : "resizing");
             _$e.addClass(isBoth ? "dragging" : "resizing");
         }
@@ -199,10 +362,9 @@ function EthGraph(niceWeb3) {
             $(document).css("cursor", "")
             $(document).unbind("mousemove", onMove);
             $(document).unbind("mouseup", unBindAll);
-            const isBoth = _dir=="both" || _dir=="both-reverse";
+            const isBoth = _dir=="both";
             $("body").removeClass(isBoth ? "dragging" : "resizing");
             _$e.removeClass(isBoth ? "dragging" : "resizing");
-            _refreshGraph();
         }
         function onMove(ev) {
             if (_dir == "left") {
@@ -214,172 +376,183 @@ function EthGraph(niceWeb3) {
                 _$window.css("width", newWidth);
             } else if (_dir == "right") {
                 const minDelta = -1*(_startWidth - 20);
-                const maxWidth = _$preview.width() - _startLeft;
+                const maxWidth = _$e.width() - _startLeft;
                 const deltaX = Math.max(ev.pageX - _startX, minDelta);
                 const newWidth = Math.min(_startWidth + deltaX, maxWidth);
                 _$window.css("left", _startLeft);
                 _$window.css("width", newWidth);
-            } else if (_dir == "both" || _dir == "both-reverse") {
-                const maxDelta = _$preview.width() - (_startLeft + _startWidth);
-                var deltaX = ev.pageX - _startX;
-                if (_dir == "both-reverse") deltaX = deltaX * -1;
-                var deltaX = Math.min(deltaX, maxDelta);
+            } else if (_dir == "both") {
+                const maxDelta = _$e.width() - (_startLeft + _startWidth);
+                var deltaX = Math.min(ev.pageX - _startX, maxDelta);
                 const newLeft = Math.max(_startLeft + deltaX, 0);
                 _$window.css("left", Math.ceil(newLeft));
             }
             _refreshInfo();
+            _viewChangedCb(_getView());
         }
-        _$graph.bind("mousedown", (ev)=>startDragging("both-reverse",ev));
         _$view.bind("mousedown", (ev)=>startDragging("both", ev));
         _$leftHandle.bind("mousedown", (ev)=>startDragging("left", ev));
         _$rightHandle.bind("mousedown", (ev)=>startDragging("right", ev));
     }());
 
-	function _refreshAll() {
-		// _refreshPreview();
-	}
+    this.onViewChanged = (fn) => _viewChangedCb = fn;
 
-    var _loadGraphPoints;
-    function _refreshGraph() {
-        if (_loadGraphPoints) _loadGraphPoints.cancel();
-        const win = _getWindow();
-        _loadGraphPoints = _loadPoints(win.newest, win.oldest, 20, function(points){
-            _$getGraph(points, {
-                $parent: _$graph
-            });
+    /*
+        low:
+        high:
+        numPoints:
+        sequences:
+        timeStrFn:
+    */
+    this.init = function(params) {
+        if (params.low === undefined)
+            throw new Error(`Preview must be passed "low" param`);
+        if (params.high === undefined)
+            throw new Error(`Preview must be passed "high" param`);
+        if (params.numPoints === undefined)
+            throw new Error(`Preview must be passed "numPoints" param`);
+        if (params.sequences === undefined)
+            throw new Error(`Preview must be passed "sequences" param`);
+        if (params.timeStrFn === undefined)
+            throw new Error(`Preview must be passed "timeStrFn" param`);
+        _low = params.low;
+        _high = params.high;
+        _numPoints = params.numPoints;
+        _sequences = params.sequences;
+        _timeStrFn = params.timeStrFn;
+
+        _graph = new SvgGraph();
+        _$e.find(".mini-graph").append(_graph.$e);
+        _graph.init({
+            name: "Preview",
+            exact: true,
+            sequences: _sequences,
+            maxPoints: _numPoints
         });
-    }
+        _graph.setBounds(_low, _high);
+    };
 
-    var _loadPreviewPoints;
-    function _refreshPreview() {
-        if (_loadPreviewPoints) _loadPreviewPoints.cancel();
-        const newest = _opts.preview.newest;
-        const oldest = _opts.preview.oldest;
-        const numPoints = _opts.preview.numPoints;
-        _loadPreviewPoints = _loadPoints(newest, oldest, numPoints, function(points){
-            _$getGraph(points, {
-                $parent: _$miniGraph
-            });
-        });
-    }
+    /*
+        // Window is sized by either oldest and newest, or one and width.
+        low: <blockNum> || undefined,
+        high: <blockNum> || currentBlock
+    */
+    this.setView = function(low, high){
+        if (!_$e.is(":visible"))
+            throw new Error(`Preview.setView() only works while visible.`);
+        if (low===undefined)
+            throw new Error(`Must provide low`);
+        if (high===undefined)
+            throw new Error(`Must provide high`);
+        _set$View(low, high);
+    };
 
-    function _refreshInfo() {
-        const win = _getWindow();
-        _$info.find(".oldest").text(win.oldest.toLocaleString());
-        _$info.find(".newest").text(win.newest.toLocaleString());
-        _$info.find(".total").text(win.numBlocks.toLocaleString());
-        const timeStr = util.toTime(Math.round(win.numBlocks * _opts.avgBlocktime));
-        _$info.find(".time").text(`~${timeStr}`);
-    }
+    this.$e = _$e;
 
     // Extract the window params from the position of _$window()
-    function _getWindow() {
-        const oldestPct = _$window.position().left / _$preview.width();
-        const widthPct = _$window.width() / _$preview.width();
-        const _oldest = _opts.preview.oldest;
-        const _newest = _opts.preview.newest;
-
-        const oldest = Math.max(Math.round(_oldest + oldestPct * (_newest - _oldest)), 0);
-        const newest = Math.min(Math.round(oldest + widthPct * (_newest - _oldest)), _newest);
+    function _getView() {
+        const lowPct = _$window.position().left / _$e.width();
+        const widthPct = _$window.width() / _$e.width();
+        const low = Math.max(_low + lowPct * (_high - _low), 0);
+        const high = Math.min(low + widthPct * (_high - _low), _high);
         return {
-            oldest: oldest,
-            newest: newest,
-            numBlocks: newest-oldest
+            low: low,
+            high: high,
+            size: high - low
         };
     }
 
-    function _set$Window(newest, oldest) {
-        const max = _opts.preview.newest;
-        const min = _opts.preview.oldest;
-        newest = Math.min(newest, max);
-        oldest = Math.max(oldest, min);
-        const leftPct = (oldest-min)/(max-min);
-        const widthPct = (newest-oldest)/(max-min);
-        const width = _$preview.width();
+    function _set$View(low, high) {
+        const max = _high;
+        const min = _low;
+        high = Math.min(high, max);
+        low = Math.max(low, min);
+        const leftPct = (low-min)/(max-min);
+        const widthPct = (high-low)/(max-min);
+        const width = _$e.width();
         _$window.css("left", leftPct*width);
         _$window.width(widthPct*width);
         _refreshInfo();
-        _refreshGraph();
+        _viewChangedCb(_getView());
     }
 
-    function _loadPoints(newest, oldest, numPoints, callbackFn) {
-        // Object to return.
-        var res, rej, cancel;
-        const returnObj = {
-            cancel: ()=>{cancel = true},
-            promise: new Promise((resolve,reject)=>{res = resolve; rej = reject;})
-        };
+    function _refreshInfo() {
+        const view = _getView();
+        _$info.find(".lowest").text(Math.round(view.low).toLocaleString());
+        _$info.find(".highest").text(Math.round(view.high).toLocaleString());
+        _$info.find(".size").text(Math.round(view.size).toLocaleString());
+        const timeStr = _timeStrFn(view.low, view.high);
+        _$info.find(".time").text(`~${timeStr}`);
+    }
+}
 
-        // Get numPoints blocks, 2 at a time.
-        const chunks = _chunkify(newest, oldest, numPoints, 2);
+/*
+    $parent: <DOM>
+    sequences: [Sequence(), ...],
+    maxPoints: 20
+*/
+function SvgGraph() {
+    var _name;
+    var _sequences;
+    var _maxPoints;
 
-        // Init all the points to zero.
-        const points = [];
-        chunks.forEach(chunk => {
-            chunk.forEach(block => {
-                points[block] = {};
-                _opts.values.forEach(obj => points[block][obj.name] = null);
-            });
+    // current bounds
+    var _low;
+    var _high;
+    var _exact;
+    // current _xs to display, and all vals
+    var _xs;
+    var _points = {};
+    // { seq.name() => { x => {y, $point, etc} }}
+
+    const _$e = $(`<svg height="100%" width="100%" xmlns="http://www.w3.org/2000/svg" style="background: pink;"></svg>`);
+
+    this.setParent = function($parent) {
+        _$parent = $parent;
+    };
+    this.init = function(params) {
+        if (!params.sequences) throw new Error(`Expected a sequence.`);
+        _name = params.name;
+        _exact = params.exact;
+        _sequences = params.sequences;
+        _maxPoints = params.maxPoints || 20;
+
+        _sequences.forEach(seq => {
+            _points[seq.name()] = {
+                latestLoaded: [],
+                latestLoadedIndex: {}
+            };
         });
+    };
+    this.setBounds = function(low, high) {
+        _low = low;
+        _high = high;
+        _xs = _exact 
+            ? _getExactXValues(low, high, _maxPoints)
+            : _getQuantizedXValues(low, high, _maxPoints);
+        _loadData();
+    };
+    this.$e = _$e;
 
-        // Load all values for each chunk, one at a time.
-        (function doNextChunk() {
-            if (chunks.length==0) {
-                res(points);
-                return;
-            }
-            const chunk = chunks.shift();
-            const promises = [];
-            chunk.forEach(block => {
-                _opts.values.forEach(obj => {
-                    const promise = Promise.resolve(obj.valueFn(block)).then(val => {
-                        points[block][obj.name] = val;
-                    });
-                    promises.push(promise);
-                });
-            })
-            Promise.all(promises).then(()=>{
-                if (cancel) return;
-                if (callbackFn) callbackFn(points);
-                doNextChunk();
-            });
-        }());
-        return returnObj;
-    }
+    // Given xs, display all relevant points and position them correctly.
+    function _refresh() {
+        if (!_$e.is(":visible"))
+            throw new Error(`Not refreshable unless visible.`);
 
-    function _chunkify(newest, oldest, numPoints, chunkSize) {
-        const interval = (newest - oldest) / numPoints;
-        const chunks = [];
-        var cur_chunk;
-        for (var i=newest; i>=oldest; i-=interval) {
-            if (!cur_chunk) {
-                cur_chunk = [];
-                chunks.push(cur_chunk);
-            }
-            cur_chunk.push(Math.floor(i));
-            if (cur_chunk.length == chunkSize){
-                cur_chunk = null;
-            }
-        }
-        return chunks;
-    }
-
-    // returns an SVG object that is scaled to opts.parent
-    function _$getGraph(points, opts) {
-        const $parent = opts.$parent.empty();
-        const xPadding = Number(opts.xPadding) || 5;
-        const yPadding = Number(opts.yPadding) || .2;
-        const width = $parent.width();
-        const height = $parent.height();
+        const yPadding = .2;
+        const width = _$e.width();
+        const height = _$e.height();
         function getX(pctLeft) {
             // compress into [5, width-5]
-            return (xPadding + pctLeft * (width - xPadding*2));
+            // return (xPadding + pctLeft * (width - xPadding*2));
+            return pctLeft * width;
         }
         function getY(pctTop) {
             // compress into [.2, .8]
             return (yPadding + (1-pctTop) * (1 - yPadding*2)) * height;
         }
         function $svg(type, params) {
+            params = params || {};
             var el = document.createElementNS("http://www.w3.org/2000/svg", type);
             Object.keys(params).forEach(key=>{
                 el.setAttributeNS(null, key, params[key]);
@@ -387,108 +560,137 @@ function EthGraph(niceWeb3) {
             return $(el);
         }
 
-        const $e = $(`<svg height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"></svg>`)
-
-        // compute minBlock, maxBlock, range
-        // and max/min value per valName
-        const blocks = Object.keys(points).map(p => Number(p)).sort();
-        const blockMin = blocks[0];
-        const blockMax = blocks[blocks.length-1];
-        const maxVal = {};
-        const minVal = {}
-        blocks.forEach(block => {
-            Object.keys(points[block]).forEach(valName => {
-                const val = points[block][valName];
-                if (val === null) return;
-                if (maxVal[valName]===undefined || maxVal[valName].lt(val))
-                    maxVal[valName] = val;
-                if (minVal[valName]===undefined || minVal[valName].gt(val))
-                    minVal[valName] = val;
-            });
+        const t = +new Date();
+        _$e.empty();
+        _sequences.forEach(seq => {
+            $seq = $getSequence(seq);
+            _$e.append($seq);
         });
 
-        // create a circle for each point, and draw lines between points.
-        var prevPts = {};
-        blocks.forEach(block => {
-            const x = getX((block - blockMin)/(blockMax - blockMin));
-            Object.keys(points[block]).forEach(valName => {
-                const val = points[block][valName];
-                const max = maxVal[valName];
-                const min = minVal[valName];
-                const valRange = max.minus(min);
-                if (val === null) {
-                    const $circle = $svg("circle", {cx: x.toFixed(2), cy: height-2, r: 2}).appendTo($e);
+        function $getSequence(seq) {
+            const $e = $svg("g");
+            const points = _points[seq.name()];
+            const xMin = _low;
+            const xMax = _high;
+            const xRange = xMax - xMin;
+            var yMax;
+            var yMin;
+            var yRange;
+
+            _xs.forEach(x => {
+                const y = points[x].y;
+                if (y === null || y === undefined) return;
+                if (yMax === undefined || y.gt(yMax)) yMax = y;
+                if (yMin === undefined || y.lt(yMin)) yMin = y;
+            });
+            yRange = yMax === undefined ? new BigNumber(0) : yMax.minus(yMin);
+
+            // create a circle for each point, and draw lines between points.
+            var prevPt = null;
+            _xs.forEach(x => {
+                const y = points[x].y;
+                const xPct = (x - xMin)/(xRange);
+                const xPos = getX(xPct).toFixed(5);
+                if (y === null || y === undefined) {
+                    const yPos = getY(.05).toFixed(5);
+                    const $circle = $svg("circle", {
+                        cx: xPos,
+                        cy: yPos,
+                        r: 2,
+                        fill: "rgba(0,0,0,.2)"
+                    }).appendTo($e);
                     return;
                 }
 
-                const y = getY(valRange.equals(0) ? .5 : val.minus(min).div(valRange));
-                const $circle = $svg("circle", {cx: x.toFixed(2), cy: y.toFixed(2), r: 2}).appendTo($e);
-                const prevPt = prevPts[valName];
+                const yPct = yRange.equals(0) ? .5 : y.minus(yMin).div(yRange)
+                const yPos = getY(yPct).toFixed(5);
+                
+                const $circle = $svg("circle", {cx: xPos, cy: yPos, r: 2}).appendTo($e);
                 if (prevPt) {
-                    const $line = $svg("line", {x1: x, x2: prevPt.x, y1: y, y2: prevPt.y, "stroke-width":2, stroke: "black"}).appendTo($e);
+                    const $line = $svg("line", {
+                        x1: xPos, x2: prevPt.xPos,
+                        y1: yPos, y2: prevPt.yPos,
+                        "stroke-width": 2,
+                        stroke: "black"
+                    }).appendTo($e);
                 }
-                prevPts[valName] = {x: x, y: y};
+                prevPt = {xPos: xPos, yPos: yPos};
             });
-        });
 
-        $e.appendTo($parent);
+            return $e;
+        }
     }
 
+    // For each sequence, create the data object for this x.
+    // Start loading value. Once loaded, store y and maybe call _refresh().
+    function _loadData() {
+        _sequences.forEach(seq => {
+            // todo: check if seq is visible.
+            const points = _points[seq.name()];
+            _xs.forEach(x => {
+                // get or create point. if y is set, don't load.
+                if (!points[x]) points[x] = {};
+                if (points[x].y !== undefined) return;
 
-	this.$e = _$e;
+                // load the value, and maybe draw it.
+                seq.getValue(x).then(val => {
+                    if (!points[x]) return;         // pruned. ignore it.
+                    points[x].y = val;              // set it.
+                    if (_isVisible(x)) _refresh();  // draw it.
+                }, (e) => {});
+            });
 
-	this.setOpts = function(opts) {
-		_opts = opts;
-        if (!opts.avgBlocktime) {
-            console.warn("No avgBlocktime provided in opts. Defaulting to 0.");
-            opts.avgBlocktime = 15;
+            // Add these points to front of latestLoaded.
+            const latestLoaded = points.latestLoaded;
+            const latestLoadedIndex = points.latestLoadedIndex;
+            _xs.forEach(x => {
+                // if already added, remove it. otherwise set index to true.
+                latestLoadedIndex[x]
+                    ? latestLoaded.splice(latestLoaded.indexOf(x), 1)
+                    : latestLoadedIndex[x] = true;
+            });
+            latestLoaded.push.apply(latestLoaded, _xs);
+
+            // Prune points loaded the longest time ago.
+            const MAX_POINTS_PER_SEQ = _maxPoints * 100;
+            const numToDelete = latestLoaded.length - MAX_POINTS_PER_SEQ;
+            if (numToDelete > 0) {
+                const toDelete = latestLoaded.splice(0, numToDelete);
+                toDelete.forEach(x => {
+                    delete points[x];
+                    delete latestLoadedIndex[x];
+                });
+            }
+        });
+        _refresh();
+    }
+
+    function _isVisible(x) {
+        return x >= _low && x <= _high;
+    }
+
+    // Gets quantized blocks such that newest and oldest are included
+    // It will obtain one block below newest and oldest.
+    function _getQuantizedXValues(low, high, maxXValues) {
+        const zoom = Math.floor(Math.log2((high - low)/(maxXValues / 2)));
+        const quanta = Math.pow(2, zoom);
+
+        // get all blocks spaced out by quanta
+        const xs = [];
+        var x = Math.floor((low - quanta) / quanta) * quanta;
+        while (x < (high + quanta)) {
+            xs.push(x);
+            x += quanta;
         }
-        if (!opts.preview.oldest)
-            throw new Error("Must provide opts.preview.oldest");
-        if (!opts.preview.newest)
-            throw new Error("Must provide opts.preview.newest");
-        if (opts.preview.newest < opts.preview.oldest) {
-            throw new Error("Newest block must be > oldest block");
+        return xs;
+    }
+
+    function _getExactXValues(low, high, numXValues) {
+        const xs = [];
+        const interval = (high - low) / numXValues;
+        for (var i=0; i<=numXValues; i++){
+            xs.push(low + i*interval);
         }
-
-        _refreshPreview();
-	};
-
-    /*
-        // Window is sized by either oldest and newest, or one and width.
-        oldest: <blockNum> || undefined,
-        newest: <blockNum> || currentBlock,
-        duration: {blocks: <Number>} || {seconds: <Number>} (defaults to 1 day),
-        numPoints: <Number> || 20
-    */
-    this.setWindow = function(opts){
-        if (!opts) opts = {};
-
-        var oldest = opts.oldest;
-        var newest = opts.newest;
-        var numBlocks;
-
-        // if oldest and newest are both set, use them.
-        if (oldest !== undefined && newest !== undefined) {
-            _set$Window(newest, oldest);
-            return;
-        } 
-        // calc numBlocks
-        duration = opts.duration || {};
-        if (duration.seconds)
-            numBlocks = Math.round(duration.seconds / _opts.avgBlocktime);
-        else if (duration.blocks)
-            numBlocks = duration.blocks;
-        else
-            numBlocks = 60*60*25/_opts.avgBlocktime;
-
-        // if oldest is defined, then use it.
-        if (oldest !== undefined) {
-            _set$window(oldest, oldest + numBlocks);
-            return;
-        }
-        // otherwise, use newest.
-        newest = newest || _opts.preview.newest;
-        setTimeout(() => { _set$Window(newest, newest - numBlocks); }, 0);
-    };
+        return xs;
+    }
 }

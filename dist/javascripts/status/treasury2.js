@@ -1,3 +1,48 @@
+Loader.onWeb3Ready.then(()=>{
+	_initTotalProfits();
+	function _initTotalProfits() {
+		// todo: implement for Treasury. Hard to test, though.
+		return Promise.all([
+			_niceWeb3.ethUtil.getAverageBlockTime(),
+			_niceWeb3.ethUtil.getBlock("latest")
+		]).then(arr=>{
+			const avgBlocktime = arr[0].toNumber();
+			const curBlock = arr[1].number - 5;
+
+			const $e = $(".total-profits");
+			const graph = new EthGraph(_niceWeb3);
+			$e.find(".graph-ctnr").append(graph.$e);
+
+			const totalWeiWonAtBlock = (block) => {
+				block = Math.round(block);
+				return _niceWeb3.ethUtil
+					.getStorageAt("0x048717Ea892F23Fb0126F00640e2b18072efd9D2", 14, block)
+					.then(gwei => {
+						if (gwei == "0x") return null;
+						return (new BigNumber(gwei)).mul(1e9);
+					});
+			}
+			graph.init({
+				sequences: [{
+					name: "totalGWeiWon",
+					valFn: totalWeiWonAtBlock,
+					showInPreview: true,
+				}],
+				low: 5345000,
+				high: curBlock,
+				numPreviewPoints: 20,
+				timeStrFn: (low, high) => {
+					return util.toTime(Math.round((high-low) * avgBlocktime));
+				}
+			});
+
+			const fourHoursInBlocks = 60*60*4 / avgBlocktime
+			graph.setView(curBlock - fourHoursInBlocks, curBlock);
+		});
+	}
+})
+
+/*
 Loader.require("reg", "comp", "tr")
 .then(function(reg, comp, tr){
 	ethUtil.getCurrentState().then(_refreshAll);
@@ -352,46 +397,7 @@ Loader.require("reg", "comp", "tr")
 		}
 	}
 
-	function _initTotalProfits() {
-		// todo: implement for Treasury. Hard to test, though.
-		return Promise.all([
-			_niceWeb3.ethUtil.getAverageBlockTime(),
-			_niceWeb3.ethUtil.getBlock("latest")
-		]).then(arr=>{
-			const avgBlocktime = arr[0].toNumber();
-			const curBlock = arr[1].number;
-
-			const graph = new EthGraph(_niceWeb3);
-			const totalWeiWonAtBlock = (block) => {
-				return _niceWeb3.ethUtil
-					.getStorageAt("0x048717Ea892F23Fb0126F00640e2b18072efd9D2", 14, block)
-					.then(gwei => {
-						if (gwei == "0x") return null;
-						return (new BigNumber(gwei)).mul(1e9);
-					});
-			}
-			graph.setOpts({
-				avgBlocktime: avgBlocktime,
-				values: [{
-					name: "totalGWeiWon",
-					label: "totalGWeiWon",
-					valueFn: totalWeiWonAtBlock,
-					type: "bar"
-				}],
-				preview: {
-					newest: curBlock - 1,
-					oldest: 1,
-					numPoints: 20
-				}
-			});
-			graph.setWindow({
-				duration: {seconds: 60*60*2}
-			});
-
-			const $e = $(".total-profits");
-			$e.find(".graph-ctnr").append(graph.$e);
-		});
-	}
+	
 
 
 	function _refreshXyz() {
@@ -417,3 +423,4 @@ Loader.require("reg", "comp", "tr")
 		return ethUtil.toEthStr(amt, 2, "Eth", true);
 	}
 });
+*/
