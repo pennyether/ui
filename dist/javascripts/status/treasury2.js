@@ -15,6 +15,9 @@ Loader.onWeb3Ready.then(()=>{
 
 			const totalWeiWonAtBlock = (block) => {
 				block = Math.round(block);
+				// const sine = new BigNumber(Math.sin(block/100).toFixed(10));
+				// const bn = (new BigNumber(sine)).mul(6e25);
+				// return Promise.resolve(bn);
 				return _niceWeb3.ethUtil
 					.getStorageAt("0x048717Ea892F23Fb0126F00640e2b18072efd9D2", 14, block)
 					.then(gwei => {
@@ -27,9 +30,10 @@ Loader.onWeb3Ready.then(()=>{
 					name: "totalGWeiWon",
 					valFn: totalWeiWonAtBlock,
 					showInPreview: true,
+					maxPoints: 20,
 				}],
-				low: 5345000,
-				high: curBlock,
+				min: 5345000,
+				max: curBlock,
 				numPreviewPoints: 20,
 				timeStrFn: (low, high) => {
 					return util.toTime(Math.round((high-low) * avgBlocktime));
