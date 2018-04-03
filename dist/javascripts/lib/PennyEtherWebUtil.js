@@ -31,7 +31,7 @@
 			},function(e){
 				element.val(`Error: ${e.message}`);
 			});
-		}
+		};
 
 		this.$getLogs = function $getLogs(instance, allAtOnce) {
 			const lv = new LogViewer({
@@ -48,51 +48,51 @@
 		this.$getLogViewer = function(opts) {
 			const lv = new LogViewer(opts);
 			return lv.$e;
-		}
+		};
 
 		this.getGasPriceSlider = function(defaultGWei, chooseInitialValue){
 			return new GasPriceSlider(defaultGWei, chooseInitialValue);
-		}
+		};
 
 		this.$getTxStatus = function(p, opts) {
 			const txStatus = new TxStatus(_self);
 			txStatus.setTxPromise(p, opts);
 			return txStatus.$e;
-		}
+		};
 
 		this.getTxStatus = function(opts) {
 			const txStatus = new TxStatus(_self);
 			txStatus.addOpts(opts);
 			return txStatus;
-		}
+		};
 
 		this.getBetter = function(){
 			return new Better();
-		}
+		};
 
 		this.$getShortAddrLink = function(addr) {
 			const addrStr = addr.slice(0, 6) + "..." + addr.slice(-4);
 			return _self.$getAddrLink(addrStr, addr);
-		}
+		};
 		this.$getAddrLink = function(name, addr){
 			return niceWeb3.ethUtil.$getLink(name, addr || name, "address");
-		}
+		};
 		this.$getTxLink = function(name, tx){
 			const shortName = name.length == 66
 				? name.slice(0,10) + "..." + name.slice(-10)
 				: name;
 			return niceWeb3.ethUtil.$getLink(shortName, tx || name, "tx");
-		}
+		};
 		this.getLoadingBar = function(timeMs, speed, hideTip) {
 			return new LoadingBar(timeMs, speed, true, hideTip);
-		}
+		};
 		this.$getLoadingBar = function(timeMs, p, hideTip) {
 			var lb = new LoadingBar(timeMs, null, false, hideTip);
 			if (p.getTxHash) p.getTxHash.then(lb.start)
 			else lb.start();
 			p.then(()=>lb.finish(500), ()=>lb.finish(500));
 			return lb.$e;
-		}
+		};
 
 		this.toDateStr = function(timestampS, params){
 			if (timestampS.toNumber) timestampS = timestampS.toNumber();
@@ -124,14 +124,14 @@
 			if (timestampS == 0) return "n/a";
 			return (new Date(timestampS*1000))
     			.toLocaleString(window.navigator.language, options);
-		}
+		};
 
 		this.getLocalTime = function(date){
 			if (!date) date = new Date();
 			return date.toLocaleString(window.navigator, {
 				hour: "2-digit", minute: "2-digit", second: "2-digit"
 			});
-		}
+		};
 
 		// returns something like "4h 3m 10s"
 		this.toTime = function(timeS, numUnits, useColon) {
@@ -162,7 +162,37 @@
 				}
 			});
 			return chunks.join(" ");
-		}
+		};
+
+		this.toEthStr = function(wei, unit) {
+			try { wei = new BigNumber(wei); }
+			catch (e) { throw new Error(`${wei} is not convertable to a BigNumber`); }
+			if (unit === undefined) unit = "ETH";
+
+			var dispNum, dispUnit;
+			if (wei.abs().gt(1e17)) {
+				dispNum = wei.div(1e18);
+				dispUnit = `${unit}`;
+			} else if (wei.abs().gt(1e14)) {
+				dispNum = wei.div(1e15);
+				dispUnit = unit=="ETH" ? `finney` : `m${unit}`;
+			} else if (wei.abs().gt(1e8)) {
+				dispNum = wei.div(1e9);
+				dispUnit = unit=="ETH" ? `gWei` : `n${unit}`;
+			} else {
+				dispNum = wei;
+				dispUnit = unit=="ETH" ? `wei` : `wei-${unit}`;
+			}
+
+			var maxDecimals;
+			const numDigits = Math.ceil(Math.log10(dispNum.abs().toNumber()));
+			if (numDigits > 0) maxDecimals = Math.max(3 - numDigits, 0);
+			else maxDecimals = 3;
+			var ethStr = dispNum.toNumber().toLocaleString(window.navigator.language, {
+				maximumFractionDigits: maxDecimals,
+			});
+			return `${ethStr} ${dispUnit}`;
+		};
 
 		this.debounce = function(timeout, fn) {
 			var i;
@@ -173,11 +203,11 @@
 			}
 			ret();
 			return ret;
-		}
+		};
 
 		this.delay = function(timeout, fn) {
 			return ()=>setTimeout(fn, timeout);
-		}
+		};
 	}
 
 	// loading bar that always looks like it'll take timeMs to complete.

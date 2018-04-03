@@ -1,19 +1,6 @@
 Loader.onWeb3Ready.then(()=>{
 	_initTotalProfits();
 
-	function formatEth(num) {
-		if (num.gt(1e12)) {
-			num = Math.round(num.div(1e18).toNumber());
-			return `${num.toLocaleString()} ETH`
-		} else if (num.gt(1e6)) {
-			num = Math.round(num.div(1e9).toNumber());
-			return `${num.toLocaleString()} gWei`;
-		} else {
-			num = Math.round(num.toNumber());
-			return `${num.toLocaleString()} wei`;	
-		}
-	}
-
 	function _initTotalProfits() {
 		// todo: implement for Treasury. Hard to test, though.
 		return Promise.all([
@@ -27,6 +14,13 @@ Loader.onWeb3Ready.then(()=>{
 			const graph = new EthGraph(_niceWeb3);
 			$e.find(".graph-ctnr").append(graph.$e);
 
+			const format = (y) => {
+				try {
+					return util.toEthStr(y);
+				} catch(e) {
+					console.error(e);
+				}
+			}
 			const balance = (block) => {
 				block = Math.round(block);
 				return _niceWeb3.ethUtil
@@ -58,7 +52,7 @@ Loader.onWeb3Ready.then(()=>{
 					color: "blue",
 					yScaleHeader: "Contract Balance",
 					yTickCount: 3,
-					yFormatFn: formatEth,
+					yFormatFn: util.toEthStr,
 				},{
 					name: "totalWagered",
 					valFn: totalWagered,
@@ -67,7 +61,7 @@ Loader.onWeb3Ready.then(()=>{
 					color: "navy",
 					yScaleHeader: "Total Wagered",
 					yTickCount: 3,
-					yFormatFn: formatEth,
+					yFormatFn: util.toEthStr,
 				}],
 				min: 5345000,
 				max: curBlock,
@@ -78,7 +72,6 @@ Loader.onWeb3Ready.then(()=>{
 					return `${num} blocks. (~${timeStr})`;
 				},
 				titleFormatFn: (low, high) => {
-					console.log(`Getting blocks`, +new Date());
 					return Promise.all([
 						getBlock(low),
 						getBlock(high)

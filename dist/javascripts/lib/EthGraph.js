@@ -24,18 +24,25 @@
         .EthGraph > .graph-ctnr .main-ctnr {
             background: radial-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,.2) 100%);
         }
-        .EthGraph > .graph-ctnr .info-ctnr .info {
+        .EthGraph > .graph-ctnr .info-ctnr .title {
             position: relative;
             top: 50%;
             transform: translateY(-50%);
+            font-size: 90%;
         }
+            .EthGraph > .graph-ctnr .info-ctnr .deltas {
+                padding: 2px 0px;
+                font-size: 90%;
+            }
+            .EthGraph > .graph-ctnr .info-ctnr .deltas .delta {
+                padding: 2px 0px;
+                font-size: 90%;
+                padding: 0px 4px;
+            }
+
         .EthGraph > .graph-ctnr .info-ctnr .legend {
-            white-space: nowrap;
-        }
-        .EthGraph > .graph-ctnr .info-ctnr .item {
-            display: inline-block;
-            padding: 2px 4px;
-            margin: 2px;
+            text-align: center;
+            padding: 2px 0px;
         }
         
 
@@ -344,6 +351,7 @@ function PromiseQueue(maxConcurrency, maxQueueSize) {
                 - min: lowest y value
                 - max: highest y value
                 - range: max - min, or null if isUndefined
+                - delta: last - first, or null if isUndefined
                 - ticks: An array of nice ticks - {y, label}
 
 */
@@ -462,14 +470,18 @@ function Sequence() {
     };
     
     this.getRange = () => {
+        const exists = (p) => p && (p.y !== undefined && p.y !== null);
+
+        const pointsArr = _xs.map(x => _points[x]);
+        const firstPt = pointsArr.find(exists);
+        const lastPt = pointsArr.reverse().find(exists);
+
         var max;
         var min;
-        _xs.forEach(x => {
-            if (!_points[x]) return;
-            const y = _points[x].y;
-            if (y === null || y === undefined) return;
-            if (max === undefined || y.gt(max)) max = y;
-            if (min === undefined || y.lt(min)) min = y;
+        pointsArr.forEach(p => {
+            if (!exists(p)) return;
+            if (max === undefined || p.y.gt(max)) max = p.y;
+            if (min === undefined || p.y.lt(min)) min = p.y;
         });
 
         const isUndefined = max === undefined;
@@ -484,6 +496,7 @@ function Sequence() {
             max: max,
             isUndefined: isUndefined,
             range: isUndefined ? null : max.minus(min),
+            delta: isUndefined ? null : lastPt.y.minus(firstPt.y),
             ticks: ticks,
             scaleHeader: _yScaleHeader,
         }
@@ -741,7 +754,7 @@ function Preview() {
         const width = _$e.width();
         const newLeft = width * leftPct;
         const newWidth = width * widthPct;
-        if (newWidth >= 10) {
+        if (newWidth >= 10 || lockRange) {
             _$window.css("left", newLeft);
             _$window.width(newWidth);
         }
@@ -790,9 +803,13 @@ function SvgGraph() {
         `<div class="SvgGraph" style="width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; user-select: none;">
             <div class="info-ctnr" style="display: flex;">
                 <div style="flex-grow: 1; text-align: center;">
-                    <div class="info"></div>
+                    <div class="title">
+                        <div class="formatted-title"></div>
+                        <div class="deltas"></div>
+                    </div>
                 </div>
-                <div class="legend"></div>
+                <div class="legend" style="text-align: center;">
+                </div>
             </div>
             <div style="flex-grow: 1; display: flex;">
                 <div class="main-ctnr" style="flex-grow: 1;">
@@ -804,21 +821,19 @@ function SvgGraph() {
             </div>
             <div class="x-scale-ctnr" style="display: flex; height: 20px;">
                 <div style="flex-grow: 1;">
-                    <svg class="x-scale" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"></svg>
+                    <svg class="x-scale" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
                 </div>
-                <div class="bottom-right">
-                    <svg class="y-deltas" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"></svg>
-                </div>
+                <div class="bottom-right"></div>
             </div>
         </div>
     `);
     const _$infoCtnr = _$e.find(".info-ctnr");
-    const _$info = _$e.find(".info");
+    const _$formattedTitle = _$e.find(".formatted-title");
+    const _$deltas = _$e.find(".deltas");
     const _$legend = _$e.find(".legend");
     const _$graphs = _$e.find(".graphs");
     const _$yScaleCtnr = _$e.find(".y-scale-ctnr");
     const _$yScales = _$e.find(".y-scales");
-    const _$yDeltas = _$e.find(".y-deltas");
     const _$xScaleCtnr = _$e.find(".x-scale-ctnr");
     const _$xScale = _$e.find(".x-scale");
     const _$bottomRight = _$e.find(".bottom-right");
@@ -983,12 +998,7 @@ function SvgGraph() {
             // Set right side sizes.
             _$yScales.width(`${offsetX}px`);
             _$bottomRight.width(`${offsetX}px`);
-
-            // Draw deltas
-            _$yDeltas.empty()
-            _display.forEach(disp => {
-                _$getYDeltas(disp.range).appendTo(_$yDeltas);
-            });
+            _$legend.width(`${offsetX}px`);
                 
             // Draw ticks on the graph and on xScale
             const domain = _display[0].domain;
@@ -1006,10 +1016,21 @@ function SvgGraph() {
             })
         }
 
-        // draw each graph
-        _display.forEach(disp => {
+        // draw each graph in reverse
+        _display.slice().reverse().forEach(disp => {
             const $graph = _$getGraph(disp.seq, disp.domain, disp.range)
                 .appendTo(_$graphs);
+        });
+
+        // draw deltas
+        _$deltas.empty();
+        _display.forEach(disp => {
+            const name = disp.seq.yScaleHeader();
+            const color = disp.seq.color();
+            const formatted = disp.seq.formatY(disp.range.delta);
+            const txt = `Δ ${name}: ${formatted}`;
+            const $e = $("<span class='delta'></span>").text(txt).css("color", color)
+            _$deltas.append($e);
         });
 
         // draw hover container
@@ -1027,7 +1048,7 @@ function SvgGraph() {
         // start getting, or queue, this low-high value.
         _titlePromiseQueue.getValue(`${low}${high}`, ()=>{
             return Promise.resolve(_titleFormatFn(low, high)).then($e => {
-                _$info.empty().append($e)
+                _$formattedTitle.empty().append($e)
             });
         }).catch(e => {});
     }
@@ -1152,9 +1173,6 @@ function SvgGraph() {
                 "font-size": "10px",
                 fill: color
             }).append(tick.label).appendTo($e);
-
-            $text.attr("title", "test");
-            tippy($text[0])
         });
 
         return $e;
@@ -1206,22 +1224,6 @@ function SvgGraph() {
                 opacity: .5
             }).append(tick.label).appendTo($e);
         });
-
-        return $e;
-    }
-
-    function _$getYDeltas(range) {
-        const $e = _$svg("g").attr("transform", `translate(${range.offsetX+1}, 0)`);
-        const color = range.seq.color();
-
-        const formatted = range.seq.formatY(range.range);
-        const $text = _$svg("text", {
-            x: 5, y: 4,
-            "alignment-baseline": "hanging",
-            "font-size": "10px",
-            fill: color,
-            opacity: 1
-        }).text(`Δ ${formatted}`).appendTo($e);
 
         return $e;
     }
