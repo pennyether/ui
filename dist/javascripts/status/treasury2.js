@@ -35,7 +35,7 @@ Loader.onWeb3Ready.then(()=>{
 						if (gwei == "0x") return null;
 						return new BigNumber(gwei);
 					});
-			}
+			};
 			const totalWagered = (block) => {
 				block = Math.round(block);
 				return _niceWeb3.ethUtil
@@ -44,7 +44,11 @@ Loader.onWeb3Ready.then(()=>{
 						if (gwei == "0x") return null;
 						return new BigNumber(gwei);
 					});
-			}
+			};
+			const getBlock = (block) => {
+				block = Math.round(block);
+				return _niceWeb3.ethUtil.getBlock(block);
+			};
 			graph.init({
 				sequences: [{
 					name: "balance",
@@ -52,7 +56,7 @@ Loader.onWeb3Ready.then(()=>{
 					showInPreview: true,
 					maxPoints: 20,
 					color: "blue",
-					yScaleHeader: "Total Wagered (ETH)",
+					yScaleHeader: "Contract Balance",
 					yTickCount: 3,
 					yFormatFn: formatEth,
 				},{
@@ -60,18 +64,34 @@ Loader.onWeb3Ready.then(()=>{
 					valFn: totalWagered,
 					showInPreview: true,
 					maxPoints: 20,
-					color: "orange",
-					yScaleHeader: "Total Wagered (ETH)",
+					color: "navy",
+					yScaleHeader: "Total Wagered",
 					yTickCount: 3,
 					yFormatFn: formatEth,
 				}],
 				min: 5345000,
 				max: curBlock,
-				numPreviewPoints: 20,
-				xFormatFn: getDateOfBlock,
-				timeStrFn: (low, high) => {
-					return util.toTime(Math.round((high-low) * avgBlocktime));
-				}
+				previewNumPoints: 20,
+				previewFormatFn: (low, high) => {
+					const num = Math.round(high-low).toLocaleString();
+					const timeStr = util.toTime(Math.round((high-low) * avgBlocktime));
+					return `${num} blocks. (~${timeStr})`;
+				},
+				titleFormatFn: (low, high) => {
+					console.log(`Getting blocks`, +new Date());
+					return Promise.all([
+						getBlock(low),
+						getBlock(high)
+					]).then(arr => {
+						const lowBlock = arr[0];
+						const highBlock = arr[1];
+						const diff = highBlock.timestamp - lowBlock.timestamp;
+						const lowDateStr = util.toDateStr(lowBlock.timestamp, {scale: diff});
+						const highDateStr = util.toDateStr(highBlock.timestamp, {scale: diff});
+						const timeStr = util.toTime(diff);
+						return `<b>${lowDateStr}</b> to <b>${highDateStr}</b> (${timeStr})`;
+					});
+				},
 			});
 
 			const fourHoursInBlocks = 60*60*4 / avgBlocktime

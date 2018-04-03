@@ -94,15 +94,33 @@
 			return lb.$e;
 		}
 
-		this.toDateStr = function(timestampS){
+		this.toDateStr = function(timestampS, params){
 			if (timestampS.toNumber) timestampS = timestampS.toNumber();
 			var options = {
-			    day: "numeric",
-			    month: "short",
-			    hour: "2-digit",
-			    minute: "2-digit",
-			    second: "2-digit"
+				month: "short",
+				day: "numeric"
 			};
+			if (params.scale) {
+				const scale = params.scale;
+				if (scale < 60*60*24*7) {
+					options.hour = "2-digit";
+					options.minute = "2-digit";
+				}
+				if (scale < 60*60) options.second = "2-digit";
+			} else {
+				options = {
+					month: "short",
+				    day: "numeric",
+				    hour: "2-digit",
+				    minute: "2-digit",
+				    second: "2-digit"
+				};
+			}
+			Object.keys(params).forEach(name=>{
+				if (name=="scale") return;
+				options[name] = params[name];
+			});
+
 			if (timestampS == 0) return "n/a";
 			return (new Date(timestampS*1000))
     			.toLocaleString(window.navigator.language, options);

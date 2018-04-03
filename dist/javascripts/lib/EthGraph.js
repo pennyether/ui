@@ -11,7 +11,9 @@
     }
 
     .EthGraph {
+        border: 1px solid rgba(128,128,128,.1);
         border-radius: 5px;
+        padding: 5px;
     }
         .EthGraph > .graph-ctnr {
             height: 220px;
@@ -19,12 +21,31 @@
         .EthGraph > .preview-ctnr {
             height: 60px;
         }
+        .EthGraph > .graph-ctnr .main-ctnr {
+            background: radial-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,.2) 100%);
+        }
+        .EthGraph > .graph-ctnr .info-ctnr .info {
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .EthGraph > .graph-ctnr .info-ctnr .legend {
+            white-space: nowrap;
+        }
+        .EthGraph > .graph-ctnr .info-ctnr .item {
+            display: inline-block;
+            padding: 2px 4px;
+            margin: 2px;
+        }
+        
 
     .Preview {
         position: relative;
         width: 100%;
         height: 100%;
-        background: #AAA;
+        border-top: 1px solid rgba(128,128,128,.2);
+        border-bottom: 1px solid rgba(128,128,128,.8);
+        background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,.2) 100%);
         user-select: none;
     }
         .Preview .mini-graph {
@@ -50,8 +71,6 @@
             cursor: grab;
             cursor: -moz-grab;
             cursor: -webkit-grab;
-            border-top: 1px solid rgba(0,0,0,.2);
-            border-bottom: 1px solid rgba(0,0,0,.2);
             background: rgba(0,0,255,.2);
             transition: background .3s;
         }
@@ -66,7 +85,7 @@
             top: 0;
             height: 100%;
             width: 3px;
-            background: rgba(0,0,0,.5);
+            background: rgba(0,0,0,.2);
             cursor: ew-resize;
             transition: background .3s;
         }
@@ -85,6 +104,7 @@
 
         .Preview .window .info-ctnr {
             position: absolute;
+            pointer-events: none;
             text-align: center;
             top: -20px;
             left: 50%;
@@ -107,19 +127,6 @@
                 box-shadow: 3px 3px 3px 0px rgba(0,0,0,.2);
                 background: linear-gradient(to bottom, #CCC 0%, #999 100%);
             }
-
-    .SvgGraph {
-        user-select: none;
-    }
-    .SvgGraph .info {
-        background: green;
-    }
-    .SvgGraph .graph-ctnr {
-        background: yellow;
-    }
-    .SvgGraph .scale {
-        
-    }
 `;
     const style = document.createElement("style");
     style.type = 'text/css';
@@ -160,20 +167,13 @@ function EthGraph(niceWeb3) {
               }, ...]
             - min
             - max
-            - numPreviewPoints
-            - timeStrFn
+            - previewNumPoints
+            - previewFormatFn
     */
 	this.init = function(params) {
-        if (!params.sequences)  
-            throw new Error(`Must provide "params.sequences"`);
-        if (params.min === undefined)
-            throw new Error(`Must provide "params.min"`);
-        if (params.max === undefined)
-            throw new Error(`Must provide "params.max"`);
-        if (params.numPreviewPoints === undefined)
-            throw new Error(`Must provide "params.numPreviewPoints"`);
-        if (params.timeStrFn === undefined)
-            throw new Error(`Must provide "params.timeStrFn"`);
+        ["sequences", "min", "max", "previewNumPoints", "previewFormatFn", "titleFormatFn"].forEach(name => {
+            if (params[name]===undefined) throw new Error(`EthGraph must be passed "${name}"" param`);
+        });
 
         // Create graph sequences.
         const graphSequences = params.sequences.map(obj => {
@@ -190,7 +190,8 @@ function EthGraph(niceWeb3) {
             sequences: graphSequences,
             allowHover: true,
             showInfo: true,
-            showScales: true
+            showScales: true,
+            titleFormatFn: params.titleFormatFn
         });
         _graph.onBoundsChanged((newLow, newHigh, type) => {
             _preview.setView(newLow, newHigh, type=="move");
@@ -200,7 +201,7 @@ function EthGraph(niceWeb3) {
         const previewSequences = params.sequences.map(obj => {
             if (!obj.showInPreview) return null;
             obj = Object.assign({}, obj);
-            obj.maxPoints = params.numPreviewPoints;
+            obj.maxPoints = params.previewNumPoints;
             obj.exact = true;
             const seq = new Sequence();
             seq.init(obj);
@@ -210,11 +211,11 @@ function EthGraph(niceWeb3) {
         _preview = new Preview();
         _$previewCtnr.empty().append(_preview.$e);
         _preview.init({
+            sequences: previewSequences,
             min: params.min,
             max: params.max,
-            numPoints: params.numPreviewPoints,
-            timeStrFn: params.timeStrFn,
-            sequences: previewSequences
+            numPoints: params.previewNumPoints,
+            formatFn: params.previewFormatFn
         });
         _preview.onViewChanged((view)=>{
             _graph.setBounds(view.low, view.high);
@@ -227,20 +228,104 @@ function EthGraph(niceWeb3) {
     };
 }
 
+function PromiseQueue(maxConcurrency, maxQueueSize) {
+    const _MAX_CONCURRENCY = maxConcurrency;
+    const _MAX_QUEUE_SIZE = maxQueueSize;
+
+    // Loading of vals
+    const _vals = {};
+    const _valStack = [];       // queue of [id, valFn]
+    const _valPromises = {};    // map of id=>Promise
+    var _numLoading = 0;        // current number in flight
+
+    // Adds to stack to get a value. If stack is too large,
+    //  previous entries are discarded (rejected). There is no
+    //  guarantee this will succeed, but it will resolve/reject.
+    this.getValue = function(id, valFn) {
+        if (_vals[id]) return Promise.resolve(_vals[id]);
+        else return _push(id, valFn);
+    };
+
+    // A promise that can resolve / reject itself.
+    function CreateDeferred() {
+        var resolve, reject;
+        const promise = new Promise((res, rej)=>{
+            resolve = res;
+            reject = rej;
+        });
+        promise.resolve = (val) => { resolve(val); return promise; };
+        promise.reject = (e) => { reject(e); return promise; };
+        return promise;
+    }
+
+    // Adds item to top of stack, and returns a Promise for it.
+    // Promise will be resolved with val, or rejected if kicked of queue.
+    function _push(id, valFn) {
+        // If it's in the queue, move it to front and return promise.
+        const item = {id: id, valFn: valFn};
+        const index = _valStack.findIndex(item => item.id === id);
+        if (index !== -1) {
+            _valStack.splice(index, 1);
+            _valStack.push(item);
+            return _valPromises[item.id];
+        }
+        // If it's not in queue, but is in flight, return promise.
+        if (_valPromises[item.id]) {
+            return _valPromises[item.id];
+        }
+        
+        // Push it to end, create promise, execute if able.
+        _valStack.push(item);
+        _valPromises[item.id] = CreateDeferred();
+        _pop();
+
+        // Delete from front if stack too big.
+        if (_valStack.length > _MAX_QUEUE_SIZE) {
+            const toDelete = _valStack.shift();
+            _valPromises[toDelete.id].reject(new Error(`Kicked off queue.`));
+            delete _valPromises[toDelete.id];
+        }
+        
+        return _valPromises[item.id];
+    }
+    // Do as many requests if possible.
+    // Increment _numLoading and Resolve _valPromises[x] with valFn(x).
+    //  - On success, store val
+    //  - Always call _onLoaded afterwards
+    function _pop() {
+        if (_valStack.length == 0 || _numLoading >= _MAX_CONCURRENCY) return;
+        
+        _numLoading++;
+        const item = _valStack.pop();
+        const onLoaded = () => _onLoaded(item.id);
+        _valPromises[item.id].resolve(
+            item.valFn().then(val => {
+                onLoaded();
+                return _vals[item.id] = val;
+            }, onLoaded)
+        );
+        _pop();
+    }
+    // Remove from _valPromises, decrement _numLoading, execute more.
+    function _onLoaded(id) {
+        _numLoading--;
+        delete _valPromises[id];
+        _pop();
+    }
+}
+
 /*
     Object that represents a sequence, with a current domain.
-
-    Internally, it ensures a maximum of 2 requests are made a time,
-    and will purge old requests that are no longer relevant.
 
     Params:
         - name: Used to identify this sequence
         - valFn: Given an x, should return a BigNumber y
         - maxPoints: Maximum points to show for a given domain
         - exact: If false, quantizes points within domain to powers of 2
-        - yFormatFn: Given a y, returns text
+        - color: Display color
         - yScaleHeader: Header for yScale
-        - numTicks: A target number of ticks
+        - yFormatFn: Given a y, returns text
+        - yTickCount: Target number of ticks to display on Y
 
     Exposes:
         .setDomain(low, high, callback)
@@ -278,11 +363,8 @@ function Sequence() {
     var _yTickCount;
     var _yFormatFn;
 
-    // Loading of vals
-    const _vals = {};
-    const _valStack = [];
-    const _valPromises = {};
-    var _numLoading = 0;
+    // queue to load points
+    var _queue;
 
     // Storing of points
     var _xs = [];
@@ -307,10 +389,17 @@ function Sequence() {
         _yScaleHeader = params.yScaleHeader;
         _yTickCount = params.yTickCount;
         _yFormatFn = params.yFormatFn;
+
+        _queue = new PromiseQueue(2, _maxPoints * 1.5);
     };
     this.name = () => _name;
+    this.yScaleHeader = () => _yScaleHeader;
     this.setExact = (bool) => _exact = !!bool;
     this.color = () => _color;
+
+    this.getValue = function(x) {
+        return _queue.getValue(x, ()=>_valFn(x));
+    };
 
     // Loads points for the domain, calling cb(x) on each one.
     //  This also prunes old points.
@@ -360,6 +449,7 @@ function Sequence() {
         const min = _xs[0];
         const max = _xs[_xs.length-1];
         return {
+            seq: _self,
             min: min,
             max: max,
             range: max - min,
@@ -389,6 +479,7 @@ function Sequence() {
             });
 
         return {
+            seq: _self,
             min: min,
             max: max,
             isUndefined: isUndefined,
@@ -398,85 +489,10 @@ function Sequence() {
         }
     };
 
-    // Adds to stack to get a value. If stack is too large,
-    //  previous entries are discarded (rejected). There is no
-    //  guarantee this will succeed, but it will resolve/reject.
-    this.getValue = function(x) {
-        if (_vals[x]) return Promise.resolve(_vals[x]);
-        else return _push(x);
-    };
-
     this.formatY = function(y) {
         if (y===null || y===undefined) return "Loading...";
         return _yFormatFn(y);
     };
-
-    // A promise that can resolve / reject itself.
-    function CreateDeferred() {
-        var resolve, reject;
-        const promise = new Promise((res, rej)=>{
-            resolve = res;
-            reject = rej;
-        });
-        promise.resolve = (val) => { resolve(val); return promise; };
-        promise.reject = (e) => { reject(e); return promise; };
-        return promise;
-    }
-
-    // Adds item to top of stack, and returns a Promise for it.
-    // Promise will be resolved with val, or rejected if kicked of queue.
-    function _push(x) {
-        // If it's in the queue, move it to front and return promise.
-        const index = _valStack.indexOf(x);
-        if (index !== -1) {
-            _valStack.splice(index, 1);
-            _valStack.push(x);
-            return _valPromises[x];
-        }
-        // If it's not in queue, but is in flight, return promise.
-        if (_valPromises[x]) {
-            return _valPromises[x];
-        }
-        
-        // Push it to end, create promise, execute if able.
-        _valStack.push(x);
-        _valPromises[x] = CreateDeferred();
-        _pop();
-
-        // Delete from front if stack too big.
-        const MAX_QUEUE_SIZE = Math.floor(_maxPoints * 1.5)
-        if (_valStack.length > MAX_QUEUE_SIZE) {
-            const toDelete = _valStack.shift();
-            _valPromises[toDelete].reject(new Error(`Kicked off queue.`));
-            delete _valPromises[toDelete];
-        }
-        
-        return _valPromises[x];
-    }
-    // Do as many requests if possible.
-    // Increment _numLoading and Resolve _valPromises[x] with valFn(x).
-    //  - On success, store val
-    //  - Always call _onLoaded afterwards
-    function _pop() {
-        if (_valStack.length == 0 || _numLoading >= _MAX_CONCURRENCY) return;
-        
-        _numLoading++;
-        const x = _valStack.pop();
-        const onLoaded = ()=>_onLoaded(x);
-        _valPromises[x].resolve(
-            _valFn(x).then(val => {
-                onLoaded();
-                return _vals[x] = val;
-            }, onLoaded)
-        );
-        _pop();
-    }
-    // Remove from _valPromises, decrement _numLoading, execute more.
-    function _onLoaded(x) {
-        _numLoading--;
-        delete _valPromises[x];
-        _pop();
-    }
 
     // Gets values that equally spaced by some power of 2, such that
     //  there are up to maxValues. One value below and above low and high
@@ -556,11 +572,12 @@ function Sequence() {
     View can be set manually view .setView()
 */
 function Preview() {
+    var _sequences;
     var _max;
     var _min;
     var _numPoints;
-    var _avgBlocktime;
-    var _sequences;
+    var _formatFn;
+
     var _graph;
 
     var _viewChangedCb = (view)=>{};
@@ -574,8 +591,10 @@ function Preview() {
                 <div class="right-handle"></div>
                 <div class="info-ctnr">
                     <div class="info">
-                        <span class="lowest"></span> to <span class="highest"></span><br>
-                        <span class="size"></span> blocks. <span class="time"></span>
+                        <div>
+                            <span class="lowest"></span> to <span class="highest"></span>
+                        </div>
+                        <div class="formatted"></div>
                     </div>
                 </div>
             </div>
@@ -642,27 +661,20 @@ function Preview() {
         max: highest X to display
         numPoints: how many points to load in graph
         sequences: which sequences to display
-        timeStrFn: converts two X points to a time duration
+        formatFn: converts two X points to a string
     */
     this.init = function(params) {
-        if (params.min === undefined)
-            throw new Error(`Preview must be passed "min" param`);
-        if (params.max === undefined)
-            throw new Error(`Preview must be passed "max" param`);
-        if (params.numPoints === undefined)
-            throw new Error(`Preview must be passed "numPoints" param`);
-        if (params.sequences === undefined)
-            throw new Error(`Preview must be passed "sequences" param`);
-        if (params.timeStrFn === undefined)
-            throw new Error(`Preview must be passed "timeStrFn" param`);
-        _min = params.min;
-        _max = params.max;
-        _numPoints = params.numPoints;
+        ["sequences","min","max","numPoints","formatFn"].forEach(name => {
+            if (params[name]===undefined) throw new Error(`Preview must be passed "${name}" param.`);
+        })
         _sequences = params.sequences.map(seq => {
             seq.setExact(true);
             return seq;
         });
-        _timeStrFn = params.timeStrFn;
+        _min = params.min;
+        _max = params.max;
+        _numPoints = params.numPoints;
+        _formatFn = params.formatFn;
 
         _graph = new SvgGraph();
         _$e.find(".mini-graph").append(_graph.$e);
@@ -671,7 +683,8 @@ function Preview() {
             sequences: _sequences,
             allowHover: false,
             showInfo: false,
-            showScales: false
+            showScales: false,
+            titleFormatFn: ()=>{}
         });
         _graph.setBounds(_min, _max);
     };
@@ -740,9 +753,8 @@ function Preview() {
         const view = _getView();
         _$info.find(".lowest").text(Math.round(view.low).toLocaleString());
         _$info.find(".highest").text(Math.round(view.high).toLocaleString());
-        _$info.find(".size").text(Math.round(view.size).toLocaleString());
-        const timeStr = _timeStrFn(view.low, view.high);
-        _$info.find(".time").text(`~${timeStr}`);
+        const formatted = _formatFn(view.low, view.high);
+        _$info.find(".formatted").empty().append(formatted);
     }
 }
 
@@ -764,6 +776,7 @@ function SvgGraph() {
     var _allowHover;
     var _showScales;
     var _showInfo;
+    var _titleFormatFn;
 
     // Current bounds, and display
     var _low;
@@ -774,10 +787,15 @@ function SvgGraph() {
     var _boundsChangedCb = (newLow, newHigh, type)=>{};
 
     const _$e = $(
-        `<div class="SvgGraph" style="width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden;">
-            <div class="info">Info would go here.</div>
+        `<div class="SvgGraph" style="width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; user-select: none;">
+            <div class="info-ctnr" style="display: flex;">
+                <div style="flex-grow: 1; text-align: center;">
+                    <div class="info"></div>
+                </div>
+                <div class="legend"></div>
+            </div>
             <div style="flex-grow: 1; display: flex;">
-                <div style="flex-grow: 1;">
+                <div class="main-ctnr" style="flex-grow: 1;">
                     <svg class="graphs" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"></svg>
                 </div>
                 <div class="y-scale-ctnr">
@@ -786,16 +804,21 @@ function SvgGraph() {
             </div>
             <div class="x-scale-ctnr" style="display: flex; height: 20px;">
                 <div style="flex-grow: 1;">
-                    <svg class="x-scale" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+                    <svg class="x-scale" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"></svg>
                 </div>
-                <div class="bottom-right" style="height: 100%;"></div>
+                <div class="bottom-right">
+                    <svg class="y-deltas" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"></svg>
+                </div>
             </div>
         </div>
     `);
+    const _$infoCtnr = _$e.find(".info-ctnr");
     const _$info = _$e.find(".info");
+    const _$legend = _$e.find(".legend");
     const _$graphs = _$e.find(".graphs");
     const _$yScaleCtnr = _$e.find(".y-scale-ctnr");
     const _$yScales = _$e.find(".y-scales");
+    const _$yDeltas = _$e.find(".y-deltas");
     const _$xScaleCtnr = _$e.find(".x-scale-ctnr");
     const _$xScale = _$e.find(".x-scale");
     const _$bottomRight = _$e.find(".bottom-right");
@@ -854,7 +877,7 @@ function SvgGraph() {
         _$parent = $parent;
     };
     this.init = function(params) {
-        ["sequences", "name", "allowHover", "showInfo", "showScales"].forEach(name => {
+        ["sequences", "name", "allowHover", "showInfo", "showScales", "titleFormatFn"].forEach(name => {
             if (params[name]===undefined) throw new Error(`SvgGraph must be passed "${name}"`);
         })
         _name = params.name;
@@ -862,16 +885,28 @@ function SvgGraph() {
         _allowHover = params.allowHover;
         _showInfo = params.showInfo;
         _showScales = params.showScales;
-        if (!_showInfo) _$info.hide();
+        _titleFormatFn = params.titleFormatFn;
+
+        if (!_showInfo) {
+            _$infoCtnr.hide();
+        }
         if (!_showScales) {
             _$xScaleCtnr.hide();
             _$yScaleCtnr.hide();
         }
+
+        _sequences.forEach(seq => {
+            const $seq = $("<div class='item'></div>")
+                .css("color", seq.color())
+                .text(`• ${seq.yScaleHeader()}`)
+                .appendTo(_$legend);
+        })
     };
     this.setBounds = function(low, high) {
         _low = low;
         _high = high;
         _loadDataThrottled();
+        _refreshTitleThrottled(low, high);
     };
     this.onBoundsChanged = fn => _boundsChangedCb = fn;
     this.$e = _$e;
@@ -879,6 +914,7 @@ function SvgGraph() {
     // Limit the amount of times per second these functions can be called.
     const _refreshThrottled = throttle(_refresh, 30);
     const _refreshHoverThrottled = throttle(_refreshHover, 30);
+    const _refreshTitleThrottled = throttle(_refreshTitle, 200);
     const _loadDataThrottled = throttle(_loadData, 30);
 
     // Given xs, display all relevant points and position them correctly.
@@ -915,6 +951,17 @@ function SvgGraph() {
                 const width = _$graphs.width();
                 return _low + (offsetX / width) * (_high - _low);
             }
+            domain.getClosestX = function(offsetX) {
+                const x = domain.getXFromOffset(offsetX);
+                var closetX = null;
+                Object.keys(domain.points).forEach(_x => {
+                    if (closetX == null) closetX = _x;
+                    if (Math.abs(_x - x) < Math.abs(closetX - x)) {
+                        closetX = _x;
+                    }
+                });
+                return closetX;
+            };
 
             // add data to _display
             _display.push({
@@ -925,20 +972,23 @@ function SvgGraph() {
         });
 
         if (_showScales) {
-            var yScaleOffset = 0;
+            // Draw each yScale, setting the range offsetX each time.
+            var offsetX = 0;
             _display.forEach(disp => {
-                disp.yScaleOffset = yScaleOffset;
-
-                const $yScale = _$getYScale(disp.seq, disp.range)
-                    .appendTo(_$yScales)
-                    .attr("transform", `translate(${yScaleOffset}, 0)`);
-
-                yScaleOffset += $yScale[0].getBoundingClientRect().width + 10;
+                disp.range.offsetX = offsetX;
+                const $yScale = _$getYScale(disp.range).appendTo(_$yScales)
+                offsetX += $yScale[0].getBoundingClientRect().width + 10;
             });
 
             // Set right side sizes.
-            _$yScales.width(`${yScaleOffset}px`);
-            _$bottomRight.width(`${yScaleOffset}px`);
+            _$yScales.width(`${offsetX}px`);
+            _$bottomRight.width(`${offsetX}px`);
+
+            // Draw deltas
+            _$yDeltas.empty()
+            _display.forEach(disp => {
+                _$getYDeltas(disp.range).appendTo(_$yDeltas);
+            });
                 
             // Draw ticks on the graph and on xScale
             const domain = _display[0].domain;
@@ -969,6 +1019,17 @@ function SvgGraph() {
             _$xScaleHover.appendTo(_$xScale)
             _refreshHover();
         }
+    }
+
+    var _titlePromiseQueue = new PromiseQueue(1, 1);
+    function _refreshTitle(low, high) {
+        if (!_showInfo) return;
+        // start getting, or queue, this low-high value.
+        _titlePromiseQueue.getValue(`${low}${high}`, ()=>{
+            return Promise.resolve(_titleFormatFn(low, high)).then($e => {
+                _$info.empty().append($e)
+            });
+        }).catch(e => {});
     }
 
     function _setHoverPt(offsetX, offsetY) {
@@ -1013,62 +1074,55 @@ function SvgGraph() {
 
         // draw a line up and over to the corresponding scales
         _display.forEach(disp => {
-            const x = _getClosestX(_hoverPt.x, disp.domain);
-            const y = disp.domain.points[x].y;
+            const seq = disp.seq;
+            const domain = disp.domain;
+            const range = disp.range;
+            const color = seq.color();
+
+            const x = domain.getClosestX(_hoverPt.x);
+            const y = domain.points[x].y;
             if (y === null || y === undefined) return;
 
-            const xPos = disp.domain.getXPos(x);
-            const yPos = disp.range.getYPos(y);
+            const xPos = domain.getXPos(x);
+            const yPos = range.getYPos(y);
 
             _$svg("line", {
                 x1: xPos, y1: yPos,
                 x2: `100%`, y2: yPos,
                 "stroke-width": 1,
                 "stroke-dasharray": [3,3],
-                stroke: disp.seq.color(),
+                stroke: color,
                 opacity: .5
             }).appendTo(_$graphsHover);
 
             _$svg("circle", {
-                cx: disp.yScaleOffset, cy: yPos, r: 2,
-                fill: disp.seq.color(),
+                cx: range.offsetX + 1, cy: yPos, r: 2,
+                fill: color,
                 opacity: .5
             }).appendTo(_$yScalesHover);
 
             _$textBox({
                 $parent: _$yScalesHover,
-                x: disp.yScaleOffset + 4,
+                x: range.offsetX + 5,
                 y: yPos,
                 vAlign: "middle",
-                text: disp.seq.formatY(y),
+                text: seq.formatY(y),
                 padding: 2,
                 fontSize: "10px",
                 textColor: "white",
-                background: disp.seq.color(),
+                background: color,
                 borderRadius: "3"
-            }).attr("opacity", .8);
+            }).attr("opacity", .7);
 
             _$svg("line", {
                 x1: 0, y1: yPos,
-                x2: disp.yScaleOffset, y2: yPos,
+                x2: range.offsetX, y2: yPos,
                 "stroke-width": 1,
                 "stroke-dasharray": [3,3],
-                stroke: disp.seq.color(),
+                stroke: color,
                 opacity: .5
             }).appendTo(_$yScalesHover);
         });
-    }
-
-    function _getClosestX(offsetX, domain) {
-        const x = domain.getXFromOffset(offsetX);
-        var closetX = null;
-        Object.keys(domain.points).forEach(_x => {
-            if (closetX == null) closetX = _x;
-            if (Math.abs(_x - x) < Math.abs(closetX - x)) {
-                closetX = _x;
-            }
-        });
-        return closetX;
     }
 
     function _$getXScale(domain) {
@@ -1076,17 +1130,10 @@ function SvgGraph() {
         const color = "rgba(0,0,0,.5)";
 
         _$svg("line", {
-            x1: 0, y1: 1,
-            x2: "100%", y2: 1,
+            x1: 0, y1: 0,
+            x2: "100%", y2: 0,
             "stroke-width": 1,
             stroke: color
-        }).appendTo($e);
-
-        _$svg("line", {
-            x1: "100%", y1: 1,
-            x2: "500%", y2: 1,
-            "stroke-width": 1,
-            stroke: "rgba(0,0,0,.1)"
         }).appendTo($e);
 
         domain.ticks.forEach(tick => {
@@ -1094,13 +1141,13 @@ function SvgGraph() {
             if (parseFloat(xPos)<0 || parseFloat(xPos)>100) return;
 
             _$svg("line", {
-                x1: xPos, y1: 1,
-                x2: xPos, y2: 3,
+                x1: xPos, y1: 0,
+                x2: xPos, y2: 2,
                 "stroke-width": 1,
                 stroke: color
             }).appendTo($e);
             const $text = _$svg("text", {
-                x: xPos, y: 5,
+                x: xPos, y: 4,
                 "alignment-baseline": "hanging",
                 "font-size": "10px",
                 fill: color
@@ -1113,15 +1160,30 @@ function SvgGraph() {
         return $e;
     }
 
-    function _$getYScale(seq, range) {
-        const $e = _$svg("g");
+    function _$getYScale(range) {
+        const $e = _$svg("g").attr("transform", `translate(${range.offsetX+1}, 0)`);
+
+        const color = range.seq.color();
 
         // draw vertical line
         _$svg("line", {
             x1: 0, y1: 0,
             x2: 0, y2: "100%",
             "stroke-width": 1,
-            stroke: seq.color()
+            stroke: color
+        }).appendTo($e);
+        // horizontal tick at top and bottom
+        _$svg("line", {
+            x1: 0, y1: 0,
+            x2: 3, y2: 0,
+            "stroke-width": 2,
+            stroke: color
+        }).appendTo($e);
+        _$svg("line", {
+            x1: 0, y1: "100%",
+            x2: 3, y2: "100%",
+            "stroke-width": 2,
+            stroke: color
         }).appendTo($e);
 
         // draw ticks in places, with label.
@@ -1133,16 +1195,33 @@ function SvgGraph() {
                 x1: 0, y1: yPos,
                 x2: 3, y2: yPos,
                 "stroke-width": 1,
-                stroke: seq.color()
+                stroke: color
             }).appendTo($e);
 
             _$svg("text", {
                 x: 5, y: yPos,
                 "alignment-baseline": "middle",
                 "font-size": "10px",
-                fill: seq.color()
+                fill: color,
+                opacity: .5
             }).append(tick.label).appendTo($e);
         });
+
+        return $e;
+    }
+
+    function _$getYDeltas(range) {
+        const $e = _$svg("g").attr("transform", `translate(${range.offsetX+1}, 0)`);
+        const color = range.seq.color();
+
+        const formatted = range.seq.formatY(range.range);
+        const $text = _$svg("text", {
+            x: 5, y: 4,
+            "alignment-baseline": "hanging",
+            "font-size": "10px",
+            fill: color,
+            opacity: 1
+        }).text(`Δ ${formatted}`).appendTo($e);
 
         return $e;
     }
@@ -1283,10 +1362,8 @@ function throttle(fn, speed) {
     var isQueued = false;
     var latestArgs = null;
     return function(){
-        if (isQueued) {
-            latestArgs = arguments;
-            return;
-        };
+        latestArgs = arguments;
+        if (isQueued) return;
 
         isQueued = true;
         setTimeout(() => {
