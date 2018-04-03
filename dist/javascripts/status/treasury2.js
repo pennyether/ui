@@ -1,5 +1,19 @@
 Loader.onWeb3Ready.then(()=>{
 	_initTotalProfits();
+
+	function formatEth(num) {
+		if (num.gt(1e12)) {
+			num = Math.round(num.div(1e18).toNumber());
+			return `${num.toLocaleString()} ETH`
+		} else if (num.gt(1e6)) {
+			num = Math.round(num.div(1e9).toNumber());
+			return `${num.toLocaleString()} gWei`;
+		} else {
+			num = Math.round(num.toNumber());
+			return `${num.toLocaleString()} wei`;	
+		}
+	}
+
 	function _initTotalProfits() {
 		// todo: implement for Treasury. Hard to test, though.
 		return Promise.all([
@@ -13,28 +27,48 @@ Loader.onWeb3Ready.then(()=>{
 			const graph = new EthGraph(_niceWeb3);
 			$e.find(".graph-ctnr").append(graph.$e);
 
-			const totalWeiWonAtBlock = (block) => {
+			const balance = (block) => {
 				block = Math.round(block);
-				// const sine = new BigNumber(Math.sin(block/100).toFixed(10));
-				// const bn = (new BigNumber(sine)).mul(6e25);
-				// return Promise.resolve(bn);
 				return _niceWeb3.ethUtil
-					.getStorageAt("0x048717Ea892F23Fb0126F00640e2b18072efd9D2", 14, block)
+					.getStorageAt("0x048717Ea892F23Fb0126F00640e2b18072efd9D2", 7, block)
 					.then(gwei => {
 						if (gwei == "0x") return null;
-						return (new BigNumber(gwei)).mul(1e9);
+						return new BigNumber(gwei);
+					});
+			}
+			const totalWagered = (block) => {
+				block = Math.round(block);
+				return _niceWeb3.ethUtil
+					.getStorageAt("0x048717Ea892F23Fb0126F00640e2b18072efd9D2", 15, block)
+					.then(gwei => {
+						if (gwei == "0x") return null;
+						return new BigNumber(gwei);
 					});
 			}
 			graph.init({
 				sequences: [{
-					name: "totalGWeiWon",
-					valFn: totalWeiWonAtBlock,
+					name: "balance",
+					valFn: balance,
 					showInPreview: true,
 					maxPoints: 20,
+					color: "blue",
+					yScaleHeader: "Total Wagered (ETH)",
+					yTickCount: 3,
+					yFormatFn: formatEth,
+				},{
+					name: "totalWagered",
+					valFn: totalWagered,
+					showInPreview: true,
+					maxPoints: 20,
+					color: "orange",
+					yScaleHeader: "Total Wagered (ETH)",
+					yTickCount: 3,
+					yFormatFn: formatEth,
 				}],
 				min: 5345000,
 				max: curBlock,
 				numPreviewPoints: 20,
+				xFormatFn: getDateOfBlock,
 				timeStrFn: (low, high) => {
 					return util.toTime(Math.round((high-low) * avgBlocktime));
 				}
