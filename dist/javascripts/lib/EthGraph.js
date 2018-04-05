@@ -20,6 +20,7 @@
         }
         .EthGraph > .preview-ctnr {
             height: 60px;
+            padding-top: 5px;
         }
         .EthGraph > .graph-ctnr .main-ctnr {
             background: radial-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,.2) 100%);
@@ -55,23 +56,24 @@
         
 
     .Preview {
-        border-top: 1px solid rgba(128,128,128,.2);
-        border-bottom: 1px solid rgba(128,128,128,.8);
-        background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,.2) 100%);
+        border-top: 1px solid rgba(128,128,128,.6);
         user-select: none;
     }
+        .Preview .SvgGraph .main-ctnr {
+            background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,.2) 100%);
+        }
         .Preview .window {}
         .Preview .window .view {
             cursor: move; /* fallback if grab cursor is unsupported */
             cursor: grab;
             cursor: -moz-grab;
             cursor: -webkit-grab;
-            background: rgba(0,0,255,.2);
+            background: rgba(0,0,0,.2);
             transition: background .3s;
         }
             .Preview:not(.resizing) .window .view:hover,
             .Preview.dragging .window .view {
-                background: rgba(0,0,255,.3);
+                background: rgba(0,0,0,.3);
             }
 
         .Preview .window .left-handle,
@@ -84,7 +86,7 @@
             .Preview .window .right-handle:hover,
             .Preview.resizing .window .left-handle,
             .Preview.resizing .window .right-handle {
-                background: rgba(0,0,128,.5);
+                background: rgba(0,0,0,.4);
             }
 
         .Preview .window .info-ctnr {
@@ -583,8 +585,8 @@ function Preview() {
         <div class="Preview" style="width: 100%; height: 100%;">
             <div class="window" style="position: absolute; height: 100%; top: 0; box-sizing: border-box;">
                 <div class="view" style="position: absolute; width: 100%; height: 100%; box-sizing: border-box;"></div>
-                <div class="left-handle" style="position: absolute; height: 100%; width: 3px; left: 0px;"></div>
-                <div class="right-handle" style="position: absolute; height: 100%; width: 3px; right: 0px"></div>
+                <div class="left-handle" style="position: absolute; height: 100%; width: 4px; left: 0px;"></div>
+                <div class="right-handle" style="position: absolute; height: 100%; width: 4px; right: 0px"></div>
                 <div class="info-ctnr" style="position: absolute;">
                     <div class="info">
                         <div>
@@ -1191,7 +1193,7 @@ function SvgGraph() {
             
             _$svg("line", {
                 x1: xPos, y1: 0,
-                x2: xPos, y2: 2,
+                x2: xPos, y2: 3,
                 "stroke-width": 1,
                 stroke: color
             }).appendTo($e);
@@ -1259,7 +1261,7 @@ function SvgGraph() {
         // draw background. it's width will be set externally.
         const gradientId = `gradient-${range.seq.name()}`;
         _$svg("linearGradient", {id: gradientId, x1: 0, x2: 1, y1: 0, y2: 0})
-            .append(_$svg("stop", {offset: "0%", "stop-color": color, "stop-opacity": .15}))
+            .append(_$svg("stop", {offset: "0%", "stop-color": color, "stop-opacity": .12}))
             .append(_$svg("stop", {offset: "100%", "stop-color": color, "stop-opacity": 0}))
             .appendTo($e);
         _$svg("rect", {
