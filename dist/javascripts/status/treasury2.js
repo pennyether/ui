@@ -1,106 +1,3 @@
-Loader.onWeb3Ready.then(()=>{
-	_initTotalProfits();
-
-	function _initTotalProfits() {
-		// todo: implement for Treasury. Hard to test, though.
-		var minBlockNum = 5345000;
-		var maxBlockNum = null;
-		_niceWeb3.ethUtil.getBlock("latest").then(b => {
-			maxBlockNum = b.number - 5;
-			return Promise.all([
-				_niceWeb3.ethUtil.getAverageBlockTime(),
-				_niceWeb3.ethUtil.getBlock(minBlockNum),
-				_niceWeb3.ethUtil.getBlock(maxBlockNum)
-			]);
-		}).then(arr=>{
-			const avgBlocktime = arr[0].toNumber();
-			const minBlock = arr[1];
-			const maxBlock = arr[2];
-
-			const $e = $(".total-profits");
-			const graph = new EthGraph(_niceWeb3);
-			$e.find(".graph-ctnr").append(graph.$e);
-
-			const balance = (block) => {
-				block = Math.round(block);
-				return _niceWeb3.ethUtil
-					.getStorageAt("0x048717Ea892F23Fb0126F00640e2b18072efd9D2", 7, block)
-					.then(gwei => {
-						if (gwei == "0x") return null;
-						return new BigNumber(gwei);
-					});
-			};
-			const totalWagered = (block) => {
-				block = Math.round(block);
-				return _niceWeb3.ethUtil
-					.getStorageAt("0x048717Ea892F23Fb0126F00640e2b18072efd9D2", 15, block)
-					.then(gwei => {
-						if (gwei == "0x") return null;
-						return new BigNumber(gwei);
-					});
-			};
-			const getFormattedTitle = (low, high) => {
-				return Promise.all([
-					_niceWeb3.ethUtil.getBlock(Math.round(low)),
-					_niceWeb3.ethUtil.getBlock(Math.round(high)),
-				]).then(arr => {
-					const lowBlock = arr[0];
-					const highBlock = arr[1];
-					const diff = highBlock.timestamp - lowBlock.timestamp;
-					const lowDateStr = util.toDateStr(lowBlock.timestamp, {scale: diff});
-					const highDateStr = util.toDateStr(highBlock.timestamp, {scale: diff});
-					const timeStr = util.toTime(diff);
-					return `<b>${lowDateStr}</b> to <b>${highDateStr}</b> (${timeStr})`;
-				});
-			};
-			const xTicks = (function(){
-				return [minBlock, maxBlock].map(b => {
-					return {
-						x: b.number,
-						label: util.toDateStr(b.timestamp, {second: null})
-					};
-				});
-			}());
-
-			graph.init({
-				sequences: [{
-					name: "balance",
-					valFn: balance,
-					showInPreview: true,
-					maxPoints: 20,
-					color: "blue",
-					yScaleHeader: "Contract Balance",
-					yTickCount: 3,
-					yFormatFn: util.toEthStr,
-				},{
-					name: "totalWagered",
-					valFn: totalWagered,
-					showInPreview: true,
-					maxPoints: 20,
-					color: "navy",
-					yScaleHeader: "Total Wagered",
-					yTickCount: 3,
-					yFormatFn: util.toEthStr,
-				}],
-				min: minBlock.number,
-				max: maxBlock.number,
-				previewXTicks: xTicks,
-				previewNumPoints: 20,
-				previewFormatFn: (low, high) => {
-					const num = Math.round(high-low).toLocaleString();
-					const timeStr = util.toTime(Math.round((high-low) * avgBlocktime));
-					return `${num} blocks. (~${timeStr})`;
-				},
-				titleFormatFn: getFormattedTitle,
-			});
-
-			const fourHoursInBlocks = 60*60*4 / avgBlocktime
-			graph.setView(maxBlock.number - fourHoursInBlocks, maxBlock.number);
-		});
-	}
-})
-
-/*
 Loader.require("reg", "comp", "tr")
 .then(function(reg, comp, tr){
 	ethUtil.getCurrentState().then(_refreshAll);
@@ -115,6 +12,7 @@ Loader.require("reg", "comp", "tr")
 			_refreshFundingStatus(),
 			_refreshGovernance(),
 			_refreshProfits(),
+			_refreshTotalProfits()
 		]).then(()=>{
 			_initTotalProfits();
 		});
@@ -166,7 +64,7 @@ Loader.require("reg", "comp", "tr")
 			const pct = reserve.div(expReserve);
 			$bar.show();
 			$barAmt.width(`${pct.toFixed()}%`);
-			$totalSupply.text(ethUtil.toEthStr(totalSupply));
+			$totalSupply.text(util.toEthStr(totalSupply));
 			if (reserve.gte(expReserve)) {
 				$met.show();
 			} else {
@@ -224,16 +122,15 @@ Loader.require("reg", "comp", "tr")
 			const $capTotal = $e.find(".cap-total");
 			const $tbody = $e.find(".table tbody");
 
-			const format = (v)=>ethUtil.toEthStr(v, 2, "", true);
-			$capAvailable.text(format(capAvailable));
-			$capAllocated.text(format(capAllocated));
-			$capRecallable.text(format(capRecallable));
-			$capTotal.text(format(capAvailable.plus(capRecallable)));
+			$capAvailable.text(util.toEthStr(capAvailable, ""));
+			$capAllocated.text(util.toEthStr(capAllocated, ""));
+			$capRecallable.text(util.toEthStr(capRecallable, ""));
+			$capTotal.text(util.toEthStr(capAvailable.plus(capRecallable), ""));
 
 			balances.forEach(obj=>{
 				const name = Loader.linkOf(obj.addr);
-				const allocated = _toEthStr(obj.allocated);
-				const recallable = _toEthStr(obj.recallable);
+				const allocated = util.toEthStr(obj.allocated);
+				const recallable = util.toEthStr(obj.recallable);
 				$tbody.append(`<tr><td>${name}</td><td>${allocated}</td><td>${recallable}</td></tr>`);
 			})
 		}
@@ -271,8 +168,8 @@ Loader.require("reg", "comp", "tr")
 			const $met = $e.find(".met").hide();
 			const $notmet = $e.find(".not-met").hide();
 
-			$targetTxt.text(ethUtil.toEthStr(capitalTarget));
-			$raisedTxt.text(ethUtil.toEthStr(capitalRaised));
+			$targetTxt.text(util.toEthStr(capitalTarget));
+			$raisedTxt.text(util.toEthStr(capitalRaised));
 			var max = BigNumber.max(capitalTarget, capitalRaised);
 			if (max.equals(0)) {
 				$targetAmt.width(0);
@@ -364,14 +261,14 @@ Loader.require("reg", "comp", "tr")
 				$e.find(".type").text(type);
 				if (type == "SendCapital"){
 					$e.find(".to-from").text("to");
-					$e.find(".eth").text(_toEthStr(r.value));
+					$e.find(".eth").text(util.toEthStr(r.value));
 				} else if (type == "RecallCapital") {
 					$e.find(".to-from").text("from");
-					$e.find(".eth").text(_toEthStr(r.value));
+					$e.find(".eth").text(util.toEthStr(r.value));
 				} else {
 					$e.find(".to-from").hide();
 					$e.find(".target").hide();
-					$e.find(".eth").text(_toEthStr(r.value));
+					$e.find(".eth").text(util.toEthStr(r.value));
 				}
 				$e.find(".target").text(target);
 				$e.find(".description").text(r.createdMsg);
@@ -448,7 +345,7 @@ Loader.require("reg", "comp", "tr")
 			const $tbody = $e.find(".table tbody").empty();
 			profits.forEach(obj => {
 				const name = Loader.linkOf(obj.address);
-				const val = _toEthStr(obj.profitsSent);
+				const val = util.toEthStr(obj.profitsSent);
 				const runrate = 
 				$tbody.append(`<tr><td>${name}</td><td>${val}</td></tr>`);
 			});
@@ -456,17 +353,114 @@ Loader.require("reg", "comp", "tr")
 	}
 
 	
+	function _initTotalProfits() {
+		// todo: implement for Treasury. Hard to test, though.
+		tr.getEvents("Created").then(arr=>{
+			const minBlockNum = arr[0].blockNumber;
+			return Promise.all([
+				_niceWeb3.ethUtil.getAverageBlockTime(),
+				ethUtil.getBlock(minBlockNum),
+			]);
+		}).then(arr => {
+			const avgBlocktime = arr[0].toNumber();
+			const minBlock = arr[1];
+			const maxBlock = ethUtil.getCurrentStateSync().latestBlock;
 
+			const $e = $(".total-profits");
+			const graph = new EthGraph(_niceWeb3);
+			$e.find(".graph-ctnr").append(graph.$e);
 
-	function _refreshXyz() {
-		const $e = $(".funding-status");
+			const profits = (block) => {
+				block = Math.round(block);
+				return _niceWeb3.ethUtil
+					.getStorageAt(tr.address, 16, block)
+					.then(gwei => {
+						if (gwei == "0x") return null;
+						return new BigNumber(gwei);
+					});
+			};
+			const dividends = (block) => {
+				block = Math.round(block);
+				return _niceWeb3.ethUtil
+					.getStorageAt(tr.address, 15, block)
+					.then(gwei => {
+						if (gwei == "0x") return null;
+						return new BigNumber(gwei);
+					});
+			};
+			const getFormattedTitle = (low, high) => {
+				return Promise.all([
+					_niceWeb3.ethUtil.getBlock(Math.round(low)),
+					_niceWeb3.ethUtil.getBlock(Math.round(high)),
+				]).then(arr => {
+					const lowBlock = arr[0];
+					const highBlock = arr[1];
+					const diff = highBlock.timestamp - lowBlock.timestamp;
+					const lowDateStr = util.toDateStr(lowBlock.timestamp, {scale: diff});
+					const highDateStr = util.toDateStr(highBlock.timestamp, {scale: diff});
+					const timeStr = util.toTime(diff);
+					return `<b>${lowDateStr}</b> to <b>${highDateStr}</b> (${timeStr})`;
+				});
+			};
+			const xTicks = (function(){
+				return [minBlock, maxBlock].map(b => {
+					return {
+						x: b.number,
+						label: util.toDateStr(b.timestamp, {second: null})
+					};
+				});
+			}());
+
+			graph.init({
+				sequences: [{
+					name: "profits",
+					valFn: profits,
+					showInPreview: true,
+					maxPoints: 20,
+					color: "blue",
+					yScaleHeader: "Profits",
+					yTickCount: 3,
+					yFormatFn: util.toEthStr,
+				},{
+					name: "dividends",
+					valFn: dividends,
+					showInPreview: true,
+					maxPoints: 20,
+					color: "navy",
+					yScaleHeader: "Dividends",
+					yTickCount: 3,
+					yFormatFn: util.toEthStr,
+				}],
+				min: minBlock.number,
+				max: maxBlock.number,
+				previewXTicks: xTicks,
+				previewNumPoints: 20,
+				previewFormatFn: (low, high) => {
+					const num = Math.round(high-low).toLocaleString();
+					const timeStr = util.toTime(Math.round((high-low) * avgBlocktime));
+					return `${num} blocks. (~${timeStr})`;
+				},
+				titleFormatFn: getFormattedTitle,
+			});
+
+			const dayInBlocks = 60*60*24 / avgBlocktime;
+			graph.setView(maxBlock.number - dayInBlocks, maxBlock.number);
+		});
+	}
+	function _refreshTotalProfits() {
+		const $e = $(".total-profits");
 		const $loading = $e.find(".loading").show();
 		const $error = $e.find(".error").hide();
 		const $doneLoading = $e.find(".done-loading").hide();
 
-		Promise.all([
+		var profits, dividends;
+		return Promise.all([
+			tr.profitsTotal(),
+			tr.profitsSent()
 		]).then(arr => {
-
+			profits = arr[0];
+			dividends = arr[1];
+			doRefresh();
 		}).then(()=>{
 			$loading.hide();
 			$doneLoading.show();
@@ -475,10 +469,40 @@ Loader.require("reg", "comp", "tr")
 			$error.show();
 			$error.find(".error-msg").text(e.message);
 		});
+
+		function doRefresh() {
+			const $profits = $e.find(".profits");
+			const $divs = $e.find(".dividends");
+			$profits.text(util.toEthStr(profits, ""));
+			$divs.text(util.toEthStr(dividends, ""));
+		}
 	}
 
-	function _toEthStr(amt) {
-		return ethUtil.toEthStr(amt, 2, "Eth", true);
+
+	function _refreshXyz() {
+		const $e = $(".funding-status");
+		const $loading = $e.find(".loading").show();
+		const $error = $e.find(".error").hide();
+		const $doneLoading = $e.find(".done-loading").hide();
+
+		// var foo;
+		Promise.all([
+		]).then(arr => {
+
+			doRefresh();
+		}).then(()=>{
+			$loading.hide();
+			$doneLoading.show();
+		}, e=>{
+			$loading.hide();
+			$error.show();
+			$error.find(".error-msg").text(e.message);
+		});
+
+		// const $foo = ...
+		function doRefresh() {
+
+		}
 	}
 });
-*/
+

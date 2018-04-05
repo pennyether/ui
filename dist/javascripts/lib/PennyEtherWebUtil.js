@@ -150,18 +150,19 @@
 				{label: "w", seconds: 60*60*24*7},
 				{label: "d", seconds: 60*60*24},
 				{label: "h", seconds: 60*60},
-				{label: "m", seconds: 60}
+				{label: "m", seconds: 60},
+				{label: "s", seconds: 1}
 			];
 
 			var chunks = [];
-			var count = 0;
+			var numUnitsDisplayed = 0;
 			units.forEach(obj => {
-				if (count >= numUnits) return;
+				if (numUnitsDisplayed >= numUnits) return;
 				const val = timeS.div(obj.seconds).floor();
 				timeS = timeS.minus(val.mul(obj.seconds));
-				if (val.gt(0) || count>0) {
+				if (val.gt(0) || numUnitsDisplayed>0 || (obj.label=="s" && numUnitsDisplayed==0)) {
 					chunks.push(`${val}${obj.label}`);
-					count++;
+					numUnitsDisplayed++;
 				}
 			});
 			return chunks.join(" ");
@@ -172,6 +173,7 @@
 			catch (e) { throw new Error(`${wei} is not convertable to a BigNumber`); }
 			if (unit === undefined) unit = "ETH";
 
+			// scale down "wei" to proper unit (at least .100 of the unit)
 			var dispNum, dispUnit;
 			if (wei.abs().gt(1e17)) {
 				dispNum = wei.div(1e18);
@@ -187,10 +189,12 @@
 				dispUnit = unit=="ETH" ? `wei` : `wei-${unit}`;
 			}
 
+			// Show up to three decimals, eg: "123" "12.3" "1.23" ".123"
 			var maxDecimals;
 			const numDigits = Math.ceil(Math.log10(dispNum.abs().toNumber()));
 			if (numDigits > 0) maxDecimals = Math.max(3 - numDigits, 0);
 			else maxDecimals = 3;
+			// Format the number to locale. No idea why win.nav.lang isn't the default.
 			var ethStr = dispNum.toNumber().toLocaleString(window.navigator.language, {
 				maximumFractionDigits: maxDecimals,
 			});

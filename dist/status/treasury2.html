@@ -119,6 +119,27 @@
 						text-align: right;
 					}
 
+			.cell .blob {
+				margin: 5px;
+				padding: 3px;
+				border-radius: 3px;
+				background: #CCC;
+				text-align: center;
+				white-space: nowrap;
+			}
+				.cell .blob .label {
+					color: black;
+					font-size: 80%;
+				}
+				.cell .blob .value {
+					font-size: 140%;
+					text-shadow: 1px 1px 1px rgba(255,255,255,1);
+					padding-top: 2px;
+					padding-bottom: 0px;
+				}
+				.cell .blob .eth {
+					font-size: 60%;
+				}
 
 			.reserve .not-applicable {
 				text-align: center;
@@ -147,27 +168,6 @@
 					font-size: 90%;
 					text-align: center;
 					color: white;
-				}
-
-			.allocation .blob {
-				margin: 5px;
-				padding: 3px;
-				border-radius: 3px;
-				background: #CCC;
-				text-align: center;
-				white-space: nowrap;
-			}
-				.allocation .blob .label {
-					color: #444;
-					font-size: 80%;
-				}
-				.allocation .blob .value {
-					font-size: 120%;
-					padding-top: 2px;
-					padding-bottom: 2px;
-				}
-				.allocation .blob .eth {
-					font-size: 70%;
 				}
 
 			.governance .requests {
@@ -404,9 +404,19 @@
 							</span>
 						</div>
 						<div class="body">
-							<div>Total Profits: (all time dividends)</div>
-							<div>Total Dividends: (all time dividends)</div>
-							<div class="graph-ctnr"></div>
+							<div class="blob-ctnr" style="text-align: center;">
+								<div class="blob" style="display: inline-block; margin-right: 10px;">
+									<div class="label">Total Profits</div>
+									<div class="value profits"></div>
+									<div class="eth">ETH</div>
+								</div>
+								<div class="blob" style="display: inline-block">
+									<div class="label">Total Dividends</div>
+									<div class="value dividends"></div>
+									<div class="eth">ETH</div>
+								</div>
+							</div>
+							<div class="graph-ctnr" style="margin-top: 5px;"></div>
 						</div>
 					</div></td>
 				</tr></table>

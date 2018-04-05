@@ -1278,7 +1278,7 @@ function SvgGraph() {
 
         // create a circle for each point, and draw lines between points.
         var prevPt = null;
-        const xs = Object.keys(domain.points).sort().reverse();
+        const xs = Object.keys(domain.points).sort((a,b)=>a-b).reverse();
         xs.forEach(x => {
             const point = domain.points[x];
             //const x = point.x;
