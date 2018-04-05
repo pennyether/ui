@@ -617,6 +617,27 @@ body.dark {
 		font-size: 80%;
 		padding: 2px 5px;
 	}
+	.LogViewer .event-value{}
+		.LogViewer .event-name {
+			font-weight: bold;
+		}
+		.LogViewer .event-args {
+			font-size: 90%;
+		}
+			.LogViewer .event-arg {
+				display: inline-block;
+				padding-right: 1em;
+			}
+			.LogViewer .event-arg-name {
+				display: inline-block;
+				color: black;
+			}
+			.LogViewer .event-arg-value {
+				display: inline-block;
+				padding-left: .5em;
+				color: #888;
+				text-shadow: 1px 1px 0px rgba(255,255,255,.8);
+			}
 
 
 

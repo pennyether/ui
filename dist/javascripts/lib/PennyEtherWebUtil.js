@@ -295,15 +295,12 @@
 				}
 			},{ ... }],
 			$head: content to put into head
-			// which order to retrieve logs
+			// which order to retrieve and display logs
 			order: 'newest' || 'oldest',
-			// if set to true, will scan all blocks in one request.
-			// useful for things with not an absurd amount of events.
-			allAtOnce: false
-			// if order == 'oldest', must be provided
-			startBlock: [current block],
-			// if order == 'newest', tells LogViewer when to stop looking
-			stopFn: (event)=>true/false of should stop
+			// if true, ignores min/max block. gets all logs in one request.
+			allAtOnce: false,
+			maxBlock: <currentBlock>,
+			minBlock: <maxBlock - 500,000>,
 			// formatting fns
 			dateFn: (event, prevEvent, nextEvent)=>{str}
 			valueFn: (event)=>{str}
@@ -323,34 +320,29 @@
 				<div class='status'></div>
 			</div>
 		`);
-		if (!opts.order) opts.order = 'newest';
-		if (!opts.events) throw new Error(`Must provide "events" option.`);
-		if (opts.order=='oldest' && !opts.startBlock) throw new Error(`Must provide "startBlock"`);
 		const _$logs = _$e.find(".logs").bind("scroll", _checkScroll)
 		const _$head = _$e.find(".head");
 		const _$table = _$e.find("table");
 		const _$empty = _$e.find(".empty");
 		const _$status = _$e.find(".status");
 
-		const _order = opts.order;
+		if (!opts.order) opts.order = 'newest';
+		if (!opts.events) throw new Error(`Must provide "events" option.`);
+		const _order = opts.order || "newest";
 		const _allAtOnce = opts.allAtOnce || false;
-		const _startBlock = opts.startBlock || ethUtil.getCurrentBlockHeight().toNumber();
-		const _endBlock = _order == 'newest'
-			? Math.max(0, _startBlock - _MAX_SEARCH)
-			: _startBlock + _MAX_SEARCH;
-		const _stopFn = opts.stopFn || function(){};
+		const _maxBlock = opts.maxBlock || ethUtil.getCurrentBlockHeight().toNumber();
+		const _minBlock = opts.minBlock || _maxBlock - _MAX_SEARCH;
 		const _dateFn = opts.dateFn || _defaultDateFn;
 		const _valueFn = opts.valueFn || _defaultValueFn;
 
 		var _isDone = false;
 		var _isLoading = false;
-		var _prevBlock = _startBlock;	// the previously loaded block
+		var _prevFromBlock = _order=='newest' ? _maxBlock+1 : null;
+		var _prevToBlock = _order=='oldest' ? _minBlock-1 : null;
 		var _prevEvent = null;			// the previously loaded event
 		var _$prevDateTd = null;		// the date cell of the _prevEvent
 		var _leastFromBlock = Infinity;
-		var _greatestToBlock = -1;
-		
-		var _requestCount = 0;
+		var _greatestToBlock = 0;
 
 		function _checkScroll() {
 			if (_isDone || _isLoading) return;
@@ -381,35 +373,33 @@
   			});
 		}
 
+		// Loads _BLOCKS_PER_SEARCH at a time, until events are found or until
+		// it is "done", that is, the search chunk exceeds _minBlock or _maxBlock.
 		function _loadMoreEvents() {
 			// return if _isDone or _isLoading
 			if (_isDone || _isLoading) return Promise.resolve([]);
+
 			// compute from/to block
 			var fromBlock, toBlock;
 			if (_allAtOnce) {
-	  			fromBlock = 0;
-	  			toBlock = ethUtil.getCurrentBlockHeight().toNumber();
+	  			fromBlock = _minBlock;
+	  			toBlock = _maxBlock;
 	  			_isDone = true;
 	  		} else {
 	  			if (_order == 'newest'){
-					toBlock = _prevBlock;
-					fromBlock = Math.max(_prevBlock - (_BLOCKS_PER_SEARCH-1), 0);
-	  				_prevBlock = fromBlock - 1;
-	  				if (fromBlock <= _endBlock) _isDone = true;
+	  				// search to where the last chunk started
+	  				toBlock = _prevFromBlock - 1;
+					fromBlock = Math.max(_prevToBlock - _BLOCKS_PER_SEARCH, _minBlock);
+	  				if (fromBlock <= _minBlock) _isDone = true;
 	  			} else {
-	  				fromBlock = _prevBlock;
-	  				toBlock = fromBlock + (_BLOCKS_PER_SEARCH-1);
-	  				_prevBlock = toBlock + 1;
-	  				if (toBlock >= _endBlock) _isDone = true;
+	  				// search from where the last chunk ended
+	  				fromBlock = _prevToBlock + 1;
+	  				toBlock = Math.min(fromBlock + _BLOCKS_PER_SEARCH, _maxBlock);
+	  				if (toBlock >= _maxBlock) _isDone = true;
 	  			}
 	  		}
-	  		_greatestToBlock = Math.max(toBlock, _greatestToBlock);
-	  		_leastFromBlock = Math.min(fromBlock, _leastFromBlock);
 
-			// show that we're loading
-			_isLoading = true;
-			_$status.text(`Scanning blocks: ${fromBlock} - ${toBlock}...`);
-  			// get promises for all events
+  			// get promise for each event name
   			const promises = opts.events.map((ev)=>{
   				if (!ev.instance) throw new Error(`opts.events.instance not defined.`);
   				if (!ev.name) throw new Error(`opts.events.name not defined.`);
@@ -417,23 +407,29 @@
   					? ev.instance.getAllEvents(fromBlock, toBlock)
   					: ev.instance.getEvents(ev.name, ev.filter, fromBlock, toBlock);
   			});
-  			// concat all events, and sort. if none, try again in prev blocks
+
+  			// show that we're loading, update least/greatest
+			_isLoading = true;
+			_$status.text(`Scanning blocks: ${fromBlock} - ${toBlock}...`);
+			_leastFromBlock = Math.min(_leastFromBlock, fromBlock);
+	  		_greatestToBlock = Math.max(_greatestToBlock, toBlock);
+
+  			// concat all events, and sort. if none, try again
   			return Promise.all(promises).then((arr)=>{
-  				function order(bool) {
-  					return _order=='newest'
-  						? bool ? -1 : 1
-  						: bool ? 1 : -1;
-  				}
   				_isLoading = false;
   				_$status.text(`Scanned blocks: ${_leastFromBlock} - ${_greatestToBlock}.`);
 
+  				// create events array, order by blockNumber / logIndex. (reverse for newest)
   				var allEvents = [];
-  				arr.forEach((events)=>{ allEvents = allEvents.concat(events) });
+  				arr.forEach((events) => { allEvents = allEvents.concat(events) });
   				allEvents.sort((a,b)=>{
 					return a.blockNumber == b.blockNumber
-						? order(a.logIndex > b.logIndex)
-						: order(a.blockNumber > b.blockNumber)
+						? a.logIndex - b.logIndex
+						: a.blockNumber - b.blockNumber;
 				});
+				if (_order=="newest") allEvents.reverse();
+
+				// If there were no events, try to load more
   				return allEvents.length > 0
   					? allEvents
   					: _loadMoreEvents();
@@ -447,32 +443,37 @@
 			return util.$getTxLink(dateStr, e.transactionHash);
 		}
 		function _defaultValueFn(e) {
-			var $argVals;
+			var $argVals = {};
 			if (!e.args) {
-				$argVals = [$("<span></span>").text("Unable to decode data.")];
+				$argVals["Error"] = "Unable to decode data.";
 			} else {
-				$argVals = Object.keys(e.args || [])
-					.filter(name=>name!=="time")
+				Object.keys(e.args || [])
+					.filter(name=>name !== "time")
 					.map(name=>{
 						var eventDef = opts.events.find(def => def.name===e.name);
 						if (!eventDef) eventDef = opts.events.find(def => def.name=="all");
-						const formatter = (eventDef.formatters || {})[name] || _defaultFormatter;
-						return formatter(e.args[name], name);
+						const defaultValue = _defaultFormatter(e.args[name], name);
+						$argVals[name] = eventDef.formatters && eventDef.formatters[name]
+							? eventDef.formatters[name](e.args[name], name, defaultValue)
+							: defaultValue;
 					})
 					.filter(str => !!str);
 			}
 			
-			const $e = $("<div></div>").append(`<b>${e.name}</b> - `);
-			$argVals.forEach(($v,i)=>{
-				if (i!==0) $e.append(", ");
-				$e.append($v)
+			const $e = $("<div class='event-value'></div>");
+			const $name = $("<div class='event-name'></div>").text(e.name).appendTo($e);
+			const $vals = $("<div class='event-args'></div>").appendTo($e);
+			Object.keys($argVals).forEach(name => {
+				const $arg = $("<span class='event-arg'></span>").appendTo($vals);
+				$("<span class='event-arg-name'></span>").text(`${name}:`).appendTo($arg)
+				$("<span class='event-arg-value'></span>").append($argVals[name]).appendTo($arg);
 			});
 			return $e;
 		}
 		function _defaultFormatter(val, name) {
-			const $e = $("<span></span>").append(`<b>${name}</b>: `);
+			const $e = $("<span></span>");
 			if (val.toNumber && val.gt(1000000000)){
-				$e.append(ethUtil.toEthStr(val));	
+				$e.append(util.toEthStr(val));	
 			} else if (!val.toNumber && val.toString().length==42) {
 				$e.append(util.$getShortAddrLink(val));
 			} else if (!val.toNumber && val.toString().length==66) {
