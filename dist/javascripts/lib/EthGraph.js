@@ -44,6 +44,12 @@
             text-align: center;
             padding: 2px 0px;
         }
+        .EthGraph .Preview .sequence line {
+            stroke-width: 1px;
+        }
+        .EthGraph .Preview .sequence circle {
+            r: 1px;
+        }
         
 
     .Preview {
@@ -155,7 +161,7 @@ function EthGraph(niceWeb3) {
 	const _$e = $(`
 		<div class="EthGraph">
 			<div class="graph-ctnr"></div>
-			<div class="preview-ctnr"></div>
+			<div class="preview-ctnr" style="overflow: hidden;"></div>
 		</div>
 	`);
     const _$graphCtnr = _$e.find(".graph-ctnr");
@@ -195,10 +201,12 @@ function EthGraph(niceWeb3) {
         _graph.init({
             name: "MainGraph",
             sequences: graphSequences,
-            allowHover: true,
+            titleFormatFn: params.titleFormatFn,
             showInfo: true,
-            showScales: true,
-            titleFormatFn: params.titleFormatFn
+            showYScales: true,
+            showXScale: true,
+            allowHover: true,
+            allowMoving: true
         });
         _graph.onBoundsChanged((newLow, newHigh, type) => {
             _preview.setView(newLow, newHigh, type=="move");
@@ -647,7 +655,7 @@ function Preview() {
             _set$View(startLow, startHigh + shift, false);
         }
 
-        Draggable({
+        const moveDrag = Draggable({
             $e: _$view,
             onDragStart: ()=>onDragStart("dragging"),
             onDragEnd: ()=>onDragEnd("dragging"),
@@ -664,6 +672,20 @@ function Preview() {
             onDragStart: ()=>onDragStart("resizing"),
             onDragEnd: ()=>onDragEnd("resizing"),
             onDrag: growRight
+        });
+        _$e.on("mousedown", function(ev){
+            // set view to be centered on this point.
+            const getXFromOffset = (offsetX) => {
+                const pctLeft = offsetX / _$e.width();
+                return _min + pctLeft * (_max - _min);
+            };
+            const windowWidth = _$window.width();
+            const low = getXFromOffset(ev.offsetX - windowWidth/2);
+            const high = getXFromOffset(ev.offsetX + windowWidth/2);
+            _set$View(low, high, true);
+            
+            // start moving.
+            moveDrag.startDragging(ev);
         });
     }());
 
@@ -694,12 +716,15 @@ function Preview() {
         _graph.init({
             name: "Preview",
             sequences: _sequences,
-            allowHover: false,
+            titleFormatFn: ()=>{},
             showInfo: false,
-            showScales: false,
-            titleFormatFn: ()=>{}
+            showYScales: false,
+            showXScale: true,
+            allowHover: false,
+            allowMoving: false
         });
         _graph.setBounds(_min, _max);
+        _$window.appendTo(_graph.$e.find(".main-ctnr").css("position", "relative"));
     };
 
     /*
@@ -784,12 +809,14 @@ function Preview() {
 */
 function SvgGraph() {
     // Set via init.
-    var _name;
     var _sequences;
-    var _allowHover;
-    var _showScales;
-    var _showInfo;
+    var _name;
     var _titleFormatFn;
+    var _showYScales;
+    var _showXScale;
+    var _showInfo;
+    var _allowHover;
+    var _allowMoving;
 
     // Current bounds, and display
     var _low;
@@ -800,7 +827,7 @@ function SvgGraph() {
     var _boundsChangedCb = (newLow, newHigh, type)=>{};
 
     const _$e = $(
-        `<div class="SvgGraph" style="width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; user-select: none;">
+        `<div class="SvgGraph" style="width: 100%; height: 100%; display: flex; flex-direction: column; user-select: none;">
             <div class="info-ctnr" style="display: flex;">
                 <div style="flex-grow: 1; text-align: center;">
                     <div class="title">
@@ -808,18 +835,18 @@ function SvgGraph() {
                         <div class="deltas"></div>
                     </div>
                 </div>
-                <div class="legend" style="text-align: center;">
+                <div class="legend" style="flex-shrink: 0; text-align: center;">
                 </div>
             </div>
             <div style="flex-grow: 1; display: flex;">
                 <div class="main-ctnr" style="flex-grow: 1;">
                     <svg class="graphs" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"></svg>
                 </div>
-                <div class="y-scale-ctnr">
+                <div class="y-scale-ctnr" style="flex-shrink: 0;">
                     <svg class="y-scales" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"></svg>
                 </div>
             </div>
-            <div class="x-scale-ctnr" style="display: flex; height: 20px;">
+            <div class="x-scale-ctnr" style="flex-shrink: 0; height: 15px; display: flex; ">
                 <div style="flex-grow: 1;">
                     <svg class="x-scale" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
                 </div>
@@ -844,7 +871,7 @@ function SvgGraph() {
     var _$yScalesHover = _$svg("g");
     var _$xScaleHover = _$svg("g");
 
-    (function initDragging(){
+    function _initDragging(){
         var startHigh, startLow, pixelsPerX;
         Draggable({
             $e: _$graphs,
@@ -859,9 +886,9 @@ function SvgGraph() {
                 _boundsChangedCb(startLow + deltaX, startHigh + deltaX, "move");
             }
         })
-    }());
+    };
 
-    (function initScrolling(){
+    function _initScrolling(){
         _$graphs.bind("wheel mousewheel", function(ev) {
             ev.preventDefault();
             var delta = parseInt(ev.originalEvent.wheelDelta || -ev.originalEvent.detail);
@@ -875,9 +902,9 @@ function SvgGraph() {
             const newHigh = _high + (deltaRange * (1-pctLow));
             _boundsChangedCb(newLow, newHigh, "zoom");
         });
-    }());
+    };
 
-    (function initHover(){
+    function _initHover(){
         _$graphs.on("mousemove", function(ev){
             _setHoverPt(ev.offsetX, ev.offsetY);
             _refreshHoverThrottled();
@@ -886,28 +913,41 @@ function SvgGraph() {
             _setHoverPt(null, null);
             _refreshHoverThrottled();
         });
-    }());
+    };
 
     this.setParent = function($parent) {
         _$parent = $parent;
     };
     this.init = function(params) {
-        ["sequences", "name", "allowHover", "showInfo", "showScales", "titleFormatFn"].forEach(name => {
+        ["sequences", "name", "titleFormatFn",
+         "showInfo", "showYScales", "showXScale",
+         "allowHover", "allowMoving"].forEach(name => {
             if (params[name]===undefined) throw new Error(`SvgGraph must be passed "${name}"`);
         })
         _name = params.name;
         _sequences = params.sequences;
-        _allowHover = params.allowHover;
-        _showInfo = params.showInfo;
-        _showScales = params.showScales;
         _titleFormatFn = params.titleFormatFn;
+        _allowHover = params.allowHover;
+        _allowMoving = params.allowMoving;
+        _showInfo = params.showInfo;
+        _showYScales = params.showYScales;
+        _showXScale = params.showXScale;
 
         if (!_showInfo) {
             _$infoCtnr.hide();
         }
-        if (!_showScales) {
-            _$xScaleCtnr.hide();
+        if (!_showYScales) {
             _$yScaleCtnr.hide();
+        }
+        if (!_showXScale) {
+            _$xScaleCtnr.hide();
+        }
+        if (_allowMoving) {
+            _initDragging();
+            _initScrolling();
+        }
+        if (_allowHover) {
+            _initHover();
         }
 
         _sequences.forEach(seq => {
@@ -936,10 +976,6 @@ function SvgGraph() {
     function _refresh() {
         if (!_$e.is(":visible"))
             throw new Error(`Not refreshable unless visible.`);
-
-        _$graphs.empty();
-        _$yScales.empty();
-        _$xScale.empty();
 
         // create domain and range, with .getYPos and .getXPos
         _display = [];
@@ -986,7 +1022,14 @@ function SvgGraph() {
             });
         });
 
-        if (_showScales) {
+        // draw each graph in reverse
+        _$graphs.empty();
+        _display.slice().reverse().forEach(disp => {
+            const $graph = _$getSequence(disp.seq, disp.domain, disp.range)
+                .appendTo(_$graphs);
+        });
+        if (_showYScales) {
+            _$yScales.empty();
             // Draw each yScale, setting the range offsetX each time.
             var offsetX = 0;
             _display.forEach(disp => {
@@ -999,7 +1042,9 @@ function SvgGraph() {
             _$yScales.width(`${offsetX}px`);
             _$bottomRight.width(`${offsetX}px`);
             _$legend.width(`${offsetX}px`);
-                
+        }
+        if (_showXScale) {
+            _$xScale.empty();
             // Draw ticks on the graph and on xScale
             const domain = _display[0].domain;
             _$getXScale(domain).appendTo(_$xScale);
@@ -1012,15 +1057,9 @@ function SvgGraph() {
                     x2: xPos, y2: "100%",
                     "stroke-width": 1,
                     stroke: "rgba(0,0,0,.1)"
-                }).appendTo(_$graphs);
-            })
+                }).prependTo(_$graphs);
+            });
         }
-
-        // draw each graph in reverse
-        _display.slice().reverse().forEach(disp => {
-            const $graph = _$getGraph(disp.seq, disp.domain, disp.range)
-                .appendTo(_$graphs);
-        });
 
         // draw deltas
         _$deltas.empty();
@@ -1179,7 +1218,9 @@ function SvgGraph() {
     }
 
     function _$getYScale(range) {
-        const $e = _$svg("g").attr("transform", `translate(${range.offsetX+1}, 0)`);
+        const $e = _$svg("g")
+            .addClass("y-scale")
+            .attr("transform", `translate(${range.offsetX+1}, 0)`);
 
         const color = range.seq.color();
 
@@ -1228,8 +1269,8 @@ function SvgGraph() {
         return $e;
     }
 
-    function _$getGraph(seq, domain, range) {
-        const $e = _$svg("g");
+    function _$getSequence(seq, domain, range) {
+        const $e = _$svg("g").addClass("sequence");
 
         // create a circle for each point, and draw lines between points.
         var prevPt = null;
@@ -1338,6 +1379,7 @@ function Draggable(opts) {
 
     var _startX, _startY;
     function startDragging(ev) {
+        ev.preventDefault(); ev.stopPropagation();
         _startX = ev.pageX;
         _startY = ev.pageY;
         $(document).bind("mousemove", drag)
@@ -1345,18 +1387,24 @@ function Draggable(opts) {
         _$e.unbind("mousedown", startDragging);
         _onDragStart();
     }
-    function stopDragging() {
+    function stopDragging(ev) {
+        ev.preventDefault(); ev.stopPropagation();
         $(document).unbind("mousemove", drag);
         $(document).unbind("mouseup", stopDragging);
         _$e.bind("mousedown", startDragging);
         _onDragEnd();
     }
     function drag(ev) {
+        ev.preventDefault(); ev.stopPropagation();
         const deltaX = ev.pageX - _startX;
         const deltaY = ev.pageY - _startY;
         _onDrag(deltaX, deltaY);
     }
     _$e.bind("mousedown", startDragging);
+
+    return {
+        startDragging: (ev) => startDragging(ev)
+    };
 }
 
 // Calls fn at most once per "speed"-ms, and calls it with latest args.

@@ -15,11 +15,8 @@ Loader.onWeb3Ready.then(()=>{
 			$e.find(".graph-ctnr").append(graph.$e);
 
 			const format = (y) => {
-				try {
-					return util.toEthStr(y);
-				} catch(e) {
-					console.error(e);
-				}
+				try { return util.toEthStr(y); }
+				catch(e) { console.error(e); }
 			}
 			const balance = (block) => {
 				block = Math.round(block);
