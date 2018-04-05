@@ -189,7 +189,7 @@
 					clearTimeout(timeout); 
 					if (err){ reject(err); }
 					if (result!==null){ resolve(result); }
-					reject(new Error(`"web3.${moduleName}.${name}" returned null.`));
+					reject(new Error(`"web3.${moduleName}.${fnName}" returned null.`));
 				}
 				_web3[moduleName][fnName].apply(_web3.eth, args.concat(callback));
 			}).catch(e=>{
@@ -378,6 +378,7 @@
 			return bn.div(1e18);
 		}
 		this.toEthStr = function(wei, digits, unit, trimZeros) {
+			console.warn("Use util.toEthStr instead");
 			if (digits===undefined) digits = 4;
 			if (unit===undefined) unit = "Ether";
 			var eth = _self.toEth(wei);
