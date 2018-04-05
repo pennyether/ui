@@ -43,6 +43,8 @@
         .EthGraph > .graph-ctnr .info-ctnr .legend {
             text-align: center;
             padding: 2px 0px;
+            font-size: 90%;
+            margin-bottom: 3px;
         }
         .EthGraph .Preview .sequence line {
             stroke-width: 1px;
@@ -53,33 +55,13 @@
         
 
     .Preview {
-        position: relative;
-        width: 100%;
-        height: 100%;
         border-top: 1px solid rgba(128,128,128,.2);
         border-bottom: 1px solid rgba(128,128,128,.8);
         background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,.2) 100%);
         user-select: none;
     }
-        .Preview .mini-graph {
-            height: 100%;
-            width: 100%;
-        }
-        .Preview .window {
-            box-sizing: border-box;
-            position: absolute;
-            height: 100%;
-            width: 20%;
-            left: 50px;
-            top: 0;
-        }
+        .Preview .window {}
         .Preview .window .view {
-            box-sizing: border-box;
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
             cursor: move; /* fallback if grab cursor is unsupported */
             cursor: grab;
             cursor: -moz-grab;
@@ -94,10 +76,6 @@
 
         .Preview .window .left-handle,
         .Preview .window .right-handle {
-            position: absolute;
-            top: 0;
-            height: 100%;
-            width: 3px;
             background: rgba(0,0,0,.2);
             cursor: ew-resize;
             transition: background .3s;
@@ -108,15 +86,8 @@
             .Preview.resizing .window .right-handle {
                 background: rgba(0,0,128,.5);
             }
-        .Preview .window .left-handle {
-            left: 0;
-        }
-        .Preview .window .right-handle {
-            right: 0;
-        }
 
         .Preview .window .info-ctnr {
-            position: absolute;
             pointer-events: none;
             text-align: center;
             top: -20px;
@@ -137,6 +108,7 @@
                 white-space: nowrap;
                 padding: 2px 4px;
                 border-radius: 5px;
+                border: 1px solid gray;
                 box-shadow: 3px 3px 3px 0px rgba(0,0,0,.2);
                 background: linear-gradient(to bottom, #CCC 0%, #999 100%);
             }
@@ -161,7 +133,7 @@ function EthGraph(niceWeb3) {
 	const _$e = $(`
 		<div class="EthGraph">
 			<div class="graph-ctnr"></div>
-			<div class="preview-ctnr" style="overflow: hidden;"></div>
+			<div class="preview-ctnr"></div>
 		</div>
 	`);
     const _$graphCtnr = _$e.find(".graph-ctnr");
@@ -184,7 +156,8 @@ function EthGraph(niceWeb3) {
             - previewFormatFn
     */
 	this.init = function(params) {
-        ["sequences", "min", "max", "previewNumPoints", "previewFormatFn", "titleFormatFn"].forEach(name => {
+        ["sequences", "min", "max", "titleFormatFn", 
+        "previewXTicks", "previewNumPoints", "previewFormatFn", ].forEach(name => {
             if (params[name]===undefined) throw new Error(`EthGraph must be passed "${name}"" param`);
         });
 
@@ -202,6 +175,7 @@ function EthGraph(niceWeb3) {
             name: "MainGraph",
             sequences: graphSequences,
             titleFormatFn: params.titleFormatFn,
+            xTicks: null,
             showInfo: true,
             showYScales: true,
             showXScale: true,
@@ -230,7 +204,8 @@ function EthGraph(niceWeb3) {
             min: params.min,
             max: params.max,
             numPoints: params.previewNumPoints,
-            formatFn: params.previewFormatFn
+            formatFn: params.previewFormatFn,
+            xTicks: params.previewXTicks
         });
         _preview.onViewChanged((view)=>{
             _graph.setBounds(view.low, view.high);
@@ -353,6 +328,7 @@ function PromiseQueue(maxConcurrency, maxQueueSize) {
                 - range: max - min
                 - points: An object mapped by x value, containing a y value
                           or null if it is loading.
+                - ticks: Nicely spaced ticks - {y, label}
         .getRange()
             Returns information about the currenet range:
                 - isUndefined: true if no loaded points
@@ -360,7 +336,7 @@ function PromiseQueue(maxConcurrency, maxQueueSize) {
                 - max: highest y value
                 - range: max - min, or null if isUndefined
                 - delta: last - first, or null if isUndefined
-                - ticks: An array of nice ticks - {y, label}
+                - ticks: Nicely spaced ticks - {y, label}
 
 */
 function Sequence() {
@@ -604,13 +580,12 @@ function Preview() {
     var _viewChangedCb = (view)=>{};
 
     const _$e = $(`
-        <div class="Preview">
-            <div class="mini-graph"></div>
-            <div class="window">
-                <div class="view"></div>
-                <div class="left-handle"></div>
-                <div class="right-handle"></div>
-                <div class="info-ctnr">
+        <div class="Preview" style="width: 100%; height: 100%;">
+            <div class="window" style="position: absolute; height: 100%; top: 0; box-sizing: border-box;">
+                <div class="view" style="position: absolute; width: 100%; height: 100%; box-sizing: border-box;"></div>
+                <div class="left-handle" style="position: absolute; height: 100%; width: 3px; left: 0px;"></div>
+                <div class="right-handle" style="position: absolute; height: 100%; width: 3px; right: 0px"></div>
+                <div class="info-ctnr" style="position: absolute;">
                     <div class="info">
                         <div>
                             <span class="lowest"></span> to <span class="highest"></span>
@@ -627,8 +602,8 @@ function Preview() {
     const _$rightHandle = _$window.find(".right-handle");
     const _$info = _$window.find(".info");
 
-    // Set up drag+drop of window
-    (function initWindow(){
+    // Set up dragging of window
+    function _initDragging(){
         var startLow, startHigh, pixelsPerX;
         function onDragStart(cls) {
             const view = _getView();
@@ -673,7 +648,7 @@ function Preview() {
             onDragEnd: ()=>onDragEnd("resizing"),
             onDrag: growRight
         });
-        _$e.on("mousedown", function(ev){
+        _graph.$e.find(".main-ctnr").on("mousedown", function(ev){
             // set view to be centered on this point.
             const getXFromOffset = (offsetX) => {
                 const pctLeft = offsetX / _$e.width();
@@ -687,7 +662,7 @@ function Preview() {
             // start moving.
             moveDrag.startDragging(ev);
         });
-    }());
+    };
 
     this.onViewChanged = (fn) => _viewChangedCb = fn;
 
@@ -699,7 +674,7 @@ function Preview() {
         formatFn: converts two X points to a string
     */
     this.init = function(params) {
-        ["sequences","min","max","numPoints","formatFn"].forEach(name => {
+        ["sequences","min","max","numPoints","formatFn","xTicks"].forEach(name => {
             if (params[name]===undefined) throw new Error(`Preview must be passed "${name}" param.`);
         })
         _sequences = params.sequences.map(seq => {
@@ -710,21 +685,24 @@ function Preview() {
         _max = params.max;
         _numPoints = params.numPoints;
         _formatFn = params.formatFn;
+        _xTicks = params.xTicks;
 
         _graph = new SvgGraph();
-        _$e.find(".mini-graph").append(_graph.$e);
+        _$e.append(_graph.$e);
         _graph.init({
             name: "Preview",
             sequences: _sequences,
             titleFormatFn: ()=>{},
+            xTicks: _xTicks,
             showInfo: false,
             showYScales: false,
             showXScale: true,
             allowHover: false,
-            allowMoving: false
+            allowMoving: false,
         });
         _graph.setBounds(_min, _max);
         _$window.appendTo(_graph.$e.find(".main-ctnr").css("position", "relative"));
+        _initDragging();
     };
 
     /*
@@ -817,6 +795,7 @@ function SvgGraph() {
     var _showInfo;
     var _allowHover;
     var _allowMoving;
+    var _xTicks;
 
     // Current bounds, and display
     var _low;
@@ -835,7 +814,7 @@ function SvgGraph() {
                         <div class="deltas"></div>
                     </div>
                 </div>
-                <div class="legend" style="flex-shrink: 0; text-align: center;">
+                <div class="legend" style="flex-shrink: 0; text-align: center; white-space: nowrap; overflow: hidden;">
                 </div>
             </div>
             <div style="flex-grow: 1; display: flex;">
@@ -919,7 +898,7 @@ function SvgGraph() {
         _$parent = $parent;
     };
     this.init = function(params) {
-        ["sequences", "name", "titleFormatFn",
+        ["sequences", "name", "titleFormatFn", "xTicks",
          "showInfo", "showYScales", "showXScale",
          "allowHover", "allowMoving"].forEach(name => {
             if (params[name]===undefined) throw new Error(`SvgGraph must be passed "${name}"`);
@@ -927,6 +906,7 @@ function SvgGraph() {
         _name = params.name;
         _sequences = params.sequences;
         _titleFormatFn = params.titleFormatFn;
+        _xTicks = params.xTicks;
         _allowHover = params.allowHover;
         _allowMoving = params.allowMoving;
         _showInfo = params.showInfo;
@@ -994,6 +974,7 @@ function SvgGraph() {
             };
 
             const domain = seq.getDomain();
+            if (_xTicks) domain.ticks = _xTicks;
             domain.getXPos = function(x) {
                 const pctLeft = (x - _low) / (_high - _low);
                 return `${(pctLeft * 100).toFixed(5)}%`;
@@ -1035,7 +1016,9 @@ function SvgGraph() {
             _display.forEach(disp => {
                 disp.range.offsetX = offsetX;
                 const $yScale = _$getYScale(disp.range).appendTo(_$yScales)
-                offsetX += $yScale[0].getBoundingClientRect().width + 10;
+                const width = $yScale[0].getBoundingClientRect().width;
+                $yScale.find(".background").attr("width", width + 10);
+                offsetX += width + 10;
             });
 
             // Set right side sizes.
@@ -1082,14 +1065,19 @@ function SvgGraph() {
     }
 
     var _titlePromiseQueue = new PromiseQueue(1, 1);
+    var _titleCurHighLow;
     function _refreshTitle(low, high) {
         if (!_showInfo) return;
+        highLow = `${low},${high}`;
         // start getting, or queue, this low-high value.
-        _titlePromiseQueue.getValue(`${low}${high}`, ()=>{
+        //_$formattedTitle.empty().append("Loading...");
+        _titlePromiseQueue.getValue(highLow, () => {
             return Promise.resolve(_titleFormatFn(low, high)).then($e => {
-                _$formattedTitle.empty().append($e)
+                if (highLow !== _titleCurHighLow) return;
+                _$formattedTitle.empty().append($e);
             });
         }).catch(e => {});
+        _titleCurHighLow = highLow;
     }
 
     function _setHoverPt(offsetX, offsetY) {
@@ -1197,21 +1185,23 @@ function SvgGraph() {
         }).appendTo($e);
 
         domain.ticks.forEach(tick => {
+            if (tick.x < _low || tick.x > _high) return;
+            const anchor = tick.x < _high ? "start" : "end";
             const xPos = domain.getXPos(tick.x);
-            if (parseFloat(xPos)<0 || parseFloat(xPos)>100) return;
-
+            
             _$svg("line", {
                 x1: xPos, y1: 0,
                 x2: xPos, y2: 2,
                 "stroke-width": 1,
                 stroke: color
             }).appendTo($e);
-            const $text = _$svg("text", {
+            _$svg("text", {
                 x: xPos, y: 4,
                 "alignment-baseline": "hanging",
                 "font-size": "10px",
+                "text-anchor": anchor,
                 fill: color
-            }).append(tick.label).appendTo($e);
+            }).text(tick.label).appendTo($e);
         });
 
         return $e;
@@ -1265,6 +1255,18 @@ function SvgGraph() {
                 opacity: .5
             }).append(tick.label).appendTo($e);
         });
+
+        // draw background. it's width will be set externally.
+        const gradientId = `gradient-${range.seq.name()}`;
+        _$svg("linearGradient", {id: gradientId, x1: 0, x2: 1, y1: 0, y2: 0})
+            .append(_$svg("stop", {offset: "0%", "stop-color": color, "stop-opacity": .15}))
+            .append(_$svg("stop", {offset: "100%", "stop-color": color, "stop-opacity": 0}))
+            .appendTo($e);
+        _$svg("rect", {
+            x: 0, y: 0,
+            width: 0, height: "100%",
+            fill: `url(#${gradientId})`
+        }).addClass("background").prependTo($e);
 
         return $e;
     }

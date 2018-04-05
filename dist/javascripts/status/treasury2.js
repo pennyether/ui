@@ -3,21 +3,24 @@ Loader.onWeb3Ready.then(()=>{
 
 	function _initTotalProfits() {
 		// todo: implement for Treasury. Hard to test, though.
-		return Promise.all([
-			_niceWeb3.ethUtil.getAverageBlockTime(),
-			_niceWeb3.ethUtil.getBlock("latest")
-		]).then(arr=>{
+		var minBlockNum = 5345000;
+		var maxBlockNum = null;
+		_niceWeb3.ethUtil.getBlock("latest").then(b => {
+			maxBlockNum = b.number - 5;
+			return Promise.all([
+				_niceWeb3.ethUtil.getAverageBlockTime(),
+				_niceWeb3.ethUtil.getBlock(minBlockNum),
+				_niceWeb3.ethUtil.getBlock(maxBlockNum)
+			]);
+		}).then(arr=>{
 			const avgBlocktime = arr[0].toNumber();
-			const curBlock = arr[1].number - 5;
+			const minBlock = arr[1];
+			const maxBlock = arr[2];
 
 			const $e = $(".total-profits");
 			const graph = new EthGraph(_niceWeb3);
 			$e.find(".graph-ctnr").append(graph.$e);
 
-			const format = (y) => {
-				try { return util.toEthStr(y); }
-				catch(e) { console.error(e); }
-			}
 			const balance = (block) => {
 				block = Math.round(block);
 				return _niceWeb3.ethUtil
@@ -36,10 +39,29 @@ Loader.onWeb3Ready.then(()=>{
 						return new BigNumber(gwei);
 					});
 			};
-			const getBlock = (block) => {
-				block = Math.round(block);
-				return _niceWeb3.ethUtil.getBlock(block);
+			const getFormattedTitle = (low, high) => {
+				return Promise.all([
+					_niceWeb3.ethUtil.getBlock(Math.round(low)),
+					_niceWeb3.ethUtil.getBlock(Math.round(high)),
+				]).then(arr => {
+					const lowBlock = arr[0];
+					const highBlock = arr[1];
+					const diff = highBlock.timestamp - lowBlock.timestamp;
+					const lowDateStr = util.toDateStr(lowBlock.timestamp, {scale: diff});
+					const highDateStr = util.toDateStr(highBlock.timestamp, {scale: diff});
+					const timeStr = util.toTime(diff);
+					return `<b>${lowDateStr}</b> to <b>${highDateStr}</b> (${timeStr})`;
+				});
 			};
+			const xTicks = (function(){
+				return [minBlock, maxBlock].map(b => {
+					return {
+						x: b.number,
+						label: util.toDateStr(b.timestamp, {second: null})
+					};
+				});
+			}());
+
 			graph.init({
 				sequences: [{
 					name: "balance",
@@ -60,32 +82,20 @@ Loader.onWeb3Ready.then(()=>{
 					yTickCount: 3,
 					yFormatFn: util.toEthStr,
 				}],
-				min: 5345000,
-				max: curBlock,
+				min: minBlock.number,
+				max: maxBlock.number,
+				previewXTicks: xTicks,
 				previewNumPoints: 20,
 				previewFormatFn: (low, high) => {
 					const num = Math.round(high-low).toLocaleString();
 					const timeStr = util.toTime(Math.round((high-low) * avgBlocktime));
 					return `${num} blocks. (~${timeStr})`;
 				},
-				titleFormatFn: (low, high) => {
-					return Promise.all([
-						getBlock(low),
-						getBlock(high)
-					]).then(arr => {
-						const lowBlock = arr[0];
-						const highBlock = arr[1];
-						const diff = highBlock.timestamp - lowBlock.timestamp;
-						const lowDateStr = util.toDateStr(lowBlock.timestamp, {scale: diff});
-						const highDateStr = util.toDateStr(highBlock.timestamp, {scale: diff});
-						const timeStr = util.toTime(diff);
-						return `<b>${lowDateStr}</b> to <b>${highDateStr}</b> (${timeStr})`;
-					});
-				},
+				titleFormatFn: getFormattedTitle,
 			});
 
 			const fourHoursInBlocks = 60*60*4 / avgBlocktime
-			graph.setView(curBlock - fourHoursInBlocks, curBlock);
+			graph.setView(maxBlock.number - fourHoursInBlocks, maxBlock.number);
 		});
 	}
 })

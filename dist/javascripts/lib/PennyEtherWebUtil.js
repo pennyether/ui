@@ -95,6 +95,7 @@
 		};
 
 		this.toDateStr = function(timestampS, params){
+			if (!params) params = {};
 			if (timestampS.toNumber) timestampS = timestampS.toNumber();
 			var options = {
 				month: "short",
@@ -118,7 +119,9 @@
 			}
 			Object.keys(params).forEach(name=>{
 				if (name=="scale") return;
-				options[name] = params[name];
+				const val = params[name];
+				if (!val) delete options[name];
+				else options[name] = params[name];
 			});
 
 			if (timestampS == 0) return "n/a";
