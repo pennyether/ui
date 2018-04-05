@@ -22,11 +22,13 @@
 		this.getCurrentState = function(fresh){
 			// update the _curState value every 2 seconds
 			function updateCurrentState(){
-				return Promise.all([
+				// Wrapping Promise.all in Promise.resolve handles rejections of any
+				//  promise inside Promise.all. Normally would be reported as unhandled.
+				return Promise.resolve(Promise.all([
 					_self.getBlock('latest'),
 					_self.doEthCall("getAccounts"),
 					_self.doWeb3Call("version", "getNetwork")
-				]).then(arr=>{
+				])).then(arr => {
 					const block = arr[0];
 					const accounts = arr[1];
 					const network = arr[2];
