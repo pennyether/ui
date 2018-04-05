@@ -1,9 +1,16 @@
 Loader.require("reg", "comp", "tr")
 .then(function(reg, comp, tr){
-	ethUtil.getCurrentState().then(_refreshAll);
-
 	_initGovernance();
 	_initProfits();
+	_initEvents();
+
+	var _creationBlockPromise;
+	ethUtil.getCurrentState().then(() => {
+		_creationBlockPromise = tr.getEvents("Created").then(arr => {
+			return arr[0].blockNumber;
+		});
+		_refreshAll();	
+	});
 
 	function _refreshAll() {
 		return Promise.all([
@@ -12,9 +19,9 @@ Loader.require("reg", "comp", "tr")
 			_refreshFundingStatus(),
 			_refreshGovernance(),
 			_refreshProfits(),
-			_refreshTotalProfits()
+			_refreshTotalProfits(),
 		]).then(()=>{
-			_initTotalProfits();
+			_initTotalProfits()
 		});
 	}
 
@@ -354,12 +361,10 @@ Loader.require("reg", "comp", "tr")
 
 	
 	function _initTotalProfits() {
-		// todo: implement for Treasury. Hard to test, though.
-		tr.getEvents("Created").then(arr=>{
-			const minBlockNum = arr[0].blockNumber;
+		_creationBlockPromise.then(creationBlockNum => {
 			return Promise.all([
 				_niceWeb3.ethUtil.getAverageBlockTime(),
-				ethUtil.getBlock(minBlockNum),
+				ethUtil.getBlock(creationBlockNum),
 			]);
 		}).then(arr => {
 			const avgBlocktime = arr[0].toNumber();
@@ -478,6 +483,53 @@ Loader.require("reg", "comp", "tr")
 		}
 	}
 
+	function _initEvents() {
+		const $e = $(".cell.events");
+		$e.find(".btn-load").click(_refreshEvents);
+	}
+	
+	function _refreshEvents() {
+		const $e = $(".cell.events");
+
+		var creationBlockNum;
+		_creationBlockPromise.then(blockNum => {
+			creationBlockNum = blockNum;
+			doRefresh();
+		});
+
+		function doRefresh() {
+			const $ctnr = $e.find(".events-ctnr");
+			const eventNames = [];
+			$e.find(".legend input:checked").map((i,el) => {
+				$(el).val().split(" ").forEach(str => eventNames.push(str));
+			});
+
+			const formatters = {
+				// ExecuteCapitalAdded / Removed
+				bankrollable: (val) => Loader.linkOf(val),
+				// CapitalAdded/Removed, ProfitsReceived, 
+				sender: (val) => Loader.linkOf(val),
+				recipient: (val) => Loader.linkOf(val),
+				// DistributeSuccess/Failure
+				token: (val) => Loader.linkOf(val),
+				// All
+				amount: (val) => util.toEthStr(val)
+			};
+			var $lv = util.$getLogViewer({
+				events: eventNames.map(eventName => {
+					return {
+						instance: tr,
+						name: eventName,
+						formatters: formatters
+					};
+				}),
+				order: "newest",
+				minBlock: creationBlockNum
+			});
+			$e.find(".events-ctnr").empty().append($lv);
+		}
+	}
+
 
 	function _refreshXyz() {
 		const $e = $(".funding-status");
@@ -485,8 +537,9 @@ Loader.require("reg", "comp", "tr")
 		const $error = $e.find(".error").hide();
 		const $doneLoading = $e.find(".done-loading").hide();
 
-		// var foo;
-		Promise.all([
+		// var foo, bar
+		return Promise.all([
+
 		]).then(arr => {
 
 			doRefresh();
@@ -499,9 +552,8 @@ Loader.require("reg", "comp", "tr")
 			$error.find(".error-msg").text(e.message);
 		});
 
-		// const $foo = ...
 		function doRefresh() {
-
+			// const $foo = ...
 		}
 	}
 });

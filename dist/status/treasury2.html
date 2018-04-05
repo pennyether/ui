@@ -217,7 +217,11 @@
 			}
 
 
-			.legend label {
+			.cell.events .legend {
+				text-align: center;
+				padding: 4px 0px;
+			}
+			.cell.events .legend label {
 				font-size: 90%;
 				background: #CCC;
 				border-radius: 3px;
@@ -404,19 +408,27 @@
 							</span>
 						</div>
 						<div class="body">
-							<div class="blob-ctnr" style="text-align: center;">
-								<div class="blob" style="display: inline-block; margin-right: 10px;">
-									<div class="label">Total Profits</div>
-									<div class="value profits"></div>
-									<div class="eth">ETH</div>
-								</div>
-								<div class="blob" style="display: inline-block">
-									<div class="label">Total Dividends</div>
-									<div class="value dividends"></div>
-									<div class="eth">ETH</div>
-								</div>
+							<div class="loading">
+								Loading...
 							</div>
-							<div class="graph-ctnr" style="margin-top: 5px;"></div>
+							<div class="error hide">
+								Error loading profits: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								<div class="blob-ctnr" style="text-align: center;">
+									<div class="blob" style="display: inline-block; margin-right: 10px;">
+										<div class="label">Total Profits</div>
+										<div class="value profits"></div>
+										<div class="eth">ETH</div>
+									</div>
+									<div class="blob" style="display: inline-block">
+										<div class="label">Total Dividends</div>
+										<div class="value dividends"></div>
+										<div class="eth">ETH</div>
+									</div>
+								</div>
+								<div class="graph-ctnr" style="margin-top: 5px;"></div>
+							</div>
 						</div>
 					</div></td>
 				</tr></table>
@@ -478,23 +490,24 @@
 										</td>
 									</tr></table>
 								</div>
-								<div class="requests">
-								</div>
+								<div class="requests"></div>
 							</div>
 						</div>
 					</div></td>
-					<td width="50%"><div class="cell">
+					<td width="50%"><div class="cell events">
 						<div class="titleBar">
 							Events
 						</div>
 						<div class="body">
 							<div class="legend">
-								<label><input type=checkbox checked> Capital</label>
-								<label><input type=checkbox > Reserve</label>
-								<label><input type=checkbox > Profits</label>
-								<label><input type=checkbox checked> Distributions</label>
-								<label><input type=checkbox checked> Governance</label>
+								<label><input type=checkbox value="CapitalAdded CapitalRemoved CapitalRaised" checked> Capital</label>
+								<label><input type=checkbox value="ReserveAdded ReserveRemoved" checked> Reserve</label>
+								<label><input type=checkbox value="ProfitsReceived" checked> Profits</label>
+								<label><input type=checkbox value="DistributeSuccess DistributeFailure" checked> Dividends</label>
+								<label><input type=checkbox value="ExecutedSendCapital ExecutedRecallCapital ExecutedRaiseCapital"> Governance</label>
+								<button class="btn-load">Load</button>
 							</div>
+							<div class="events-ctnr"></div>
 						</div>
 					</div></td>
 				</tr></table>
