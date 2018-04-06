@@ -1,5 +1,8 @@
 Loader.require("dice")
 .then(function(dice){
+	const computeResult = DiceUtil.computeResult;
+	const computePayout = DiceUtil.computePayout;
+
 	ethUtil.onStateChanged((state)=>{
 		if (!state.isConnected) return;
 		refreshBetUiSettings();
@@ -8,66 +11,133 @@ Loader.require("dice")
 		refreshLiveRolls();
 	});
 
-	/******************************************************/
-	/*** BET PLACING UI ***********************************/
-	/******************************************************/
-	const $loader = $(".better .loader");
-	const $wagerText = $(".better .wager .input");
-	const $wagerRange = $(".better .wager .range");
-	const $numberText = $(".better .number .input");
-	const $numberRange = $(".better .number .range");
-	const $valid = $(".better .valid");
-	const $invalid = $(".better .invalid");
-	const $msg = $(".better .invalid .msg");
-	const $payout = $(".better .payout");
-	const $multiple = $(".better .multiple");
-	const $odds = $(".better .odds");
-	var _rounding = .001;
+	const _betUi = new BetUi();
 
-	// link the ranges to texts, and vice versa
-	$(".better .input").focus(function(){
-		$(this).select();
-	});
-	// function format(ether){
-	// 	const numDecimals = _rounding.toString().length - 2;
-	// 	ether = ether.toFixed(numDecimals);
-	// 	return ether.startsWith("0.")
-	// 		? ether.slice(1)
-	// 		: ether;
-	// }
-	$wagerText.on("input", function(){
-		const ether = Number($(this).val());
-		if (Number.isNaN(ether)) return;
-		$wagerRange.val(ether);
-		refreshPayout();
-	});
-	$wagerRange.on("input", function(){
-		const ether = Number($(this).val());
-		$wagerText.val(ether);
-		refreshPayout();
-	});
-	$numberText.on("input", function(){
-		const n = Number($(this).val());
-		if (Number.isNaN(n)) return;
-		$numberRange.val(n);
-		refreshPayout();
-	});
-	$numberRange.on("input", function(){
-		const n = Number($(this).val());
-		$numberText.val(n);
-		refreshPayout();
-	});
+	// const _feeBipsPromise = dice.feeBips().then(res=>{
+	// 	_feeBips = res;
+	// 	return _feeBips;
+	// });
 
-	const _feeBipsPromise = dice.feeBips().then(res=>{
-		_feeBips = res;
-		return _feeBips;
-	});
+	/*
+		Bet placing UI.
+	*/
+	function BetUi() {
+		const _$e = $("#BetUi");
+		const _$summary = _$e.find(".summary");
+		const _$valid = _$summary.find(".valid");
+		const _$invalid = _$summary.find(".invalid");
+		const _$msg = _$invalid.find(".msg");
+		const _$label = _$summary.find(".label");
+		const _$payout = _$summary.find(".payout");
+		const _$multiple = _$summary.find(".multiple");
 
-	var _minBet;
-	var _maxBet;
-	var _minNumber;
-	var _maxNumber;
-	var _feeBips;
+		var _betSlider = util.getSlider("Bet");
+		_betSlider.$e.appendTo(_$e.find(".bet-slider"));
+		_betSlider.setValue(.1);
+		_betSlider.setOnChange(_refreshPayout);
+		var _numSlider = util.getSlider("Number");
+		_numSlider.$e.appendTo(_$e.find(".num-slider"));
+		_numSlider.setValue(50);
+		_numSlider.setOnChange(_refreshPayout);
+
+		// set via settings
+		var _feeBips;
+
+		// roll tip
+	    (function _initRollButton(){
+	    	const gps = util.getGasPriceSlider(5);
+	    	const $rollBtn = $("#RollButton");
+	    	const $rollTip = $("#RollTip").append(gps.$e);
+	    	(function attachTip(){
+	    		tippy($rollBtn[0], {
+					// arrow: false,
+					theme: "light",
+					animation: "fade",
+					placement: "top",
+					html: $rollTip.show()[0],
+					trigger: "mouseenter",
+					onShow: function(){ gps.refresh(); },
+					onHidden: function(){
+						// fixes a firefox bug where the tip won't be displayed again.
+						$rollBtn[0]._tippy.destroy();
+						attachTip();
+					}
+				});
+	    	}());
+
+			$rollBtn.click(function(){
+				this._tippy.hide(0);
+				
+				var bet = _betSlider.getValue();
+				var number = _numSlider.getValue();
+				if (bet == null || number == null) {
+					alert("Invalid bet or number.");
+					return;
+				}
+
+				$(this).blur();
+				try {
+					const betWei = bet.mul(1e18);
+					var rollPromise = dice.roll({_number: number}, {value: betWei, gas: 147000, gasPrice: gps.getValue()});
+					rollPromise.waitTimeMs = (gps.getWaitTimeS() || 45) * 1000;
+				} catch(e) {
+					console.error(e);
+					ethStatus.open();
+					return;
+				}
+				
+				trackResult(
+					rollPromise,
+					bet,
+					number
+				);
+				doScrolling("#BetterCtnr", 400);
+		    })
+	    }());
+
+		this.setSettings = function(settings) {
+			_feeBips = settings.feeBips;
+			_betSlider.setUnits([{
+				name: "eth",
+				min: settings.minBet,
+				max: settings.maxBet,
+				$label: "ETH"
+			}]);
+			_numSlider.setUnits([{
+				name: "num",
+				min: settings.minNumber,
+				max: settings.maxNumber,
+				$label: ""
+			}]);
+			_refreshPayout();
+		};
+
+		function _refreshPayout() {
+			_$valid.hide();
+			_$invalid.hide();
+			const bet = _betSlider.getValue();
+			const number = _numSlider.getValue();
+			if (bet === null) {
+				_$invalid.show();
+				_$msg.text("Please provide a valid bet.");
+				return;
+			}
+			if (number === null) {
+				_$invalid.show();
+				_$msg.text("Please provide a valid number.");
+				return;
+			}
+
+			_$valid.show();
+			const betWei = bet.mul(1e18);
+			const payout = computePayout(betWei, number, _feeBips);
+			const multiple = payout.div(betWei).toFixed(2);
+			_$payout.text(`${payout.div(1e18).toFixed(4)} ETH`);
+			_$multiple.text(`${multiple}x return, ${number}% win odds`);
+		}
+	}
+
+	
 	function refreshBetUiSettings() {
 		Promise.all([
 			dice.minBet(),
@@ -77,173 +147,16 @@ Loader.require("dice")
 			dice.maxNumber(),
 			dice.feeBips()
 		]).then(arr=>{
-			$loader.hide();
-			_minBet = arr[0];
-			_maxBet = BigNumber.min(arr[1], arr[2]);
-			_minNumber = arr[3];
-			_maxNumber = arr[4];
-			_feeBips = arr[5];
-
-			// Determine a convenient _rounding step
-			let minBetEther = _minBet.div(1e18);
-			let maxBetEther = _maxBet.div(1e18);
-			let difference = maxBetEther.minus(minBetEther);
-			if (difference <= .1) _rounding = .001;
-			else _rounding = .01;
-
-			// set the wager inputs accordingly
-			let minBetRounded = minBetEther.div(_rounding).ceil().mul(_rounding).toNumber();
-			let maxBetRounded = maxBetEther.div(_rounding).floor().mul(_rounding).toNumber();
-			$wagerRange.attr("min", minBetRounded);
-			$wagerRange.attr("max", maxBetRounded);
-			$wagerRange.attr("step", _rounding);
-			$wagerText.attr("min", minBetRounded)
-			$wagerText.attr("max", maxBetRounded);
-			$wagerText.attr("step", _rounding);
-
-			// wagerRange to be positioned correctly relative to bet
-			var bet = Number($wagerText.val());
-			if (!Number.isNaN(bet)){
-				bet = Math.min(maxBetRounded, bet);
-				bet = Math.max(minBetRounded, bet);
-				$wagerText.val(bet);
-				$wagerRange.val(bet);
-			}
-
-			$numberText
-				.attr("min", _minNumber.toNumber())
-				.attr("max", _maxNumber.toNumber());
-			$numberRange
-				.attr("min", _minNumber.toNumber())
-				.attr("max", _maxNumber.toNumber());
-
-			refreshPayout();
+			const maxBet = BigNumber.min(arr[1], arr[2]);
+			_betUi.setSettings({
+				minBet: arr[0].div(1e18),
+				maxBet: maxBet.div(1e18),
+				minNumber: arr[3],
+				maxNumber: arr[4],
+				feeBips: arr[5]
+			});
 		});
 	}
-
-	function refreshPayout() {
-		if (_minBet == null) { return; }
-		$valid.hide();
-		$invalid.hide();
-
-		var bet = $wagerText.val();
-		var number = $numberText.val();
-		try { bet = (new BigNumber(bet)).mul(1e18) }
-		catch (e) { bet = null; }
-		try { number = new BigNumber(number); }
-		catch (e) { number = null; }
-
-		if (bet == null) {
-			$invalid.show();
-			$msg.text("Wager must be a number");
-			return;
-		}
-
-		const betStr = util.toEthStr(bet);
-		const minBetStr = util.toEthStr(_minBet);
-		const maxBetStr = util.toEthStr(_maxBet);
-		if (bet.lt(_minBet)) {
-			$invalid.show();
-			$msg.text(`Wager of ${betStr} is below the minimum of ${minBetStr}`);
-			return;
-		}
-		if (bet.gt(_maxBet)) {
-			$invalid.show();
-			$msg.text(`Wager of ${betStr} is above the maximum of ${maxBetStr}`);
-			return;	
-		}
-
-		if (number == null) {
-			$invalid.show();
-			$msg.text("Roll Number must be a number.")
-			return;
-		}
-		if (number.lt(_minNumber)) {
-			$invalid.show();
-			$msg.text(`Roll Number of ${number} is below the minimum of ${minNumber}`);
-			return;
-		}
-		if (number.gt(_maxNumber)) {
-			$invalid.show();
-			$msg.text(`Roll Number of ${number} is above the maximum of ${maxNumber}`);
-			return;	
-		}
-		
-		const payout = computePayout(bet, number);
-		const multiple = payout.div(bet).toFixed(2);
-		$valid.show();
-		$payout.text(util.toEthStr(payout));
-		$multiple.text(`${multiple}x return`);
-		$odds.text(`${number}% win odds`);
-	}
-
-	function computeResult(blockHash, id) {
-        const hash = web3.sha3(blockHash + ethUtil.toBytesStr(id, 4), {encoding: "hex"});
-        const bn = new BigNumber(hash);
-        return bn.mod(100).plus(1);
-    }
-    function computePayout(bet, number) {
-    	const feePct = _feeBips.div(10000);
-    	const ret = (new BigNumber(1)).minus(feePct);
-		return bet.mul(100).div(number).mul(ret);
-    }
-
-    // roll tip
-    function _initRollButton(){
-    	const gps = util.getGasPriceSlider(5);
-    	const $rollBtn = $("#RollButton");
-    	const $rollTip = $("#RollTip").append(gps.$e);
-    	(function attachTip(){
-    		tippy($rollBtn[0], {
-				// arrow: false,
-				theme: "light",
-				animation: "fade",
-				placement: "top",
-				html: $rollTip.show()[0],
-				trigger: "mouseenter",
-				onShow: function(){ gps.refresh(); },
-				onHidden: function(){
-					// fixes a firefox bug where the tip won't be displayed again.
-					$rollBtn[0]._tippy.destroy();
-					attachTip();
-				}
-			});
-    	}());
-
-		$rollBtn.click(function(){
-			this._tippy.hide(0);
-			
-			var bet = $wagerText.val();
-			var number = $numberText.val();
-			try { bet = (new BigNumber(bet)).mul(1e18) }
-			catch (e) { bet = null; }
-			try { number = new BigNumber(number); }
-			catch (e) { number = null; }
-
-			if (bet == null || number == null) {
-				alert("Invalid bet or number.");
-				return;
-			}
-
-			$(this).blur();
-			try {
-				var rollPromise = dice.roll({_number: number}, {value: bet, gas: 147000, gasPrice: gps.getValue()});
-				rollPromise.waitTimeMs = (gps.getWaitTimeS() || 45) * 1000;
-			} catch(e) {
-				console.error(e);
-				ethStatus.open();
-				return;
-			}
-			
-			trackResult(
-				rollPromise,
-				bet,
-				number
-			);
-			doScrolling("#BetterCtnr", 400);
-	    })
-    }
-    _initRollButton();
 			
 
 	// When they place a bet, show it and add it to _$currentRolls
@@ -380,7 +293,7 @@ Loader.require("dice")
     		dice.getEvents("RollFinalized", {user: state.account}, state.latestBlock.number - 256),
     		dice.getEvents("PayoutSuccess", {user: state.account}, state.latestBlock.number - 256),
     		dice.getEvents("PayoutFailure", {user: state.account}, state.latestBlock.number - 256),
-    		_feeBipsPromise
+    		// _feeBipsPromise
 		]).then((arr)=>{
 			const curId = arr[0];
 			const rollsWagered = arr[1];
@@ -534,8 +447,8 @@ Loader.require("dice")
     	const number = roll.number;
     	const txId = roll.txId;
     	const multiple = roll.payout.div(bet).toFixed(2);
-    	const payoutStr = util.toEthStr(roll.payout);
-    	$e.find(".betValue").text(util.toEthStr(bet));
+    	const payoutStr = util.toEthStrFixed(roll.payout);
+    	$e.find(".betValue").text(util.toEthStrFixed(bet));
     	$e.find(".numberValue").text(`${number} or lower`);
     	$e.find(".payoutValue").text(`${payoutStr} (${multiple}x)`);
     	if (roll.state == "prepending") {
@@ -684,7 +597,6 @@ Loader.require("dice")
 		_lastCheckedBlock = toBlock;
 		dice.getEvents("RollWagered", {}, fromBlock, toBlock)
 			.then((events)=>_promiseInView.then(()=>events))
-			.then((events)=>_feeBipsPromise.then(()=>events))
 			.then((events)=>{
 				if (events.length > MAX_ELEMENTS) events = events.slice(-MAX_ELEMENTS);
 				events.forEach((e, i)=>{

@@ -28,7 +28,7 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
 		tm.sendProfitsReward([obj[0]]).then(arr => {
 			const reward = arr[0];
 			const profits = arr[1];
-			if (reward.lte(0)) {
+			if (profits.lte(0)) {
 				$e.text("Not needed.")
 			} else {
 				$e.text(`Yes! (${util.toEthStr(reward)} reward)`);
@@ -96,7 +96,7 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
 
 	// ID
 	util.bindToElement(dice.curId(), $(".dice-num-rolls"));
-	util.bindToElement(dice.totalWagered(), $(".dice-total-wagered"));
+	util.bindToElement(dice.totalWagered().then(util.toEthStr), $(".dice-total-wagered"));
 	Promise.all([
 		dice.curMaxBet(),
 		dice.maxBet()
@@ -107,7 +107,7 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
 
 	// VP
 	util.bindToElement(vp.curId(), $(".vp-num-games"))
-	util.bindToElement(vp.totalWagered(), $(".vp-total-wagered"));
+	util.bindToElement(vp.totalWagered().then(util.toEthStr), $(".vp-total-wagered"));
 	Promise.all([
 		vp.curMaxBet(),
 		vp.maxBet()
@@ -120,6 +120,10 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
 	// Task Manager
 	util.bindToElement(ethUtil.getBalance(tm).then(util.toEthStr), $(".tm-balance"))
 	util.bindToElement(tm.totalRewarded().then(util.toEthStr), $(".tm-rewards-paid"))
+	tm.sendProfitsRewardBips().then(val => {
+		const pct = val.div(10000);
+		$(".tm-send-profits-reward").text(`${pct.toFixed(3)}%`);
+	});
 
 	///////////////////////////////////////////////////////////////
 });

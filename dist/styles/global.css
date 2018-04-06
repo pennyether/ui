@@ -727,21 +727,21 @@ body.dark {
 		color: maroon;
 	}
 
-.Better {
+.Slider {
 	display: table;
 	box-sizing: border-box;
 	width: 100%;
 	opacity: 1;
 	transition: opacity .5s;
 }
-.Better.disabled {
+.Slider.disabled {
 	opacity: .5;
 }
-	.Better .value {
+	.Slider .value {
 		display: table-cell;
 		text-align: center;
 	}
-		.Better .topLabel {
+		.Slider .top-label {
 			color: black;
 			text-transform: uppercase;
 			letter-spacing: .1em;
@@ -749,12 +749,12 @@ body.dark {
 			font-weight: bold;
 			text-align: center;
 		}
-		.Better .bottomLabel {
+		.Slider .unit-label {
 			font-size: 80%;
 			color: black;
 		}
 		/* you may want to explicitly set a width on this element */
-		.Better .betTxt {
+		.Slider .val-txt {
 			display: block;
 			box-sizing: border-box;
 			background: transparent;
@@ -765,24 +765,25 @@ body.dark {
 			color: lime;
 			margin-top: -5px;
 			margin-bottom: -5px;
+			width: 155px;
 		}
-		.Better .betTxt:focus {
+		.Slider .val-txt:focus {
 			outline: none;
 		}
-	.Better .slider {
+	.Slider .slider {
 		position: relative;
 		display: table-cell;
 		vertical-align: middle;
 		width: 100%;
 	}
-		.Better .betSlider {
+		.Slider .val-range {
 			width: 92%;
 			height: 40px;
 			cursor: pointer;
 		}
-		.Better .betErr {
+		.Slider .err-ctnr {
 			position: absolute;
-			bottom: 5px;
+			top: calc(50% + 10px);
 			width: 92%;
 			font-size: 80%;
 			color: yellow;
@@ -790,6 +791,14 @@ body.dark {
 			letter-spacing: .1em;
 			text-align: center;
 		}
+		.Slider .err-msg {
+			display: inline-block;
+			padding: 2px 8px;
+			background: rgba(0,0,0,.2);
+			border-radius: 2px;
+		}
+
+
 
 .LoadingBar {
 	height: 5px;

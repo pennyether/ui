@@ -87,6 +87,7 @@ Loader.require("vp")
 	function updateGame(gameState, settings, createIfNotFound, forceUpdate) {
 		var game = tabber.getGames().find(g => {
             // If game is dealt, look for matching UIID.
+            // TODO: look for matching txId instead!
 			return gameState.state == "dealt"
 				? g.getGameState().uiid == gameState.uiid
 				: g.getGameState().id == gameState.id;

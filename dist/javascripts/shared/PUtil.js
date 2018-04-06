@@ -1,5 +1,11 @@
 (function(){
 
+	/*
+		Stores a mapping of {gameId => gameState}. Each gameState has a 
+		"blockUpdated" property. The controller will only update the gameState
+		if the currentBlock is > "blockUpdated". GameStates can be updated
+		manually via "updateGameStateFromEvent".
+	*/
 	function VpController(vp, ethUtil) {
 		const _self = this;
 		const _vp = vp;

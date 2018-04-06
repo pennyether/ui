@@ -3,6 +3,7 @@
 	<head>
 		<script src="../javascripts/lib/Loader.js"></script>
 		<script src="../javascripts/games/instadice.js"></script>
+		<script src="../javascripts/shared/DiceUtil.js"></script>
 		<style>
 			/*********************************************/
 			/******** TITLE AND FEATURES *****************/
@@ -110,113 +111,63 @@
 			/*********************************************/
 			/******** BET UI *****************************/
 			/*********************************************/
-			.betterCtnr {
+			#BetUi {
 				background: linear-gradient(to bottom, #4A4 0%, #6C6 100%);
 				background: #4A4;
 				padding-top: 20px;
 				padding-bottom: 20px;
 			}
-			.better {
-				display: table;
-				position: relative;
-				box-sizing: border-box;
-				background: linear-gradient(to bottom, rgba(255,255,255,.9) 0%, rgba(255,255,255,.4) 100%);
-				border-radius: 10px;
-				border: 1px outset #CCC;
-				padding: 10px;
-				width: 800px;
-				margin: 0px auto;
-			}
-				.better .loader {
-					background: rgba(0, 0, 0, .3);
+				.better {
+					position: relative;
+					box-sizing: border-box;
+					background: linear-gradient(to bottom, rgba(255,255,255,.9) 0%, rgba(255,255,255,.4) 100%);
+					border-radius: 10px;
+					border: 1px outset #CCC;
+					padding: 10px;
+					width: 800px;
+					margin: 0px auto;
 				}
-				.better .loader .text {
-					font-size: 100%;
-					padding: 20px;
-					background: #DDD;
-					border: 1px solid gray;
+				.better .Slider .val-txt {
+					color: rgb(0,240,0);
+					text-shadow: 2px 2px 5px rgba(0,0,0,.5);
 				}
-			.better > .left {
-				display: table-cell;
-				vertical-align: middle;
-			}
-			.better > .right {
-				display: table-cell;
-				vertical-align: middle;
-				width: 100%;
-			}
-			.better .wager,
-			.better .number {
-				display: table;
-				vertical-align: middle;
-				margin: 10px 0px;
-			}
-				.better .wager .value,
-				.better .number .value {
-					display: table-cell;
+				.better .num-slider {
+					margin-top: 15px;
+				}
+
+				.better .summary {
 					text-align: center;
-					margin: 5px 0px;
+					width: 160px;
 				}
-					.better .topLabel {
-						color: #444;
-						width: 140px;
-						font-size: 100%;
+					.better .summary .label {
+						font-variant: small-caps;
 						font-weight: bold;
+						letter-spacing: .2em;
+						margin-bottom: 2px;
 					}
-					.better .bottomLabel {
+					.better .summary .payout {
+						color: white;
+						font-size: 200%;
+						margin-bottom: 5px;
+						background: linear-gradient(to bottom, rgba(0,128,0,.5) 0%, rgba(0,128,0,.9) 100%);
+						text-shadow: 2px 2px 4px rgba(0,0,0,.4);
+						border-radius: 3px;
+					}
+					.better .summary .multiple {
 						font-size: 80%;
-						color: #444;
+						font-weight: bold;
+						color: #555;
 					}
-				.better .slider {
-					display: table-cell;
-					vertical-align: middle;
+
+				.better .invalid .msg {
+					display: inline-block;
+					font-size: 80%;
+					letter-spacing: .06em;
+					background: rgba(0,0,0,.5);
+					color: white;
+					padding: 10px;
+					border-radius: 5px
 				}
-
-			.better .input {
-				display: block;
-				box-sizing: border-box;
-				width: 100%;
-				background: transparent;
-				padding: 0px 0px 0px 15px;
-				text-align: center;
-				font-size: 300%;
-				border: none;
-				color: green;
-				margin-top: -5px;
-				margin-bottom: -5px;
-			}
-			.better .input:focus {
-				outline: none;
-			}
-			.better .range {
-				width: 300px;
-				height: 40px;
-				cursor: pointer;
-			}
-
-			.better .summary {
-				text-align: center;
-			}
-			.better .summary .label {
-				color: #444;
-				font-weight: bold;
-				margin-bottom: 10px;
-			}
-			.better .summary .payout {
-				color: green;
-				font-size: 200%;
-				margin-bottom: 5px;
-				text-shadow: 1px 1px 0px #EEEEEE;
-			}
-			.better .summary .multiple {
-				font-size: 100%;
-				font-weight: bold;
-				color: #333;
-			}
-			.better .summary .odds {
-				font-size: 90%;
-				color: gray;
-			}
 			@keyframes rollButtonGlow {
 				from {
 					background-color: #0C0;
@@ -237,20 +188,6 @@
 				border: none;
 				border-radius: 3px;
 				animation: rollButtonGlow 3s 0s infinite ease-in-out alternate;
-			}
-
-			.better .invalid {
-				text-align: center;
-			}
-			.better .invalid .msg {
-				display: inline-block;
-				font-size: 80%;
-				font-weight: bold;
-				width: 200px;
-				background: rgba(250,250,250,.8);
-				padding: 4px 5px;
-				border: 1px solid gray;
-				border-radius: 5px
 			}
 
 			/*********************************************/
@@ -617,54 +554,27 @@
 			</div>
 		</div>
 
-		<div class="betterCtnr" id="BetterCtnr">
-			<div class="better">
-				<div class="loader" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%">
-					<div style="display: table; width: 100%; height: 100%;">
-						<div style="display: table-cell; vertical-align: middle; text-align: center">
-							<div class="text" style="display: inline-block;">Loading...</div>
-						</div>
-					</div>
+		<div id="BetUi">
+			<div class="better" style="display: flex;">
+				<div style="flex-grow: 1;">
+					<div class="bet-slider"></div>
+					<div class="num-slider"></div>
 				</div>
-				<div class="left">
-					<div class="wager">
-						<div class="value">
-							<div class="topLabel">Wager</div>
-							<input class="input" type="number" value=".1" step=".01" min=".01" max=".60">
-							<div class="bottomLabel">ETH</div>
-						</div>
-						<div class="slider">
-							<input class="range" type="range" value=".1" step=".01" min=".01" max=".60">
-						</div>
-					</div>
-					<div class="number">
-						<div class="value">
-							<div class="topLabel">Win on</div>
-							<input class="input" type="number" min="1" max="99" value="50">
-							<div class="bottomLabel">or under</div>
-						</div>
-						<div class="slider">
-							<input class="range" type="range" value="50" min="1" max="99" step="1">
-						</div>
-					</div>
-				</div>
-				<div class="right">
-					<div class="summary">
+				<div style="flex-shrink: 0; width: 230px;">
+					<div class="summary" style="height: 100%; width: 100%; display: flex; flex-direction: column; justify-content: center;">
 						<div class="valid">
 							<div class="label">Payout</div>
 							<div class="payout">--</div>
 							<div class="multiple">--</div>
-							<div class="odds">--</div>
 							<button class="button" id="RollButton">Roll!</button>
 						</div>
-						<div class="invalid" style="display: none;">
+						<div class="invalid" style="display: none; align-self: center;">
 							<div class="msg">Bet is not a number.</div>
 						</div>
 					</div>
+					<div id="RollTip"></div>
 				</div>
 			</div>
-		</div>
-		<div id="RollTip">
 		</div>
 
 		<div class="main">

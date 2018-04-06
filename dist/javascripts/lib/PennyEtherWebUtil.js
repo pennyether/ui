@@ -70,6 +70,10 @@
 			return new Better();
 		};
 
+		this.getSlider = function($topLabel){
+			return new Slider($topLabel);
+		};
+
 		this.$getShortAddrLink = function(addr) {
 			const addrStr = addr.slice(0, 6) + "..." + addr.slice(-4);
 			return _self.$getAddrLink(addrStr, addr);
@@ -168,6 +172,24 @@
 			return chunks.join(" ");
 		};
 
+		// Shows value in ETH, with up to "maxDecimals" decimals
+		this.toEthStrFixed = function(wei, maxDecimals) {
+			try { wei = new BigNumber(wei); }
+			catch (e) { throw new Error(`${wei} is not convertable to a BigNumber`); }
+			if (maxDecimals === undefined) maxDecimals = 5;
+			const dispNum = wei.div(1e18);
+
+			// Show up to three decimals, eg: "123" "12.3" "1.23" ".123"
+			var numDecimals = maxDecimals;
+			const numDigits = Math.ceil(Math.log10(dispNum.abs().toNumber()));
+			if (numDigits > 0) numDecimals = Math.max(maxDecimals - numDigits, 0);
+			// Format the number to locale. No idea why win.nav.lang isn't the default.
+			var ethStr = dispNum.toNumber().toLocaleString(window.navigator.language, {
+				maximumFractionDigits: numDecimals,
+			});
+			return `${ethStr} ETH`;
+		};
+
 		this.toEthStr = function(wei, unit) {
 			try { wei = new BigNumber(wei); }
 			catch (e) { throw new Error(`${wei} is not convertable to a BigNumber`); }
@@ -190,13 +212,12 @@
 			}
 
 			// Show up to three decimals, eg: "123" "12.3" "1.23" ".123"
-			var maxDecimals;
+			var numDecimals = 3;
 			const numDigits = Math.ceil(Math.log10(dispNum.abs().toNumber()));
-			if (numDigits > 0) maxDecimals = Math.max(3 - numDigits, 0);
-			else maxDecimals = 3;
+			if (numDigits > 0) numDecimals = Math.max(3 - numDigits, 0);
 			// Format the number to locale. No idea why win.nav.lang isn't the default.
 			var ethStr = dispNum.toNumber().toLocaleString(window.navigator.language, {
-				maximumFractionDigits: maxDecimals,
+				maximumFractionDigits: numDecimals,
 			});
 			return `${ethStr} ${dispUnit}`;
 		};
@@ -208,7 +229,7 @@
 				const args = arguments;
 				i = setTimeout(()=>fn.apply(null, args), timeout);
 			}
-			ret();
+			// ret();
 			return ret;
 		};
 
@@ -703,107 +724,93 @@
 		this.$clear = _$clear;
 	}
 
-	// Displays a betting slider / text combo:
-	//  Features:
-	//    - automatically adjusts increment of slider
-	//    - shows invalid bets, and reasons for it
-	//    - allows user to choose "credits" instead of "eth"
-	//  Usage:
-	//    .setMaxValue() / .setMinValue(): does what you expect.
-	//    .getValue(): returns BigNumber (in wei) or null.
-	//    .onChange(fn): triggered when value changed
-	//    .freeze(bool): disables elements, prevents user interaction
-	function Better() {
+
+	/*
+	  Displays a betting slider / text combo:
+	  Features:
+	    - increment: "auto" is allowed
+	    - shows values, and reason for it
+	    - allows custom units
+	  Usage:
+	    .setUnits(units)
+			- Array of: [{
+				name: "ETH",
+				min: .001,
+				max: .235,
+				$label: "ETH"
+			}]
+	    .getValue(): returns {unit: value} (in wei).
+	    .onChange(fn): triggered when value changed
+	    .freeze(bool): disables elements, prevents user interaction
+	*/
+	function Slider($topLabel) {
 	    const _self = this;
 
 	    const _$e = $(`
-	        <div class="Better">
+	        <div class="Slider">
 	            <div class="value">
-	                <div class="topLabel">Bet</div>
-	                <input class="betTxt" type="number" value=".1" step=".01" min=".01" max=".60">
-	                <div class="bottomLabel">
-	                    <div class="both">
-	                        <label><input type="radio" name="betUnit" value="eth" checked>ETH</label>
-	                        <label><input type="radio" name="betUnit" value="credits">Credits</label>
-	                    </div>
-	                    <div class="eth">
-	                        ETH
-	                    </div>
-	                    <div class="credits">
-	                        Credits
-	                    </div>
-	                </div>
+	                <div class="top-label"></div>
+	                <input class="val-txt" type="number">
+	                <div class="unit-label"></div>
 	            </div>
 	            <div class="slider">
-	                <input class="betSlider" type="range" value=".1" step=".01" min=".01" max=".60">
-	                <div class="betErr"></div>
+	                <input class="val-range" type="range">
+	                <div class="err-ctnr"><div class="err-msg"></div></div>
 	            </div>
 	        </div>
 	    `)
-	    const _$slider = _$e.find(".betSlider");
-	    const _$txt = _$e.find(".betTxt");
-	    const _$err = _$e.find(".betErr").hide();
-	    const _$both = _$e.find(".both").hide();
-	    const _$eth = _$e.find(".eth").hide();
-	    const _$credits = _$e.find(".credits").hide();
-	    const _$label = _$e.find(".bottomLabel");
-	    const _$radEth = _$label.find("input[value=eth]");
-	    const _$radCredits = _$label.find("input[value=credits]");
+	    const _$txt = _$e.find(".val-txt");
+	    const _$range = _$e.find(".val-range");
+	    const _$errCtnr = _$e.find(".err-ctnr").hide();
+	    const _$errMsg = _$e.find(".err-msg");
+	    const _$unitLabel = _$e.find(".unit-label");
+	    _$e.find(".top-label").append($topLabel);
 
-	    var _prevBet = null;
-	    var _minBet = new BigNumber(0);
-	    var _maxBet = new BigNumber(0);
-	    var _credits = new BigNumber(0);
-	    var _mode = "eth";
-	    var _betType = "eth";
+	    var _units = [];
+	    var _curStep;
+	    var _curUnit = {
+	    	name: "NULL",
+	    	min: -Infinity,
+	    	max: +Infinity,
+	    };
+	    var _prevUnit = null;
+	    var _prevVal = null;
 	    var _onChange = ()=>{};
 
-	    _$label.find("input").change(function(){
-	        _betType = _$label.find("input:checked").val();
-	        _refreshBet();
-	    });
-	    _$txt.on("focus", function(){
-	        $(this).select();
-	    });
-	    _$txt.on("input", function(){
-	        const ether = Number($(this).val());
-	        if (Number.isNaN(ether)) return;
-	        _$slider.val(ether);
-	        _refreshBet();
-	    });
-	    _$slider.on("input", function(){
-	        const ether = Number($(this).val());
-	        _$txt.val(ether);
-	        _refreshBet();
-	    });
+	    (function initEvents(){
+		    _$txt.on("focus", function(){
+		        $(this).select();
+		    });
+		    _$txt.on("input", function(){
+		        const val = Number($(this).val());
+		        if (Number.isNaN(val)) return;
+		        _$range.val(val);
+		        _refreshValue();
+		    });
+		    _$range.on("input", function(){
+		        _setTxt(Number($(this).val()));
+		        _refreshValue();
+		    });
+	    }());
 
-	    this.setCredits = function(v) {
-	        _credits = v || new BigNumber(0);
-	        _self.refresh();
-	    };
-	    this.setMax = function(v) {
-	        _maxBet = v || new BigNumber(0);
-	        _self.refresh();
-	    };
-	    this.setMin = function(v) {
-	        _minBet = v || new BigNumber(0);
-	        _self.refresh();
-	    };
-	    this.setMode = function(mode) {
-	        mode = mode.toLowerCase();
-	        const allowed = ["eth", "credits", "both"];
-	        if (allowed.indexOf(mode) === -1)
-	            throw new Error(`Incorrect mode: ${mode}. Allowed: ${allowed}`);
+	    this.setUnits = function(units) {
+	        units.forEach(def => {
+	        	["name", "min", "max", "$label"].forEach(name => {
+	        		if (def[name]===undefined) throw new Error(`Unit must contain ${name} param.`);
+	        	});
+	        });
+	        _units = units;
 
-	        _mode = mode;
-	        _betType = _mode=="both" ? _betType : _mode;
-	        _self.refresh();
+	        // update _curUnit
+	        const match = _units.find(def => def.name == _curUnit.name);
+	        _curUnit = match ? match : _units[0];
+	        _drawUnitLabels();
+	        _refresh();
 	    };
-	    this.setBet = function(v) {
-	        v = new BigNumber(v);
-	        _$txt.val(v.div(1e18));
-	        _refreshBet();
-	    }
+	    this.setValue = function(v) {
+	        _$txt.val(v);
+	        _refreshValue();
+	    };
 	    this.freeze = function(bool) {
 	        if (bool) {
 	            _$e.addClass("disabled");
@@ -814,109 +821,111 @@
 	        }
 	    };
 
-	    this.refresh = util.debounce(10, _refresh);
-	    this.onChange = function(fn) {
+	    this.setOnChange = function(fn) {
 	        _onChange = fn;
 	    }
 	    this.getValue = function() {
-	        var bet = _getBet();
-	        if (!bet || bet.lt(_minBet) || bet.gt(_getMaxAllowedBet())) return null;
-	        return bet;
-	    }
-	    this.getBetType = function() {
-	        return _betType;
+	        var val = _getValue();
+	        if (val===null || val.lt(_curUnit.min) || val.gt(_curUnit.max)) return null;
+	        else return val;
 	    }
 	    this.$e = _$e;
 
+	    function _drawUnitLabels() {
+	        _$unitLabel.empty();
+	        if (_units.length == 1) {
+	        	_$unitLabel.append(_curUnit.$label);
+	        	return;
+	        }
+	        _units.forEach(def => {
+	        	const $radio = $(`<input type="radio" name="unit-select">`)
+	        		.val(def.name)
+	        		.prop("checked", def.name === _curUnit.name)
+	        		.change(_refreshValue);
+	        	const $label = $(`<label></label>`)
+	        		.append($radio)
+	        		.append(def.$label);
+	        	_$unitLabel.append($label);
+	        });
+	    }
+
 	    function _refresh() {
-	        _refreshLabel();
 	        _refreshScale();
-	        _refreshBet();
+	        _refreshValue();
 	    }
 
-	    // Display proper label, select proper radio box
-	    function _refreshLabel() {
-	        _$both.hide();
-	        _$eth.hide();
-	        _$credits.hide();
-	        if (_mode == "both") {
-	            if (_credits.lt(_minBet)) {
-	                _betType = "eth";
-	                _$eth.show();
-	            } else {
-	                _$both.show();
-	            }
-	        } 
-	        if (_mode == "eth") _$eth.show();
-	        if (_mode == "credits") _$credits.show();
-	    }
-
-	    // Set scale of slider based on min/max
+	    // Set scale of range based on min/max
 	    function _refreshScale() {
-	        // Get min/max bet in ether
-	        let minBetEther = _minBet.div(1e18);
-	        let maxBetEther = _maxBet.div(1e18);       
-	        let difference = maxBetEther.minus(minBetEther);
-	        if (difference <= .1) _rounding = .001;
-	        else _rounding = .01;
+	        // Get min/max
+	        const min = new BigNumber(_curUnit.min);
+	        const max = new BigNumber(_curUnit.max);
+	        const difference = max.minus(min);
+	        // Round difference down to nearest power of 10, divide by 10.
+	        _curStep = _getNiceStep(difference);
 
 	        // set the wager inputs accordingly
-	        let minBetRounded = minBetEther.div(_rounding).ceil().mul(_rounding).toNumber();
-	        let maxBetRounded = maxBetEther.div(_rounding).floor().mul(_rounding).toNumber();
-	        _$slider.attr("min", minBetRounded)
-	            .attr("max", maxBetRounded)
-	            .attr("step", _rounding);
-	        _$txt.attr("min", minBetRounded)
-	            .attr("max", maxBetRounded)
-	            .attr("step", _rounding);
+	        let minRounded = min.div(_curStep).ceil().mul(_curStep).toNumber();
+	        let maxRounded = max.div(_curStep).floor().mul(_curStep).toNumber();
+	        _$range.attr("min", minRounded)
+	            .attr("max", maxRounded)
+	            .attr("step", _curStep);
+	        _$txt.attr("min", minRounded)
+	            .attr("max", maxRounded)
+	            .attr("step", _curStep);
 
-	        // wagerRange to be positioned correctly relative to bet
-	        var bet = _getBet().div(1e18);
-	        if (bet !== null){
-	            bet = Math.min(maxBetRounded, bet);
-	            bet = Math.max(minBetRounded, bet);
-	            _$txt.val(bet);
-	            _$slider.val(bet);
+	        // wagerRange to be positioned correctly relative to value
+	        var val = _getValue();
+	        if (val !== null){
+	            val = Math.min(maxRounded, val);
+	            val = Math.max(minRounded, val);
+	            _setTxt(val);
+	            _$range.val(val);
 	        }
 	    }
 
 	    // updates the bet txt and range, as well as payouts
-	    function _refreshBet() {
-	        const bet = _getBet();
+	    function _refreshValue() {
+	        const val = _getValue();
 
 	        // Show error if it's not a number.
-	        _$err.hide();
-	        if (bet === null) _$err.text("Bet must be a number").show();
-	        else if (bet.lt(_minBet)) _$err.text(`Bet must be above ${_eth(_minBet)}`).show();
-	        else if (bet.gt(_maxBet)) _$err.text(`Bet must be below ${_eth(_maxBet)}`).show();
-	        else if (bet.gt(_getMaxAllowedBet())) _$err.text(`You do not have enough credits.`).show();
+	        _$errCtnr.show();
+	        if (val === null) _$errMsg.text("Value must be a number");
+	        else if (val.lt(_curUnit.min)) _$errMsg.text(`Minimum allowed value is ${_curUnit.min}`);
+	        else if (val.gt(_curUnit.max)) _$errMsg.text(`Maximum allowed value is ${_curUnit.max}`);
+	        else _$errCtnr.hide();
 
-	        const newBet = _self.getValue();
-	        const betChanged = newBet==null || _prevBet==null ? newBet!==_prevBet : !newBet.equals(_prevBet);
-	        _prevBet = newBet;
-	        if (betChanged) _onChange();
+	        const newVal = _self.getValue();
+	        const newUnit = _curUnit.name;
+	        const valChanged = newUnit != _prevUnit || 
+	        	(newVal==null || _prevVal==null
+	        		? newVal!==_prevVal
+	        		: !newVal.equals(_prevVal));
+
+	        _prevUnit = newUnit;
+	        _prevVal = newVal;
+	        if (valChanged) _onChange();
 	    }
 
-	    function _getBet() {
-	        var bet = _$txt.val();
-	        try { bet = (new BigNumber(bet)).mul(1e18); }
-	        catch (e) { bet = null; }
-	        return bet;
+	    function _getValue() {
+	        var val = _$txt.val();
+	        try { val = new BigNumber(val); }
+	        catch (e) { val = null; }
+	        return val;
 	    }
 
-	    function _getMaxAllowedBet() {
-	        return _betType == "credits"
-	            ? BigNumber.min(_maxBet, _credits)
-	            : _maxBet;
+	    function _setTxt(v) {
+	    	const numDecimals = -1*Math.floor(Math.log10(_curStep));
+		    const txt = numDecimals > 1 ? v.toFixed(numDecimals) : v;
+		    _$txt.val(txt);
 	    }
 
-	    function _eth(v) {
-	        return ethUtil.toEthStr(v, 5, "ETH", true);
+	    function _getNiceStep(diff) {
+	    	const minTicks = 24;
+	    	const step = Math.pow(10, Math.floor(Math.log10(diff.toNumber())) - 2);
+	    	return [50*step, 10*step, 5*step, 1*step].find(step => {
+	    		if (diff.div(step) >= minTicks) return true;
+	    	});
 	    }
-
-	    (function init(){
-	        _refresh();
-	    }())
 	}
 	
 	window.PennyEtherWebUtil = PennyEtherWebUtil;

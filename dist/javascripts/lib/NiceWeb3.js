@@ -265,10 +265,7 @@
 				};
 				const p = _doPromisifiedCall(oldCallFn, metadata);
 				niceWeb3.notifyCall(p);
-				return p.catch(e => {
-					e.message = `${callName} failed: ${e.message}`;
-					throw e;
-				});
+				return p;
 			}
 		}
 
