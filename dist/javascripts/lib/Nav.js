@@ -48,11 +48,14 @@
 				name: "Status",
 				url: "/status/system.html",
 				children: [{
-					name: "System Status",
-					url: "/status/system.html"
+					name: "System Overview",
+					url: "/status/overview.html"
 				},{
 					name: "Treasury Status",
 					url: "/status/treasury2.html"
+				},{
+					name: "Comptroller Status",
+					url: "/status/comptroller.html"
 				},{
 					name: "Monarchy Status",
 					url: "/status/monarchy.html"

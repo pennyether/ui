@@ -10,7 +10,7 @@
 			}
 
 			element.empty().text("loading...");
-			promise.then(function(res){
+			return promise.then(function(res){
 				doAppend
 					? element.empty().append(res)
 					: element.empty().text(res);
@@ -26,7 +26,7 @@
 			}
 			
 			element.empty().text("loading...");
-			promise.then(function(res){
+			return promise.then(function(res){
 				element.val(res);
 			},function(e){
 				element.val(`Error: ${e.message}`);

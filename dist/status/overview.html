@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/javascripts/lib/Loader.js"></script>
+		<script src="/javascripts/status/overview.js"></script>
+		<style>
+		.topology {
+			position: relative;
+			box-sizing: border-box;
+			padding: 10px;
+			background: radial-gradient(rgba(0,0,0,0) 0%, rgba(0,20,50,.2) 100%);;
+			border-radius: 5px;
+			margin: 10px 10px;
+			height: 505px;
+		}
+
+		.line {
+			position: absolute;
+			font-size: 70%;
+			white-space: nowrap;
+			text-align: center;
+		}
+			.line.horizontal {
+				transform: translateY(-50%);
+			}
+			.line.vertical {
+				transform: translateX(-50%);
+				display: flex;
+				align-items: center;
+			}
+				.line.vertical .body {
+					flex: 1;
+				}
+
+		.contract {
+			box-sizing: border-box;
+			position: absolute;
+			display: flex;
+			flex-direction: column;
+
+			border: 1px solid #444;
+			box-shadow: 3px 3px 3px 0px rgba(0,0,0,.2);
+			border-radius: 4px;
+			background: linear-gradient(to bottom, #EEE 0%, #CCC 100%);
+			padding: 5px 10px;
+			font-size: 90%;
+		}
+		.contract > .title {
+			flex-shrink: 1;
+			text-align: center;
+			font-weight: bold;
+		}
+			.contract .links {
+				text-align: center;
+				font-size: 90%;
+			}
+			.contract .fields {
+				display: inline-block;
+				text-align: left;
+				font-size: 90%;
+			}
+				.contract .field .label {
+					display: inline-block;
+					white-space: nowrap;
+					padding-right: 5px;
+				}
+				.contract .field .value {
+					display: inline-block;
+					color: #666;
+				}
+		.contract > .body-ctnr {
+			flex-grow: 1;
+			display: flex;
+			align-items: center;
+		}
+			.contract .body {
+				flex-grow: 1;
+				display: block;
+				text-align: center;
+			}
+
+		.games {
+			box-sizing: border-box;
+			position: absolute;
+			background: rgba(0,128,0,.1);
+			border-radius: 4px;
+			display: flex;
+			flex-direction: column;
+			padding: 5px 10px 10px 10px;
+		}
+			.games > .title {
+				flex-shrink: 0;
+				font-weight: bold;
+				font-size: 80%;
+				color: gray;
+				font-style: italic;
+				padding-bottom: 4px;
+			}
+			.games > .body {
+				flex-grow: 1;
+				display: flex;
+				align-items: stretch;
+			}
+			.games .contract-ctnr {
+				flex-grow: 1;
+				flex-basis: 100%;
+			}
+			.games .contract-ctnr:not(:last-child) {
+				margin-right: 10px;
+			}
+			.games .contract {
+				position: relative;
+				width: 100%;
+				height: 100%;
+			}
+
+		.arrow.blue:before { background: blue; }
+		.arrow.blue:after { border-color: blue; }
+
+		.tasks {
+			font-weight: bold;
+		}
+		.value {
+			font-weight: bold;
+			color: #555;
+		}
+		</style>
+	</head>
+	<body><div id="Content">
+		<div class="header">
+			<div class="pageTitle">
+				System Overview
+			</div>
+		</div>
+		<div class="topology">
+			<div style="position: relative;">
+				<div class="line horizontal" style="left: 200px; top: 70px; width: 100px;">
+					<div class="arrow right blue"></div>
+					<div class="body">
+						<div class="label">Capital Raised</div>
+						<div class="value tr-capital-raised"></div>
+					</div>
+				</div>
+				<div class="line horizontal" style="left: 193px; top: 171px; width: 118px; transform-origin: top left; transform: rotate(-32deg)">
+					<div class="arrow left blue"></div>
+					<div class="body">
+						<div class="label">Dividends</div>
+						<div class="value tr-dividends"></div>
+					</div>
+				</div>
+				<div class="line vertical" style="left: 100px; top: 120px; height: 60px;">
+					<div class="arrow down blue"></div>
+					<div class="body">
+						<div class="label">Tokens Minted</div>
+						<div class="value token-total-supply"></div>
+					</div>
+				</div>
+				<div class="line vertical" style="left: 380px; top: 120px; height: 74px;">
+					<div class="arrow down blue"></div>
+					<div class="body">
+						<div class="label">Bankrolled</div>
+						<div class="value pac-bankrolled"></div>
+					</div>
+				</div>
+				<div class="line vertical" style="left: 450px; top: 120px; height: 74px;">
+					<div class="arrow up blue"></div>
+					<div class="body">
+						<div class="label">Profits</div>
+						<div class="value pac-profits"></div>
+					</div>
+				</div>
+				<div class="line vertical" style="left: 575px; top: 120px; height: 74px;">
+					<div class="arrow down blue"></div>
+					<div class="body">
+						<div class="label">Bankrolled</div>
+						<div class="value dice-bankrolled"></div>
+					</div>
+				</div>
+				<div class="line vertical" style="left: 650px; top: 120px; height: 74px;">
+					<div class="arrow up blue"></div>
+					<div class="body">
+						<div class="label">Profits</div>
+						<div class="value dice-profits"></div>
+					</div>
+				</div>
+				<div class="line vertical" style="left: 780px; top: 120px; height: 74px;">
+					<div class="arrow down blue"></div>
+					<div class="body">
+						<div class="label">Bankrolled</div>
+						<div class="value vp-bankrolled"></div>
+					</div>
+				</div>
+				<div class="line vertical" style="left: 860px; top: 120px; height: 74px;">
+					<div class="arrow up blue"></div>
+					<div class="body">
+						<div class="label">Profits</div>
+						<div class="value vp-profits"></div>
+					</div>
+				</div>
+				<div class="line vertical" style="left: 410px; top: 300px; height: 60px;">
+					<div class="arrow up"></div>
+					<div class="body">
+						<div class="tasks">Tasks</div>
+						<div class="field">Start Game: <span class="value pac-start-game"></span></div>
+						<div class="field">End Game: <span class="value pac-end-game"></span></div>
+						<div class="field">Send Profits: <span class="value pac-send-profits"></span></div>
+					</div>
+				</div>
+				<div class="line vertical" style="left: 615px; top: 300px; height: 60px;">
+					<div class="arrow up"></div>
+					<div class="body">
+						<div class="tasks">Tasks</div>
+						<div class="field">Send Profits: <span class="value dice-send-profits"></span></div>
+					</div>
+				</div>
+				<div class="line vertical" style="left: 820px; top: 300px; height: 60px;">
+					<div class="arrow up"></div>
+					<div class="body">
+						<div class="tasks">Tasks</div>
+						<div class="field">Send Profits: <span class="value vp-send-profits"></span></div>
+					</div>
+				</div>
+				<div class="contract" style="left: 0px; width: 200px; height: 120px;">
+					<div class="title">
+						<span class="label tipLeft" title="The Comptroller controls the minting and burning of tokens. Tokens are minted during the CrowdSale and any time the Treasury needs capital. Tokens can be burned at any time after the CrowdSale." data-tippy-trigger="mouseenter">
+							Comptroller
+						</span>
+						<div class="links">
+							<a href="#"><div class="link">Status</div></a>
+						</div>
+					</div>
+					<div class="body-ctnr">
+						<div class="body">
+							<div class="fields">
+								<div class="field">
+									<div class="label">CrowdSale:</div>
+									<div class="value comp-crowdsale">Not Scheduled</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="contract" style="left: 300px; width: 630px; height: 120px;">
+					<div class="title">
+						<span class="label tipLeft" title="The Treasury holds a reserve to pay for burned tokens, holds capital to bankroll various games, and distributes all profits to the Penny Token" data-tippy-trigger="mouseenter">
+							Treasury
+						</span>
+						<div class="links">
+							<a href="#"><div class="link">Status</div></a>
+						</div>
+					</div>
+					<div class="body-ctnr">
+						<div class="body">
+							<div class="fields">
+								<div class="field">
+									<div class="label">Reserve:</div>
+									<div class="value tr-reserve"></div>
+								</div>
+								<div class="field">
+									<div class="label">Capital Available:</div>
+									<div class="value tr-cap-available"></div>
+								</div>
+								<div class="field capital-needed">
+									<div class="label">Capital Needed:</div>
+									<div class="value tr-cap-needed"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="contract" style="left: 0px; top: 180px; width: 200px; height: 120px;">
+					<div class="title">
+						<span class="label tipLeft" title="The PENNY Token proportionally distributes any Ether received (aka, dividends) to Token Holders. Token Holders can claim their dividends at any time, forever." data-tippy-trigger="mouseenter">
+							PENNY Token
+						</span>
+						<div class="links">
+							<a href="#"><div class="link">Status</div></a>
+						</div>
+					</div>
+					<div class="body-ctnr">
+						<div class="body">
+							<div class="fields">
+								<div class="field">
+									<div class="label">Total Supply:</div>
+									<div class="value token-total-supply"></div>
+								</div>
+								<div class="field">
+									<div class="label">Total Received:</div>
+									<div class="value token-total-received"></div>
+								</div>
+								<div class="field">
+									<div class="label">Total Collected:</div>
+									<div class="value token-total-collected"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="games" style="top: 170px; left: 300px; width: 630px; height: 140px;">
+					<div class="title">Games</div>
+					<div class="body">
+						<div class="contract-ctnr">
+							<div class="contract">
+								<div class="title">
+									<span class="label tipLeft" title="Monarchy is a game in which the current Monarch wins a prize if they reign for some amount of blocks. Anyone can overthrow the Monarch and become the current Monarch by paying a small fee." data-tippy-trigger="mouseenter">
+										Monarchy
+									</span>
+									<div class="links">
+										<a href="#"><div class="link">Status</div></a>
+									</div>
+								</div>
+								<div class="body-ctnr">
+									<div class="body">
+										<div class="fields">
+											<div class="field">
+												<div class="label">Active Games:</div>
+												<div class="value pac-active-games"></div>
+											</div>
+											<div class="field">
+												<div class="label">Ended Games:</div>
+												<div class="value pac-ended-games"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="contract-ctnr">
+							<div class="contract">
+								<div class="title">
+									<span class="label tipLeft" title="InstaDice is a dice game in which you can choose your own odds. Results are displayed immediately after the transaction goes through." data-tippy-trigger="mouseenter">
+										InstaDice
+									</span>
+									<div class="links">
+										<a href="#"><div class="link">Status</div></a>
+									</div>
+								</div>
+								<div class="body-ctnr">
+									<div class="body">
+										<div class="fields">
+											<div class="field">
+												<div class="label">Total Rolls:</div>
+												<div class="value dice-num-rolls"></div>
+											</div>
+											<div class="field">
+												<div class="label">Total Wagered:</div>
+												<div class="value dice-total-wagered"></div>
+											</div>
+											<div class="field">
+												<div class="label">Cur Max Bet:</div>
+												<div class="value dice-cur-max-bet"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="contract-ctnr">
+							<div class="contract">
+								<div class="title">
+									<span class="label tipLeft" title="VideoPoker is the standard 9/6 Jacks-or-better 5-card draw. An initial hand 5-card hand is dealt, then between 0 to 5 cards can be replaced. Payout is based on the hand rank." data-tippy-trigger="mouseenter">
+										Video Poker
+									</span>
+									<div class="links">
+										<a href="#"><div class="link">Status</div></a>
+									</div>
+								</div>
+								<div class="body-ctnr">
+									<div class="body">
+										<div class="fields">
+											<div class="field">
+												<div class="label">Total Games:</div>
+												<div class="value vp-num-games"></div>
+											</div>
+											<div class="field">
+												<div class="label">Total Wagered:</div>
+												<div class="value vp-total-wagered"></div>
+											</div>
+											<div class="field">
+												<div class="label">Cur Max Bet:</div>
+												<div class="value vp-cur-max-bet"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="contract" style="left: 300px; top: 360px; width: 630px; height: 120px;">
+					<div class="title">
+						<span class="label tipLeft" title="The Task Manager executes functions that keep Penny Ether autonomous - such as sending game profits to the Treasury and dividends to the PENNY Token. Users are rewarded for calling these functions." data-tippy-trigger="mouseenter">
+							Task Manager
+						</span>
+						<div class="links">
+							<a href="#"><div class="link">Status</div></a>
+						</div>
+					</div>
+					<div class="body-ctnr">
+						<div class="body">
+							<div class="fields">
+								<div class="field">
+									<div class="label">Balance Remaning:</div>
+									<div class="value tm-balance"></div>
+								</div>
+								<div class="field rewards-paid">
+									<div class="label">Total Rewarded:</div>
+									<div class="value tm-rewards-paid"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div></body>
+</html>

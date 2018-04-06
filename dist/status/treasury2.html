@@ -4,142 +4,11 @@
 		<script src="/javascripts/lib/Loader.js"></script>
 		<script src="/javascripts/status/treasury2.js"></script>
 		<script src="/javascripts/lib/EthGraph.js"></script>
-		<style>
-		</style>
-	</head>
-	<body><div id="Content">
-		<div class="header">
-			<div class="pageTitle">
-				Treasury Status
-			</div>
-			<div class="links">
-				<a href="/about/contracts.html#treasury">Contract Info</a>
-				•
-				<a href="">Etherscan Link</a>
-			</div>
-		</div>
+		<link rel="stylesheet" type="text/css" href="/styles/status.css"/>
 		<style>
 			.hide {
 				display: none;
 			}
-			.row {
-				margin-top: 20px;
-				font-size: 90%;
-			}
-
-			.row > table > tbody > tr > td {
-				vertical-align: top;
-			}
-
-			.cell .titleBar {
-				text-transform: uppercase;
-				font-size: 80%;
-				letter-spacing: .3em;
-				margin-bottom: 10px;
-				overflow: hidden;
-				text-align: center;
-			}
-			.cell .titleBar:before,
-			.cell .titleBar:after {
-				position: relative;
-				display: inline-block;
-				vertical-align: middle;
-				width: 50%;
-				top: -1px;
-				height: 1px;
-				border-top: 1px solid rgba(0,0,0,.3);
-				content: "";
-			}
-			.cell .titleBar:before {
-				right: 0em;
-				margin-left: -50%;
-			}
-			.cell .titleBar:after {
-			 	left: 0em;
-			 	margin-right: -50%;
-			}
-
-			.cell {
-				padding: 5px 10px;
-			}
-			.cell .body {
-				padding: 5px;
-				background: linear-gradient(0deg, #EEE 0%, #DDD 100%);
-				border-radius: 4px;
-				/*min-height: 100px;*/
-			}
-
-			.cell .select-ctnr {
-				text-align: center;
-			}
-
-				.cell .tiny-bar {
-					margin-bottom: 8px;
-				}
-					.cell .tiny-bar .label {
-						display: inline-block;
-						font-size: 90%;
-						margin-bottom: 5px;
-					}
-					.cell .tiny-bar .txt {
-						display: inline-block;
-						font-size: 90%;
-						font-weight: bold;
-					}
-					.cell .tiny-bar .bar {
-						position: relative;
-						background: #CCC;
-						width: 100%;
-						height: 10px;
-						border: 1px solid gray;
-					}
-					.cell .tiny-bar .amt {
-						position: relative;
-						height: 100%;
-						background: green;
-						transition: width .5s;
-					}
-
-				.cell .table-ctnr {
-					padding: 5px;
-				}
-					.cell .table {
-						font-size: 90%;
-						border-collapse: collapse;
-					}
-					.cell .table td {
-						padding: 4px;
-						border: 1px solid rgba(0,0,0,.1);
-					}
-					.cell .table thead td {
-						background: rgba(0,0,0,.2);
-						font-weight: bold;
-					}
-					.cell .table td:nth-child(n+2) {
-						text-align: right;
-					}
-
-			.cell .blob {
-				margin: 5px;
-				padding: 3px;
-				border-radius: 3px;
-				background: #CCC;
-				text-align: center;
-				white-space: nowrap;
-			}
-				.cell .blob .label {
-					color: black;
-					font-size: 80%;
-				}
-				.cell .blob .value {
-					font-size: 140%;
-					text-shadow: 1px 1px 1px rgba(255,255,255,1);
-					padding-top: 2px;
-					padding-bottom: 0px;
-				}
-				.cell .blob .eth {
-					font-size: 60%;
-				}
 
 			.reserve .not-applicable {
 				text-align: center;
@@ -228,8 +97,20 @@
 				padding: 2px 3px;
 			}
 		</style>
+	</head>
+	<body><div id="Content">
+		<div class="header">
+			<div class="pageTitle">
+				Treasury Status
+			</div>
+			<div class="links">
+				<a href="/about/contracts.html#treasury">Contract Info</a>
+				•
+				<a href="">Etherscan Link</a>
+			</div>
+		</div>
 		<div style="margin: 10px 0px;">
-			<div class="row one">
+			<div class="statusRow one">
 				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
 					<td width="33%"><div class="reserve cell">
 						<div class="titleBar">
@@ -324,7 +205,7 @@
 					</div></td>
 					<td width="33%"><div class="cell funding-status">
 						<div class="titleBar">
-							<span class="tipLeft" data-tippy-trigger="mouseenter" title="If more Capital is desired, the 'Capital Target' value can be increased via Governance. If Capital is ever needed, the Comptroller will raise Capital by selling PENNY Tokens.">
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="If more Capital is desired, the 'Capital Target' value can be increased via Governance. When this happens, the Comptroller will raise Capital by selling PENNY Tokens.">
 								Funding Status
 							</span>
 						</div>
@@ -363,7 +244,7 @@
 					</div></td>
 				</tr></table>
 			</div>
-			<div class="row two">
+			<div class="statusRow two">
 				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
 					<td width="33%"><div class="cell profits">
 						<div class="titleBar">
@@ -433,7 +314,7 @@
 					</div></td>
 				</tr></table>
 			</div>
-			<div class="row two">
+			<div class="statusRow two">
 				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
 					<td width="50%"><div class="cell governance">
 						<div class="titleBar">

@@ -209,6 +209,7 @@
 			const p = Promise.resolve(_self.promise).then(() => {
 				const requirements = {
 					"comp": [Comptroller, "COMPTROLLER"],
+					"token": [DividendToken, "PENNY_TOKEN"],
 					"tr": [Treasury, "TREASURY"],
 					"tm": [TaskManager, "TASK_MANAGER"],
 					"pac": [PennyAuctionController, "PENNY_AUCTION_CONTROLLER"],
