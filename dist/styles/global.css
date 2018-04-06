@@ -175,26 +175,26 @@ body.dark {
 /** GLOBAL STYLES ******************************/
 /***********************************************/
 
-.header {
+.page-header {
 	text-align: center;
 	padding: 20px 0px;
 }
-	.header .pageTitle {
+	.page-header .title {
 		font-size: 170%;
 		letter-spacing: .2em;
 		text-shadow: 3px 3px 3px rgba(0,0,0,.15);
 	}
-	.header .links {
+	.page-header .links {
 		color: gray;
 		font-size: 90%;
 		padding-top: 10px;
 		text-align: center;
 	}
-	.header .links a {
+	.page-header .links a {
 		opacity: .6;
 		transition: opacity .3s;
 	}
-	.header .links a:hover {
+	.page-header .links a:hover {
 		opacity: 1;
 	}
 

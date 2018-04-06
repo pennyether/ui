@@ -139,9 +139,9 @@ Loader.require("dice")
 			return;
 		}
 
-		const betStr = ethUtil.toEthStr(bet);
-		const minBetStr = ethUtil.toEthStr(_minBet);
-		const maxBetStr = ethUtil.toEthStr(_maxBet);
+		const betStr = util.toEthStr(bet);
+		const minBetStr = util.toEthStr(_minBet);
+		const maxBetStr = util.toEthStr(_maxBet);
 		if (bet.lt(_minBet)) {
 			$invalid.show();
 			$msg.text(`Wager of ${betStr} is below the minimum of ${minBetStr}`);
@@ -172,7 +172,7 @@ Loader.require("dice")
 		const payout = computePayout(bet, number);
 		const multiple = payout.div(bet).toFixed(2);
 		$valid.show();
-		$payout.text(ethUtil.toEthStr(payout));
+		$payout.text(util.toEthStr(payout));
 		$multiple.text(`${multiple}x return`);
 		$odds.text(`${number}% win odds`);
 	}
@@ -534,8 +534,8 @@ Loader.require("dice")
     	const number = roll.number;
     	const txId = roll.txId;
     	const multiple = roll.payout.div(bet).toFixed(2);
-    	const payoutStr = ethUtil.toEthStr(roll.payout);
-    	$e.find(".betValue").text(ethUtil.toEthStr(bet));
+    	const payoutStr = util.toEthStr(roll.payout);
+    	$e.find(".betValue").text(util.toEthStr(bet));
     	$e.find(".numberValue").text(`${number} or lower`);
     	$e.find(".payoutValue").text(`${payoutStr} (${multiple}x)`);
     	if (roll.state == "prepending") {
@@ -691,12 +691,12 @@ Loader.require("dice")
 					const txId = e.transactionHash;
 					const rollId = e.args.id.toNumber();
 					const dateStr = util.toDateStr(e.args.time);
-					const betStr = ethUtil.toEthStr(e.args.bet);
+					const betStr = util.toEthStr(e.args.bet);
 					const number = e.args.number.toNumber();
 					const $userLink = e.args.user == ethUtil.getCurrentAccount()
 						? util.$getAddrLink("You!", e.args.user)
 						: util.$getShortAddrLink(e.args.user);
-					const payoutStr = ethUtil.toEthStr(e.args.payout);
+					const payoutStr = util.toEthStr(e.args.payout);
 					const result = computeResult(e.blockHash, rollId);
 					const isWinner = !result.gt(number);
 
