@@ -23,14 +23,12 @@ Loader.require("dice")
     function refreshAllRolls() {
         Promise.all([
             dice.feeBips(),
-            dice.curId(),
             dice.finalizeId(),
         ]).then(arr => {
             const feeBips = arr[0];
-            const curId = arr[1];
-            const finalizeId = arr[2];
+            const finalizeId = arr[1];
             const user = ethUtil.getCurrentStateSync().account;
-            _controller.setSettings(user, 256, feeBips, curId, finalizeId);
+            _controller.setSettings(user, 256, feeBips, finalizeId);
             return _controller.refreshRolls();
         }).then(states => {
             states.reverse().forEach(createOrUpdateRoll);
