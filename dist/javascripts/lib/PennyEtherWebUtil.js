@@ -653,7 +653,7 @@
 				<div class='clear'>×</div>
 				<div class='status'></div>
 			</div>
-		`);
+		`).data("TxStatus", this);
 		const _opts = {};
 		const _$clear = _$e.find(".clear").hide();
 		const _$status = _$e.find(".status");

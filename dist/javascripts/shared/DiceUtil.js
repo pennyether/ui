@@ -1,7 +1,16 @@
 (function(){
 
-	// Manages events by loading a bunch from events, parses them all,
-	//  and only updates them if the blockUpdated is newer
+	/*
+		Manages events by loading a bunch from events, parses them all,
+		  and only updates them if the blockUpdated is newer.
+
+		ethUtil: uses this for access to current block
+		user: which user to grab events for
+		numBlocks: how many blocks to look back
+		getEventsFn: must return an array of events, ordered by parse order
+		parseEventFn: given an object, must amend the state.
+			          it should return nothing if to discard state.
+	*/
 	function StateController() {
 		const _self = this;
 
@@ -17,13 +26,16 @@
 			["ethUtil", "user","numBlocks","getEventsFn","parseEventFn"].forEach(name => {
 				if (settings[name] === undefined) throw new Error(`StateController requires ${name} setting.`);
 			});
+			const didChange = (_ethUtil!==settings.ethUtil || _user!==settings.user
+				|| _numBlocks!==settings.numBlocks || _getEventsFn!==settings.getEventsFn
+				|| _parseEventFn!==settings.parseEventFn);
+
+			if (didChange) _states = {};
 			_ethUtil = settings.ethUtil;
 			_user = settings.user;
 			_numBlocks = settings.numBlocks;
 			_getEventsFn = settings.getEventsFn;
 			_parseEventFn = settings.parseEventFn;
-
-			_states = {};
 		};
 
 		this.getStates = ()=>Object.values(_states);
@@ -37,15 +49,16 @@
 			const fromBlock = curBlockNum - _numBlocks;
 			return Promise.resolve(_getEventsFn(_user, fromBlock)).then(events => {
 				// Delete states older than a block. They will be repopulated.
-	            // This assumes the provider has an event lag of at most 1 block.
+	            // This prevents states from being deleted that were just added
+	            //  via an event not loaded in .refreshStates().
 				Object.keys(_states).forEach(id => {
 	                const state = _states[id];
 	                if (curBlockNum > state.blockUpdated) {
-	                    delete _state[id];
+	                    delete _states[id];
 	                }
 	            });
 
-				// Update states of all the games we've gotten, in order.
+				// Update states of all the games we've gotten, in order of event.
 				events.forEach(_updateStateFromEvent);
 				return _self.getStates();
 			});
@@ -56,10 +69,16 @@
 	        const blockUpdated = Math.max(curBlockNum, ev.blockNumber);
 	        const id = ev.args.id;
 	        const state = _states[id] || {};
+
+	        // If parseEventFn returns nothing, it means it refused to update the roll.
+	        // It probably got an event that requires the state to exist but it doesnt.
 	        if (!_parseEventFn(ev, state)) return;
 
+	        if (!state.id) {
+	        	throw new Error(`State object must have an ID after being parsed.`);
+	        }
 	        state.blockUpdated = blockUpdated;
-	        _states[id] = state;
+	        _states[state.id] = state;
 	        return state;
 		}
 	}
@@ -106,6 +125,7 @@
 		function _parseEvent(event, roll) {
 			const curBlockNum = _ethUtil.getCurrentBlockHeight().toNumber();
 			if (event.name == "RollRefunded") {
+				roll.id = event.transactionHash;
 				roll.txId = event.transactionHash;
 				roll.state = "refunded";
 				roll.bet = event.args.bet;
@@ -129,9 +149,9 @@
 			}
 			if (event.name == "RollFinalized") {
 				if (roll.id === undefined) return;
+				roll.state = "finalized";
 				roll.result = event.args.result;
 				roll.isWinner = !roll.result.gt(roll.number);
-				roll.state = "finalized";
 				roll.finalizedEvent = event;
 			}
 			if (event.name == "PayoutFailure") {

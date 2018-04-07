@@ -41,16 +41,19 @@ Loader.require("dice")
 		var roll = _rolls[state.txId];
 		if (!roll) {
 			roll = new Roll();
-			roll.setOnEvent(updateRollFromEvent);
+			roll.setOnEvent(ev => updateRollFromEvent(ev, roll));
 			roll.$e.appendTo(_$pastRolls);
 		}
 		roll.setState(state);
 		return roll;
 	}
 
-	function updateRollFromEvent(ev) {
-		const state =_controller.updateRollFromEvent(ev);
-		const roll = _rolls[ev.transactionHash];
+	function updateRollFromEvent(ev, roll) {
+		const state = _controller.updateRollFromEvent(ev);
+		if (!state) {
+			console.warn("Could not update roll.", ev);
+			return;
+		}
 		roll.setState(state);
 	}
 	
@@ -68,7 +71,7 @@ Loader.require("dice")
 				minBet: arr[0].div(1e18),
 				maxBet: maxBet.div(1e18),
 				minNumber: arr[3],
-				maxNumber: arr[4],
+				maxNumber: arr[4].plus(1),
 				feeBips: arr[5]
 			});
 		});
@@ -91,7 +94,7 @@ Loader.require("dice")
 
 		// Create roll
 		const roll = new Roll();
-		roll.setOnEvent(updateRollFromEvent);
+		roll.setOnEvent(ev => updateRollFromEvent(ev, roll));
 		roll.setState({
 			state: "new",
 			bet: bet,
@@ -159,22 +162,22 @@ Loader.require("dice")
 							<div class="manual">
 								<button class="btn-claim">Claim Winnings Now</button>
 								<div class="claim-status"></div>
-							</div>
-							<div class="timeleft tipLeft" title="Results are based off of the blockhash,
-							and the contract cannot look back further than 256 blocks. This is a limitation of Ethereum.">
-								Note: If not enough rolls occur, you must claim within <div class="finalize-blocks-left"></div> blocks.
+								<div class="time-warning tipLeft" title="Results are based off of the blockhash,
+								and the contract cannot look back further than 256 blocks. This is a limitation of Ethereum.">
+									Note: If not enough rolls occur, you must claim within <div class="finalize-blocks-left"></div> blocks.
+								</div>
 							</div>
 						</div>
 						<div class="payout-success"></div>
 						<div class="payout-failure">
 							<div class="warning">
 								InstaDice was unable to pay your win!<br>
-								Please <a>click here</a> for more information.
+								Please <span class="link">click here</span> for more information.
 							</div>
 						</div>
 					</div>
 				</div>
-				<div class="view-link"><a>🔍</a></div>
+				<div class="view-link"></div>
 			</div>
 		`);
 		const _$betValue = _$e.find(".bet-value");
@@ -191,6 +194,7 @@ Loader.require("dice")
 		const _$status = _$new.find(".status");
 		// _$refunded stuff
 		const _$refundMsg = _$refunded.find(".refund-msg");
+		const _$refundLink = _$refunded.find(".refund-link");
 		// _$rolled substates
 		const _$lost = _$rolled.find(".lost");
 		const _$waiting = _$rolled.find(".waiting");
@@ -206,10 +210,11 @@ Loader.require("dice")
 		const _$finalizeBlocksLeft = _$rolled.find(".finalize-blocks-left");
 		const _$btnClaim = _$rolled.find(".btn-claim");
 		const _$claimStatus = _$rolled.find(".claim-status").hide();
-		const _$timeleft = _$rolled.find(".timeleft");
+		const _$timeWarning = _$rolled.find(".time-warning");
 		
 
 		var _onEvent = (ev)=>{};
+		var _state;
 
 		this.setState = _setState;
 		this.setOnEvent = (fn) => _onEvent=fn;
@@ -233,14 +238,12 @@ Loader.require("dice")
 			_$numberValue.text(`${_state.number}`);
 			_$payoutValue.text(util.toEthStrFixed(_state.payout));
 			if (_state.createdEvent) {
-				const id = _state.id;
 				const txId = _state.createdEvent.transactionHash;
-				const linkStr = id ? `Roll #${id}` : `Roll Refunded`;
+				const linkStr = _state.state=="refunded" ? `Roll Refunded` : `Roll #${_state.id}`;
 				const $txLink = util.$getTxLink(linkStr, txId);
 		    	const dateStr = util.toDateStr(_state.createdEvent.args.time);
 		    	_$created.empty().append($txLink).append(` ${dateStr}`);
-		    	_$viewLink.show().find("a")
-		    		.attr("href", `/games/viewroll.html#${txId}`);
+		    	_$viewLink.empty().append(_$getViewLink("🔍")).show();
 			}
 		}
 
@@ -294,7 +297,7 @@ Loader.require("dice")
 			_$payoutFailure.hide();
 			if (_state.isWinner) {
 				if (_state.state == "wagered") {
-					tippy(_$timeleft[0], {placement: "top"});
+					_initClaimStuff();
 					_$waiting.show();
 					_$finalizeBlocksLeft.text(_state.finalizeBlocksLeft);
 					_$finalizeRollsLeft.text(_state.finalizeRollsLeft);
@@ -308,13 +311,79 @@ Loader.require("dice")
 							.show();
 					} else {
 						_$payoutFailure.show();
-						_$payoutFailure.find("a").attr("href", `/games/viewroll.html#${txId}`);
+						_$payoutFailure.find(".link").empty().append(_$getViewLink("click here"));
 					}
 				}
 			} else {
 				_$lost.show();
 				_$inspiration.text(_getInspired(_state.txId));
 			}
+		}
+
+		function _initClaimStuff() {
+			if (_initClaimStuff.done) return;
+			_initClaimStuff.done = true;
+
+			const gps = util.getGasPriceSlider(5);
+	    	const $claimTip = $("<div></div>").append(gps.$e);
+	    	(function attachTip(){
+	    		tippy(_$btnClaim[0], {
+					// arrow: false,
+					theme: "light",
+					animation: "fade",
+					placement: "top",
+					html: $claimTip.show()[0],
+					trigger: "mouseenter",
+					onShow: function(){ gps.refresh(); },
+					onHidden: function(){
+						// fixes a firefox bug where the tip won't be displayed again.
+						_$btnClaim[0]._tippy.destroy();
+						attachTip();
+					}
+				});
+	    	}());
+
+			_$btnClaim.click(function(){
+				this._tippy.hide(0);
+				$(this).blur();
+
+				const promise = dice.payoutRoll([_state.id]);
+				const $txStatus = util.$getTxStatus(promise, {
+					waitTimeMs: (gps.getWaitTimeS || 45) * 1000,
+					miningMsg: "Your payout is being claimed...",
+					onSuccess: res => {
+						const txStatus = $txStatus.data("TxStatus");
+						const finalized = res.events.find(ev => ev.name=="RollFinalized");
+						if (finalized) _onEvent(finalized);
+
+						const payoutSuccess = res.events.find(ev => ev.name=="PayoutSuccess");
+						const payoutFailure = res.events.find(ev => ev.name=="PayoutFailure");
+						if (payoutSuccess) {
+							txStatus.$status.append(`<br>You've been paid. Please wait a moment.`);
+							_onEvent(payoutSuccess);
+							return;
+						}
+
+						const $link = _$getViewLink("Click here");
+						if (payoutFailure) {
+							txStatus.$status.append("<br>Payout failed. ")
+								.append($link)
+								.append(" for more details.")
+							return;
+						} else {
+							txStatus.$status.append("<br>No events occurred. ")
+								.append($link)
+								.append(" for more details.");
+						}
+					},
+					onClear: () => _$claimStatus.empty().hide()
+				}).appendTo(_$claimStatus.empty().show());
+				_$claimStatus.show().append()
+		    });
+		}
+
+		function _$getViewLink(txt) {
+			return $("<a></a>").text(txt).attr("href", `/games/viewroll.html#${_state.txId}`);
 		}
 
 		var _loaderTimeout;

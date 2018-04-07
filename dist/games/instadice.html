@@ -333,25 +333,26 @@
 						margin-top: 4px;
 					}
 					.Roll .auto { background: rgba(0,128,0,.1); }
-					.Roll .manual { background: rgba(0,0,0,.1); }
-					.Roll .manual .status {
-						padding: 5px;
-					}
+
 					.Roll .or {
 						font-weight: bold;
 						font-style: italic;
 						font-size: 80%;
 						color: gray;
 					}
+					.Roll .manual { background: rgba(0,0,0,.1); }
+						.Roll .manual .claim-status {
+							padding: 5px;
+						}
+						.Roll .manual .time-warning {
+							display: inline-block;
+							font-size: 70%;
+							background: rgba(200,200,0,.2);
+							border-radius: 2px;
+							padding: 2px 4px;
+						}
 
-					.Roll .timeleft {
-						display: inline-block;
-						font-size: 70%;
-						margin: 5px 0px;
-						background: rgba(200,200,100,.2);
-						border-radius: 2px;
-						padding: 2px 4px;
-					}
+					
 					.Roll .finalize-rolls-left,
 					.Roll .finalize-blocks-left {
 						display: inline-block;
