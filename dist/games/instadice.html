@@ -111,13 +111,13 @@
 			/*********************************************/
 			/******** BET UI *****************************/
 			/*********************************************/
-			#BetUi {
+			.bet-ui-ctnr {
 				background: linear-gradient(to bottom, #4A4 0%, #6C6 100%);
 				background: #4A4;
 				padding-top: 20px;
 				padding-bottom: 20px;
 			}
-				.better {
+				.BetUi {
 					position: relative;
 					box-sizing: border-box;
 					background: linear-gradient(to bottom, rgba(255,255,255,.9) 0%, rgba(255,255,255,.4) 100%);
@@ -127,25 +127,25 @@
 					width: 800px;
 					margin: 0px auto;
 				}
-				.better .Slider .val-txt {
+				.BetUi .Slider .val-txt {
 					color: rgb(0,240,0);
 					text-shadow: 2px 2px 5px rgba(0,0,0,.5);
 				}
-				.better .num-slider {
+				.BetUi .num-slider {
 					margin-top: 15px;
 				}
 
-				.better .summary {
+				.BetUi .summary {
 					text-align: center;
 					width: 160px;
 				}
-					.better .summary .label {
+					.BetUi .summary .label {
 						font-variant: small-caps;
 						font-weight: bold;
 						letter-spacing: .2em;
 						margin-bottom: 2px;
 					}
-					.better .summary .payout {
+					.BetUi .summary .payout {
 						color: white;
 						font-size: 200%;
 						margin-bottom: 5px;
@@ -153,13 +153,24 @@
 						text-shadow: 2px 2px 4px rgba(0,0,0,.4);
 						border-radius: 3px;
 					}
-					.better .summary .multiple {
+					.BetUi .summary .multiple {
 						font-size: 80%;
 						font-weight: bold;
 						color: #555;
 					}
+					.BetUi .summary .btn-roll {
+						margin-top: 15px;
+						font-size: 250%;
+						background: blue;
+						color: white;
+						padding: 0px 30px;
+						cursor: pointer;
+						border: none;
+						border-radius: 3px;
+						animation: rollButtonGlow 3s 0s infinite ease-in-out alternate;
+					}
 
-				.better .invalid .msg {
+				.BetUi .invalid .msg {
 					display: inline-block;
 					font-size: 80%;
 					letter-spacing: .06em;
@@ -178,35 +189,23 @@
 					box-shadow: 0px 0px 10px 0px lime;
 				}
 			}
-			#RollButton {
-				margin-top: 15px;
-				font-size: 250%;
-				background: blue;
-				color: white;
-				padding: 0px 30px;
-				cursor: pointer;
-				border: none;
-				border-radius: 3px;
-				animation: rollButtonGlow 3s 0s infinite ease-in-out alternate;
-			}
 
 			/*********************************************/
 			/******** ROLLS ******************************/
 			/*********************************************/
-			.currentRolls .clear {
+			.current-rolls .clear {
 				font-size: 80%;
 				letter-spacing: initial;
 				color: blue;
 				cursor: pointer;
 				display: none;
 			}
-			.currentRolls .body,
-			.recentRolls .body {
+			.current-rolls .body,
+			.past-rolls .body {
 				padding-left: 0px !important;
 				padding-right: 0px !important;
 			}
-
-			.recentRolls {
+			.past-rolls {
 				margin-top: 40px;
 			}
 
@@ -220,188 +219,160 @@
 					box-shadow: 0px 0px 3px 0px gray;
 				}
 			}
-			.roll {
+			@keyframes boxShadowGlow {
+				from { box-shadow: 0px 0px 10px lime; }
+				to { box-shadow: 0px 0px 4px green; }
+			}
+			.Roll {
 				position: relative;
 				margin: 20px 0px;
 				border: 1px solid gray;
 				border-radius: 5px;
 				box-shadow: 0px 0px 10px 0px gray;
 			}
-			.roll.pending,
-			.roll.prepending {
-				text-align: center;
+			.Roll.new {
 				background-color: #DFD;
 				animation: rollPending 1.5s 0s infinite ease-in-out alternate;
 			}
-			.roll.failed {
+			.Roll.failed {
 				border: 1px solid #F88;
 				box-shadow: 0px 0px 10px 0px red;	
 			}
-			.roll.won {
+			.Roll.winner {
 				box-shadow: 0px 0px 10px 0px green;
 				border-color: green;
 			}
-			.roll.refunded {
-				box-shadow: 0px 0px 10px 0px #bbbb52;
-				border-color: #bbbb52;	
-			}
-
-			.roll .viewLink {
-				position: absolute;
-				bottom: 0px;
-				right: 0px;
-				padding: 0px 3px;
-				opacity: .4;
-			}
-			.roll .viewLink a {
-				text-decoration: none;
-			}
-
-			.roll .info {
-				box-sizing: border-box;
-				display: table;
-				width: 100%;
-				background: #EEE;
-				padding: 3px 4px;
-				border-bottom: 1px solid gray;
-				border-radius: inherit;
-				border-bottom-left-radius: 0;
-				border-bottom-right-radius: 0;
-			}
-			.roll.won .info {
-				background: #EFE;
-			}
-				.roll .header {
-					display: table-cell;
-					text-align: left;
-					font-size: 90%;
-					text-shadow: 1px 1px 0px white;
-				}
-				.roll .betValue, .roll .numberValue, .roll .payoutValue {
-					font-weight: bold;
-				}
-				.roll .mined {
-					display: table-cell;
-					text-align: right;
-					font-size: 80%;
-					color: #555;
-				}
-			.roll .status {
-				padding: 5px;
-			}
-				.roll .reason {
-					font-weight: bold;
-					color: gray;
-				}
-				.roll .status .prepending,
-				.roll .status .pending,
-				.roll .status .refunded,
-				.roll .status .failed {
-					padding: 4px;
-				}
-
-			.roll .result {
-				display: table;
-			}
-				.roll .result > .left {
-					display: table-cell;
-					vertical-align: middle;
-					padding: 10px;
-				}
-				.roll .result > .middle {
-					display: table-cell;
-					vertical-align: middle;
-					padding: 10px;
-				}
-				.roll .result > .right {
-					display: table-cell;
-					font-size: 90%;
-					vertical-align: middle;
-					text-align: center;
-					padding: 10px;
-					width: 100%;
-				}
-
-				.roll .rollicon {
+				.Roll .header {
 					background: #EEE;
-					padding: 3px;
-					border-radius: 10px;
-					border: 1px solid #EEE;
-					box-shadow: 2px 2px 2px 0px gray;
-					min-width: 60px;
-					text-align: center;
-				}
-				.roll.won .rollicon {
-					background: #EFE;
-				}
-				.roll .rollicon .rollnumber {
-					margin-top: -5px;
-					font-size: 300%;
-				}
-				.roll .rollicon .label {
-					margin-top: -5px;
-					font-size: 70%;
-					text-align: center;
-				}
-
-				.roll .won {
-					font-weight: bold;
-					font-style: italic;
-				}
-				.roll .lost {
-					white-space: nowrap;
-				}
-				.roll .lostMsg {
-					font-style: italic;
-					color: gray;
-				}
-				.roll .paid {
-					color: green;
-				}
-				.roll .warning {
-					display: inline-block;
-					border: 1px solid #AAA;
-					background: #EEE;
-					padding: 3px;
-					font-size: 80%;
-					border-radius: 5px;
-					margin: 5px 0px;
-					color: #666;
-				}
-				.roll.unfinalized .warning {
-					background: #FEE;
-					color: red;
-					border: 1px solid #FDD;
-				}
-				@keyframes boxShadowGlow {
-					from { box-shadow: 0px 0px 10px lime; }
-					to { box-shadow: 0px 0px 4px green; }
-				}
-				.roll .claim {
-					font-size: 150%;
-					color: green;
-					font-weight: bold;
-					padding: 3px 5px;
-					margin: 10px;
-					cursor: pointer;
-					border: none;
-					border-radius: 3px;
-					animation: boxShadowGlow 2s 0s infinite ease-in-out alternate;
+					padding: 3px 4px;
+					border-bottom: 1px solid gray;
+					border-radius: inherit;
+					border-bottom-left-radius: 0;
+					border-bottom-right-radius: 0;
 					transition: background .3s;
 				}
-				.roll .claim:hover {
-					background: rgba(0,255,0,.2);
-					transition: background .5s;
+				.Roll.failed .header {
+					background: #FEE;
 				}
-				.roll.unfinalized .claim {
-					background: green;
-					color: white;
+				.Roll.winner .header {
+					background: #EFE;
 				}
-				.roll.claiming .claim {
-					background: #DDD;
-					color: gray;
-					cursor: not-allowed;
-					animation: none;
+					.Roll .header .info {
+						font-size: 90%;
+						text-shadow: 1px 1px 0px white;
+					}
+						.Roll .header .bet-value,
+						.Roll .header .number-value,
+						.Roll .header .payout-value {
+							font-weight: bold;
+						}
+					.Roll .header .created {
+						text-align: right;
+						font-size: 80%;
+						color: #555;
+					}
+
+				.Roll .new {}
+					.Roll .new .loader {
+						padding: 10px;
+					}
+					.Roll .new .status-ctnr {
+						padding: 15px;
+					}
+
+				.Roll .left {
+					padding: 10px;
+				}
+					.Roll .roll-icon {
+						background: #EEE;
+						padding: 3px;
+						border-radius: 10px;
+						border: 1px solid #EEE;
+						box-shadow: 2px 2px 2px 0px gray;
+						min-width: 60px;
+						text-align: center;
+						transition: background .3s, box-shadow .3s;
+					}
+					.Roll.winner .roll-icon {
+						background: #EFE;
+						box-shadow: inset 0px 0px 10px 0px green;
+					}
+					.Roll .roll-icon .number {
+						margin-top: -5px;
+						font-size: 300%;
+					}
+					.Roll .roll-icon .label {
+						margin-top: -5px;
+						font-size: 70%;
+						text-align: center;
+					}
+
+				.Roll .middle .result-status {
+					display: inline-block;
+					font-weight: bold;
+				}
+				.Roll .middle .result-msg {
+					display: inline-block;
+					font-size: 90%;
+					color: #444;
+				}
+
+				.Roll .right {
+					padding: 5px 10px;
+				}
+					.Roll .choose {
+						font-size: 90%;
+						letter-spacing: .1em;
+						border-bottom: 1px solid rgba(0,0,0,.1);
+					}
+					.Roll .auto,
+					.Roll .manual {
+						padding: 4px;
+						border-radius: 3px;
+						font-size: 90%;
+						margin-top: 4px;
+					}
+					.Roll .auto { background: rgba(0,128,0,.1); }
+					.Roll .manual { background: rgba(0,0,0,.1); }
+					.Roll .manual .status {
+						padding: 5px;
+					}
+					.Roll .or {
+						font-weight: bold;
+						font-style: italic;
+						font-size: 80%;
+						color: gray;
+					}
+
+					.Roll .timeleft {
+						display: inline-block;
+						font-size: 70%;
+						margin: 5px 0px;
+						background: rgba(200,200,100,.2);
+						border-radius: 2px;
+						padding: 2px 4px;
+					}
+					.Roll .finalize-rolls-left,
+					.Roll .finalize-blocks-left {
+						display: inline-block;
+						font-weight: bold;
+					}
+
+				.Roll .payout-failure .warning {
+					padding: 5px;
+					background: rgba(255, 0, 0, .3);
+					border-radius: 3px;
+				}
+
+				.Roll .view-link {
+					position: absolute;
+					bottom: 0px;
+					right: 0px;
+					padding: 0px 3px;
+					opacity: .4;
+				}
+				.Roll .view-link a {
+					text-decoration: none;
 				}
 			
 
@@ -554,34 +525,13 @@
 			</div>
 		</div>
 
-		<div id="BetUi">
-			<div class="better" style="display: flex;">
-				<div style="flex-grow: 1;">
-					<div class="bet-slider"></div>
-					<div class="num-slider"></div>
-				</div>
-				<div style="flex-shrink: 0; width: 230px;">
-					<div class="summary" style="height: 100%; width: 100%; display: flex; flex-direction: column; justify-content: center;">
-						<div class="valid">
-							<div class="label">Payout</div>
-							<div class="payout">--</div>
-							<div class="multiple">--</div>
-							<button class="button" id="RollButton">Roll!</button>
-						</div>
-						<div class="invalid" style="display: none; align-self: center;">
-							<div class="msg">Bet is not a number.</div>
-						</div>
-					</div>
-					<div id="RollTip"></div>
-				</div>
-			</div>
-		</div>
+		<div class="bet-ui-ctnr"></div>
 
 		<div class="main">
 			<table width=100%><tr>
 			<td valign=top width=100%>
 				<div style="margin: 0px 20px">
-					<div class="subsection currentRolls">
+					<div class="subsection current-rolls">
 						<div class="head">
 							Your Current Rolls
 							<span class="clear">(clear)</span>
@@ -594,7 +544,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="subsection recentRolls">
+					<div class="subsection past-rolls">
 						<div class="head">
 							Your Roll History
 						</div>
@@ -617,90 +567,6 @@
 			</td>
 			</tr></table>
 		</div>
-
-		
-		<div class="roll template" style="display: none;">
-			<div class="info">
-				<div class="header">
-					<span class="betValue"></span>
-					<span class="numberLabel">on</span>
-					<span class="numberValue"></span>
-					<span class="payoutLabel">for</span>
-					<span class="payoutValue"></span>
-				</div>
-				<div class="mined">
-					Mined in block #348943 (Sat, Dec 30, 5:58:20 pm)
-				</div>
-			</div>
-			<div class="status">
-				<div class="prepending">
-					Waiting for a transaction id...
-				</div>
-				<div class="pending">
-					Your wager is making its way to the blockchain.
-					<span class="pendingTxLink"></span>
-					<div class="loading" style="display: none;"></div>
-				</div>
-				<div class="failed">
-					The transaction failed: <span class="reason"></span>
-				</div>
-				<div class="refunded">
-					Your wager was refunded because: <span class="reason">Not enough payroll.</span>
-				</div>
-			</div>
-			<div class="result">
-				<div class="left">
-					<div class="rollicon">
-						<div class="rollnumber"></div>
-						<div class="label">roll</div>
-					</div>
-				</div>
-				<div class="middle">
-					<div class="won">
-						WINNER!
-					</div>
-					<div class="lost">
-						Sorry, you lost.
-					</div>
-				</div>
-				<div class="right">
-					<div class="waiting">
-						<div>
-							You'll receive your winnings when anyone rolls.<br>Or, you can claim your winnings now.
-							<div class="warning">
-								Note: If nobody rolls within <span class="blocksLeft"></span>, you will lose your winnings unless you claim them.
-							</div>
-							<button class="claim">Claim Winnings</button>
-							<div class="claimStatus"></div>
-						</div>
-					</div>
-					<div class="syncing">
-						<div class="warning">
-							Your provider is currently updating. Please wait a moment...
-						</div>
-					</div>
-					<div class="unfinalized">
-						<div class="warning">
-							Your roll was unable to be automatically paid.<br>You have <span class="blocksLeft"></span> to claim your winnings.
-						</div>
-						<button class="claim">Claim Winnings</button>
-						<div class="claimStatus"></div>
-					</div>
-					<div class="paid">
-						Your winnings have been paid.
-					</div>
-					<div class="paymentFailure">
-						Your bet won, but payment failed. This is likely due to sending to an address that has an expensive fallback function. Try sending more gas:
-						<br><br>
-						<button class="claim">Claim Winnings</button>
-						<div class="claimStatus"></div>
-					</div>
-					<div class="lostMsg"></div>
-				</div>
-			</div>
-			<div class="viewLink"><a target="_blank">🔎</a></div>
-		</div>
-
 
 		<div class='mini-roll template' style="display: none;">
 			<div class='head'>

@@ -2,27 +2,396 @@ Loader.require("dice")
 .then(function(dice){
 	const computeResult = DiceUtil.computeResult;
 	const computePayout = DiceUtil.computePayout;
+	const _$currentRolls = $(".current-rolls .body");
+	const _$pastRolls = $(".past-rolls .body");
 
-	ethUtil.onStateChanged((state)=>{
+	ethUtil.onStateChanged(state => {
 		if (!state.isConnected) return;
 		refreshBetUiSettings();
-		refreshAllRolls(state);
-		refreshStats();
-		refreshLiveRolls();
+		refreshAllRolls();
+		// refreshStats();
+		// refreshLiveRolls();
 	});
 
 	const _betUi = new BetUi();
+	_betUi.$e.appendTo($(".bet-ui-ctnr"))
+	_betUi.setOnRoll(doRoll);
 
-	// const _feeBipsPromise = dice.feeBips().then(res=>{
-	// 	_feeBips = res;
-	// 	return _feeBips;
-	// });
+	const _controller = new DiceUtil.DiceController(dice, ethUtil);
+	const _rolls = {};
 
+	function refreshAllRolls() {
+		Promise.all([
+			dice.feeBips(),
+			dice.curId(),
+			dice.finalizeId(),
+		]).then(arr => {
+			const feeBips = arr[0];
+			const curId = arr[1];
+			const finalizeId = arr[2];
+			const user = ethUtil.getCurrentStateSync().account;
+			_controller.setSettings(user, 256, feeBips, curId, finalizeId);
+			return _controller.refreshRolls();
+		}).then(states => {
+			states.reverse().forEach(createOrUpdateRoll);
+		});
+	}
+
+	function createOrUpdateRoll(state) {
+		var roll = _rolls[state.txId];
+		if (!roll) {
+			roll = new Roll();
+			roll.setOnEvent(updateRollFromEvent);
+			roll.$e.appendTo(_$pastRolls);
+		}
+		roll.setState(state);
+		return roll;
+	}
+
+	function updateRollFromEvent(ev) {
+		const state =_controller.updateRollFromEvent(ev);
+		const roll = _rolls[ev.transactionHash];
+		roll.setState(state);
+	}
+	
+	function refreshBetUiSettings() {
+		Promise.all([
+			dice.minBet(),
+			dice.maxBet(),
+			dice.curMaxBet(),
+			dice.minNumber(),
+			dice.maxNumber(),
+			dice.feeBips()
+		]).then(arr=>{
+			const maxBet = BigNumber.min(arr[1], arr[2]);
+			_betUi.setSettings({
+				minBet: arr[0].div(1e18),
+				maxBet: maxBet.div(1e18),
+				minNumber: arr[3],
+				maxNumber: arr[4],
+				feeBips: arr[5]
+			});
+		});
+	}
+
+	function doRoll(obj) {
+		const number = obj.number;
+		const bet = obj.bet;
+		const payout = obj.payout;
+		const gasPrice = obj.gasPrice;
+		const waitTimeMs = obj.waitTimeMs;
+
+		try {
+			var rollPromise = dice.roll({_number: number}, {value: bet, gas: 147000, gasPrice: gasPrice});
+		} catch(e) {
+			console.error(e);
+			ethStatus.open();
+			return;
+		}
+
+		// Create roll
+		const roll = new Roll();
+		roll.setOnEvent(updateRollFromEvent);
+		roll.setState({
+			state: "new",
+			bet: bet,
+			number: number,
+			payout: payout,
+			rollPromise: rollPromise,
+			waitTimeMs: waitTimeMs
+		});
+		// When it gets txHash, add it to _rolls array so we can
+		//  refresh it when controller sees new events.
+		rollPromise.getTxHash.then(txId => {
+			_rolls[txId] = roll;
+		});
+		// Display it, and scroll to it.
+		roll.$e.prependTo(_$currentRolls);
+		//doScrolling("#BetterCtnr", 400);
+	}
+
+	function Roll() {
+		const _$e = $(`
+			<div class="Roll">
+				<div class="header" style="display: flex;">
+					<div class="info" style="flex-grow: 1;">
+						<span class="bet-value"></span> on <span class="number-value"></span>
+						 for <span class="payout-value"></span>
+					</div>
+					<div class="created"></div>
+				</div>
+				<div class="new">
+					<div style="display: flex; align-items: center;">
+						<div class="loader" style="flex-shrink: 0; padding: 10px;">
+							<div class="roll-icon">
+								<div class="number"></div>
+								<div class="label">roll</div>
+							</div>
+						</div>
+						<div class="status-ctnr" style="flex-grow: 1;">
+							<div class="status"></div>
+						</div>
+					</div>
+				</div>
+				<div class="refunded">
+					<div class="refund-link"></div>
+					<div class="refund-msg"></div>
+				</div>
+				<div class="rolled" style="display: flex; align-items: center;">
+					<div class="left" style="flex-shrink: 0;">
+						<div class="roll-icon">
+							<div class="number"></div>
+							<div class="label">roll</div>
+						</div>
+					</div>
+					<div class="middle" style="flex-shrink: 0;">
+						<div class="result-status"></div>
+					</div>
+					<div class="right" style="flex-grow: 1; text-align: center;">
+						<div class="lost">
+							<div class="inspiration"></div>
+						</div>
+						<div class="waiting">
+							<div class="auto">
+								You'll automatically get paid after <div class="finalize-rolls-left"></div> more rolls occur.
+							</div>
+							<div class="or">or</div>
+							<div class="manual">
+								<button class="btn-claim">Claim Winnings Now</button>
+								<div class="claim-status"></div>
+							</div>
+							<div class="timeleft tipLeft" title="Results are based off of the blockhash,
+							and the contract cannot look back further than 256 blocks. This is a limitation of Ethereum.">
+								Note: If not enough rolls occur, you must claim within <div class="finalize-blocks-left"></div> blocks.
+							</div>
+						</div>
+						<div class="payout-success"></div>
+						<div class="payout-failure">
+							<div class="warning">
+								InstaDice was unable to pay your win!<br>
+								Please <a>click here</a> for more information.
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="view-link"><a>🔍</a></div>
+			</div>
+		`);
+		const _$betValue = _$e.find(".bet-value");
+		const _$numberValue = _$e.find(".number-value");
+		const _$payoutValue = _$e.find(".payout-value");
+		const _$created = _$e.find(".created");
+		const _$viewLink = _$e.find(".view-link").hide();
+		// the three states it can be
+		const _$new = _$e.find(".new");
+		const _$rolled = _$e.find(".rolled");
+		const _$refunded = _$e.find(".refunded");
+		// _$new stuff
+		const _$loader = _$new.find(".loader").hide();
+		const _$status = _$new.find(".status");
+		// _$refunded stuff
+		const _$refundMsg = _$refunded.find(".refund-msg");
+		// _$rolled substates
+		const _$lost = _$rolled.find(".lost");
+		const _$waiting = _$rolled.find(".waiting");
+		const _$payoutSuccess = _$rolled.find(".payout-success");
+		const _$payoutFailure = _$rolled.find(".payout-failure");
+		// _$rolled elements
+		const _$number = _$rolled.find(".number");
+		const _$resultStatus = _$rolled.find(".result-status");
+		// If lost
+		const _$inspiration = _$rolled.find(".inspiration");
+		// If waiting
+		const _$finalizeRollsLeft = _$rolled.find(".finalize-rolls-left");
+		const _$finalizeBlocksLeft = _$rolled.find(".finalize-blocks-left");
+		const _$btnClaim = _$rolled.find(".btn-claim");
+		const _$claimStatus = _$rolled.find(".claim-status").hide();
+		const _$timeleft = _$rolled.find(".timeleft");
+		
+
+		var _onEvent = (ev)=>{};
+
+		this.setState = _setState;
+		this.setOnEvent = (fn) => _onEvent=fn;
+		this.$e = _$e;
+
+		/*
+			id, txId
+			state: "refunded", "wagered", "finalized", "payout-failed", "payout-success"
+			bet, number, payout
+			createdEvent, result, isWinner, finalizedEvent, paymentEvent
+		*/
+		function _setState(state) {
+			_state = state;
+			_stopLoader();
+			_refreshInfo();
+			_refreshBody();
+		}
+
+		function _refreshInfo() {
+			_$betValue.text(util.toEthStrFixed(_state.bet));
+			_$numberValue.text(`${_state.number}`);
+			_$payoutValue.text(util.toEthStrFixed(_state.payout));
+			if (_state.createdEvent) {
+				const id = _state.id;
+				const txId = _state.createdEvent.transactionHash;
+				const linkStr = id ? `Roll #${id}` : `Roll Refunded`;
+				const $txLink = util.$getTxLink(linkStr, txId);
+		    	const dateStr = util.toDateStr(_state.createdEvent.args.time);
+		    	_$created.empty().append($txLink).append(` ${dateStr}`);
+		    	_$viewLink.show().find("a")
+		    		.attr("href", `/games/viewroll.html#${txId}`);
+			}
+		}
+
+		function _refreshBody() {
+			_$e.removeClass("new refunded failed winner loser");
+			_refreshInfo();
+
+			_$new.hide();
+			_$rolled.hide();
+			_$refunded.hide();
+			if (_state.state == "new") {
+				_$e.addClass("new");
+				const rollPromise = _state.rollPromise;
+				const waitTimeMs = _state.waitTimeMs;
+				_$new.show();
+				util.$getTxStatus(_state.rollPromise, {
+					waitTimeMs: waitTimeMs,
+					onFailure: e => _$e.removeClass("new").addClass("failed"),
+					onSuccess: res => {
+						const wagered = res.events.find(ev => ev.name=="RollWagered");
+						const refunded = res.events.find(ev => ev.name=="RollRefunded");
+						_onEvent(wagered || refunded);
+					},
+					onClear: () => _$e.remove()
+				}).appendTo(_$status);
+				rollPromise.getTxHash.then(_startLoader);
+				return;
+			}
+			if (_state.state == "refunded") {
+				_$e.addClass("refunded");
+				_$refunded.show();
+				const $link = util.$getTxLink(`Your wager was refunded:`, _state.createdEvent.transactionHash);
+				_$refundLink.empty().append($link);
+				_$refundMsg.text(_state.refundMsg);
+				return;
+			}
+
+			_$e.addClass(_state.isWinner ? "winner" : "loser");
+			_$rolled.show();
+			_$number.text(_state.result);
+			if (_state.isWinner) {
+				_$resultStatus.text(`≤ ${_state.number}. You won!`);
+			} else {
+				_$resultStatus.text(`> ${_state.number}. You lost.`);
+			}
+
+			// show substate (waiting, payoutsuccess, payoutfailure)
+			_$lost.hide();
+			_$waiting.hide();
+			_$payoutSuccess.hide();
+			_$payoutFailure.hide();
+			if (_state.isWinner) {
+				if (_state.state == "wagered") {
+					tippy(_$timeleft[0], {placement: "top"});
+					_$waiting.show();
+					_$finalizeBlocksLeft.text(_state.finalizeBlocksLeft);
+					_$finalizeRollsLeft.text(_state.finalizeRollsLeft);
+					_$claimStatus.hide();
+				} else if (_state.state == "finalized") {
+					if (_state.didPayoutSucceed) {
+						const amt = _state.paymentEvent.args.payout;
+						_$payoutSuccess.empty()
+							.append(`✓ Your winnings of ${util.toEthStrFixed(amt)} `)
+							.append(util.$getTxLink(`have been paid.`, _state.paymentEvent.transactionHash))
+							.show();
+					} else {
+						_$payoutFailure.show();
+						_$payoutFailure.find("a").attr("href", `/games/viewroll.html#${txId}`);
+					}
+				}
+			} else {
+				_$lost.show();
+				_$inspiration.text(_getInspired(_state.txId));
+			}
+		}
+
+		var _loaderTimeout;
+		function _startLoader() {
+			const $n = _$loader.show().find(".number");
+
+			(function tick() {
+				$n.text(Math.round(1 + Math.random()*98));
+				_loaderTimeout = setTimeout(tick, 100);
+			}());
+		}
+		function _stopLoader() {
+			clearTimeout(_loaderTimeout);
+		}
+
+		const _getInspired = (function(){
+			const msgs = [
+		    	"Don't give up so easily...",
+		    	"Don't give up so easily...",
+		    	"Don't give up so easily...",
+		    	"Don't give up so easily...",
+		    	"Don't give up so easily...",
+		    	"Better luck next time",
+		    	"Better luck next time",
+		    	"Better luck next time",
+		    	"Better luck next time",
+		    	"Better luck next time",
+		    	"You can shake it off",
+		    	"Stay strong",
+		    	"Believe in yourself",
+		    	"Follow your dreams",
+		    	"You'll win next time... maybe.",
+		    	"You're just a tiny bit unlucky",
+		    	"Let's pretend like this never happened.",
+		    	"By tomorrow, you'll forget all about this.",
+		    	"You miss 100% of the shots you don't take",
+		    	"Why not try again?",
+		    	"At least you still have your health.",
+		    	"Some things just weren't meant to be.",
+		    	"It's not the end of the world",
+		    	"Just do it!!!",
+		    	"Are you gonna do something about it?",
+		    	"It's not such a big deal.",
+		    ];
+		    return function(txId) {
+		    	const rand = (new BigNumber(txId)).mod(msgs.length).toNumber();
+		    	return msgs[rand];
+		    }
+		}());
+	}
+			
 	/*
 		Bet placing UI.
 	*/
 	function BetUi() {
-		const _$e = $("#BetUi");
+		const _$e = $(`
+			<div class="BetUi" style="display: flex;">
+				<div style="flex-grow: 1;">
+					<div class="bet-slider"></div>
+					<div class="num-slider"></div>
+				</div>
+				<div style="flex-shrink: 0; width: 230px;">
+					<div class="summary" style="height: 100%; width: 100%; display: flex; flex-direction: column; justify-content: center;">
+						<div class="valid">
+							<div class="label">Payout</div>
+							<div class="payout">--</div>
+							<div class="multiple">--</div>
+							<button class="btn-roll">Roll!</button>
+							<div class="roll-tip"></div>
+						</div>
+						<div class="invalid" style="display: none; align-self: center;">
+							<div class="msg">Bet is not a number.</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		`);
 		const _$summary = _$e.find(".summary");
 		const _$valid = _$summary.find(".valid");
 		const _$invalid = _$summary.find(".invalid");
@@ -42,12 +411,13 @@ Loader.require("dice")
 
 		// set via settings
 		var _feeBips;
+		var _onRoll = (obj) => { };
 
 		// roll tip
 	    (function _initRollButton(){
 	    	const gps = util.getGasPriceSlider(5);
-	    	const $rollBtn = $("#RollButton");
-	    	const $rollTip = $("#RollTip").append(gps.$e);
+	    	const $rollBtn = _$e.find(".btn-roll");
+	    	const $rollTip = $("<div></div>").append(gps.$e);
 	    	(function attachTip(){
 	    		tippy($rollBtn[0], {
 					// arrow: false,
@@ -76,23 +446,15 @@ Loader.require("dice")
 				}
 
 				$(this).blur();
-				try {
-					const betWei = bet.mul(1e18);
-					var rollPromise = dice.roll({_number: number}, {value: betWei, gas: 147000, gasPrice: gps.getValue()});
-					rollPromise.waitTimeMs = (gps.getWaitTimeS() || 45) * 1000;
-				} catch(e) {
-					console.error(e);
-					ethStatus.open();
-					return;
-				}
-				
-				trackResult(
-					rollPromise,
-					bet,
-					number
-				);
-				doScrolling("#BetterCtnr", 400);
-		    })
+				const betWei = bet.mul(1e18);
+				_onRoll({
+					bet: betWei,
+					number: number,
+					payout: computePayout(betWei, number, _feeBips),
+					gasPrice: gps.getValue(),
+					waitTimeMs: (gps.getWaitTimeS() || 45) * 1000,
+				});
+		    });
 	    }());
 
 		this.setSettings = function(settings) {
@@ -111,6 +473,8 @@ Loader.require("dice")
 			}]);
 			_refreshPayout();
 		};
+		this.$e = _$e;
+		this.setOnRoll = (fn) => _onRoll = fn;
 
 		function _refreshPayout() {
 			_$valid.hide();
@@ -136,454 +500,6 @@ Loader.require("dice")
 			_$multiple.text(`${multiple}x return, ${number}% win odds`);
 		}
 	}
-
-	
-	function refreshBetUiSettings() {
-		Promise.all([
-			dice.minBet(),
-			dice.maxBet(),
-			dice.curMaxBet(),
-			dice.minNumber(),
-			dice.maxNumber(),
-			dice.feeBips()
-		]).then(arr=>{
-			const maxBet = BigNumber.min(arr[1], arr[2]);
-			_betUi.setSettings({
-				minBet: arr[0].div(1e18),
-				maxBet: maxBet.div(1e18),
-				minNumber: arr[3],
-				maxNumber: arr[4],
-				feeBips: arr[5]
-			});
-		});
-	}
-			
-
-	// When they place a bet, show it and add it to _$currentRolls
-	var _$currentRolls = {};
-	const _$currentRollsCtnr = $(".currentRolls .rolls");
-	const _$emptyCurrentRolls = $(".currentRolls .empty");
-	const _$clearCurrentRolls = $(".currentRolls .clear").click(function(){
-		_$currentRolls = {};
-		_$emptyCurrentRolls.show();
-		_$clearCurrentRolls.hide();
-		_$currentRollsCtnr.empty();
-		ethUtil.getCurrentState().then(refreshAllRolls);
-	});
-	function trackResult(p, bet, number) {
-		_$emptyCurrentRolls.hide();
-		_$clearCurrentRolls.show();
-
-		var roll = {
-			state: "prepending",
-			id: null,
-			bet: bet,
-			number: number,
-			payout: computePayout(bet, number)
-		};
-		var $e = $getRoll(roll).prependTo(_$currentRollsCtnr);
-
-		const loadingBar = util.getLoadingBar(p.waitTimeMs);
-		p.getTxHash.then((txId)=>{
-			roll.state = "pending";
-			roll.txId = txId;
-			const $new = $getRoll(roll);
-			$e.replaceWith($new);
-			$e = $new;
-			$e.find(".loading").show().append(loadingBar.$e);
-		});
-		p.then((res)=>{
-			const event = res.events.find(ev => ev.name=="RollWagered" || ev.name=="RollRefunded");
-			if (!event){
-				throw new Error(
-					`The transaction receipt unexpectedly contained no event.
-					<br>Please refresh the page.`
-				);
-			}
-			// display the roll, and poll if it is syncing.
-			(function updateRoll(){
-				dice.curId().then(curId => {
-					// its possible that the curId is not yet updated.
-					// if so, the roll is "syncing", waiting for provider to update.
-					var roll = getRollFromWageredOrRefunded(event, curId);
-
-					// if roll is displayed, and not syncing, do nothing.
-					var $displayed = _$currentRolls[roll.id];
-					if ($displayed && $displayed.data("roll").state != "syncing") return;
-
-					// display the new roll. add it to _$currentRolls
-					// it will now be updated as new events come in.
-					const $new = $getRoll(roll);
-					($displayed || $e).replaceWith($new);
-					_$currentRolls[roll.id] = $new;
-
-					// if it's syncing, poll every second for an updated curId()
-					if (roll.state == "syncing") setTimeout(updateRoll, 1000);
-				});
-			}());
-		}).catch((e)=>{
-			roll.state = "failed"
-			roll.failReason = e.message.split("\n")[0];
-			if (e.receipt) {
-				roll.created = {
-					blockHash: e.receipt.blockHash,
-					blockNumber: e.receipt.blockNumber,
-					txId: e.receipt.transactionHash,
-					time: new BigNumber((+new Date())/1000)
-				};
-			}
-			const $new = $getRoll(roll);
-			$e.replaceWith($new);
-		});
-	}
-
-
-	/******************************************************/
-	/*** COLLATING ROLLS FROM EVENTS **********************/
-	/******************************************************/
-	function getRollFromWageredOrRefunded(event, curId){
-		const roll = {}
-		roll.id = event.name=="RollWagered"
-			? event.args.id
-			: null;
-		roll.txId = event.transactionHash;
-		roll.state = event.name=="RollRefunded"
-			? "refunded"
-			: roll.id.gt(curId)
-				? "syncing"
-				: curId.equals(roll.id) ? "waiting" : "unfinalized"
-		roll.bet = event.args.bet;
-		roll.number = event.args.number;
-		roll.payout = event.name=="RollWagered"
-			? event.args.payout
-			: computePayout(roll.bet, roll.number);
-		roll.result = event.name=="RollWagered"
-			? computeResult(event.blockHash, event.args.id)
-			: null;
-		roll.isWinner = event.name=="RollWagered"
-			? !roll.result.gt(roll.number)
-			: null;
-		roll.refundReason = event.name=="RollWagered"
-			? null
-			: event.args.msg;
-		roll.created = {
-			blockNumber: event.blockNumber,
-			blockHash: event.blockHash,
-			txId: event.transactionHash,
-			txIndex: event.transactionIndex,
-			time: event.args.time
-		};
-		return roll;
-	}
-
-	// Collate the events into an object for each roll:
-	// - state (prepending, pending, refunded, waiting, unfinalized, finalized, paid, paymentfailed)
-	// - id, bet, number, result, isWinner
-	// - refundReason, failReason
-	// - created (blockNumber, blockHash, txId, txIndex, time)
-	// - finalized (blockNumber, txId, time)
-	// - paid (blockNumber, txId, time)
-	// - paymentfailure (blockNumber, txId, time)
-	function refreshAllRolls(state) {
-		if (!state.account) return;
-		Promise.all([
-			dice.curId(),
-			dice.getEvents("RollWagered", {user: state.account}, state.latestBlock.number - 256),
-    		dice.getEvents("RollRefunded", {user: state.account}, state.latestBlock.number - 256),
-    		dice.getEvents("RollFinalized", {user: state.account}, state.latestBlock.number - 256),
-    		dice.getEvents("PayoutSuccess", {user: state.account}, state.latestBlock.number - 256),
-    		dice.getEvents("PayoutFailure", {user: state.account}, state.latestBlock.number - 256),
-    		// _feeBipsPromise
-		]).then((arr)=>{
-			const curId = arr[0];
-			const rollsWagered = arr[1];
-			const rollsRefunded = arr[2];
-			const rollsFinalized = arr[3];
-			const rollsPaid = arr[4];
-			const rollsUnpayable = arr[5];
-			const rolls = {};
-
-			rollsWagered.concat(rollsRefunded).forEach((event)=>{
-				const roll = getRollFromWageredOrRefunded(event, curId);
-				rolls[roll.id || event.transactionHash] = roll;
-			});
-			rollsFinalized.forEach((event)=>{
-				const roll = rolls[event.args.id];
-				if (!roll) return;
-				if (!roll.result.equals(event.args.result))
-					console.error("Contract got different result than us!", roll);
-				roll.result = event.args.result;
-				roll.state = "finalized";
-				roll.finalized = {
-					blockNumber: event.blockNumber,
-					txId: event.transactionHash,
-					time: event.args.time
-				};
-			});
-			rollsPaid.forEach((event)=>{
-				const roll = rolls[event.args.id];
-				if (!roll) return;
-				roll.state = "paid";
-				roll.paid = {
-					blockNumber: event.blockNumber,
-					txId: event.transactionHash,
-					time: event.args.time
-				};
-			});
-			rollsUnpayable.forEach((event)=>{
-				const roll = rolls[event.args.id];
-				if (!roll) return;
-				roll.state = "paymentfailed";
-				roll.paymentfailure = {
-					blockNumber: event.blockNumber,
-					txId: event.transactionHash,
-					time: event.args.time
-				}
-			});
-
-			const allRolls = Object.values(rolls);
-			allRolls.sort((a, b)=>{
-				a = a.created;
-				b = b.created;
-				if (a.blockNumber < b.blockNumber) return -1;
-				if (a.blockNumber > b.blockNumber) return 1;
-				return a.txIndex < b.txIndex
-					? -1
-					: 1;
-			}).reverse();
-			refreshCurrentRolls(allRolls);
-			refreshRecentRolls(allRolls);
-		});
-    }
-
-    // for any roll that is in _$currentRolls, refresh it.
-    // ignore rolls that are in _$lockedRolls.
-    function refreshCurrentRolls(rolls) {
-    	rolls.forEach((roll)=>{
-    		if (!_$currentRolls[roll.id]) return;
-    		if (_$lockedRolls[roll.id]) return;
-    		const $new = $getRoll(roll);
-			_$currentRolls[roll.id].replaceWith($new);
-			_$currentRolls[roll.id] = $new;
-    	})
-    }
-
-    const _$recentRollsCtnr = $(".recentRolls .rolls");
-    const _$noRecentRolls = $(".recentRolls .empty");
-    const _$lockedRolls = {};
-    // given all rolls, ignore any that are _$currentRolls
-    // and do not update any that are in _$lockedRolls
-    // for the rest, rerender them entirely
-    function refreshRecentRolls(rolls) {
-    	const $rolls = rolls.map((roll)=>{
-    		if (_$currentRolls[roll.id]) return;
-    		return _$lockedRolls[roll.id]
-    			? _$lockedRolls[roll.id].detach()
-    			: $getRoll(roll);
-    	}).filter(x=>!!x);
-    	// append them all
-    	_$recentRollsCtnr.empty();
-    	$rolls.forEach($r=>$r.appendTo(_$recentRollsCtnr));
-    	rolls.length == 0
-    		? _$noRecentRolls.show()
-    		: _$noRecentRolls.hide();
-    }
-
-
-	/******************************************************/
-	/*** DISPLAY A ROLL ***********************************/
-	/******************************************************/
-	const avgBlockTime = ethUtil.getAverageBlockTime();
-	const _msgs = [
-    	"Don't give up so easily...",
-    	"Don't give up so easily...",
-    	"Don't give up so easily...",
-    	"Don't give up so easily...",
-    	"Don't give up so easily...",
-    	"Better luck next time",
-    	"Better luck next time",
-    	"Better luck next time",
-    	"Better luck next time",
-    	"Better luck next time",
-    	"You can shake it off",
-    	"Stay strong",
-    	"Believe in yourself",
-    	"Follow your dreams",
-    	"You'll win next time... maybe.",
-    	"You're just a tiny bit unlucky",
-    	"Let's pretend like this never happened.",
-    	"By tomorrow, you'll forget all about this.",
-    	"You miss 100% of the shots you don't take",
-    	"Why not try again?",
-    	"At least you still have your health.",
-    	"Some things just weren't meant to be.",
-    	"It's not the end of the world",
-    	"Just do it!!!",
-    	"Are you gonna do something about it?",
-    	"It's not such a big deal.",
-    ];
-    function getLoseMsg(num) {
-    	return _msgs[num % _msgs.length];
-    }
-
-    function $getRoll(roll) {
-    	const $e = $(".roll.template")
-    		.clone()
-    		.removeClass("template")
-    		.data("roll", roll)
-    		.show();
-
-    	const $status = $e.find(".status");
-    	const $prepending = $e.find(".status .prepending").hide();
-    	const $pending = $e.find(".status .pending").hide();
-    	const $refund = $e.find(".status .refunded").hide();
-    	const $failed = $e.find(".status .failed").hide();
-    	const $result = $e.find(".result").hide();
-    	const $mined = $e.find(".mined").hide();
-    	const $viewLink = $e.find(".viewLink").hide();
-    	$e.addClass(roll.state);
-    	
-    	const bet = roll.bet;
-    	const number = roll.number;
-    	const txId = roll.txId;
-    	const multiple = roll.payout.div(bet).toFixed(2);
-    	const payoutStr = util.toEthStrFixed(roll.payout);
-    	$e.find(".betValue").text(util.toEthStrFixed(bet));
-    	$e.find(".numberValue").text(`${number} or lower`);
-    	$e.find(".payoutValue").text(`${payoutStr} (${multiple}x)`);
-    	if (roll.state == "prepending") {
-    		$prepending.show();
-    		return $e;
-    	}
-    	if (roll.state == "pending") {
-    		$pending.show();
-    		$e.find(".pendingTxLink")
-    			.append(util.$getTxLink("See it on Etherscan", roll.txId));
-    		return $e;
-    	}
-
-    	if (roll.created) {
-	    	const id = roll.id;
-	    	const time = roll.created.time;
-	    	const blockNum = roll.created.blockNumber;
-	    	const blockHash = roll.created.blockHash;
-			let options = {  
-			    weekday: "short",
-			    day: "numeric",
-			    month: "short",
-			    hour: "2-digit",
-			    minute: "2-digit",
-			    second: "2-digit"
-			};
-
-			const linkStr = id ? `Roll #${id}` : `No Roll`;
-			const $txLink = util.$getTxLink(linkStr, txId);
-	    	const dateStr = (new Date(roll.created.time.toNumber()*1000))
-	    		.toLocaleString(window.navigator.language, options);
-	    	$e.find(".mined").empty()
-	    		.show()
-	    		.append($txLink)
-	    		.append(` ${dateStr} `);
-
-	    	$viewLink.show().find("a")
-	    		.attr("href", `/games/viewroll.html#${txId}`);
-	    }
-
-    	if (roll.state == "refunded") {
-    		const msg = roll.refundReason;
-    		$refund.show();
-    		$refund.find(".reason").text(msg);
-    		return $e;
-    	}
-    	if (roll.state == "failed") {
-    		$failed.show();
-    		$failed.find(".reason").text(roll.failReason);
-    		return $e;
-    	}
-
-		$status.hide();
-		$result.show();
-		const $won = $result.find(".won").hide();
-		const $lost = $result.find(".lost").hide();
-		const $rollnumber = $result.find(".rollnumber");
-		const $button = $result.find(".claim");
-		const $claimStatus = $result.find(".claimStatus");
-		
-		const result = computeResult(roll.created.blockHash, roll.id);
-		const didWin = !result.gt(number);
-		$rollnumber.text(result);
-		if (didWin) {
-			$won.show();
-			$button.click(()=>{
-				var claimTxId;
-				// lock this roll so it doesn't get updated.
-				_$lockedRolls[roll.id] = $e;
-				$e.addClass("claiming");
-				const p = dice.payoutRoll([roll.id], {gas: 56000});
-				// disable button, show stuff.
-				$button.attr("disabled","disabled");
-				$claimStatus.show();
-				$claimStatus.text("Waiting for txId...");
-				// update text
-				p.getTxHash.then(function(txId){
-					claimTxId = txId;
-					$claimStatus.empty()
-						.append(util.$getTxLink("Your claim is being mined.", txId))
-				});
-				// on success unlock, on failure, let them retry.
-				p.then(function(){
-					delete _$lockedRolls[roll.id];
-					$claimStatus.empty()
-						.append(util.$getTxLink("Transaction complete.", claimTxId))
-						.append(" Please wait a moment.");
-				}, function(e){
-					$e.removeClass("claiming");
-					$button.removeAttr("disabled");
-					$claimStatus.empty()
-						.append(`There was an error claiming: `)
-						.append(util.$getTxLink(e.message.split("\n")[0], claimTxId))
-						.append("<br>You should retry with more gas, or contact support");
-				});
-			})
-		} else {
-			$lost.show();
-		}
-
-		const $waiting = $result.find(".waiting").hide();
-		const $syncing = $result.find(".syncing").hide();
-		const $unfinalized = $result.find(".unfinalized").hide();
-		const $paid = $result.find(".paid").hide();
-		const $paymentFailure = $result.find(".paymentFailure").hide();
-		const $lostMsg = $result.find(".lostMsg").hide();
-		if (didWin){
-			$e.addClass("won");
-			if (roll.state == "waiting") {
-				$waiting.show();
-			} else if (roll.state == "syncing") {
-				$syncing.show();
-			} else if (roll.state == "unfinalized") {
-				$unfinalized.show();
-			} else if (roll.state == "paid") {
-				$paid.empty()
-					.append(`✓ Your winnings of ${payoutStr} `)
-					.append(util.$getTxLink(`have been paid.`, roll.paid.txId))
-					.show();
-			} else if (roll.state == "paymentfailure") {
-				$paymentFailure.show();
-			}
-		} else {
-			$e.addClass("lost");
-			const rand = (new BigNumber(roll.created.txId)).mod(1000).toNumber();
-			$lostMsg.show().text(getLoseMsg(rand));
-		}
-		avgBlockTime.then((blocktime)=>{
-			const curBlockNum = ethUtil.getCurrentBlockHeight();
-			const blocksLeft = 255 - (curBlockNum - roll.created.blockNumber);
-			const timeLeft = util.toTime(blocktime.mul(blocksLeft))
-			$result.find(".blocksLeft").text(`${blocksLeft} blocks (~${timeLeft})`);
-		});
-    	return $e;
-    }
 
     /******************************************************/
 	/*** LIVE FEED ****************************************/

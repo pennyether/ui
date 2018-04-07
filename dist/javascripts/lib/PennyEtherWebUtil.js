@@ -645,6 +645,7 @@
 	//  - .successMsg: what to show after successful promise
 	//  - .waitTimeMs: estimated wait time, controls status bar speed
 	//  - .onSuccess: (res)=>{} - called after tx succeeds
+	//  - .onFailure: (e)=>{} - called if fails
 	//  - .onClear: ()=>{} - called when user clears success/error message
 	function TxStatus(_util) {
 		const _$e = $(`

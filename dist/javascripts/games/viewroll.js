@@ -85,37 +85,29 @@ Loader.require("dice")
 		_$resultSection.show();
 		_$refunded.hide();
 
-		dice.rolls([rollId]).then(arr=>{
-			const user = arr[0];
-			const bet = arr[1];
-			const number = arr[2];
-			const payout = arr[3];
-			const block = arr[4];
-			const result = arr[5];
-			const isPaid = arr[6];
+		DiceUtil.getRoll(dice, rollId).then(roll => {
 			$(".field .value").text("");
 
-			if (block == 0) {
+			if (roll.id.equals(0)) {
 				_$status.empty().append(`Roll Id "${rollId}" not found in contract.`);
 				return;
 			}
 
 			$(".field.id .value").text(`${rollId}`);
-			$(".field.block .value").text(`${block}`);
-			$(".field.user .value").append(util.$getAddrLink(user));
-			$(".field.bet .value").append(ethUtil.toEthStr(bet));
-			$(".field.number .value").append(`${number} or below.`);
-			$(".field.payout .value").append(ethUtil.toEthStr(computePayout(bet, number)));
+			$(".field.block .value").text(`${roll.block}`);
+			$(".field.user .value").append(util.$getAddrLink(roll.user));
+			$(".field.bet .value").append(util.toEthStrFixed(roll.bet));
+			$(".field.number .value").append(`${roll.number} or below.`);
+			$(".field.payout .value").append(util.toEthStrFixed(roll.payout));
 
 			// subtract 5000 from block... there's some bug with infura where it
 			// sometimes doesn't return events.
 			Promise.all([
-				dice.getEvents("RollWagered", {id: rollId}, block-5000),
-				dice.getEvents("RollResolved", {id: rollId}, block-5000),
-				dice.getEvents("PayoutSuccess", {id: rollId}, block-5000),
-				dice.getEvents("PayoutFailure", {id: rollId}, block-5000)
+				dice.getEvents("RollWagered", {id: rollId}, roll.block-5000),
+				dice.getEvents("RollFinalized", {id: rollId}, roll.block-5000),
+				dice.getEvents("PayoutSuccess", {id: rollId}, roll.block-5000),
+				dice.getEvents("PayoutFailure", {id: rollId}, roll.block-5000)
 			]).then(arr=>{
-				console.log("resolved:", arr[1]);
 				const wagered = arr[0].length ? arr[0][0] : null;
 				const resolved = arr[1].length ? arr[1][0] : null;
 				const payoutSuccess = arr[2].length ? arr[2][0] : null;
@@ -125,7 +117,7 @@ Loader.require("dice")
 					throw new Error(`Unable to find the RollWagered event of roll: ${rollId}`);
 				}
 				const computedResult = computeResult(wagered.blockHash, rollId);
-				const isWinner = !computedResult.gt(number);
+				const isWinner = !computedResult.gt(roll.number);
 				// update initial transaction and result.
 				$(".field.transaction .value")
 					.append(util.toDateStr(wagered.args.time))
