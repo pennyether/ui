@@ -227,7 +227,6 @@ Loader.require("dice")
         const _$numberValue = _$e.find(".number-value");
         const _$payoutValue = _$e.find(".payout-value");
         const _$created = _$e.find(".created");
-        const _$viewLink = _$e.find(".view-link").hide();
         // the three states it can be
         const _$new = _$e.find(".new");
         const _$rolled = _$e.find(".rolled");
