@@ -120,12 +120,13 @@
 				.BetUi {
 					position: relative;
 					box-sizing: border-box;
+					width: 800px;
+					padding: 10px;
+					margin: 0px auto;
 					background: linear-gradient(to bottom, rgba(255,255,255,.9) 0%, rgba(255,255,255,.4) 100%);
 					border-radius: 10px;
 					border: 1px outset #CCC;
-					padding: 10px;
-					width: 800px;
-					margin: 0px auto;
+					box-shadow: 3px 3px 5px 0px rgba(0,0,0,.2);
 				}
 				.BetUi .Slider .val-txt {
 					color: rgb(0,240,0);
@@ -139,6 +140,12 @@
 					text-align: center;
 					width: 160px;
 				}
+					.BetUi .summary .payout-ctnr {
+						/*padding: 10px 5px;*/
+						/*border: 1px solid rgba(0,0,0,.3);
+						border-radius: 2px;
+						background: linear-gradient(0deg, rgba(0,255,0,.3) 0%, rgba(0,255,0,.05) 100%);*/
+					}
 					.BetUi .summary .label {
 						font-variant: small-caps;
 						font-weight: bold;
@@ -149,7 +156,7 @@
 						color: white;
 						font-size: 200%;
 						margin-bottom: 5px;
-						background: linear-gradient(to bottom, rgba(0,128,0,.5) 0%, rgba(0,128,0,.9) 100%);
+						background: linear-gradient(to bottom, rgba(0,128,0,.3) 0%, rgba(0,128,0,.6) 100%);
 						text-shadow: 2px 2px 4px rgba(0,0,0,.4);
 						border-radius: 3px;
 					}
@@ -193,12 +200,13 @@
 			/*********************************************/
 			/******** ROLLS ******************************/
 			/*********************************************/
-			.current-rolls .clear {
+			.current-rolls > .head > .clear {
 				font-size: 80%;
 				letter-spacing: initial;
 				color: blue;
 				cursor: pointer;
 				display: none;
+				vertical-align: middle;
 			}
 			.current-rolls .body,
 			.past-rolls .body {
@@ -207,6 +215,12 @@
 			}
 			.past-rolls {
 				margin-top: 40px;
+			}
+			.past-rolls .head .info {
+				font-size: 50%;
+				color: gray;
+				letter-spacing: initial;
+				vertical-align: middle;
 			}
 
 			@keyframes rollPending {
@@ -229,6 +243,11 @@
 				border: 1px solid gray;
 				border-radius: 5px;
 				box-shadow: 0px 0px 10px 0px gray;
+				transition: opacity 1s, transform 1s;
+			}
+			.Roll.tiny {
+				opacity: .1;
+				transform: scale(.1);
 			}
 			.Roll.new {
 				background-color: #DFD;
@@ -242,6 +261,10 @@
 				box-shadow: 0px 0px 10px 0px green;
 				border-color: green;
 			}
+			.Roll.refunded {
+				box-shadow: 0px 0px 10px 0px orange;
+				border-color: orange;
+			}
 				.Roll .header {
 					background: #EEE;
 					padding: 3px 4px;
@@ -253,6 +276,9 @@
 				}
 				.Roll.failed .header {
 					background: #FEE;
+				}
+				.Roll.refunded .header {
+					background: #FFF7EE;
 				}
 				.Roll.winner .header {
 					background: #EFE;
@@ -271,6 +297,14 @@
 						font-size: 80%;
 						color: #555;
 					}
+					.Roll .header .view-link {
+						margin-left: 4px;
+						font-size: 50%;
+						opacity: .4;
+					}
+					.Roll .header .view-link a {
+						text-decoration: none;
+					}
 
 				.Roll .new {}
 					.Roll .new .loader {
@@ -280,6 +314,20 @@
 						padding: 15px;
 					}
 
+				.Roll .refunded {
+					padding: 10px;
+					text-align: center;
+				}
+					.Roll .refunded .refund-link {}
+					.Roll .refunded .refund-msg {
+						display: inline-block;
+						font-size: 110%;
+						padding: 2px 8px;
+						background: rgba(0,0,0,.1);
+						border-radius: 2px;
+						margin: 2px;
+					}
+
 				.Roll .left {
 					padding: 10px;
 				}
@@ -287,7 +335,6 @@
 						background: #EEE;
 						padding: 3px;
 						border-radius: 10px;
-						border: 1px solid #EEE;
 						box-shadow: 2px 2px 2px 0px gray;
 						min-width: 60px;
 						text-align: center;
@@ -295,7 +342,7 @@
 					}
 					.Roll.winner .roll-icon {
 						background: #EFE;
-						box-shadow: inset 0px 0px 10px 0px green;
+						box-shadow: inset 0px 0px 10px 0px green, 2px 2px 2px 0px gray;
 					}
 					.Roll .roll-icon .number {
 						margin-top: -5px;
@@ -352,29 +399,28 @@
 							padding: 2px 4px;
 						}
 
-					
 					.Roll .finalize-rolls-left,
 					.Roll .finalize-blocks-left {
 						display: inline-block;
 						font-weight: bold;
 					}
 
-				.Roll .payout-failure .warning {
-					padding: 5px;
-					background: rgba(255, 0, 0, .3);
-					border-radius: 3px;
-				}
-
-				.Roll .view-link {
-					position: absolute;
-					bottom: 0px;
-					right: 0px;
-					padding: 0px 3px;
-					opacity: .4;
-				}
-				.Roll .view-link a {
-					text-decoration: none;
-				}
+					.Roll .payout-failure .warning {
+						padding: 5px;
+						background: rgba(255, 0, 0, .3);
+						border-radius: 3px;
+					}
+					.Roll .payout-success {
+						display: inline-block;
+						padding: 3px 8px;
+						background: rgba(0, 128, 0, .1);
+						border-radius: 3px;
+					}
+					.Roll .inspiration {
+						display: inline-block;
+						font-style: italic;
+						color: #999;
+					}
 			
 
 			.liveRolls {
@@ -541,13 +587,12 @@
 							<div class="empty">
 								Roll above, and watch for your result right here.
 							</div>
-							<div class="rolls">
-							</div>
+							<div class="rolls"></div>
 						</div>
 					</div>
 					<div class="subsection past-rolls">
 						<div class="head">
-							Your Roll History
+							Your Roll History <span class="info">(Last 256 blocks)</span>
 						</div>
 						<div class="body">
 							<div class="empty">

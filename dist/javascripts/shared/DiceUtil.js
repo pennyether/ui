@@ -131,6 +131,7 @@
                 roll.payout = computePayout(roll.bet, roll.number, _feeBips);
                 roll.refundMsg = event.args.msg;
                 roll.createdEvent = event;
+                roll.createdTimestamp = event.args.time.toNumber();
             }
             if (event.name == "RollWagered") {
                 roll.id = event.args.id;
@@ -144,6 +145,7 @@
                 roll.finalizeRollsLeft = Math.max((roll.id - _finalizeId) + 1, 0);
                 roll.finalizeBlocksLeft = Math.max((event.blockNumber+255) - curBlockNum, 0)
                 roll.createdEvent = event;
+                roll.createdTimestamp = event.args.time.toNumber();
             }
             if (event.name == "RollFinalized") {
                 if (roll.id === undefined) return;

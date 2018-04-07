@@ -2,15 +2,18 @@ Loader.require("dice")
 .then(function(dice){
     const computeResult = DiceUtil.computeResult;
     const computePayout = DiceUtil.computePayout;
-    const _$currentRolls = $(".current-rolls .body");
-    const _$pastRolls = $(".past-rolls .body");
+    const _$curRolls = $(".current-rolls .rolls");
+    const _$curRollsEmpty = $(".current-rolls .empty");
+    const _$curRollsClear = $(".current-rolls .head .clear").click(clearCurRolls);
+    const _$pastRolls = $(".past-rolls .rolls");
+    const _$pastRollsEmpty = $(".past-rolls .empty");
 
     ethUtil.onStateChanged(state => {
         if (!state.isConnected) return;
         refreshBetUiSettings();
         refreshAllRolls();
-        // refreshStats();
-        // refreshLiveRolls();
+        refreshStats();
+        refreshLiveRolls();
     });
 
     const _betUi = new BetUi();
@@ -19,19 +22,26 @@ Loader.require("dice")
 
     const _controller = new DiceUtil.DiceController(dice, ethUtil);
     const _rolls = {};
+    const _curRolls = [];
 
     function refreshAllRolls() {
+        const user = ethUtil.getCurrentStateSync().account;
+        if (!user) return;
+
         Promise.all([
             dice.feeBips(),
             dice.finalizeId(),
         ]).then(arr => {
             const feeBips = arr[0];
             const finalizeId = arr[1];
-            const user = ethUtil.getCurrentStateSync().account;
             _controller.setSettings(user, 256, feeBips, finalizeId);
             return _controller.refreshRolls();
         }).then(states => {
+            states.sort((a, b) => {
+                return a.createdTimestamp - b.createdTimestamp;
+            })
             states.reverse().forEach(createOrUpdateRoll);
+            refreshRollContainers();
         });
     }
 
@@ -53,6 +63,7 @@ Loader.require("dice")
             return;
         }
         roll.setState(state);
+        refreshRollContainers();
     }
     
     function refreshBetUiSettings() {
@@ -94,6 +105,13 @@ Loader.require("dice")
         // Create roll
         const roll = new Roll();
         roll.setOnEvent(ev => updateRollFromEvent(ev, roll));
+        roll.setOnRemove(() => {
+            roll.$e.addClass("tiny");
+            setTimeout(() => {
+                roll.$e.remove();
+                refreshRollContainers(); 
+            }, 500);
+        });
         roll.setState({
             state: "new",
             bet: bet,
@@ -106,10 +124,36 @@ Loader.require("dice")
         //  refresh it when controller sees new events.
         rollPromise.getTxHash.then(txId => {
             _rolls[txId] = roll;
+            _curRolls.push(roll);
         });
-        // Display it, and scroll to it.
-        roll.$e.prependTo(_$currentRolls);
-        //doScrolling("#BetterCtnr", 400);
+        // Display it, scroll to it, and refresh containers
+        roll.$e.prependTo(_$curRolls);
+        roll.$e.addClass("tiny");
+        setTimeout(()=>{ roll.$e.removeClass("tiny"); }, 0);
+        doScrolling(".bet-ui-ctnr", 400);
+        refreshRollContainers();
+    }
+
+    function refreshRollContainers() {
+        // Allow clearing if theres at least one current roll that is not new.
+        const hasClearable = _curRolls.some(roll => roll.getState().state != "new");
+        if (hasClearable) { _$curRollsClear.show(); }
+        else _$curRollsClear.hide();
+        // Show / Hide cur rolls "empty"
+        if (_$curRolls.children().length == 0) _$curRollsEmpty.show();
+        else _$curRollsEmpty.hide();
+        // Show / Hide past rolls "empty"
+        if (_$pastRolls.children().length == 0) _$pastRollsEmpty.show()
+        else _$pastRollsEmpty.hide();
+    }
+    function clearCurRolls() {
+        // remove clearable rolls from _curRolls
+        const rollsToClear = _curRolls.filter(roll => roll.getState().state != "new");
+        rollsToClear.forEach(r => {
+            _curRolls.splice(_curRolls.indexOf(r), 1);
+            r.$e.prependTo(_$pastRolls);
+        });
+        refreshRollContainers();
     }
 
     function Roll() {
@@ -121,6 +165,7 @@ Loader.require("dice")
                          for <span class="payout-value"></span>
                     </div>
                     <div class="created"></div>
+                    <div class="view-link"></div>
                 </div>
                 <div class="new">
                     <div style="display: flex; align-items: center;">
@@ -176,7 +221,6 @@ Loader.require("dice")
                         </div>
                     </div>
                 </div>
-                <div class="view-link"></div>
             </div>
         `);
         const _$betValue = _$e.find(".bet-value");
@@ -211,10 +255,13 @@ Loader.require("dice")
         const _$claimStatus = _$rolled.find(".claim-status").hide();
 
         var _onEvent = (ev) => {};
+        var _onRemove = () => {};
         var _state;
 
         this.setState = _setState;
-        this.setOnEvent = (fn) => _onEvent=fn;
+        this.setOnEvent = (fn) => _onEvent = fn;
+        this.setOnRemove = (fn) => _onRemove = fn;
+        this.getState = () => _state;
         this.$e = _$e;
 
         /*
@@ -237,10 +284,10 @@ Loader.require("dice")
             if (_state.createdEvent) {
                 const txId = _state.createdEvent.transactionHash;
                 const linkStr = _state.state=="refunded" ? `Roll Refunded` : `Roll #${_state.id}`;
-                const $txLink = util.$getTxLink(linkStr, txId);
+                const $rollLink = _$getViewLink(linkStr);
                 const dateStr = util.toDateStr(_state.createdEvent.args.time);
-                _$created.empty().append($txLink).append(` ${dateStr}`);
-                _$viewLink.empty().append(_$getViewLink("🔍")).show();
+                const $txLink = util.$getTxLink(dateStr, txId);
+                _$created.empty().append($txLink).append($rollLink).append(" - ").append($txLink);
             }
         }
 
@@ -264,7 +311,7 @@ Loader.require("dice")
                         const refunded = res.events.find(ev => ev.name=="RollRefunded");
                         _onEvent(wagered || refunded);
                     },
-                    onClear: () => _$e.remove()
+                    onClear: () => _onRemove()
                 }).appendTo(_$status);
                 rollPromise.getTxHash.then(_startLoader);
                 return;
@@ -445,9 +492,11 @@ Loader.require("dice")
                 <div style="flex-shrink: 0; width: 230px;">
                     <div class="summary" style="height: 100%; width: 100%; display: flex; flex-direction: column; justify-content: center;">
                         <div class="valid">
-                            <div class="label">Payout</div>
-                            <div class="payout">--</div>
-                            <div class="multiple">--</div>
+                            <div class="payout-ctnr">
+                                <div class="label">Payout</div>
+                                <div class="payout">--</div>
+                                <div class="multiple">--</div>
+                            </div>
                             <button class="btn-roll">Roll!</button>
                             <div class="roll-tip"></div>
                         </div>
@@ -584,12 +633,12 @@ Loader.require("dice")
                     const txId = e.transactionHash;
                     const rollId = e.args.id.toNumber();
                     const dateStr = util.toDateStr(e.args.time);
-                    const betStr = util.toEthStr(e.args.bet);
+                    const betStr = util.toEthStrFixed(e.args.bet);
                     const number = e.args.number.toNumber();
                     const $userLink = e.args.user == ethUtil.getCurrentAccount()
                         ? util.$getAddrLink("You!", e.args.user)
                         : util.$getShortAddrLink(e.args.user);
-                    const payoutStr = util.toEthStr(e.args.payout);
+                    const payoutStr = util.toEthStrFixed(e.args.payout);
                     const result = computeResult(e.blockHash, rollId);
                     const isWinner = !result.gt(number);
 
