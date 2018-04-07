@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/javascripts/lib/Loader.js"></script>
+		<script src="/javascripts/status/monarchy.js"></script>
+		<style>
+		</style>
+	</head>
+	<body><div id="Content">
+		<div class="pageTitle">
+			Monarchy! Status
+		</div>
+		<style>
+			.row {
+				margin-top: 20px;
+				font-size: 90%;
+			}
+
+			.row > table td {
+				vertical-align: top;
+			}
+
+			.cell .titleBar {
+				text-transform: uppercase;
+				font-size: 80%;
+				letter-spacing: .3em;
+				margin-bottom: 10px;
+				overflow: hidden;
+				text-align: center;
+			}
+			.cell .titleBar:before,
+			.cell .titleBar:after {
+				position: relative;
+				display: inline-block;
+				vertical-align: middle;
+				width: 50%;
+				top: -1px;
+				height: 1px;
+				border-top: 1px solid rgba(0,0,0,.3);
+				content: "";
+			}
+			.cell .titleBar:before {
+				right: 0.5em;
+				margin-left: -50%;
+			}
+			.cell .titleBar:after {
+			 	left: 0.2em;
+			 	margin-right: -50%;
+			}
+
+			.cell {
+				padding: 5px 10px;
+			}
+			.cell .body {
+				padding: 5px;
+				background: linear-gradient(0deg, #EEE 0%, #DDD 100%);
+				border-radius: 4px;
+				/*min-height: 100px;*/
+			}
+
+			.bar {
+				position: relative;
+				width: 100%;
+			}
+				.bar .amt {
+					position: relative;
+					background: green;
+					transition: width .5s;
+				}
+			.bar-label {
+				font-size: 70%;
+				font-weight: bold;
+				margin-top: 4px;
+			}
+
+			.legend label {
+				font-size: 90%;
+				background: #CCC;
+				border-radius: 3px;
+				padding: 2px 3px;
+			}
+
+			.request {
+				border: 1px solid gray;
+				border-radius: 3px;
+				background: #EEE;
+				padding: 10px;
+				margin: 10px 5px;
+			}
+		</style>
+		<div style="margin: 10px 0px;">
+			<div class="row one">
+				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+					<td width="33%"><div class="cell">
+						<div class="titleBar">Health</div>
+						<div class="body">
+							<div class="multi-bar" style="padding-right: 30px">
+								<div class="balance">
+									<div class="bar-label">
+										Balance
+									</div>
+									<div class="bar">
+										<div class="amt" style="width: 100%">&nbsp;</div>
+									</div>
+								</div>
+								<div class="collateral">
+									<div class="bar-label">
+										Collateral
+									</div>
+									<div class="bar">
+										<div class="amt" style="width: 10%">&nbsp;</div>
+									</div>
+								</div>
+								<div class="bankroll" style="padding-left: 10%;">
+									<div class="bar-label">
+										Bankroll
+									</div>
+									<div class="bar">
+										<div class="amt" style="width: 77.78%">&nbsp;</div>
+									</div>
+								</div>
+								<div class="profit" style="padding-left: 80%;">
+									<div class="bar-label">
+										Profit/Deficit
+									</div>
+									<div class="bar">
+										<div class="amt" style="width: 50%">&nbsp;</div>
+									</div>
+								</div>
+							</div>
+							* Currently running at a slight deficit of .123 ETH.<br>
+							* Of 58.34 ETH bankrolled, 55.21 ETH (94%) is available
+							to stake games.
+						</div>
+					</div></td>
+					<td width="66%"><div class="cell">
+						<div class="titleBar">Stats</div>
+						<div class="body">
+							<select>
+								<option>All Time</option>
+								<option>Last 7 Days</option>
+								<option>Last 30 Days</option>
+								<option>Last 13 Weeks</option>
+								<option>Last 12 Months</option>
+							</select>
+							<br>
+							totalFees, totalBids*, totalPrizes*, numEndedGames<br>
+							* values are updated only when a game has ended
+						</div>
+					</div></td>
+				</tr></table>
+			</div>
+			<div class="row two">
+				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+					<td width="33%"><div class="cell">
+						<div class="titleBar">Profits</div>
+						<div class="body">
+							<select>
+								<option>All Time</option>
+								<option>Last 30 Days</option>
+								<option>Last 60 Days</option>
+								<option>Last 90 Days</option>
+							</select>
+							<div>
+								Go through all Registry items that we know
+								are Bankrollable and get their profitsSent()
+								delta between estimated blocks. Break out the
+								chart by Registry name (or nice version)
+							</div>
+						</div>
+					</div></td>
+					<td width="67%"><div class="cell">
+						<div class="titleBar">Profits History</div>
+						<div class="body">
+							<select>
+								<option>All Time</option>
+								<option>Last 7 Days</option>
+								<option>Last 30 Days</option>
+								<option>Last 13 Weeks</option>
+								<option>Last 12 Months</option>
+							</select>
+							<br>
+							Show a line chart of profits over time.<br>
+							Also show profits per unit of time (as a bar).<br>
+							Generate chart from .storageAt(profitsSent) at various points.
+						</div>
+					</div></td>
+				</tr></table>
+			</div>
+			<div class="row two">
+				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+					<td width="50%"><div class="cell">
+						<div class="titleBar">Governance</div>
+						<div class="body">
+							<div class="legend">
+								<select>
+									<option>Pending</option>
+									<option>Executed</option>
+									<option>Cancelled</option>
+								</select>
+								<div style="max-height: 250px; overflow: auto;">
+									<div class="request">
+										Governance #1
+									</div>
+									<div class="request">
+										Governance #2
+									</div>
+									<div class="request">
+										Governance #3
+									</div>
+									<div class="request">
+										Governance #4
+									</div>
+									<div class="request">
+										Governance #5
+									</div>
+									<div class="request">
+										Governance #6
+									</div>
+									<div class="request">
+										Governance #7
+									</div>
+								</div>
+							</div>
+						</div>
+					</div></td>
+					<td width="50%"><div class="cell">
+						<div class="titleBar">Events</div>
+						<div class="body">
+							<div class="legend">
+								<label><input type=checkbox checked> Capital</label>
+								<label><input type=checkbox > Reserve</label>
+								<label><input type=checkbox > Profits</label>
+								<label><input type=checkbox checked> Distributions</label>
+								<label><input type=checkbox checked> Governance</label>
+							</div>
+						</div>
+					</div></td>
+				</tr></table>
+			</div>
+		</div>
+	</div></body>
+</html>

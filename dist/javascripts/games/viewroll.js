@@ -1,6 +1,5 @@
 Loader.require("dice")
 .then(function(dice){
-	var _rollId;
 	const _$roll = $("#Roll");
 	const _$loadBtn = $("#LoadButton").click(findRoll);
 	const _$status = $(".roll .status");
@@ -55,8 +54,8 @@ Loader.require("dice")
 			}
 		}).catch((e)=>{
 			_$status.empty().text(`Error when retrieving transaction receipt: ${e.message}`);
-		});
-	};
+		})
+	}
 
 	function refreshRefundedRoll(event) {
 		$(".contractData .field .value").text("");

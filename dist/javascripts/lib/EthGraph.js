@@ -128,7 +128,6 @@
     changes, the Graph is updated, and vice versa.
 */
 function EthGraph(niceWeb3) {
-    var _self = this;
     var _preview;
     var _graph;
 
@@ -170,11 +169,10 @@ function EthGraph(niceWeb3) {
             const seq = new Sequence();
             seq.init(obj);
             return seq;
-        })
+        });
         _graph = new SvgGraph();
         _$graphCtnr.empty().append(_graph.$e);
         _graph.init({
-            name: "MainGraph",
             sequences: graphSequences,
             titleFormatFn: params.titleFormatFn,
             xTicks: null,
@@ -191,9 +189,8 @@ function EthGraph(niceWeb3) {
         // Create preview sequences (only ones we want to show)
         const previewSequences = params.sequences.map(obj => {
             if (!obj.showInPreview) return null;
-            obj = Object.assign({}, obj);
-            obj.maxPoints = params.previewNumPoints;
             obj.exact = true;
+            obj.maxPoints = params.previewNumPoints;
             const seq = new Sequence();
             seq.init(obj);
             return seq;
@@ -205,7 +202,6 @@ function EthGraph(niceWeb3) {
             sequences: previewSequences,
             min: params.min,
             max: params.max,
-            numPoints: params.previewNumPoints,
             formatFn: params.previewFormatFn,
             xTicks: params.previewXTicks
         });
@@ -293,7 +289,8 @@ function PromiseQueue(maxConcurrency, maxQueueSize) {
         _valPromises[item.id].resolve(
             item.valFn().then(val => {
                 onLoaded();
-                return _vals[item.id] = val;
+                _vals[item.id] = val;
+                return val;
             }, onLoaded)
         );
         _pop();
@@ -343,7 +340,6 @@ function PromiseQueue(maxConcurrency, maxQueueSize) {
 */
 function Sequence() {
     const _self = this;
-    const _MAX_CONCURRENCY = 2;
 
     // data stuff
     var _name;
@@ -389,6 +385,7 @@ function Sequence() {
     this.name = () => _name;
     this.yScaleHeader = () => _yScaleHeader;
     this.setExact = (bool) => _exact = !!bool;
+    this.setMaxPoints = (num) => _maxPoints = num;
     this.color = () => _color;
 
     this.getValue = function(x) {
@@ -574,7 +571,6 @@ function Preview() {
     var _sequences;
     var _max;
     var _min;
-    var _numPoints;
     var _formatFn;
 
     var _graph;
@@ -664,7 +660,7 @@ function Preview() {
             // start moving.
             moveDrag.startDragging(ev);
         });
-    };
+    }
 
     this.onViewChanged = (fn) => _viewChangedCb = fn;
 
@@ -676,26 +672,20 @@ function Preview() {
         formatFn: converts two X points to a string
     */
     this.init = function(params) {
-        ["sequences","min","max","numPoints","formatFn","xTicks"].forEach(name => {
+        ["sequences","min","max","formatFn","xTicks"].forEach(name => {
             if (params[name]===undefined) throw new Error(`Preview must be passed "${name}" param.`);
         })
-        _sequences = params.sequences.map(seq => {
-            seq.setExact(true);
-            return seq;
-        });
         _min = params.min;
         _max = params.max;
-        _numPoints = params.numPoints;
         _formatFn = params.formatFn;
-        _xTicks = params.xTicks;
+        _sequences = params.sequences;
 
         _graph = new SvgGraph();
         _$e.append(_graph.$e);
         _graph.init({
-            name: "Preview",
             sequences: _sequences,
             titleFormatFn: ()=>{},
-            xTicks: _xTicks,
+            xTicks: params.xTicks,
             showInfo: false,
             showYScales: false,
             showXScale: true,
@@ -790,7 +780,7 @@ function Preview() {
 function SvgGraph() {
     // Set via init.
     var _sequences;
-    var _name;
+
     var _titleFormatFn;
     var _showYScales;
     var _showXScale;
@@ -867,7 +857,7 @@ function SvgGraph() {
                 _boundsChangedCb(startLow + deltaX, startHigh + deltaX, "move");
             }
         })
-    };
+    }
 
     function _initScrolling(){
         _$graphs.bind("wheel mousewheel", function(ev) {
@@ -883,7 +873,7 @@ function SvgGraph() {
             const newHigh = _high + (deltaRange * (1-pctLow));
             _boundsChangedCb(newLow, newHigh, "zoom");
         });
-    };
+    }
 
     function _initHover(){
         _$graphs.on("mousemove", function(ev){
@@ -894,18 +884,14 @@ function SvgGraph() {
             _setHoverPt(null, null);
             _refreshHoverThrottled();
         });
-    };
+    }
 
-    this.setParent = function($parent) {
-        _$parent = $parent;
-    };
     this.init = function(params) {
-        ["sequences", "name", "titleFormatFn", "xTicks",
+        ["sequences", "titleFormatFn", "xTicks",
          "showInfo", "showYScales", "showXScale",
          "allowHover", "allowMoving"].forEach(name => {
             if (params[name]===undefined) throw new Error(`SvgGraph must be passed "${name}"`);
         })
-        _name = params.name;
         _sequences = params.sequences;
         _titleFormatFn = params.titleFormatFn;
         _xTicks = params.xTicks;
@@ -933,7 +919,7 @@ function SvgGraph() {
         }
 
         _sequences.forEach(seq => {
-            const $seq = $("<div class='item'></div>")
+            $("<div class='item'></div>")
                 .css("color", seq.color())
                 .text(`• ${seq.yScaleHeader()}`)
                 .appendTo(_$legend);
@@ -964,6 +950,7 @@ function SvgGraph() {
         _sequences.forEach(seq => {
             const range = seq.getRange();
             range.getYPos = function(y) {
+                var pctTop;
                 if (y === null || y === undefined) {
                     pctTop = 0;
                 } else if (range.isUndefined || range.max.equals(range.min)){
@@ -1008,7 +995,7 @@ function SvgGraph() {
         // draw each graph in reverse
         _$graphs.empty();
         _display.slice().reverse().forEach(disp => {
-            const $graph = _$getSequence(disp.seq, disp.domain, disp.range)
+            _$getSequence(disp.seq, disp.domain, disp.range)
                 .appendTo(_$graphs);
         });
         if (_showYScales) {
@@ -1070,7 +1057,7 @@ function SvgGraph() {
     var _titleCurHighLow;
     function _refreshTitle(low, high) {
         if (!_showInfo) return;
-        highLow = `${low},${high}`;
+        var highLow = `${low},${high}`;
         // start getting, or queue, this low-high value.
         //_$formattedTitle.empty().append("Loading...");
         _titlePromiseQueue.getValue(highLow, () => {

@@ -1,0 +1,49 @@
+  {
+      "parserOptions": {
+        "ecmaVersion": 6
+      },
+
+      "env": {
+        "browser": true,
+        "es6": true
+      },
+
+      "globals": {
+        "$": true,
+        "tippy": true,
+        "require": true,
+        "web3": true,
+        "ethAbi": true,
+        "EthUtil": true,
+        "NiceWeb3": true,
+        "ABIs": true,
+        "PennyEtherWebUtil": true,
+        "Nav": true,
+        "EthStatus": true,
+
+        "EthGraph": true,
+        "DiceUtil": true,
+        "PUtil": true,
+
+        "Loader": true,
+            "Registry": true,
+            "BigNumber": true,
+            "niceWeb3": true,
+            "_niceWeb3": true,
+            "_web3": true,
+            "util": true,
+            "ethUtil": true,
+            "ethStatus": true,
+            "AJAX": true,
+            "doScrolling": true,
+            "promiseInView": true
+      },
+
+      "extends": "eslint:recommended",
+
+      "rules": {
+        "no-console": "off",
+        "no-unused-vars": ["error", { "vars": "all", "args": "none", "ignoreRestSiblings": false }],
+        "no-empty": "off"
+      }
+  }
