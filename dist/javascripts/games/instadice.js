@@ -80,7 +80,7 @@ Loader.require("dice")
                 minBet: arr[0].div(1e18),
                 maxBet: maxBet.div(1e18),
                 minNumber: arr[3],
-                maxNumber: arr[4].plus(1),
+                maxNumber: arr[4],
                 feeBips: arr[5]
             });
         });
@@ -426,7 +426,9 @@ Loader.require("dice")
         }
 
         function _$getViewLink(txt) {
-            return $("<a></a>").text(txt).attr("href", `/games/viewroll.html#${_state.txId}`);
+            return $("<a target='_blank'></a>")
+                .attr("href", `/games/viewroll.html#${_state.txId}`)
+                .text(txt);
         }
 
         var _loaderTimeout;
@@ -641,18 +643,17 @@ Loader.require("dice")
                     const result = computeResult(e.blockHash, rollId);
                     const isWinner = !result.gt(number);
 
-                    const $rollLink = util.$getTxLink(`Roll #${rollId}`, txId);
-                    const $viewLink = $("<a target='_blank'>🔎</a>").attr("href", `/games/viewroll.html#${rollId}`);
+                    const $txLink = util.$getTxLink(dateStr, txId);
+                    const $rollLink = $("<a target='_blank'></a>")
+                        .attr("href", `/games/viewroll.html#${rollId}`)
+                        .text(`Roll #${rollId}`);
                     const $e = $(".mini-roll.template")
                         .clone()
                         .removeClass("template")
                         .show()
                         .prependTo($(".liveRolls .rolls"));
-                    $e.find(".head .right")
-                        .append($rollLink)
-                        .append(" ")
-                        .append($viewLink);
-                    $e.find(".date").text(dateStr);
+                    $e.find(".head .right").append($rollLink);
+                    $e.find(".date").empty().append($txLink);
                     $e.find(".bettor").append($userLink);
                     $e.find(".bet").text(betStr);
                     $e.find(".number").text(number);

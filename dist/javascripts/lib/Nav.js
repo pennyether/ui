@@ -52,7 +52,7 @@
                     url: "/status/overview.html"
                 },{
                     name: "Treasury Status",
-                    url: "/status/treasury2.html"
+                    url: "/status/treasury.html"
                 },{
                     name: "Comptroller Status",
                     url: "/status/comptroller.html"
