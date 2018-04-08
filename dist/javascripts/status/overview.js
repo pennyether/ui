@@ -35,7 +35,6 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
             if (profits.lte(0)) {
                 $e.text("Not needed.")
             } else {
-                console.log(`${profits} profits`);
                 $e.text(`${util.toEthStr(reward)} reward`);
             }
         });
@@ -89,6 +88,8 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
     util.bindToElement(tr.reserve().then(util.toEthStr), $(".tr-reserve"));
     util.bindToElement(tr.capital().then(util.toEthStr), $(".tr-cap-available"));
     util.bindToElement(tr.capitalNeeded().then(util.toEthStr), $(".tr-cap-needed"));
+    util.bindToElement(tr.profits().then(util.toEthStr), $(".tr-profits"));
+    util.bindToElement(tr.numPendingRequests(), $(".tr-num-requests"));
 
     // PENNY
     //util.bindToElement(token.totalSupply().then(util.toEthStr), $(".token-total-supply"));
@@ -122,8 +123,7 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
     ]).then(arr => {
         const max = util.toEthStr(BigNumber.min(arr[0], arr[1]));
         $(".vp-cur-max-bet").text(max);
-    })
-    
+    });
 
     // Task Manager
     util.bindToElement(ethUtil.getBalance(tm).then(util.toEthStr), $(".tm-balance"))
