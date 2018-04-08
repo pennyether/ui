@@ -6,7 +6,9 @@
 		<script src="/javascripts/lib/EthGraph.js"></script>
 		<link rel="stylesheet" type="text/css" href="/styles/status.css"/>
 		<style>
-			
+			.cell {
+				font-size: 90%;
+			}
 		</style>
 	</head>
 	<body><div id="Content">
@@ -23,7 +25,7 @@
 		<div style="margin: 10px 0px;">
 			<div class="statusRow one">
 				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
-					<td width="33%"><div class="reserve cell">
+					<td width="33%"><div class="cell status">
 						<div class="titleBar">
 							<span class="tipLeft" data-tippy-trigger="mouseenter" title="The Comptroller interacts with a few hard-coded contracts.">
 								Contracts
@@ -34,17 +36,53 @@
 								Loading...
 							</div>
 							<div class="error hide">
-								Error loading reserve details: <span class="error-msg"></span>
+								Error loading: <span class="error-msg"></span>
 							</div>
 							<div class="done-loading hide">
-								Wallet<br>
-								Treasury<br>
-								Token<br>
-								Locker<br>
+								<table width="100%">
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The Wallet can configure the CrowdSale, and can access Tokens in the Token Locker.">Wallet:</div>
+										</td>
+										<td>
+											<div class="value wallet-info"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The Comptroller sends the Treasury .5 Ether for each Token minted. The Comptroller also sends Capital raised from the sale of Tokens.">Treasury:</div>
+										</td>
+										<td>
+											<div class="value treasury-info"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="Only the Comptroller can tell the Token contract to mint and burn tokens. Minting occurs during the CrowdSale, and when raising more Capital (via Governance). Burning can occur any time after the CrowdSale.">Token:</div>
+										</td>
+										<td>
+											<div class="value token-info"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="After the CrowdSale, the Comptroller sends 20% of tokens to vest in the Token Locker, accessible only to the Wallet.">Token Locker:</div>
+										</td>
+										<td>
+											<div class="value locker-info"></div>
+										</td>
+									</tr>
+								</table>
+								<div class="is-funding hide">
+									The Treasury currently needs <span class="capital-needed"></span>. Comptroller can currently sell <span class="tokens-needed"></span> Tokens to raise this Capital.
+								</div>
+								<div class="is-not-funding hide">
+									The Treasury does not need any Capital. No Tokens are for sale right now.
+								</div>
 							</div>
 						</div>
 					</div></td>
-					<td width="33%"><div class="cell allocation">
+					<td width="33%"><div class="cell crowdsale">
 						<div class="titleBar">
 							<span class="tipLeft" data-tippy-trigger="mouseenter" title="The Comptroller can hold a one-time CrowdSale. The configuration can change until the CrowdSale has started.">
 								CrowdSale Status
@@ -55,21 +93,79 @@
 								Loading...
 							</div>
 							<div class="error hide">
-								Error loading reserve details: <span class="error-msg"></span>
+								Error loading: <span class="error-msg"></span>
 							</div>
 							<div class="done-loading hide">
-								Started<br>
-								Ended<br>
-								SoftCap<br>
-								HardCap<br>
-								BonusCap<br>
+								<div class="not-configured hide">
+									The CrowdSale has not been configured yet.
+								</div>
+								<div class="not-started hide">
+									The CrowdSale is scheduled to begin in <span class="timeleft"></span>.
+								</div>
+								<div class="pending hide">
+									The CrowdSale is currently ongoing. Currently <span class="raised"></span> has been raised.
+								</div>
+								<div class="completed hide">
+									The CrowdSale completed, with a total of <span class="raised"></span> raised.
+								</div>
+								<hr>
+								<table width=100%>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The date the CrowdSale begins (or began).">Sale Start Date:</div>
+										</td>
+										<td>
+											<div class="value date-sale-started"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The date the CrowdSale will end (or has ended).">Sale End Date:</div>
+										</td>
+										<td>
+											<div class="value date-sale-ended"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="If this amount of Ether is not met all contributors can receive a refund and Tokens will remain frozen forever.">Soft Cap:</div>
+										</td>
+										<td>
+											<div class="value soft-cap"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The maximum amount of Ether that will be raised in the CrowdSale. More than half of this amount becomes locked into the Treasury as reserve.">Hard Cap:</div>
+										</td>
+										<td>
+											<div class="value hard-cap"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The CrowdSale exchange rate beings at 1 ETH = 1.5 PENNY, and linearly falls to 1 ETH = 1 PENNY at Bonus Cap.">Bonus Cap:</div>
+										</td>
+										<td>
+											<div class="value bonus-cap"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="This is the  amount of Ether to send to the Treasury as Capital to be used to bankroll games.">Target Capital:</div>
+										</td>
+										<td>
+											<div class="value target-capital"></div>
+										</td>
+									</tr>
+								</table>
 							</div>
 						</div>
 					</div></td>
-					<td width="33%"><div class="cell funding-status">
+					<td width="33%"><div class="cell outcomes">
 						<div class="titleBar">
-							<span class="tipLeft" data-tippy-trigger="mouseenter" title="If the Treasury decides it needs more Capital (via Governance), the Comptroller can sell more PENNY Tokens.">
-								Additional Capital
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="This shows where various funds and Tokens will go for different outcomes of the CrowdSale.">
+								Outcomes
 							</span>
 						</div>
 						<div class="body">
@@ -80,8 +176,78 @@
 								Error loading: <span class="error-msg"></span>
 							</div>
 							<div class="done-loading hide">
-								Either no Capital needed, or:<br>
-								Comptroller will sell X PENNY Tokens to raise X Capital for Treasury.
+								Show a slider which updates tables.
+								<table width=100%>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="This Ether is sent to the Treasury and is strictly available to refund users for burning PENNY Tokens.">Reserve:</div>
+										</td>
+										<td>
+											<div class="value outcome-reserve"></div>
+										</td>
+										<td>
+											<div class="value outcome-reserve-pct"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="This Ether is sent to the Treasury as capital, and can be allocated to various game contracts via Governance.">Capital:</div>
+										</td>
+										<td>
+											<div class="value outcome-capital"></div>
+										</td>
+										<td>
+											<div class="value outcome-capital-pct"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="This Ether is sent to the owners to fund marketing and development.">Cash:</div>
+										</td>
+										<td>
+											<div class="value outcome-cash"></div>
+										</td>
+										<td>
+											<div class="value outcome-cash-pct"></div>
+										</td>
+									</tr>
+								</table>
+								<hr>
+								<table width=100%>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="These PENNY are minted to CrowdSale investors. This includes bonus tokens. Tokens are transferrable immediately after the CrowdSale.">Investors:</div>
+										</td>
+										<td>
+											<div class="value tokens-investors"></div>
+										</td>
+										<td>
+											<div class="value tokens-investors-pct"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="20% of tokens are sent to the Token Locker, to be vested over 600 days and retrievable only by the owner Wallet.">Vesting:</div>
+										</td>
+										<td>
+											<div class="value tokens-vesting"></div>
+										</td>
+										<td>
+											<div class="value tokens-vesting-pct"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The total amount of Tokens to be minted during the CrowdSale. If the Treasury later requires more capital (decided by Governance), Comptroller can sell more Tokens, diluting everyone including the owners.">Total:</div>
+										</td>
+										<td>
+											<div class="value tokens-total"></div>
+										</td>
+										<td>
+											<div class="value tokens-total-pct"></div>
+										</td>
+									</tr>
+								</table>
 							</div>
 						</div>
 					</div></td>
@@ -100,7 +266,7 @@
 								Loading...
 							</div>
 							<div class="error hide">
-								Error loading profits: <span class="error-msg"></span>
+								Error loading: <span class="error-msg"></span>
 							</div>
 							<div class="done-loading hide">
 								A table of events.
