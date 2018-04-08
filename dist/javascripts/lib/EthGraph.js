@@ -954,7 +954,7 @@ function SvgGraph() {
                 if (y === null || y === undefined) {
                     pctTop = 0;
                 } else if (range.isUndefined || range.max.equals(range.min)){
-                    pctTop = new BigNumber(.5);
+                    pctTop = new BigNumber(y.equals(0) ? 0 : .5);
                 } else {
                     pctTop = y.minus(range.min).div(range.range);
                 }

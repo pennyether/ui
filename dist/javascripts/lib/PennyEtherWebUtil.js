@@ -338,6 +338,7 @@
                 <div class='head'></div>
                 <div class='logs' style='overflow-y: auto;'>
                     <div class='empty'>No Logs Found</div>
+                    <div class='load'>Press "Load" to load events.</div>
                     <table cellspacing="0" cellpadding="0"></table>
                 </div>
                 <div class='status'></div>
@@ -348,7 +349,8 @@
         const _$head = _$e.find(".head");
         const _$logs = _$e.find(".logs").bind("scroll", _maybeLoadMore)
         const _$table = _$e.find("table");
-        const _$empty = _$e.find(".empty");
+        const _$empty = _$e.find(".empty").hide();
+        const _$load = _$e.find(".load");
         const _$status = _$e.find(".status");
 
         if (!opts.order) opts.order = 'newest';
@@ -434,6 +436,7 @@
         // Loads more events if not done, not loading, and scrolled to bottom.
         // Will also display more events.
         function _maybeLoadMore() {
+            _$load.hide();
             if (_isDone || _loadingPromise) return;
 
             const isNearBottom = _$logs[0].scrollHeight - _$logs.scrollTop() - _$logs.outerHeight() < 20;
