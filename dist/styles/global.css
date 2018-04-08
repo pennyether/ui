@@ -578,6 +578,18 @@ body.dark {
 
 /*
 */
+.LogViewer {}
+.LogViewer .legend {
+	text-align: center;
+	padding: 4px 0px;
+}
+.LogViewer .legend label {
+	font-size: 90%;
+	background: #CCC;
+	border-radius: 3px;
+	padding: 2px 3px;
+	margin: 0px 3px;
+}
 .LogViewer .head {
 	font-weight: bold;
 	border-bottom: 1px solid #AAA;
@@ -638,7 +650,6 @@ body.dark {
 				color: #888;
 				text-shadow: 1px 1px 0px rgba(255,255,255,.8);
 			}
-
 
 
 

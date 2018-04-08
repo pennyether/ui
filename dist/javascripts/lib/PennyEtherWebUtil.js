@@ -299,17 +299,19 @@
 
     /*
         opts: {
-            events: [{
+            events: [{ 
                 instance:
                 name:
                 filter: {   // topics are ANDed
                     topicName: value,
                     topic2Name: value
-                }
+                },
                 formatters: {
                     eventArg1: function(val){ ... }
                     eventArg2: function(val){ ... }
-                }
+                },
+                label: "",      // creates a legend item for this event
+                selected: "",   // whether the label should be selected by default
             },{ ... }],
             $head: content to put into head
             // which order to retrieve and display logs
@@ -325,10 +327,12 @@
     */
     function LogViewer(opts) {
         const _BLOCKS_PER_SEARCH = 50000;
-        const _MAX_SEARCH = _BLOCKS_PER_SEARCH*10;
 
         const _$e = $(`
             <div class='LogViewer'>
+                <div class="legend">
+                    <button>Load</button>
+                </div>
                 <div class='head'></div>
                 <div class='logs' style='overflow-y: auto;'>
                     <div class='empty'>No Logs Found</div>
@@ -337,36 +341,106 @@
                 <div class='status'></div>
             </div>
         `);
-        const _$logs = _$e.find(".logs").bind("scroll", _checkScroll)
+        const _$legend = _$e.find(".legend");
+        const _$btnLoad = _$legend.find("button").click(_resetAndLoad);
         const _$head = _$e.find(".head");
+        const _$logs = _$e.find(".logs").bind("scroll", _maybeLoadMore)
         const _$table = _$e.find("table");
         const _$empty = _$e.find(".empty");
         const _$status = _$e.find(".status");
 
         if (!opts.order) opts.order = 'newest';
         if (!opts.events) throw new Error(`Must provide "events" option.`);
+        const _events = opts.events || [];
         const _order = opts.order || "newest";
         const _allAtOnce = opts.allAtOnce || false;
         const _maxBlock = opts.maxBlock || ethUtil.getCurrentBlockHeight().toNumber();
-        const _minBlock = opts.minBlock || _maxBlock - _MAX_SEARCH;
+        const _minBlock = opts.minBlock || _maxBlock - _BLOCKS_PER_SEARCH*10;
         const _dateFn = opts.dateFn || _defaultDateFn;
         const _valueFn = opts.valueFn || _defaultValueFn;
 
-        var _isDone = false;
-        var _isLoading = false;
-        var _prevFromBlock = _order=='newest' ? _maxBlock+1 : null;
-        var _prevToBlock = _order=='oldest' ? _minBlock-1 : null;
-        var _prevEvent = null;          // the previously loaded event
-        var _$prevDateTd = null;        // the date cell of the _prevEvent
-        var _leastFromBlock = Infinity;
-        var _greatestToBlock = 0;
+        var _isResetPending;       // whether or not a reset is pending
+        var _isDone;               // if least/greatest block passes the _min/_max bounds
+        var _loadingPromise;       // if loading is in progress
+        var _prevFromBlock;        // prevFromBlock loaded
+        var _prevToBlock;          // prevToBlock loaded
+        var _prevEvent;            // the previously loaded event
+        var _$prevDateTd;          // the date cell of the _prevEvent
+        var _leastBlockLoaded;     // overall least block loaded
+        var _greatestBlockLoaded;  // overall greatest block loaded
+        var _hasLegend;            // whether or not a legend exists
 
-        function _checkScroll() {
-            if (_isDone || _isLoading) return;
+        // do some validations, set up legend.
+        (function init() {
+            _events.forEach(ev => {
+                if (!ev.instance) throw new Error(`Event must have "instance"`);
+                if (!ev.name) throw new Error(`Event must have "name"`);
+            });
+
+            // Populates the _$legend with items, sets _hasLegend
+            (function initLegend(){
+                const labels = {};      // a mapping of label=>[events]
+                const labelNames = [];  // label names in order found
+                _events.forEach(ev => {
+                    if (!ev.label) return;
+                    if (!labels[ev.label]) {
+                        labels[ev.label] = [];
+                        labelNames.push(ev.label);
+                    }
+                    labels[ev.label].push(ev);
+                });
+
+                // create labels, in order found
+                labelNames.forEach(labelName => {
+                    const events = labels[labelName];
+                    const checked = events.some(ev => ev.selected);
+                    const $label = $(`<label></label>`)
+                        .text(labelName)
+                        .appendTo(_$legend);
+                    $(`<input type=checkbox ${checked ? "checked" : ""}>`)
+                        .data("events", events)
+                        .prependTo($label);
+                });
+                _$btnLoad.appendTo(_$legend);
+
+                // set _hasLegend
+                _hasLegend = labelNames.length > 0;
+                if (!_hasLegend) _$legend.hide();
+            }());
+        }());
+
+        // Cancels the current loading, then resets and starts loading again.
+        function _resetAndLoad() {
+            if (_isResetPending) return;
+
+            _isResetPending = true;
+            Promise.resolve(_loadingPromise).then(() => {
+                _isResetPending = false;
+                _isDone = false;
+                _prevFromBlock = _order=='newest' ? _maxBlock+1 : null;
+                _prevToBlock = _order=='oldest' ? _minBlock-1 : null;
+                _prevEvent = null;
+                _$prevDateTd = null;
+                _leastBlockLoaded = Infinity;
+                _greatestBlockLoaded = 0;
+                _$table.empty();
+                _$empty.show();
+                _maybeLoadMore();
+            });
+        }
+
+        // Loads more events if not done, not loading, and scrolled to bottom.
+        // Will also display more events.
+        function _maybeLoadMore() {
+            if (_isDone || _loadingPromise) return;
 
             const isNearBottom = _$logs[0].scrollHeight - _$logs.scrollTop() - _$logs.outerHeight() < 20;
             if (!isNearBottom) return;
-            _loadMoreEvents().then(events=>{
+
+            _loadingPromise = _loadMoreEvents().then(events => {
+                _loadingPromise = null;
+                if (_isResetPending) return;
+
                 if (events.length > 0) _$empty.hide();
                 events.forEach((event, i)=>{
                     const $row = $(`<tr></tr>`).appendTo(_$table);
@@ -385,56 +459,56 @@
                     _prevEvent = event;
                     _$prevDateTd = $dateTd;
                 });
-                _checkScroll();
+
+                _maybeLoadMore();
             });
         }
 
         // Loads _BLOCKS_PER_SEARCH at a time, until events are found or until
-        // it is "done", that is, the search chunk exceeds _minBlock or _maxBlock.
+        //  it is "done", that is, the search chunk exceeds _minBlock or _maxBlock.
         function _loadMoreEvents() {
-            // return if _isDone or _isLoading
-            if (_isDone || _isLoading) return Promise.resolve([]);
+            // return if _isDone or _isResetPending
+            if (_isDone || _isResetPending) return Promise.resolve([]);
 
             // compute from/to block
             var fromBlock, toBlock;
             if (_allAtOnce) {
                 fromBlock = _minBlock;
                 toBlock = _maxBlock;
-                _isDone = true;
             } else {
                 if (_order == 'newest'){
                     // search to where the last chunk started
                     toBlock = _prevFromBlock - 1;
                     fromBlock = Math.max(_prevToBlock - _BLOCKS_PER_SEARCH, _minBlock);
-                    if (fromBlock <= _minBlock) _isDone = true;
                 } else {
                     // search from where the last chunk ended
                     fromBlock = _prevToBlock + 1;
                     toBlock = Math.min(fromBlock + _BLOCKS_PER_SEARCH, _maxBlock);
-                    if (toBlock >= _maxBlock) _isDone = true;
                 }
             }
+            _isDone = fromBlock <= _minBlock || toBlock >= _maxBlock;
 
-            // get promise for each event name
-            const promises = opts.events.map((ev)=>{
-                if (!ev.instance) throw new Error(`opts.events.instance not defined.`);
-                if (!ev.name) throw new Error(`opts.events.name not defined.`);
+            // Get which events to load, depending on legend
+            var events = _events;
+            if (_hasLegend) {
+                events = [];
+                _$legend.find("input:checked").map((i, el) => {
+                    events = events.concat($(el).data("events"));
+                });
+            }
+            const promises = events.map(ev => {
                 return ev.name == "all"
                     ? ev.instance.getAllEvents(fromBlock, toBlock)
                     : ev.instance.getEvents(ev.name, ev.filter, fromBlock, toBlock);
             });
 
             // show that we're loading, update least/greatest
-            _isLoading = true;
             _$status.text(`Scanning blocks: ${fromBlock} - ${toBlock}...`);
-            _leastFromBlock = Math.min(_leastFromBlock, fromBlock);
-            _greatestToBlock = Math.max(_greatestToBlock, toBlock);
+            _leastBlockLoaded = Math.min(_leastBlockLoaded, fromBlock);
+            _greatestBlockLoaded = Math.max(_greatestBlockLoaded, toBlock);
 
-            // concat all events, and sort. if none, try again
+            // Return a promise for more events. This will recurse if none found.
             return Promise.all(promises).then((arr)=>{
-                _isLoading = false;
-                _$status.text(`Scanned blocks: ${_leastFromBlock} - ${_greatestToBlock}.`);
-
                 // create events array, order by blockNumber / logIndex. (reverse for newest)
                 var allEvents = [];
                 arr.forEach((events) => { allEvents = allEvents.concat(events) });
@@ -444,6 +518,7 @@
                         : a.blockNumber - b.blockNumber;
                 });
                 if (_order=="newest") allEvents.reverse();
+                _$status.text(`Scanned blocks: ${_leastBlockLoaded} - ${_greatestBlockLoaded}.`);
 
                 // If there were no events, try to load more
                 return allEvents.length > 0
@@ -504,7 +579,7 @@
         this.$e = _$e;
 
         _$head.empty().append(opts.$head || "Log Viewer");
-        _checkScroll();
+        if (!_hasLegend) _resetAndLoad();
     }
 
     // A slider to help the user choose a gas price.

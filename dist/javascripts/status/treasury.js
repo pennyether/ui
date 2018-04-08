@@ -2,7 +2,6 @@ Loader.require("reg", "comp", "tr", "token")
 .then(function(reg, comp, tr, token){
 	_initGovernance();
 	_initProfits();
-	_initEvents();
 
 	var _creationBlockPromise;
 	ethUtil.getCurrentState().then(() => {
@@ -21,7 +20,8 @@ Loader.require("reg", "comp", "tr", "token")
 			_refreshProfits(),
 			_refreshTotalProfits(),
 		]).then(()=>{
-			_initTotalProfits()
+			_initTotalProfits(),
+			_initEvents()
 		});
 	}
 
@@ -480,26 +480,7 @@ Loader.require("reg", "comp", "tr", "token")
 	}
 
 	function _initEvents() {
-		const $e = $(".cell.events");
-		$e.find(".btn-load").click(_refreshEvents);
-	}
-	
-	function _refreshEvents() {
-		const $e = $(".cell.events");
-
-		var creationBlockNum;
-		_creationBlockPromise.then(blockNum => {
-			creationBlockNum = blockNum;
-			doRefresh();
-		});
-
-		function doRefresh() {
-			const $ctnr = $e.find(".events-ctnr");
-			const eventNames = [];
-			$e.find(".legend input:checked").map((i,el) => {
-				$(el).val().split(" ").forEach(str => eventNames.push(str));
-			});
-
+		_creationBlockPromise.then(creationBlockNum => {
 			const formatters = {
 				// ExecuteCapitalAdded / Removed
 				bankrollable: (val) => Loader.linkOf(val),
@@ -511,46 +492,38 @@ Loader.require("reg", "comp", "tr", "token")
 				// All
 				amount: (val) => util.toEthStr(val)
 			};
-			var $lv = util.$getLogViewer({
-				events: eventNames.map(eventName => {
-					return {
+
+			// Create "events" objects.
+			const labels = {
+				"Capital": [true, ["CapitalAdded", "CapitalRemoved", "CapitalRaised"]],
+				"Reserve": [true, ["ReserveAdded", "ReserveRemoved"]],
+				"Profits": [true, ["ProfitsReceived"]],
+				"Dividends": [true, ["DistributeSuccess", "DistributeFailure"]],
+				"Governance": [false, ["ExecutedSendCapital", "ExecutedRecallCapital", "ExecutedRaiseCapital"]]
+			}
+			const events = [];
+			Object.keys(labels).forEach(groupName => {
+				const selected = labels[groupName][0];
+				const eventNames = labels[groupName][1];
+				eventNames.forEach(eventName => {
+					events.push({
 						instance: tr,
 						name: eventName,
-						formatters: formatters
-					};
-				}),
+						formatters: formatters,
+						label: groupName,
+						selected: selected
+					})
+				})
+			});
+
+			// create log viewer
+			var $lv = util.$getLogViewer({
+				events: events,
 				order: "newest",
 				minBlock: creationBlockNum
 			});
-			$e.find(".events-ctnr").empty().append($lv);
-		}
-	}
-
-
-	function _refreshXyz() {
-		const $e = $(".funding-status");
-		const $loading = $e.find(".loading").show();
-		const $error = $e.find(".error").hide();
-		const $doneLoading = $e.find(".done-loading").hide();
-
-		// var foo, bar
-		return Promise.all([
-
-		]).then(arr => {
-
-			doRefresh();
-		}).then(()=>{
-			$loading.hide();
-			$doneLoading.show();
-		}, e=>{
-			$loading.hide();
-			$error.show();
-			$error.find(".error-msg").text(e.message);
+			$(".events .events-ctnr").empty().append($lv);
 		});
-
-		function doRefresh() {
-			// const $foo = ...
-		}
 	}
 });
 
