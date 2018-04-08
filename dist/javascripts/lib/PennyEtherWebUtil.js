@@ -819,12 +819,15 @@
 
         this.setOnChange = function(fn) {
             _onChange = fn;
-        }
+        };
         this.getValue = function() {
             var val = _getValue();
             if (val===null || val.lt(_curUnit.min) || val.gt(_curUnit.max)) return null;
             else return val;
-        }
+        };
+        this.getUnitName = function(){
+            return _curUnit.name;
+        };
         this.$e = _$e;
 
         function _drawUnitLabels() {
@@ -833,14 +836,17 @@
                 _$unitLabel.append(_curUnit.$label);
                 return;
             }
-            _units.forEach(def => {
+            _units.forEach(unit => {
                 const $radio = $(`<input type="radio" name="unit-select">`)
-                    .val(def.name)
-                    .prop("checked", def.name === _curUnit.name)
-                    .change(_refreshValue);
+                    .val(unit.name)
+                    .prop("checked", unit.name === _curUnit.name)
+                    .change(() => {
+                        _curUnit = unit;
+                        _refresh();
+                    });
                 const $label = $(`<label></label>`)
                     .append($radio)
-                    .append(def.$label);
+                    .append(unit.$label);
                 _$unitLabel.append($label);
             });
         }

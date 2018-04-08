@@ -753,6 +753,12 @@ body.dark {
 			font-size: 80%;
 			color: black;
 		}
+			.Slider .unit-label label:not(:first-child) {
+				padding-left: 5px;
+			}
+			.Slider .unit-label label input {
+				margin-right: 3px;
+			}
 		/* you may want to explicitly set a width on this element */
 		.Slider .val-txt {
 			display: block;
@@ -765,7 +771,6 @@ body.dark {
 			color: lime;
 			margin-top: -5px;
 			margin-bottom: -5px;
-			width: 155px;
 		}
 		.Slider .val-txt:focus {
 			outline: none;

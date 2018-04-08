@@ -31,6 +31,7 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
             if (profits.lte(0)) {
                 $e.text("Not needed.")
             } else {
+                console.log(`${profits} profits`);
                 $e.text(`Yes! (${util.toEthStr(reward)} reward)`);
             }
         });
@@ -93,10 +94,12 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
     // PAC
     util.bindToElement(pac.numActiveAuctions(), $(".pac-active-games"));
     util.bindToElement(pac.numEndedAuctions(), $(".pac-ended-games"));
+    util.bindToElement(pac.profits().then(util.toEthStr), $(".pac-cur-profits"));
 
     // ID
     util.bindToElement(dice.curId(), $(".dice-num-rolls"));
     util.bindToElement(dice.totalWagered().then(util.toEthStr), $(".dice-total-wagered"));
+    util.bindToElement(dice.profits().then(util.toEthStr), $(".dice-cur-profits"));
     Promise.all([
         dice.curMaxBet(),
         dice.maxBet()
@@ -108,6 +111,7 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
     // VP
     util.bindToElement(vp.curId(), $(".vp-num-games"))
     util.bindToElement(vp.totalWagered().then(util.toEthStr), $(".vp-total-wagered"));
+    util.bindToElement(vp.profits().then(util.toEthStr), $(".vp-cur-profits"));
     Promise.all([
         vp.curMaxBet(),
         vp.maxBet()

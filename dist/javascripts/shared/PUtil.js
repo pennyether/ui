@@ -276,7 +276,7 @@
 
 	            var fHand;
 	            $game.find(".id").text(gs.id);
-	            $game.find(".bet").text(ethUtil.toEthStr(gs.bet));
+	            $game.find(".bet").text(util.toEthStr(gs.bet));
 	            $game.find(".state").text(gs.state);
 	            $game.find(".iHand").append(gs.iHandRaw.toHtml());
 	            if (gs.state=="finalized" || gs.state=="drawn"){
@@ -284,7 +284,7 @@
 	                $game.find(".dHand").append(gs.dHandRaw.toHtml());
 	                $game.find(".fHand").append(fHand.toHtml());
 	                $game.find(".rank").text(fHand.getRankString());
-	                $game.find(".payout").text(ethUtil.toEthStr(gs.payout));
+	                $game.find(".payout").text(util.toEthStr(gs.payout));
 	            }
 	            $game.find(".txs").append($getTx(gs.betEvent));
 	            if (gs.drawEvent) $game.find(".txs").append($getTx(gs.drawEvent));

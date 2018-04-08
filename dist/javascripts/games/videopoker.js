@@ -2,12 +2,12 @@ Loader.require("vp")
 .then(function(vp){
     if (!PUtil) throw new Error("This requires PUtil to be loaded.");
 
-	ethUtil.onStateChanged((state)=>{
-		if (!state.isConnected) return;
+    ethUtil.onStateChanged((state)=>{
+        if (!state.isConnected) return;
         const user = ethUtil.getCurrentStateSync().account;
         controller.setSettings(user, 11520);  // 48 hours
-		syncGames().then(syncUserCredits);
-	});
+        syncGames().then(syncUserCredits);
+    });
 
     const ghv = new PUtil.GameHistoryViewer();
     const controller = new PUtil.VpController(vp, ethUtil);
@@ -15,23 +15,23 @@ Loader.require("vp")
     tabber.$e.appendTo($("#Machine .tabber-ctnr"));
     ghv.$e.appendTo("#History .history-ctnr");
 
-	const $gameCtnr = $("#Machine .game-ctnr");
-	const $credits = $("#Machine .credits-ctnr");
+    const $gameCtnr = $("#Machine .game-ctnr");
+    const $credits = $("#Machine .credits-ctnr");
     $("#History .refresh").click(()=>{
         ghv.setGameStates(controller.getGameStates());
     });
-	
+    
     // Tabber events.
-	tabber.onNewGame(()=>{
-		const game = createGame(null, getVpSettings(false));
-		tabber.selectGame(game);
-	});
-	tabber.onSelected((game) => {
-		$gameCtnr.children().detach();
-		$gameCtnr.append(game.$e);
-		game.$e.removeClass("flash");
-		setTimeout(()=>{ game.$e.addClass("flash"); }, 10);
-	});
+    tabber.onNewGame(()=>{
+        const game = createGame(null, getVpSettings(false));
+        tabber.selectGame(game);
+    });
+    tabber.onSelected((game) => {
+        $gameCtnr.children().detach();
+        $gameCtnr.append(game.$e);
+        game.$e.removeClass("flash");
+        setTimeout(()=>{ game.$e.addClass("flash"); }, 10);
+    });
 
     // Get all fresh gameStates, and update our games.
     function syncGames() {
@@ -43,16 +43,16 @@ Loader.require("vp")
         });
     }
 
-	function createGame(gameState, settings) {
-		if (!gameState) gameState = {state: "betting"};
-		
-		const game = new Game(vp);
-		game.onEvent(updateGameFromEvent);
-		game.setSettings(settings);
-		game.setGameState(gameState);
-		tabber.addTab(game);
-		return game;
-	}
+    function createGame(gameState, settings) {
+        if (!gameState) gameState = {state: "betting"};
+        
+        const game = new Game(vp);
+        game.onEvent(updateGameFromEvent);
+        game.setSettings(settings);
+        game.setGameState(gameState);
+        tabber.addTab(game);
+        return game;
+    }
 
     // Does three things:
     //   - Creates all bet or drawn+won Games, or updates their state.
@@ -83,17 +83,17 @@ Loader.require("vp")
     }
 
 
-	// Updates a Game's settings and state, and optionally creates it.
-	function updateGame(gameState, settings, createIfNotFound, forceUpdate) {
-		var game = tabber.getGames().find(g => {
+    // Updates a Game's settings and state, and optionally creates it.
+    function updateGame(gameState, settings, createIfNotFound, forceUpdate) {
+        var game = tabber.getGames().find(g => {
             // If game is dealt, look for matching UIID.
             // TODO: look for matching txId instead!
-			return gameState.state == "dealt"
-				? g.getGameState().uiid == gameState.uiid
-				: g.getGameState().id == gameState.id;
-		});
+            return gameState.state == "dealt"
+                ? g.getGameState().uiid == gameState.uiid
+                : g.getGameState().id == gameState.id;
+        });
 
-		if (game) {
+        if (game) {
             // Update settings, if passed.
             if (settings) game.setSettings(settings);
             // Update gameState if we have a newer version of it
@@ -101,224 +101,224 @@ Loader.require("vp")
                 game.setGameState(gameState);
                 tabber.refreshDeletable(game);
             }
-		} else {
-			if (createIfNotFound) createGame(gameState, settings);
-		}
-	}
+        } else {
+            if (createIfNotFound) createGame(gameState, settings);
+        }
+    }
 
-	// Forces controller to update a gameState, then forcibly updates the game.
-	function updateGameFromEvent(ev) {
-		const gameState = controller.updateGameStateFromEvent(ev);
+    // Forces controller to update a gameState, then forcibly updates the game.
+    function updateGameFromEvent(ev) {
+        const gameState = controller.updateGameStateFromEvent(ev);
         if (!gameState) {
             console.warn(`GameState updated from event, but controller doesnt see it.`, ev);
-        };
-		updateGame(gameState, null, false, true);
-	}
+        }
+        updateGame(gameState, null, false, true);
+    }
 
-	function syncUserCredits(){
-		const state = ethUtil.getCurrentStateSync();
-		const curUser = state.account;
-		if (!curUser) {
-			$credits.text("No account.");
-			return;
-		}
-		vp.credits([curUser]).then(eth=>{
-			$credits.text(`${ethUtil.toEthStr(eth, 7, "ETH", true)}`);
-		});
-	}
+    function syncUserCredits(){
+        const state = ethUtil.getCurrentStateSync();
+        const curUser = state.account;
+        if (!curUser) {
+            $credits.text("No account.");
+            return;
+        }
+        vp.credits([curUser]).then(eth=>{
+            $credits.text(`${util.toEthStrFixed(eth, 7)}`);
+        });
+    }
 
 
-	//////////////////////////////////////////////////////////////
-	/// HELPER FUNCTIONS /////////////////////////////////////////
-	//////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////
+    /// HELPER FUNCTIONS /////////////////////////////////////////
+    //////////////////////////////////////////////////////////////
 
     // Returns the average blocktime (synchronously)
     // Gets fresh result every 60 seconds.
-	var getAverageBlockTime = (function(){
-		var avgBlockTime = 15000;
+    var getAverageBlockTime = (function(){
+        var avgBlockTime = 15000;
 
-		function updateAvgBlockTime() {
-			ethUtil.getAverageBlockTime().then(timeMs=>{
-				avgBlockTime = timeMs;
-			});
-		}
-		setInterval(updateAvgBlockTime, 60000);
-		updateAvgBlockTime();
-		
-		return function(){
-			return avgBlockTime;
-		};
-	}());
+        function updateAvgBlockTime() {
+            ethUtil.getAverageBlockTime().then(timeMs=>{
+                avgBlockTime = timeMs;
+            });
+        }
+        setInterval(updateAvgBlockTime, 60000);
+        updateAvgBlockTime();
+        
+        return function(){
+            return avgBlockTime;
+        };
+    }());
 
-	// Returns settings that all games need to know about.
+    // Returns settings that all games need to know about.
     // If passed "false" will return current setting synchronously
-	var getVpSettings = (function(){
-		var curSettings;
+    var getVpSettings = (function(){
+        var curSettings;
 
-		return function getVpSettings(fresh) {
-			if (!fresh) return curSettings;
+        return function getVpSettings(fresh) {
+            if (!fresh) return curSettings;
 
             const state = ethUtil.getCurrentStateSync();
             const curUser = state.account;
-			return Promise.all([
-				vp.minBet(),
-				vp.maxBet(),
-				vp.curMaxBet(),
-				vp.getCurPayTable(),
-				curUser ? vp.credits([curUser]) : new BigNumber(0)
-			]).then(arr => {
-				curSettings = {
-					minBet: arr[0],
-					maxBet: BigNumber.min(arr[1], arr[2]),
-					curPayTable: arr[3],
+            return Promise.all([
+                vp.minBet(),
+                vp.maxBet(),
+                vp.curMaxBet(),
+                vp.getCurPayTable(),
+                curUser ? vp.credits([curUser]) : new BigNumber(0)
+            ]).then(arr => {
+                curSettings = {
+                    minBet: arr[0],
+                    maxBet: BigNumber.min(arr[1], arr[2]),
+                    curPayTable: arr[3],
                     credits: arr[4],
-					latestBlock: state.latestBlock,
-					avgBlockTime: getAverageBlockTime()
-				};
-				return curSettings;
-			});
-		};
-	}());
+                    latestBlock: state.latestBlock,
+                    avgBlockTime: getAverageBlockTime()
+                };
+                return curSettings;
+            });
+        };
+    }());
 });
 
 // Simple tabber that understands what games are.
 // Listens for game events and displays summary in tab.
 // Only allows closing of tab for non-active games.
 function Tabber() {
-	const _self = this;
+    const _self = this;
 
-	const _$e = $(`
-		<div class="Tabber">
-			<div class='tab new'>
-				<div>New Machine...</div>
-			</div>
-		</div>
-	`);
+    const _$e = $(`
+        <div class="Tabber">
+            <div class='tab new'>
+                <div>New Machine...</div>
+            </div>
+        </div>
+    `);
 
-	var _onNewGame = ()=>{};
-	var _onSelected = ()=>{};
+    var _onNewGame = ()=>{};
+    var _onSelected = ()=>{};
 
-	const _$newTab = _$e.find(".tab.new").click(function(){
-		_onNewGame();
-	});
+    const _$newTab = _$e.find(".tab.new").click(function(){
+        _onNewGame();
+    });
 
-	// an array of tabs to tabObjs
-	const _tabs = [];
+    // an array of tabs to tabObjs
+    const _tabs = [];
 
-	this.onNewGame = function(fn) { _onNewGame = fn; };
-	this.onSelected = function(fn) { _onSelected = fn; };
-	this.addTab = function(game) {
-		const tab = {};
-		_tabs.push(tab);
+    this.onNewGame = function(fn) { _onNewGame = fn; };
+    this.onSelected = function(fn) { _onSelected = fn; };
+    this.addTab = function(game) {
+        const tab = {};
+        _tabs.push(tab);
 
-		// create tab element, clicking selects it, animate it in.
-		const $e = $(`
-			<div class='tab shrunken'>
-				<div class="remove">×</div>
-				<div class="title">Machine 1</div>
-				<div class="status"></div>
-			</div>
-		`).click(()=>{ _self.selectTab(tab); }).insertBefore(_$newTab);
-		setTimeout(()=>{ $e.removeClass("shrunken"); }, 10);
+        // create tab element, clicking selects it, animate it in.
+        const $e = $(`
+            <div class='tab shrunken'>
+                <div class="remove">×</div>
+                <div class="title">Machine 1</div>
+                <div class="status"></div>
+            </div>
+        `).click(()=>{ _self.selectTab(tab); }).insertBefore(_$newTab);
+        setTimeout(()=>{ $e.removeClass("shrunken"); }, 10);
 
-		// initialize the elements
-		const $remove = $e.find(".remove").click((e) => {
-			e.stopPropagation();
-			_self.deleteTab(tab);
-		});
-		$e.find(".title").text(`Machine ${_tabs.length}`);
-		$e.find(".status").append(game.$ms);
+        // initialize the elements
+        const $remove = $e.find(".remove").click((e) => {
+            e.stopPropagation();
+            _self.deleteTab(tab);
+        });
+        $e.find(".title").text(`Machine ${_tabs.length}`);
+        $e.find(".status").append(game.$ms);
 
-		// set tab properties
-		tab.$e = $e;
-		tab.$remove = $remove;
-		tab.game = game;
-		tab.isSelected = false;
+        // set tab properties
+        tab.$e = $e;
+        tab.$remove = $remove;
+        tab.game = game;
+        tab.isSelected = false;
 
-		// refresh delete button, select tab if its the only one
-		if (_tabs.length == 1) _self.selectTab(tab);
-		_self.refreshDeletable();
-		return tab;
-	};
-	this.deleteTab = function(tab) {
-		tab.$e.addClass("shrunken");
-		setTimeout(()=>{ tab.$e.remove(); }, 200);
-		const index = _tabs.indexOf(tab);
-		_tabs.splice(index, 1);
-		if (tab.isSelected) {
-			// select the tab to the right, or left.
-			_self.selectTab(_tabs[index] ? _tabs[index] : _tabs[index-1]);
-		}
-		_self.refreshDeletable();
-	};
-	this.selectTab = function(tab){
-		if (!tab || tab.isSelected) return;
-		_tabs.forEach(t => {
-			t.isSelected = t == tab;
-			if (t.isSelected) t.$e.addClass("selected");
+        // refresh delete button, select tab if its the only one
+        if (_tabs.length == 1) _self.selectTab(tab);
+        _self.refreshDeletable();
+        return tab;
+    };
+    this.deleteTab = function(tab) {
+        tab.$e.addClass("shrunken");
+        setTimeout(()=>{ tab.$e.remove(); }, 200);
+        const index = _tabs.indexOf(tab);
+        _tabs.splice(index, 1);
+        if (tab.isSelected) {
+            // select the tab to the right, or left.
+            _self.selectTab(_tabs[index] ? _tabs[index] : _tabs[index-1]);
+        }
+        _self.refreshDeletable();
+    };
+    this.selectTab = function(tab){
+        if (!tab || tab.isSelected) return;
+        _tabs.forEach(t => {
+            t.isSelected = t == tab;
+            if (t.isSelected) t.$e.addClass("selected");
             else t.$e.removeClass("selected");
-		});
-		_onSelected(tab.game);
-	};
-	this.selectGame = function(game) {
-		_self.selectTab(_tabs.find(t => t.game == game));
-	};
-	this.hasTabs = function(){
-		return _tabs.length > 0;
-	};
-	this.getGames = function(){
-		return _tabs.map(t=>t.game);
-	};
-	this.refreshDeletable = function(){
-		if (_tabs.length == 1) { _tabs[0].$remove.hide(); return; }
-		_tabs.forEach(t=>{
-			if (t.game.getGameState().isActive) t.$remove.hide();
-            else t.$remove.show();	
-		});
-	};
-	this.$e = _$e;
+        });
+        _onSelected(tab.game);
+    };
+    this.selectGame = function(game) {
+        _self.selectTab(_tabs.find(t => t.game == game));
+    };
+    this.hasTabs = function(){
+        return _tabs.length > 0;
+    };
+    this.getGames = function(){
+        return _tabs.map(t=>t.game);
+    };
+    this.refreshDeletable = function(){
+        if (_tabs.length == 1) { _tabs[0].$remove.hide(); return; }
+        _tabs.forEach(t=>{
+            if (t.game.getGameState().isActive) t.$remove.hide();
+            else t.$remove.show();  
+        });
+    };
+    this.$e = _$e;
 }
 
 // Game Object that gets it state set externally.
 function Game(vp) {
-	const _$e = $(".Game.template").clone().removeClass("template").show();
-	const _$payTable = _$e.find(".payTable");
+    const _$e = $(".Game.template").clone().removeClass("template").show();
+    const _$payTable = _$e.find(".payTable");
     // better, hand, miniHand
-    const _better = util.getBetter();
+    const _slider = util.getSlider("Bet");
     const _hd = new HandDisplay();
     const _miniHd = new HandDisplay();
-	// status
-	const _$status = _$e.find(".gameStatus");
-	const _$details = _$status.find(".details");
-	const _$gameBet = _$details.find(".gameBet");
-	const _$gameId = _$details.find(".gameId");
+    // status
+    const _$status = _$e.find(".gameStatus");
+    const _$details = _$status.find(".details");
+    const _$gameBet = _$details.find(".gameBet");
+    const _$gameId = _$details.find(".gameId");
     const _$msg = _$status.find(".msg");
-	const _$required = _$status.find(".required");
+    const _$required = _$status.find(".required");
     const _$invalid = _$e.find(".invalid");
-	// mini-status
-	const _$ms = _$e.find(".mini-status").detach();
-	const _$msState = _$ms.find(".state");
+    // mini-status
+    const _$ms = _$e.find(".mini-status").detach();
+    const _$msState = _$ms.find(".state");
     const _$msHand = _$ms.find(".hand");
     const _$msLoading = _$ms.find(".loading");
     // this holds all children actions
     const _$fieldCtnr = _$e.find(".field-ctnr");
-    	// state = betting
-    	const _$bet = _$fieldCtnr.find(".actionArea.bet");
-    	// state = dealt
-    	const _$draw = _$fieldCtnr.find(".actionArea.draw").hide();
-    	// state = drawn (win)
-    	const _$finalizeWin = _$fieldCtnr.find(".actionArea.finalizeWin").hide();
+        // state = betting
+        const _$bet = _$fieldCtnr.find(".actionArea.bet");
+        // state = dealt
+        const _$draw = _$fieldCtnr.find(".actionArea.draw").hide();
+        // state = drawn (win)
+        const _$finalizeWin = _$fieldCtnr.find(".actionArea.finalizeWin").hide();
             const _$chkBetAgain = _$finalizeWin.find(".chk-bet-again");
             const _$willBetFull = _$finalizeWin.find(".will-bet-full");
             const _$willCreditFull = _$finalizeWin.find(".will-credit-full");
             const _$willBetSome = _$finalizeWin.find(".will-bet-some");
             const _$willCreditSome = _$finalizeWin.find(".will-credit-some");
         // state = drawn (loss)
-    	const _$finalizeLoss = _$fieldCtnr.find(".actionArea.finalizeLoss").hide();
+        const _$finalizeLoss = _$fieldCtnr.find(".actionArea.finalizeLoss").hide();
         // state = finalized
-    	const _$finalized = _$fieldCtnr.find(".actionArea.finalized").hide();
+        const _$finalized = _$fieldCtnr.find(".actionArea.finalized").hide();
     // buttons, misc
-	const _$btnPlayAgain = _$e.find(".btnPlayAgain");
+    const _$btnPlayAgain = _$e.find(".btnPlayAgain");
     const _$canDeal = _$e.find(".canDeal");
 
     // Insert hand objects to correct spots
@@ -326,66 +326,76 @@ function Game(vp) {
     _hd.onDrawsChanged(_refreshDrawBtn);
     _miniHd.$e.appendTo(_$msHand);
     _miniHd.freeze(true);
-    _better.$e.prependTo(_$bet);
+    _slider.$e.prependTo(_$bet);
 
     // Events
     _$btnPlayAgain.click(()=>{
         _self.setGameState({state: "betting"});
     });
     _$chkBetAgain.click(_refreshBetAgain);
-    _better.onChange(() => {
-        if (_better.getValue() === null) _$canDeal.attr("disabled","disabled");
+    _slider.setOnChange(() => {
+        if (_slider.getValue() === null) _$canDeal.attr("disabled","disabled");
         else _$canDeal.removeAttr("disabled");
         _refreshPayTable();   
     });
 
-	// const _$logs = _$e.find(".logs").hide();
-	const _self = this;
+    // const _$logs = _$e.find(".logs").hide();
+    const _self = this;
 
-	// global params, set externally
-	const _vp = vp;
-	var _maxBet;
-	var _curPayTable;
-	var _latestBlock;
-	var _avgBlockTime;
+    // global params, set externally
+    const _vp = vp;
+    var _curPayTable;
+    var _avgBlockTime;
 
-	// state of the currentGame
-	var _gameState = {};
-	var _isSkippingDrawing = false;
+    // state of the currentGame
+    var _gameState = {};
+    var _isSkippingDrawing = false;
     var _isTransacting = false;
     var _isError = false;
 
-	var _onEvent = ()=>{};
+    var _onEvent = ()=>{};
 
-	this.$e = _$e;
-	this.$ms = _$ms;
+    this.$e = _$e;
+    this.$ms = _$ms;
 
-	this.onEvent = (fn) => _onEvent = fn;
+    this.onEvent = (fn) => _onEvent = fn;
 
-	this.getGameState = () => Object.assign({}, _gameState);
+    this.getGameState = () => Object.assign({}, _gameState);
 
-	// Sets global settings, so better and blocktimes are accurate.
-	this.setSettings = function(settings) {
-		if (!settings) return;
-		_maxBet = settings.maxBet;
-		_curPayTable = settings.curPayTable;
-		_latestBlock = settings.latestBlock;
-		_avgBlockTime = settings.avgBlockTime;
-        _better.setMin(settings.minBet);
-        _better.setMax(settings.maxBet);
-        _better.setCredits(settings.credits);
-		_refreshDebounce();
-	};
+    // Sets global settings, so better and blocktimes are accurate.
+    this.setSettings = function(settings) {
+        if (!settings) return;
+        _curPayTable = settings.curPayTable;
+        _avgBlockTime = settings.avgBlockTime;
+
+        const units = [{
+            name: "eth",
+            $label: "ETH",
+            min: settings.minBet.div(1e18),
+            max: settings.maxBet.div(1e18),
+        }];
+        if (settings.credits.gt(settings.minBet)) {
+            units.push({
+                name: "credits",
+                $label: "credits",
+                min: settings.minBet.div(1e18),
+                max: BigNumber.min(settings.maxBet.div(1e18), settings.credits.div(1e18))
+            });
+        }
+        _slider.setUnits(units);
+        if (Object.keys(_gameState).length === 0) _slider.setValue(settings.minBet.div(1e18))
+        _refreshDebounce();
+    };
 
     // Sets the gameState of the game. Causes a refresh.
-	this.setGameState = function(gameState) {
+    this.setGameState = function(gameState) {
         // Skip re-updating state to "dealt" if we're skipping drawing.
         // Unless there's a new hand -- then we should show it.
-		if (_isSkippingDrawing && gameState.state=="dealt") {
-			const curHand = _gameState.iHand.toNumber();
-			const dealtHand = gameState.iHand.toNumber();
-			if (curHand==dealtHand) return;
-		}
+        if (_isSkippingDrawing && gameState.state=="dealt") {
+            const curHand = _gameState.iHand.toNumber();
+            const dealtHand = gameState.iHand.toNumber();
+            if (curHand==dealtHand) return;
+        }
         // These are resets that should only happen once per game.
         if (gameState.id !== _gameState.id) {
             _isSkippingDrawing = false; // no longer skipping (case needed: dealt -> fake-drawn)
@@ -395,23 +405,23 @@ function Game(vp) {
         if (gameState.state != _gameState.state) _resetTx();
         _gameState = Object.assign({}, gameState);
         _refreshDebounce();
-	};
+    };
 
-	// Resets everything that is state-specific.
-	function _resetTx() {
+    // Resets everything that is state-specific.
+    function _resetTx() {
         // Revert tx-specific variables.
         _isTransacting = false;
         _isError = false;
 
         // Revert all TX related DOM changes.
         _$msLoading.hide();
-		_$e.find(".statusArea").empty().hide();
+        _$e.find(".statusArea").empty().hide();
         _$e.find(".actionBtn").removeAttr("disabled")
             .each((i,e)=>{ $(e).text($(e).data("txt-default")); });
-	}
+    }
 
-	// Draws miniStatus, payTable, hand, and shows correct actionArea
-	function _refresh() {
+    // Draws miniStatus, payTable, hand, and shows correct actionArea
+    function _refresh() {
         _refreshMiniStatus();
         _refreshPayTable();
 
@@ -436,8 +446,7 @@ function Game(vp) {
         if (_gameState.state=="betting") {
             _$bet.show();
             _$msg.text(`Select a bet amount, and press "Deal"`);
-            _better.setMode("both");
-            if (!_isTransacting) _better.freeze(false);
+            if (!_isTransacting) _slider.freeze(false);
             _refreshHand(null, 31);
             return;
         }
@@ -446,7 +455,7 @@ function Game(vp) {
         _$details.show();
         _$gameBet.text(`Bet: ${_eth(_gameState.bet)}`);
         _$gameId.text(`Game #${_gameState.id}`);
-        _better.setBet(_gameState.bet);
+        _slider.setValue(_gameState.bet.div(1e18));
 
         // It's a winner, add class and hilite paytable entry.
         if (_gameState.isWinner) {
@@ -512,9 +521,9 @@ function Game(vp) {
     }
 
     // Refresh the mini-status display.
-	function _refreshMiniStatus() {
-		// Add class for state, transacting, and error.
-		_$ms.removeClass().addClass("mini-status").addClass(_gameState.state);
+    function _refreshMiniStatus() {
+        // Add class for state, transacting, and error.
+        _$ms.removeClass().addClass("mini-status").addClass(_gameState.state);
         if (_isTransacting) _$ms.addClass("is-transacting");
         if (_isError) _$ms.addClass("is-error");
 
@@ -542,36 +551,38 @@ function Game(vp) {
             _$ms.addClass("is-error");
             _$msState.text(`${_$msState.text()} [Invalid]`);
         }
-	}
+    }
 
-	// Draws proper multipliers in the paytable, using proper payTable.
-	function _refreshPayTable() {
-		var payTable = _gameState.state == "betting"
-			? _curPayTable
-			: _gameState.payTable;
+    // Draws proper multipliers in the paytable, using proper payTable.
+    function _refreshPayTable() {
+        var payTable = _gameState.state == "betting"
+            ? _curPayTable
+            : _gameState.payTable;
 
-		if (!payTable) {
-			const $rows = _$payTable.find("tr").not(":first-child");
-			$rows.find("td").not(":first-child").text("--");
-			return;
-		}
-			
-		// draw multipliers
-		payTable = payTable.slice(1,-1);
-		const $rows = _$payTable.find("tr");
-		payTable.forEach((v,i)=>{
-			$rows.eq(i+1).find("td").eq(1).text(`${v} x`);
-		});
+        if (!payTable) {
+            const $rows = _$payTable.find("tr").not(":first-child");
+            $rows.find("td").not(":first-child").text("--");
+            return;
+        }
+            
+        // draw multipliers
+        payTable = payTable.slice(1,-1);
+        const $rows = _$payTable.find("tr");
+        payTable.forEach((v,i)=>{
+            $rows.eq(i+1).find("td").eq(1).text(`${v} x`);
+        });
 
-		// draw payouts depending on bet
-		const bet = _gameState.bet || _better.getValue() || new BigNumber(0);
-        const format = (v)=> v.equals(0) ? "--" :ethUtil.toEthStr(v, 3, "ETH");
-		$rows.eq(0).find("td").eq(2).text(`Payout (for ${format(bet, 3, "ETH")} bet)`);
-		payTable.forEach((v,i)=>{
-			const payout = bet.mul(v);
-			$rows.eq(i+1).find("td").eq(2).text(`${format(payout, 3, "ETH")}`);
-		});
-	}
+        // draw payouts depending on bet
+        var bet = _gameState.bet
+            || (_slider.getValue() ? _slider.getValue().mul(1e18) : null)
+            || new BigNumber(0);
+        const format = (v)=> v.equals(0) ? "--" : `${v.div(1e18).toFixed(4)} ETH`;
+        $rows.eq(0).find("td").eq(2).text(`Payout (for ${format(bet)} bet)`);
+        payTable.forEach((v,i)=>{
+            const payout = bet.mul(v);
+            $rows.eq(i+1).find("td").eq(2).text(`${format(payout)}`);
+        });
+    }
 
     // Displays the proper text on the draw button
     function _refreshDrawBtn() {
@@ -712,14 +723,15 @@ function Game(vp) {
         const $btn = _$bet.find(".btnDeal");
 
         const getPromiseFn = (gasPrice) => {
-            const bet = _better.getValue();
+            const bet = _slider.getValue();
             if (bet===null) { return; }
 
-            _better.freeze(true);
+            const betWei = bet.mul(1e18);
+            _slider.freeze(true);
             _gameState.uiid = Math.floor(Math.random() * 1000000000000);
-            return _better.getBetType() == "eth"
-                ? vp.bet([_gameState.uiid], {value: bet, gas: 130000, gasPrice: gasPrice})
-                : vp.betWithCredits([bet, _gameState.uiid], {gas: 130000, gasPrice: gasPrice});
+            return _slider.getUnitName() == "eth"
+                ? _vp.bet([_gameState.uiid], {value: betWei, gas: 130000, gasPrice: gasPrice})
+                : _vp.betWithCredits([betWei, _gameState.uiid], {gas: 130000, gasPrice: gasPrice});
         };
         const callbackFn = (res, obj) => {
             const betSuccess = res.events.find(e=>e.name=="BetSuccess");
@@ -734,13 +746,13 @@ function Game(vp) {
             }
         };
         const errFn = () => {
-            _better.freeze(false);
+            _slider.freeze(false);
         };
 
         _initActionButton($btn, getPromiseFn, callbackFn, errFn);
     }
 
-	
+    
     function _initDrawButton() {
         const $btn = _$draw.find(".btnDraw");
         const getPromiseFn = (gasPrice) => {
@@ -761,7 +773,7 @@ function Game(vp) {
             } else {
                 _hd.freeze(true);
                 const params = [_gameState.id, draws, _gameState.iBlockHash];
-                return vp.draw(params, {gas: 130000, gasPrice: gasPrice});
+                return _vp.draw(params, {gas: 130000, gasPrice: gasPrice});
             }
         };
         const callbackFn = (res, obj) => {
@@ -784,13 +796,13 @@ function Game(vp) {
     }
 
     function _initFinalizeButton() {
-		const $btn = _$finalizeWin.find(".btnFinalize");
-    	const getPromiseFn = (gasPrice) => {
+        const $btn = _$finalizeWin.find(".btnFinalize");
+        const getPromiseFn = (gasPrice) => {
             _$chkBetAgain.attr("disabled", "disabled");
             const params = [_gameState.id, _gameState.dBlockHash];
             return _$chkBetAgain.is(":checked")
-                ? vp.betFromGame(params.concat(_gameState.uiid), {gas: 130000, gasPrice: gasPrice})
-                : vp.finalize(params, {gas: 130000, gasPrice: gasPrice});
+                ? _vp.betFromGame(params.concat(_gameState.uiid), {gas: 130000, gasPrice: gasPrice})
+                : _vp.finalize(params, {gas: 130000, gasPrice: gasPrice});
         };
         const callbackFn = (res, obj) => {
             const success = res.events.find(e=>e.name=="FinalizeSuccess");
@@ -824,14 +836,14 @@ function Game(vp) {
     }
 
     function _eth(v) {
-        return ethUtil.toEthStr(v, 5, "ETH", true);
+        return util.toEthStrFixed(v, 5);
     }
 
-	(function _init() {
-		_initDealButton();
-		_initDrawButton();
-		_initFinalizeButton();
-	}());
+    (function _init() {
+        _initDealButton();
+        _initDrawButton();
+        _initFinalizeButton();
+    }());
 }
 
 function HandDisplay() {
@@ -928,7 +940,6 @@ function HandDisplay() {
         var pauseTime = 0;
         if (changedCards.length) {
             const flipInterval = 100;
-            const flipDuration = 400;
 
             // hide shown cards, from left to right, pausing flipInterval between each
             changedCards.forEach($card => {
