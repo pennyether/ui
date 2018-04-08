@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/javascripts/lib/Loader.js"></script>
+		<script src="/javascripts/status/comptroller.js"></script>
+		<script src="/javascripts/lib/EthGraph.js"></script>
+		<link rel="stylesheet" type="text/css" href="/styles/status.css"/>
+		<style>
+			
+		</style>
+	</head>
+	<body><div id="Content">
+		<div class="page-header">
+			<div class="title">
+				Comptroller Status
+			</div>
+			<div class="links">
+				<a href="/about/contracts.html#comptroller">Contract Info</a>
+				•
+				<a href="">Etherscan Link</a>
+			</div>
+		</div>
+		<div style="margin: 10px 0px;">
+			<div class="statusRow one">
+				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+					<td width="33%"><div class="reserve cell">
+						<div class="titleBar">
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="The Comptroller interacts with a few hard-coded contracts.">
+								Contracts
+							<span>
+						</div>
+						<div class="body">
+							<div class="loading">
+								Loading...
+							</div>
+							<div class="error hide">
+								Error loading reserve details: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								Wallet<br>
+								Treasury<br>
+								Token<br>
+								Locker<br>
+							</div>
+						</div>
+					</div></td>
+					<td width="33%"><div class="cell allocation">
+						<div class="titleBar">
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="The Comptroller can hold a one-time CrowdSale. The configuration can change until the CrowdSale has started.">
+								CrowdSale Status
+							</span>
+						</div>
+						<div class="body">
+							<div class="loading">
+								Loading...
+							</div>
+							<div class="error hide">
+								Error loading reserve details: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								Started<br>
+								Ended<br>
+								SoftCap<br>
+								HardCap<br>
+								BonusCap<br>
+							</div>
+						</div>
+					</div></td>
+					<td width="33%"><div class="cell funding-status">
+						<div class="titleBar">
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="If the Treasury decides it needs more Capital (via Governance), the Comptroller can sell more PENNY Tokens.">
+								Additional Capital
+							</span>
+						</div>
+						<div class="body">
+							<div class="loading">
+								Loading...
+							</div>
+							<div class="error hide">
+								Error loading: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								Either no Capital needed, or:<br>
+								Comptroller will sell X PENNY Tokens to raise X Capital for Treasury.
+							</div>
+						</div>
+					</div></td>
+				</tr></table>
+			</div>
+			<div class="statusRow two">
+				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+					<td width="100%"><div class="cell total-profits">
+						<div class="titleBar">
+							<span>
+								Events
+							</span>
+						</div>
+						<div class="body">
+							<div class="loading">
+								Loading...
+							</div>
+							<div class="error hide">
+								Error loading profits: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								A table of events.
+							</div>
+						</div>
+					</div></td>
+				</tr></table>
+			</div>
+		</div>
+	</div></body>
+</html>

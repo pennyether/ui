@@ -42,7 +42,7 @@
 			box-shadow: 3px 3px 3px 0px rgba(0,0,0,.2);
 			border-radius: 4px;
 			background: linear-gradient(to bottom, #EEE 0%, #CCC 100%);
-			padding: 5px 10px;
+			padding: 5px;
 			font-size: 90%;
 		}
 		.contract > .title {
@@ -54,19 +54,15 @@
 			color: black;
 			text-decoration: none;
 		}
-			.contract .links {
-				text-align: center;
-				font-size: 90%;
-			}
 			.contract .fields {
 				display: inline-block;
 				text-align: left;
-				font-size: 90%;
+				font-size: 80%;
 			}
 				.contract .field .label {
 					display: inline-block;
 					white-space: nowrap;
-					padding-right: 5px;
+					padding-right: 0px;
 				}
 				.contract .field .value {
 					display: inline-block;
@@ -118,8 +114,12 @@
 				height: 100%;
 			}
 
-		.arrow.blue:before { background: blue; }
-		.arrow.blue:after { border-color: blue; }
+		.arrow.action:before { background: black; }
+		.arrow.action:after { border-color: black; }
+		.arrow.ether:before { background: blue; }
+		.arrow.ether:after { border-color: blue; }
+		.arrow.token:before { background: purple; }
+		.arrow.token:after { border-color: purple; }
 
 		.tasks {
 			font-weight: bold;
@@ -138,71 +138,85 @@
 		</div>
 		<div class="topology">
 			<div style="position: relative;">
-				<div class="line horizontal" style="left: 200px; top: 70px; width: 100px;">
-					<div class="arrow right blue"></div>
+				<div class="line horizontal" style="left: 200px; top: 70px; width: 90px;">
+					<div class="arrow right ether"></div>
 					<div class="body">
 						<div class="label">Capital Raised</div>
 						<div class="value tr-capital-raised"></div>
 					</div>
 				</div>
-				<div class="line horizontal" style="left: 193px; top: 171px; width: 118px; transform-origin: top left; transform: rotate(-32deg)">
-					<div class="arrow left blue"></div>
+				<div class="line horizontal" style="left: 193px; top: 171px; width: 125px; transform-origin: top left; transform: rotate(-34deg)">
+					<div class="arrow left ether"></div>
 					<div class="body">
 						<div class="label">Dividends</div>
 						<div class="value tr-dividends"></div>
 					</div>
 				</div>
-				<div class="line vertical" style="left: 100px; top: 120px; height: 60px;">
-					<div class="arrow down blue"></div>
+				<div class="line vertical" style="left: 50px; top: 120px; height: 60px;">
+					<div class="arrow down token"></div>
+					<div class="body">
+						<div class="label">Tokens Burned</div>
+						<div class="value token-total-burned"></div>
+					</div>
+				</div>
+				<div class="line vertical" style="left: 150px; top: 120px; height: 60px;">
+					<div class="arrow down token"></div>
 					<div class="body">
 						<div class="label">Tokens Minted</div>
 						<div class="value token-total-supply"></div>
 					</div>
 				</div>
-				<div class="line vertical" style="left: 380px; top: 120px; height: 74px;">
-					<div class="arrow down blue"></div>
+				<div class="line vertical" style="left: 430px; top: 120px; height: 78px;">
+					<div class="arrow down ether"></div>
 					<div class="body">
 						<div class="label">Bankrolled</div>
 						<div class="value pac-bankrolled"></div>
 					</div>
 				</div>
-				<div class="line vertical" style="left: 450px; top: 120px; height: 74px;">
-					<div class="arrow up blue"></div>
+				<div class="line vertical" style="left: 490px; top: 120px; height: 78px;">
+					<div class="arrow up ether"></div>
 					<div class="body">
 						<div class="label">Profits</div>
 						<div class="value pac-profits"></div>
 					</div>
 				</div>
-				<div class="line vertical" style="left: 575px; top: 120px; height: 74px;">
-					<div class="arrow down blue"></div>
+				<div class="line vertical" style="left: 615px; top: 120px; height: 78px;">
+					<div class="arrow down ether"></div>
 					<div class="body">
 						<div class="label">Bankrolled</div>
 						<div class="value dice-bankrolled"></div>
 					</div>
 				</div>
-				<div class="line vertical" style="left: 650px; top: 120px; height: 74px;">
-					<div class="arrow up blue"></div>
+				<div class="line vertical" style="left: 675px; top: 120px; height: 78px;">
+					<div class="arrow up ether"></div>
 					<div class="body">
 						<div class="label">Profits</div>
 						<div class="value dice-profits"></div>
 					</div>
 				</div>
-				<div class="line vertical" style="left: 780px; top: 120px; height: 74px;">
-					<div class="arrow down blue"></div>
+				<div class="line vertical" style="left: 800px; top: 120px; height: 78px;">
+					<div class="arrow down ether"></div>
 					<div class="body">
 						<div class="label">Bankrolled</div>
 						<div class="value vp-bankrolled"></div>
 					</div>
 				</div>
-				<div class="line vertical" style="left: 860px; top: 120px; height: 74px;">
-					<div class="arrow up blue"></div>
+				<div class="line vertical" style="left: 860px; top: 120px; height: 78px;">
+					<div class="arrow up ether"></div>
 					<div class="body">
 						<div class="label">Profits</div>
 						<div class="value vp-profits"></div>
 					</div>
 				</div>
-				<div class="line vertical" style="left: 410px; top: 300px; height: 60px;">
-					<div class="arrow up"></div>
+				<div class="line vertical" style="left: 330px; top: 120px; height: 240px;">
+					<div class="arrow down ether"></div>
+					<div class="body" style="align-self: start; margin-top: 27px;">
+						<div class="label">Bankrolled</div>
+						<div class="value tm-bankrolled"></div>
+					</div>
+				</div>
+				<div class="line vertical" style="left: 460px; top: 295px; height: 65px;">
+					<div class="arrow up action"></div>
 					<div class="body">
 						<div class="tasks">Tasks</div>
 						<div class="field">Start Game: <span class="value pac-start-game"></span></div>
@@ -210,18 +224,32 @@
 						<div class="field">Send Profits: <span class="value pac-send-profits"></span></div>
 					</div>
 				</div>
-				<div class="line vertical" style="left: 615px; top: 300px; height: 60px;">
-					<div class="arrow up"></div>
+				<div class="line vertical" style="left: 645px; top: 295px; height: 65px;">
+					<div class="arrow up action"></div>
 					<div class="body">
 						<div class="tasks">Tasks</div>
 						<div class="field">Send Profits: <span class="value dice-send-profits"></span></div>
 					</div>
 				</div>
-				<div class="line vertical" style="left: 820px; top: 300px; height: 60px;">
-					<div class="arrow up"></div>
+				<div class="line vertical" style="left: 835px; top: 295px; height: 65px;">
+					<div class="arrow up action"></div>
 					<div class="body">
 						<div class="tasks">Tasks</div>
 						<div class="field">Send Profits: <span class="value vp-send-profits"></span></div>
+					</div>
+				</div>
+				<div class="line vertical" style="left: 100px; top: 300px; height: 60px;">
+					<div class="arrow down ether"></div>
+					<div class="body">
+						<div class="label">Dividends Collected</div>
+						<div class="value token-total-collected"></div>
+					</div>
+				</div>
+				<div class="line horizontal" style="left: 200px; top: 420px; width: 100px;">
+					<div class="arrow left ether"></div>
+					<div class="body">
+						<div class="label">Rewards</div>
+						<div class="value tm-rewards-paid"></div>
 					</div>
 				</div>
 				<div class="contract" style="left: 0px; width: 200px; height: 120px;">
@@ -241,7 +269,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="contract" style="left: 300px; width: 630px; height: 120px;">
+				<div class="contract" style="left: 290px; width: 640px; height: 120px;">
 					<div class="title">
 						<a href="/status/treasury.html" class="label tipLeft" title="The Treasury holds a reserve to pay for burned tokens, holds capital to bankroll various games, and distributes all profits to the Penny Token" data-tippy-trigger="mouseenter">
 							Treasury
@@ -280,18 +308,14 @@
 									<div class="value token-total-supply"></div>
 								</div>
 								<div class="field">
-									<div class="label">Total Received:</div>
-									<div class="value token-total-received"></div>
-								</div>
-								<div class="field">
-									<div class="label">Total Collected:</div>
-									<div class="value token-total-collected"></div>
+									<div class="label">Frozen:</div>
+									<div class="value token-is-frozen"></div>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-				<div class="games" style="top: 170px; left: 300px; width: 630px; height: 140px;">
+				<div class="games" style="top: 175px; left: 360px; width: 570px; height: 130px;">
 					<div class="title">Games</div>
 					<div class="body">
 						<div class="contract-ctnr">
@@ -385,7 +409,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="contract" style="left: 300px; top: 360px; width: 630px; height: 120px;">
+				<div class="contract" style="left: 290px; top: 360px; width: 640px; height: 120px;">
 					<div class="title">
 						<a href="/status/taskmanager.html" class="label tipLeft" title="The Task Manager executes functions that keep Penny Ether autonomous - such as sending game profits to the Treasury and dividends to the PENNY Token. Users are rewarded for calling these functions." data-tippy-trigger="mouseenter">
 							Task Manager
@@ -403,11 +427,22 @@
 									<div class="value tm-send-profits-reward"></div>
 								</div>
 								<div class="field rewards-paid">
-									<div class="label">Total Rewarded:</div>
-									<div class="value tm-rewards-paid"></div>
+									<div class="label">Start Game Reward:</div>
+									<div class="value tm-pa-start-reward"></div>
+								</div>
+								<div class="field rewards-paid">
+									<div class="label">End Game Reward:</div>
+									<div class="value tm-pa-end-reward"></div>
 								</div>
 							</div>
 						</div>
+					</div>
+				</div>
+				<div class="contract" style="left: 0px; top: 360px; width: 200px; height: 120px;">
+					<div class="title" style="position: relative; top: 50%; transform: translateY(-50%)">
+						<span class="label tipLeft" title="This represents both Token Holders and other accounts." data-tippy-trigger="mouseenter">
+							Users
+						</span>
 					</div>
 				</div>
 			</div>

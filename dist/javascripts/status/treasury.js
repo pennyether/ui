@@ -1,5 +1,5 @@
-Loader.require("reg", "comp", "tr")
-.then(function(reg, comp, tr){
+Loader.require("reg", "comp", "tr", "token")
+.then(function(reg, comp, tr, token){
 	_initGovernance();
 	_initProfits();
 	_initEvents();
@@ -32,17 +32,13 @@ Loader.require("reg", "comp", "tr")
 		const $doneLoading = $e.find(".done-loading").hide();
 
 		var reserve;
-		var token;
 		var totalSupply;
 		return Promise.all([
-			tr.token(),
-			tr.reserve()
+			tr.reserve(),
+			token.totalSupply()
 		]).then(arr => {
-			token = DividendToken.at(arr[0]);
-			reserve = arr[1];
-			return token.totalSupply();
-		}).then(ts => {
-			totalSupply = ts;
+			reserve = arr[0];
+			totalSupply = arr[1];
 			doRefresh();
 		}).then(()=>{
 			$loading.hide();

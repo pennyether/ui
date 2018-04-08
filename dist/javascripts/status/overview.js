@@ -4,12 +4,16 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
     util.bindToElement(tr.capitalRaised().then(util.toEthStr), $(".tr-capital-raised"));
     util.bindToElement(tr.profitsSent().then(util.toEthStr), $(".tr-dividends"));
     util.bindToElement(token.totalSupply().then(val => util.toEthStr(val, "PENNY")), $(".token-total-supply"));
+    util.bindToElement(token.totalBurned().then(val => util.toEthStr(val, "PENNY")), $(".token-total-burned"));
+    util.bindToElement(token.collectedDividends().then(util.toEthStr), $(".token-total-collected"));
+    util.bindToElement(tm.totalRewarded().then(util.toEthStr), $(".tm-rewards-paid"))
 
     // bankrolled amounts
     tr.capitalLedger().then(ledgerAddr => {
         util.bindToElement(tr.capitalAllocatedTo([pac.address]).then(util.toEthStr), $(".pac-bankrolled"));
         util.bindToElement(tr.capitalAllocatedTo([dice.address]).then(util.toEthStr), $(".dice-bankrolled"));
         util.bindToElement(tr.capitalAllocatedTo([vp.address]).then(util.toEthStr), $(".vp-bankrolled"));
+        util.bindToElement(tr.capitalAllocatedTo([tm.address]).then(util.toEthStr), $(".tm-bankrolled"));
     });
 
     // profits of each game
@@ -32,7 +36,7 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
                 $e.text("Not needed.")
             } else {
                 console.log(`${profits} profits`);
-                $e.text(`Yes! (${util.toEthStr(reward)} reward)`);
+                $e.text(`${util.toEthStr(reward)} reward`);
             }
         });
     });
@@ -87,9 +91,9 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
     util.bindToElement(tr.capitalNeeded().then(util.toEthStr), $(".tr-cap-needed"));
 
     // PENNY
-    util.bindToElement(token.totalSupply().then(util.toEthStr), $(".token-total-supply"));
-    util.bindToElement(token.totalDividends().then(util.toEthStr), $(".token-total-received"));
-    util.bindToElement(token.collectedDividends().then(util.toEthStr), $(".token-total-collected"));
+    //util.bindToElement(token.totalSupply().then(util.toEthStr), $(".token-total-supply"));
+    util.bindToElement(token.isFrozen(), $(".token-is-frozen"));
+    
 
     // PAC
     util.bindToElement(pac.numActiveAuctions(), $(".pac-active-games"));
@@ -123,11 +127,11 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
 
     // Task Manager
     util.bindToElement(ethUtil.getBalance(tm).then(util.toEthStr), $(".tm-balance"))
-    util.bindToElement(tm.totalRewarded().then(util.toEthStr), $(".tm-rewards-paid"))
-    tm.sendProfitsRewardBips().then(val => {
-        const pct = val.div(10000);
-        $(".tm-send-profits-reward").text(`${pct.toFixed(3)}%`);
-    });
+    util.bindToElement(tm.sendProfitsRewardBips().then(val => {
+        return `${val.div(10000).toFixed(3)}%`;
+    }), $(".tm-send-profits-reward"));
+    util.bindToElement(tm.paStartReward().then(util.toEthStr), $(".tm-pa-start-reward"));
+    util.bindToElement(tm.paEndReward().then(util.toEthStr), $(".tm-pa-end-reward"));
 
     ///////////////////////////////////////////////////////////////
 });

@@ -1,3 +1,7 @@
+.hide {
+	display: none;
+}
+
 .statusRow {
 	margin-top: 20px;
 	font-size: 90%;

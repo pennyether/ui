@@ -43,8 +43,7 @@
                     name: "Tasks",
                     url: "/games/tasks.html"
                 }]
-            },
-            {
+            }, {
                 name: "Status",
                 url: "/status/system.html",
                 children: [{
@@ -57,6 +56,9 @@
                     name: "Comptroller Status",
                     url: "/status/comptroller.html"
                 },{
+                    name: "Token Status",
+                    url: "/status/token.html"
+                },{
                     name: "Monarchy Status",
                     url: "/status/monarchy.html"
                 },{
@@ -65,18 +67,8 @@
                 },{
                     name: "VideoPoker Status",
                     url: "/status/videopoker.html"
-                },{
-                    name: "Admin UI",
-                    url: "/status/admin.html",
-                },{
-                    name: "Token Holder UI",
-                    url: "/status/tokens.html"
-                },{
-                    name: "DAO UI",
-                    url: "/status/dao.html"
                 }]
-            },
-            {
+            }, {
                 name: "About",
                 url: "/about/mission.html",
                 children: [{
@@ -100,8 +92,7 @@
                     name: "Contact",
                     url: "/about/contact.html"
                 }]
-            },
-            {
+            }, {
                 name: "ICO",
                 url: "/ico/whitepaper.html",
                 children: [{

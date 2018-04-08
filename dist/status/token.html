@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/javascripts/lib/Loader.js"></script>
+		<script src="/javascripts/status/token.js"></script>
+		<script src="/javascripts/lib/EthGraph.js"></script>
+		<link rel="stylesheet" type="text/css" href="/styles/status.css"/>
+		<style>
+			
+		</style>
+	</head>
+	<body><div id="Content">
+		<div class="page-header">
+			<div class="title">
+				PENNY Token Status
+			</div>
+			<div class="links">
+				<a href="/about/contracts.html#token">Contract Info</a>
+				•
+				<a href="">Etherscan Link</a>
+			</div>
+		</div>
+		<div style="margin: 10px 0px;">
+			<div class="statusRow one">
+				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+					<td width="33%"><div class="reserve cell">
+						<div class="titleBar">
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="The Comptroller interacts with a few hard-coded contracts.">
+								Status
+							<span>
+						</div>
+						<div class="body">
+							<div class="loading">
+								Loading...
+							</div>
+							<div class="error hide">
+								Error loading reserve details: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								Comptroller<br>
+								Frozen<br>
+								TotalSupply<br>
+								TotalBurned<br>
+							</div>
+						</div>
+					</div></td>
+					<td width="66%"><div class="cell allocation">
+						<div class="titleBar">
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="The Comptroller can hold a one-time CrowdSale. The configuration can change until the CrowdSale has started.">
+								Supply
+							</span>
+						</div>
+						<div class="body">
+							Chart of TotalSupply and TotalBurned
+						</div>
+					</div></td>
+				</tr></table>
+			</div>
+			<div class="statusRow two">
+				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+					<td width="33%"><div class="cell profits">
+						<div class="titleBar">
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="The Comptroller is the only contract that can Mint and Burn tokens.">
+								Dividends
+							</span>
+						</div>
+						<div class="body">
+							<div class="loading">
+								Loading...
+							</div>
+							<div class="error hide">
+								Error loading profits: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								Total Received:
+								Total Collected:
+								Total Uncollected:
+							</div>
+						</div>
+					</div></td>
+					<td width="66%"><div class="cell total-profits">
+						<div class="titleBar">
+							<span>
+								Dividends Over Time
+							</span>
+						</div>
+						<div class="body">
+							Chart of received and collected.
+						</div>
+					</div></td>
+				</tr></table>
+			</div>
+			<div class="statusRow two">
+				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+					<td width="33%"><div class="cell profits">
+						<div class="titleBar">
+							<span>
+								Events
+							</span>
+						</div>
+						<div class="body">
+							Event viewer
+						</div>
+					</div></td>
+				</tr></table>
+			</div>
+		</div>
+	</div></body>
+</html>
