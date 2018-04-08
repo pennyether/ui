@@ -2,6 +2,8 @@
 
     function PennyEtherWebUtil(niceWeb3) {
         var _self = this;
+        var _niceWeb3 = niceWeb3;
+        var _ethUtil = niceWeb3.ethUtil;
 
         this.bindToElement = function bindToElement(promise, element, doAppend) {
             if (element.length == 0) {
@@ -75,13 +77,13 @@
             return _self.$getAddrLink(addrStr, addr);
         };
         this.$getAddrLink = function(name, addr){
-            return niceWeb3.ethUtil.$getLink(name, addr || name, "address");
+            return _ethUtil.$getLink(name, addr || name, "address");
         };
         this.$getTxLink = function(name, tx){
             const shortName = name.length == 66
                 ? name.slice(0,10) + "..." + name.slice(-10)
                 : name;
-            return niceWeb3.ethUtil.$getLink(shortName, tx || name, "tx");
+            return _ethUtil.$getLink(shortName, tx || name, "tx");
         };
         this.getLoadingBar = function(timeMs, speed, hideTip) {
             return new LoadingBar(timeMs, speed, true, hideTip);
@@ -491,7 +493,7 @@
             // Get which events to load, depending on legend
             var events = _events;
             if (_hasLegend) {
-                events = [];
+                events = _events.filter(ev => !ev.label);
                 _$legend.find("input:checked").map((i, el) => {
                     events = events.concat($(el).data("events"));
                 });
@@ -569,7 +571,7 @@
                 $e.append(util.$getShortAddrLink(val));
             } else if (!val.toNumber && val.toString().length==66) {
                 // bytes32
-                $e.append(niceWeb3.web3.toAscii(val));
+                $e.append(_niceWeb3.web3.toAscii(val));
             } else {
                 $e.append(val.toString());
             }

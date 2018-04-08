@@ -1,10 +1,6 @@
 Loader.require("comp", "tr")
 .then(function(comp, tr){
-	var _creationBlockPromise;
 	ethUtil.getCurrentState().then(() => {
-		_creationBlockPromise = comp.getEvents("Created").then(arr => {
-			return arr[0].blockNumber;
-		});
 		_refreshAll();	
 	});
 
@@ -12,6 +8,11 @@ Loader.require("comp", "tr")
 		_refreshContracts();
 		_refreshCrowdSale();
 		_refreshOutcomes();
+		comp.getEvents("Created").then(arr => {
+			return arr[0].blockNumber;
+		}).then(creationBlockNum => {
+			_initEvents(creationBlockNum);
+		});
 	}
 
 	function _refreshContracts(){
@@ -177,8 +178,56 @@ Loader.require("comp", "tr")
 		}
 	}
 
-	function _initEvents(){
+	function _initEvents(creationBlockNum){
+		const formatters = {
+			// BuyTokens, BurnTokens
+			account: (val) => util.$getShortAddrLink(val),
+			tokenHolder: (val) => util.$getShortAddrLink(val),
+			// BuyTokens, UserRefunded
+			refund: (val) => util.toEthStr(val),
+			funded: (val) => util.toEthStr(val),
+			// BuyTokensSuccess, BurnTokens
+			numTokens: (val) => util.toEthStr(val, "PENNY")
+		};
+		
+		// Create "events" array
+		const events = [{
+			instance: comp,
+			name: "Created",
+			formatters: {
+				wallet: addr => Loader.linkOf(addr),
+				treasury: addr => Loader.linkOf(addr),
+				token: addr => Loader.linkOf(addr),
+				locker: addr => Loader.linkOf(addr)
+			}
+		}];
+		// define legends, build events from this.
+		const labels = {
+			"CrowdSale": [true, ["SaleInitalized", "SaleStarted", "SaleSuccessful", "SaleFailed"]],
+			"Tokens Bought": [false, ["BuyTokensSuccess", "BuyTokensFailure", "UserRefunded"]],
+			"Tokens Burnt": [false, ["BurnTokensSuccess", "BurnTokensFailure"]],
+		}
+		Object.keys(labels).forEach(groupName => {
+			const selected = labels[groupName][0];
+			const eventNames = labels[groupName][1];
+			eventNames.forEach(eventName => {
+				events.push({
+					instance: comp,
+					name: eventName,
+					formatters: formatters,
+					label: groupName,
+					selected: selected
+				});
+			})
+		});
 
+		// create log viewer
+		var $lv = util.$getLogViewer({
+			events: events,
+			order: "newest",
+			minBlock: creationBlockNum
+		});
+		$(".events .log-viewer").empty().append($lv);
 	}
 });
 

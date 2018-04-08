@@ -3,11 +3,7 @@ Loader.require("reg", "comp", "tr", "token")
 	_initGovernance();
 	_initProfits();
 
-	var _creationBlockPromise;
 	ethUtil.getCurrentState().then(() => {
-		_creationBlockPromise = tr.getEvents("Created").then(arr => {
-			return arr[0].blockNumber;
-		});
 		_refreshAll();	
 	});
 
@@ -20,8 +16,12 @@ Loader.require("reg", "comp", "tr", "token")
 			_refreshProfits(),
 			_refreshTotalProfits(),
 		]).then(()=>{
-			_initTotalProfits(),
-			_initEvents()
+			tr.getEvents("Created").then(arr => {
+				return arr[0].blockNumber;
+			}).then(creationBlockNum => {
+				_initTotalProfits(creationBlockNum);
+				_initEvents(creationBlockNum);
+			});
 		});
 	}
 
@@ -356,13 +356,11 @@ Loader.require("reg", "comp", "tr", "token")
 	}
 
 	
-	function _initTotalProfits() {
-		_creationBlockPromise.then(creationBlockNum => {
-			return Promise.all([
-				_niceWeb3.ethUtil.getAverageBlockTime(),
-				ethUtil.getBlock(creationBlockNum),
-			]);
-		}).then(arr => {
+	function _initTotalProfits(creationBlockNum) {
+		Promise.all([
+			_niceWeb3.ethUtil.getAverageBlockTime(),
+			ethUtil.getBlock(creationBlockNum),
+		]).then(arr => {
 			const avgBlocktime = arr[0].toNumber();
 			const minBlock = arr[1];
 			const maxBlock = ethUtil.getCurrentStateSync().latestBlock;
@@ -479,51 +477,53 @@ Loader.require("reg", "comp", "tr", "token")
 		}
 	}
 
-	function _initEvents() {
-		_creationBlockPromise.then(creationBlockNum => {
-			const formatters = {
-				// ExecuteCapitalAdded / Removed
-				bankrollable: (val) => Loader.linkOf(val),
-				// CapitalAdded/Removed, ProfitsReceived, 
-				sender: (val) => Loader.linkOf(val),
-				recipient: (val) => Loader.linkOf(val),
-				// DistributeSuccess/Failure
-				token: (val) => Loader.linkOf(val),
-				// All
-				amount: (val) => util.toEthStr(val)
-			};
+	function _initEvents(creationBlockNum) {
+		const formatters = {
+			// ExecuteCapitalAdded / Removed
+			bankrollable: (val) => Loader.linkOf(val),
+			// CapitalAdded/Removed, ProfitsReceived, 
+			sender: (val) => Loader.linkOf(val),
+			recipient: (val) => Loader.linkOf(val),
+			// DistributeSuccess/Failure
+			token: (val) => Loader.linkOf(val),
+			// All
+			amount: (val) => util.toEthStr(val)
+		};
 
-			// Create "events" objects.
-			const labels = {
-				"Capital": [true, ["CapitalAdded", "CapitalRemoved", "CapitalRaised"]],
-				"Reserve": [true, ["ReserveAdded", "ReserveRemoved"]],
-				"Profits": [true, ["ProfitsReceived"]],
-				"Dividends": [true, ["DistributeSuccess", "DistributeFailure"]],
-				"Governance": [false, ["ExecutedSendCapital", "ExecutedRecallCapital", "ExecutedRaiseCapital"]]
-			}
-			const events = [];
-			Object.keys(labels).forEach(groupName => {
-				const selected = labels[groupName][0];
-				const eventNames = labels[groupName][1];
-				eventNames.forEach(eventName => {
-					events.push({
-						instance: tr,
-						name: eventName,
-						formatters: formatters,
-						label: groupName,
-						selected: selected
-					})
+		// Create "events" array
+		const events = [{
+			instance: tr,
+			name: "Created"
+		}];
+		// append to events using labels
+		const labels = {
+			"Capital": [true, ["CapitalAdded", "CapitalRemoved", "CapitalRaised"]],
+			"Reserve": [true, ["ReserveAdded", "ReserveRemoved"]],
+			"Profits": [true, ["ProfitsReceived"]],
+			"Dividends": [true, ["DistributeSuccess", "DistributeFailure"]],
+			"Governance": [false, ["ExecutedSendCapital", "ExecutedRecallCapital", "ExecutedRaiseCapital"]]
+		}
+		Object.keys(labels).forEach(groupName => {
+			const selected = labels[groupName][0];
+			const eventNames = labels[groupName][1];
+			eventNames.forEach(eventName => {
+				events.push({
+					instance: tr,
+					name: eventName,
+					formatters: formatters,
+					label: groupName,
+					selected: selected
 				})
-			});
-
-			// create log viewer
-			var $lv = util.$getLogViewer({
-				events: events,
-				order: "newest",
-				minBlock: creationBlockNum
-			});
-			$(".events .events-ctnr").empty().append($lv);
+			})
 		});
+
+		// create log viewer
+		var $lv = util.$getLogViewer({
+			events: events,
+			order: "newest",
+			minBlock: creationBlockNum
+		});
+		$(".events .events-ctnr").empty().append($lv);
 	}
 });
 

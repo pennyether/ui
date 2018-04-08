@@ -31,7 +31,7 @@
         this.getAllEvents = function(instance, fromBlock, toBlock) {
             return _ethUtil.sendAsync("eth_getLogs", [{
                 address: instance.address,
-                fromBlock: web3.toHex(fromBlock) || web3.toHex(0),
+                fromBlock: web3.toHex(fromBlock) || web3.toHex(1),
                 toBlock: web3.toHex(toBlock) || "latest"
             }]).then((events)=>{
                 return _self.decodeKnownEvents(events);
@@ -61,7 +61,7 @@
             });
             
             // do it.
-            const fromHex = fromBlock ? web3.toHex(fromBlock) : web3.toHex(0);
+            const fromHex = fromBlock ? web3.toHex(fromBlock) : web3.toHex(1);
             const toHex = toBlock ? web3.toHex(toBlock) : "latest";
             return _ethUtil.sendAsync("eth_getLogs", [{
                 address: instance.address,
