@@ -62,7 +62,7 @@ Loader.require("comp", "tr")
 			$(`<a href="/about/contracts.html#token" target="_blank">info</a>`).appendTo($eToken.append(" "));
 
 			const $eLocker = $e.find(".locker-info");
-			util.$getAddrLink("etherscan", token).appendTo($eLocker);
+			util.$getAddrLink("etherscan", locker).appendTo($eLocker);
 			$(`<a href="/about/contracts.html#token-locker" target="_blank">info</a>`).appendTo($eLocker.append(" "));
 
 			if (!softCapMet) {
@@ -85,24 +85,21 @@ Loader.require("comp", "tr")
 		const $error = $e.find(".error").hide();
 		const $doneLoading = $e.find(".done-loading").hide();
 
-		var dateSaleStarted, dateSaleEnded, softCap, hardCap, bonusCap, targetCapital
+		var dateSaleStarted, dateSaleEnded, softCap, hardCap, bonusCap, capitalPct
 		return Promise.all([
 			comp.dateSaleStarted(),
 			comp.dateSaleEnded(),
 			comp.softCap(),
 			comp.hardCap(),
 			comp.bonusCap(),
-			comp.targetCapital(),
-			comp.totalRaised(),
-			comp.wasSaleStarted(),
+			comp.capitalPctBips()
 		]).then(arr => {
 			dateSaleStarted = arr[0];
 			dateSaleEnded = arr[1];
 			softCap = arr[2];
 			hardCap = arr[3];
 			bonusCap = arr[4];
-			targetCapital = arr[5];
-			totalRaised = arr[6];
+			capitalPct = arr[5].div(10000);
 			doRefresh();
 		}).then(()=>{
 			$loading.hide();
@@ -119,7 +116,7 @@ Loader.require("comp", "tr")
 			$e.find(".soft-cap").text(util.toEthStr(softCap));
 			$e.find(".hard-cap").text(util.toEthStr(hardCap));
 			$e.find(".bonus-cap").text(util.toEthStr(bonusCap));
-			$e.find(".target-capital").text(util.toEthStr(targetCapital));
+			$e.find(".capital-pct").text(`${capitalPct.mul(100).toFixed(2)}%`);
 
 			if (dateSaleStarted.equals(0)) {
 				$e.find(".not-configured").show();
@@ -154,17 +151,17 @@ Loader.require("comp", "tr")
 		const $error = $e.find(".error").hide();
 		const $doneLoading = $e.find(".done-loading").hide();
 
-		var softCap, hardCap, bonusCap, targetCapital;
+		var softCap, hardCap, bonusCap, capitalPct;
 		return Promise.all([
 			comp.softCap(),
 			comp.hardCap(),
 			comp.bonusCap(),
-			comp.targetCapital()
+			comp.capitalPctBips()
 		]).then(arr => {
 			softCap = arr[0];
 			hardCap = arr[1];
 			bonusCap = arr[2];
-			capital = arr[3];
+			capitalPct = arr[3].div(10000);
 			doRefresh();
 		}).then(()=>{
 			$loading.hide();
@@ -179,7 +176,7 @@ Loader.require("comp", "tr")
 			softCap = new BigNumber(20000e18);
 			hardCap = new BigNumber(77500e18);
 			bonusCap = new BigNumber(10000e18);
-			capitalTarget = new BigNumber(2000e18);
+			capitalPct = new BigNumber(.10);
 			if (hardCap.equals(0)) {
 				$e.find(".na").show();
 				return;
@@ -202,8 +199,7 @@ Loader.require("comp", "tr")
 				const numDevTokens = numSoldTokens.div(4);
 				const totalTokens = numSoldTokens.plus(numDevTokens);
 				const reserve = totalTokens.div(2);
-				//const capital = BigNumber.min(val.minus(reserve), capitalTarget);
-				const capital = val.div(10);
+				const capital = val.mul(capitalPct);
 				const cash = val.minus(reserve.plus(capital));
 				$e.find(".outcome-total").text(util.toEthStr(reserve.plus(capital).plus(cash)));
 				$e.find(".outcome-total-pct").text(toPct(reserve.plus(capital).plus(cash).div(val)));
