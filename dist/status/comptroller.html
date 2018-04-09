@@ -9,10 +9,7 @@
 			.cell .body {
 				font-size: 90%;
 			}
-			.crowdsale .not-configured,
-			.crowdsale .not-started,
-			.crowdsale .pending,
-			.crowdsale .complete {
+			.bubble {
 				text-align: center;
 				font-weight: bold;
 				padding: 3px 5px;
@@ -29,6 +26,9 @@
 			td > div.label {
 				display: inline-block;
 				white-space: nowrap;
+			}
+			.sim .value {
+				text-align: right;
 			}
 		</style>
 	</head>
@@ -94,12 +94,6 @@
 										</td>
 									</tr>
 								</table>
-								<div class="is-funding hide">
-									The Treasury currently needs <span class="capital-needed"></span>. Comptroller can currently sell <span class="tokens-needed"></span> Tokens to raise this Capital.
-								</div>
-								<div class="is-not-funding hide">
-									The Treasury does not need any Capital. No Tokens are for sale right now.
-								</div>
 							</div>
 						</div>
 					</div></td>
@@ -117,18 +111,18 @@
 								Error loading: <span class="error-msg"></span>
 							</div>
 							<div class="done-loading hide">
-								<div class="not-configured hide">
+								<div class="bubble not-configured hide">
 									The CrowdSale is not yet scheduled.
 								</div>
-								<div class="not-started hide">
+								<div class="bubble not-started hide">
 									The CrowdSale is scheduled to begin:
 									<span class="date"></span> <span class="timeleft"></span>.
 								</div>
-								<div class="pending hide">
+								<div class="bubble pending hide">
 									The CrowdSale is currently ongoing.<br>
 									<span class="raised"></span> has been raised.
 								</div>
-								<div class="completed hide">
+								<div class="bubble completed hide">
 									The CrowdSale completed.<br>
 									<span class="raised"></span> was raised.
 								</div>
@@ -199,7 +193,7 @@
 								Error loading: <span class="error-msg"></span>
 							</div>
 							<div class="done-loading hide">
-								<div class="na hide">
+								<div class="bubble na hide">
 									The Crowdsale is not yet scheduled.
 								</div>
 								<div class="sim hide">
@@ -224,7 +218,7 @@
 										</tr>
 										<tr>
 											<td>
-												<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="This Ether is sent to the Treasury and is strictly available to refund users for burning PENNY Tokens.">Reserve:</div>
+												<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="This Ether is sent to the Treasury and is strictly used to back each PENNY with .5 Ether.">Reserve:</div>
 											</td>
 											<td>
 												<div class="value outcome-reserve"></div>
@@ -300,7 +294,33 @@
 			</div>
 			<div class="statusRow two">
 				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
-					<td width="100%"><div class="cell events">
+					<td width="33%"><div class="cell capital-funding">
+						<div class="titleBar">
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="After the CrowdSale, the Comptroller can sell more PENNY Tokens if the Treasury requires more Capital. The Capital requirement is increased via Governance.">
+								Additional Funding
+							<span>
+						</div>
+						<div class="body">
+							<div class="loading">
+								Loading...
+							</div>
+							<div class="error hide">
+								Error loading: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								<div class="bubble is-na hide">
+									The CrowdSale has not occurred yet, so the Comptroller cannot raise Capital.
+								</div>
+								<div class="bubble is-funding hide">
+									The Treasury currently needs <span class="capital-needed"></span>. Comptroller can currently sell <span class="tokens-needed"></span> Tokens to raise this Capital.
+								</div>
+								<div class="bubble is-not-funding hide">
+									The Treasury does not need any Capital. No Tokens are for sale right now.
+								</div>
+							</div>
+						</div>
+					</div></td>
+					<td width="66%"><div class="cell events">
 						<div class="titleBar">
 							<span>
 								Events

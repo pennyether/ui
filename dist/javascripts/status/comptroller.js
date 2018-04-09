@@ -8,6 +8,7 @@ Loader.require("comp", "tr")
 		_refreshContracts();
 		_refreshCrowdSale();
 		_refreshOutcomes();
+		_refreshCapitalFunding();
 		comp.getEvents("Created").then(arr => {
 			return arr[0].blockNumber;
 		}).then(creationBlockNum => {
@@ -21,21 +22,17 @@ Loader.require("comp", "tr")
 		const $error = $e.find(".error").hide();
 		const $doneLoading = $e.find(".done-loading").hide();
 
-		var wallet, treasury, token, locker, softCapMet, capitalFundable;
+		var wallet, treasury, token, locker;
 		return Promise.all([
 			comp.wallet(),
 			comp.treasury(),
 			comp.token(),
-			comp.locker(),
-			comp.wasSoftCapMet(),
-			comp.capitalFundable()
+			comp.locker()
 		]).then(arr => {
 			wallet = arr[0];
 			treasury = arr[1];
 			token = arr[2];
 			locker = arr[3];
-			softCapMet = arr[4];
-			capitalFundable = arr[5];
 			doRefresh();
 		}).then(()=>{
 			$loading.hide();
@@ -64,18 +61,6 @@ Loader.require("comp", "tr")
 			const $eLocker = $e.find(".locker-info");
 			util.$getAddrLink("etherscan", locker).appendTo($eLocker);
 			$(`<a href="/about/contracts.html#token-locker" target="_blank">info</a>`).appendTo($eLocker.append(" "));
-
-			if (!softCapMet) {
-				return;
-			} else if (capitalFundable.gt(0)) {
-				$e.find(".is-funding").show();
-				const capitalNeeded = util.toEthStr(capitalFundable.div(2));
-				const tokensNeeded = util.toEthStr(capitalFundable, "PENNY");
-				$e.find(".capital-needed").text(capitalNeeded);
-				$e.find(".tokens-needed").text(tokensNeeded);
-			} else {
-				$e.find(".is-not-funding").show();
-			}
 		}
 	}
 
@@ -173,10 +158,10 @@ Loader.require("comp", "tr")
 		});
 
 		function doRefresh() {
-			softCap = new BigNumber(20000e18);
-			hardCap = new BigNumber(77500e18);
-			bonusCap = new BigNumber(10000e18);
-			capitalPct = new BigNumber(.10);
+			// softCap = new BigNumber(20000e18);
+			// hardCap = new BigNumber(77500e18);
+			// bonusCap = new BigNumber(10000e18);
+			// capitalPct = new BigNumber(.10);
 			if (hardCap.equals(0)) {
 				$e.find(".na").show();
 				return;
@@ -218,6 +203,44 @@ Loader.require("comp", "tr")
 				$e.find(".tokens-total-pct").text(toPct(totalTokens.div(totalTokens)));
 			}
 			refreshVals();
+		}
+	}
+
+	function _refreshCapitalFunding() {
+		const $e = $(".capital-funding");
+		const $loading = $e.find(".loading").show();
+		const $error = $e.find(".error").hide();
+		const $doneLoading = $e.find(".done-loading").hide();
+
+		var softCapMet, capitalFundable;
+		return Promise.all([
+			comp.wasSoftCapMet(),
+			comp.capitalFundable()
+		]).then(arr => {
+			softCapMet = arr[0];
+			capitalFundable = arr[1];
+			doRefresh();
+		}).then(()=>{
+			$loading.hide();
+			$doneLoading.show();
+		},e => {
+			$loading.hide();
+			$error.show();
+			$error.find(".error-msg").text(e.message);
+		});
+
+		function doRefresh() {
+			if (!softCapMet) {
+				$e.find(".is-na").show();
+			} else if (capitalFundable.gt(0)) {
+				$e.find(".is-funding").show();
+				const capitalNeeded = util.toEthStr(capitalFundable.div(2));
+				const tokensNeeded = util.toEthStr(capitalFundable, "PENNY");
+				$e.find(".capital-needed").text(capitalNeeded);
+				$e.find(".tokens-needed").text(tokensNeeded);
+			} else {
+				$e.find(".is-not-funding").show();
+			}
 		}
 	}
 
