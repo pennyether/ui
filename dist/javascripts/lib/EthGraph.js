@@ -1047,7 +1047,7 @@ function SvgGraph() {
             // Set right side sizes.
             _$yScales.width(`${offsetX}px`);
             _$bottomRight.width(`${offsetX}px`);
-            _$legend.width(`${offsetX}px`);
+            _$legend.css(`min-width`, `${offsetX}px`);
         }
         if (_showXScale) {
             _$xScale.empty();

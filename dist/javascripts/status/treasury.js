@@ -133,10 +133,12 @@ Loader.require("reg", "comp", "tr", "token")
 			$capTotal.text(util.toEthStr(capAvailable.plus(capRecallable), ""));
 
 			balances.forEach(obj=>{
-				const name = Loader.linkOf(obj.addr);
+				const $link = Loader.linkOf(obj.addr);
 				const allocated = util.toEthStr(obj.allocated);
 				const recallable = util.toEthStr(obj.recallable);
-				$tbody.append(`<tr><td>${name}</td><td>${allocated}</td><td>${recallable}</td></tr>`);
+				$(`<tr><td></td><td>${allocated}</td><td>${recallable}</td></tr>`)
+					.appendTo($tbody)
+					.find("td").eq(0).append($link);
 			})
 		}
 	}
@@ -159,7 +161,7 @@ Loader.require("reg", "comp", "tr", "token")
 			$error.find(".error-msg").text(e.message);
 		});
 
-		function doRefresh() {
+		function doRefresh(obj) {
 			const capitalRaised = obj.capitalRaised;
 			const capitalTarget = obj.capitalTarget;
 			const $targetTxt = $e.find(".target .txt");
@@ -257,7 +259,7 @@ Loader.require("reg", "comp", "tr", "token")
 				const status = r.dateExecuted.gt(0)
 					? "Executed"
 					: r.dateCancelled.gt(0) ? "Cancelled" : "Pending";
-				const target = Loader.linkOf(r.target);
+				const $target = Loader.linkOf(r.target);
 				
 				$e.find(".type").text(type);
 				if (type == "SendCapital"){
@@ -271,7 +273,7 @@ Loader.require("reg", "comp", "tr", "token")
 					$e.find(".target").hide();
 					$e.find(".eth").text(util.toEthStr(r.value));
 				}
-				$e.find(".target").text(target);
+				$e.find(".target").empty().append($target);
 				$e.find(".description").text(r.createdMsg);
 				$e.find(".status").text(status);
 				$e.find(".id").text(r.id);
@@ -345,10 +347,11 @@ Loader.require("reg", "comp", "tr", "token")
 		function doRefresh() {
 			const $tbody = $e.find(".table tbody").empty();
 			profits.forEach(obj => {
-				const name = Loader.linkOf(obj.address);
+				const $link = Loader.linkOf(obj.address);
 				const val = util.toEthStr(obj.profitsSent);
-				const runrate = 
-				$tbody.append(`<tr><td>${name}</td><td>${val}</td></tr>`);
+				$(`<tr><td></td><td>${val}</td></tr>`)
+					.appendTo($tbody)
+					.find("td").eq(0).append($link);
 			});
 		}
 	}

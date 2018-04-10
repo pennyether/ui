@@ -100,14 +100,14 @@ Loader.require("tm", "token")
 				const rewardStr = util.toEthStr(obj.startGame[0]);
 				$e.find(".start-monarchy-game").text(`Game #${obj.startGame[1]} (${rewardStr})`)
 			} else {
-				$e.find(".start-monarchy-game").text(`Not needed.`);
+				$e.find(".start-monarchy-game").text(`Not Needed.`);
 			}
 
 			if (obj.endGame[0].gt(0)) {
 				const rewardStr = util.toEthStr(obj.endGame[0]);
 				$e.find(".end-monarchy-game").text(`${obj.endGame[1]} games (${rewardStr})`)
 			} else {
-				$e.find(".end-monarchy-game").text(`Not needed.`)
+				$e.find(".end-monarchy-game").text(`Not Needed.`)
 			}
 		}
 	}
@@ -189,7 +189,7 @@ Loader.require("tm", "token")
 			admin: Loader.linkOf,
 			paStartReward: (val) => util.toEthStr(val),
 			paEndReward: (val) => util.toEthStr(val),
-			newValue: (val) => `${val.mul(10000).toFixed(2)}%`,
+			newValue: (val) => `${val.div(100).toFixed(2)}%`,
 			bankrollable: (val) => Loader.linkOf(val),
 			auctionAddr: (val) => $(`<a href="/games/viewmonarchy.html#${val}" target="_blank"></a>`).text(`Game`),
 			initialPrize: (val) => util.toEthStr(val),

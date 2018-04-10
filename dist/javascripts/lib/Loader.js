@@ -61,10 +61,21 @@
 
         this.linkOf = (addr) => {
             var name = _self.nameOf(addr);
+            if (name.startsWith("0x")) return util.$getShortAddrLink(name);
             name = name[0].toUpperCase() + name.toLowerCase().slice(1);
             name = name.replace(/_([a-z])/g, (m, w)=>w.toUpperCase())
             name = name.replace(/PennyAuctionController/, "Monarchy");
-            return name;
+            const href = ({
+                "Treasury": "/status/treasury.html",
+                "Comptroller": "/status/comptroller.html",
+                "PennyToken": "/status/token.html",
+                "TaskManager": "/status/taskmanager.html",
+                "Monarchy": "/status/monarchy.html",
+                "InstaDice": "/status/instadice.html",
+                "VideoPoker": "/status/videopoker.html"
+            }[name]);
+            if (!href) return util.$getAddrLink(name, addr);
+            return $(`<a href="${href}" target="_blank"></a>`).text(name);
         };
 
         this.getBankrollables = () => {

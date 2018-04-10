@@ -135,3 +135,40 @@ table.fields td > div.label {
 		border-radius: 3px;
 		padding: 2px 3px;
 	}
+
+.HealthBar table td {
+	white-space: nowrap;
+	font-size: 90%;
+}
+	.HealthBar .label {
+		font-weight: bold;
+	}
+	.HealthBar .value {
+		color: navy;
+		padding-left: 10px;
+		text-align: right;
+		text-shadow: 1px 1px 0px rgba(255,255,255,.5);
+	}
+	.HeathBar .bar {
+		vertical-align: middle;
+	}
+	.HealthBar .inner-bar {
+		position: relative;
+		height: 8px;
+		width: 0%;
+	}
+	.HealthBar .collateral .inner-bar {
+		background: rgba(0, 0, 0, .7);
+		transition: width .5s;
+	}
+	.HealthBar .bankroll .inner-bar {
+		background: rgba(0, 0, 0, .4);
+		transition: width .5s .5s;
+	}
+	.HealthBar .balance .inner-bar {
+		background: rgba(0, 80, 128, 1);
+		transition: width .5s 1s;
+	}
+	.HealthBar .profit .inner-bar {
+		transition: width .5s 1.5s;
+	}
