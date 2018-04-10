@@ -19,8 +19,13 @@ Loader.require("reg", "comp", "tr", "token")
 			tr.getEvents("Created").then(arr => {
 				return arr[0].blockNumber;
 			}).then(creationBlockNum => {
-				_initTotalProfits(creationBlockNum);
-				_initEvents(creationBlockNum);
+				_initEventLog(creationBlockNum);
+				Promise.all([
+					ethUtil.getBlock(creationBlockNum),
+					_niceWeb3.ethUtil.getAverageBlockTime(),
+				]).then(arr => {
+					_initTotalProfits(arr[0], arr[1]);
+				});
 			});
 		});
 	}
@@ -356,95 +361,63 @@ Loader.require("reg", "comp", "tr", "token")
 	}
 
 	
-	function _initTotalProfits(creationBlockNum) {
-		Promise.all([
-			_niceWeb3.ethUtil.getAverageBlockTime(),
-			ethUtil.getBlock(creationBlockNum),
-		]).then(arr => {
-			const avgBlocktime = arr[0].toNumber();
-			const minBlock = arr[1];
-			const maxBlock = ethUtil.getCurrentStateSync().latestBlock;
+	function _initTotalProfits(creationBlock, avgBlocktime) {
+		const minBlock = creationBlock;
+		const maxBlock = ethUtil.getCurrentStateSync().latestBlock;
 
-			const $e = $(".total-profits");
-			const graph = new EthGraph(_niceWeb3);
-			$e.find(".graph-ctnr").append(graph.$e);
+		const $e = $(".total-profits");
+		const graph = new EthGraph(_niceWeb3);
+		$e.find(".graph-ctnr").append(graph.$e);
 
-			const profits = (block) => {
-				block = Math.round(block);
-				return _niceWeb3.ethUtil
-					.getStorageAt(tr.address, 16, block)
-					.then(gwei => {
-						if (gwei == "0x") return null;
-						return new BigNumber(gwei);
-					});
-			};
-			const dividends = (block) => {
-				block = Math.round(block);
-				return _niceWeb3.ethUtil
-					.getStorageAt(tr.address, 15, block)
-					.then(gwei => {
-						if (gwei == "0x") return null;
-						return new BigNumber(gwei);
-					});
-			};
-			const getFormattedTitle = (low, high) => {
-				return Promise.all([
-					_niceWeb3.ethUtil.getBlock(Math.round(low)),
-					_niceWeb3.ethUtil.getBlock(Math.round(high)),
-				]).then(arr => {
-					const lowBlock = arr[0];
-					const highBlock = arr[1];
-					const diff = highBlock.timestamp - lowBlock.timestamp;
-					const lowDateStr = util.toDateStr(lowBlock.timestamp, {scale: diff});
-					const highDateStr = util.toDateStr(highBlock.timestamp, {scale: diff});
-					const timeStr = util.toTime(diff);
-					return `<b>${lowDateStr}</b> to <b>${highDateStr}</b> (${timeStr})`;
+		const getProfits = (block) => {
+			block = Math.round(block);
+			return _niceWeb3.ethUtil
+				.getStorageAt(tr.address, 16, block)
+				.then(gwei => {
+					if (gwei == "0x") return null;
+					return new BigNumber(gwei);
 				});
-			};
-			const xTicks = (function(){
-				return [minBlock, maxBlock].map(b => {
-					return {
-						x: b.number,
-						label: util.toDateStr(b.timestamp, {second: null})
-					};
+		};
+		const getDividends = (block) => {
+			block = Math.round(block);
+			return _niceWeb3.ethUtil
+				.getStorageAt(tr.address, 15, block)
+				.then(gwei => {
+					if (gwei == "0x") return null;
+					return new BigNumber(gwei);
 				});
-			}());
+		};
 
-			graph.init({
-				sequences: [{
-					name: "profits",
-					valFn: profits,
-					showInPreview: true,
-					maxPoints: 20,
-					color: "blue",
-					yScaleHeader: "Profits",
-					yTickCount: 3,
-					yFormatFn: util.toEthStr,
-				},{
-					name: "dividends",
-					valFn: dividends,
-					showInPreview: true,
-					maxPoints: 20,
-					color: "navy",
-					yScaleHeader: "Dividends",
-					yTickCount: 3,
-					yFormatFn: util.toEthStr,
-				}],
-				min: minBlock.number,
-				max: maxBlock.number,
-				previewXTicks: xTicks,
-				previewNumPoints: 20,
-				previewFormatFn: (low, high) => {
-					const num = Math.round(high-low).toLocaleString();
-					const timeStr = util.toTime(Math.round((high-low) * avgBlocktime));
-					return `${num} blocks. (~${timeStr})`;
-				},
-				titleFormatFn: getFormattedTitle,
-			});
-
-			const dayInBlocks = 60*60*24 / avgBlocktime;
-			graph.setView(maxBlock.number - dayInBlocks, maxBlock.number);
+		graph.init({
+			sequences: [{
+				name: "profits",
+				valFn: getProfits,
+				showInPreview: true,
+				maxPoints: 20,
+				color: "blue",
+				yScaleHeader: "Profits",
+				yTickCount: 3,
+				yFormatFn: util.toEthStr,
+			},{
+				name: "dividends",
+				valFn: getDividends,
+				showInPreview: true,
+				maxPoints: 20,
+				color: "navy",
+				yScaleHeader: "Dividends",
+				yTickCount: 3,
+				yFormatFn: util.toEthStr,
+			}],
+			min: minBlock.number,
+			max: maxBlock.number,
+			previewXTicks: graph.createPreviewXTicks(minBlock, maxBlock, util),
+			previewNumPoints: 20,
+			previewFormatFn: graph.createPreviewFormatFn(util, avgBlocktime),
+			titleFormatFn: graph.createTitleFormatter(_niceWeb3.ethUtil, util),
 		});
+
+		const dayInBlocks = 60*60*24 / avgBlocktime;
+		graph.setView(maxBlock.number - dayInBlocks, maxBlock.number);
 	}
 	function _refreshTotalProfits() {
 		const $e = $(".total-profits");
@@ -472,12 +445,12 @@ Loader.require("reg", "comp", "tr", "token")
 		function doRefresh() {
 			const $profits = $e.find(".profits");
 			const $divs = $e.find(".dividends");
-			$profits.text(util.toEthStr(profits, ""));
-			$divs.text(util.toEthStr(dividends, ""));
+			$profits.text(util.toEthStrFixed(profits, 4, ""));
+			$divs.text(util.toEthStrFixed(dividends, 4, ""));
 		}
 	}
 
-	function _initEvents(creationBlockNum) {
+	function _initEventLog(creationBlockNum) {
 		const formatters = {
 			// ExecuteCapitalAdded / Removed
 			bankrollable: (val) => Loader.linkOf(val),

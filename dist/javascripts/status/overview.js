@@ -94,6 +94,7 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
     // PENNY
     //util.bindToElement(token.totalSupply().then(util.toEthStr), $(".token-total-supply"));
     util.bindToElement(token.isFrozen(), $(".token-is-frozen"));
+    util.bindToElement(token.totalDividends().then(util.toEthStr), $(".token-total-dividends"));
     
 
     // PAC

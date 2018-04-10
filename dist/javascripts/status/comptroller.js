@@ -44,7 +44,7 @@ Loader.require("comp", "tr")
 		});
 
 		function doRefresh() {
-			const $eWallet = $e.find(".wallet-info");
+			const $eWallet = $e.find(".cell.wallet-info");
 			util.$getAddrLink("etherscan", wallet).appendTo($eWallet);
 			$(`<a href="/about/contracts.html#wallet" target="_blank">info</a>`).appendTo($eWallet.append(" "));
 
@@ -65,7 +65,7 @@ Loader.require("comp", "tr")
 	}
 
 	function _refreshCrowdSale(){
-		const $e = $(".crowdsale");
+		const $e = $(".cell.crowdsale");
 		const $loading = $e.find(".loading").show();
 		const $error = $e.find(".error").hide();
 		const $doneLoading = $e.find(".done-loading").hide();
@@ -131,7 +131,7 @@ Loader.require("comp", "tr")
 
 
 	function _refreshOutcomes() {
-		const $e = $(".outcomes");
+		const $e = $(".cell.outcomes");
 		const $loading = $e.find(".loading").show();
 		const $error = $e.find(".error").hide();
 		const $doneLoading = $e.find(".done-loading").hide();
@@ -207,7 +207,7 @@ Loader.require("comp", "tr")
 	}
 
 	function _refreshCapitalFunding() {
-		const $e = $(".capital-funding");
+		const $e = $(".cell.capital-funding");
 		const $loading = $e.find(".loading").show();
 		const $error = $e.find(".error").hide();
 		const $doneLoading = $e.find(".done-loading").hide();
@@ -293,7 +293,7 @@ Loader.require("comp", "tr")
 			order: "newest",
 			minBlock: creationBlockNum
 		});
-		$(".events .log-viewer").empty().append($lv);
+		$(".cell.events .log-viewer").empty().append($lv);
 	}
 });
 

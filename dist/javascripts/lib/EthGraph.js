@@ -127,7 +127,7 @@
     Links together a Preview to a Graph, so that when the Preview
     changes, the Graph is updated, and vice versa.
 */
-function EthGraph(niceWeb3) {
+function EthGraph() {
     var _preview;
     var _graph;
 
@@ -214,6 +214,40 @@ function EthGraph(niceWeb3) {
     this.setView = function(low, high){
         _preview.setView(low, high, true);
     };
+
+    this.createTitleFormatter = function(ethUtil, util) {
+        return function(low, high) {
+            return Promise.all([
+                ethUtil.getBlock(Math.round(low)),
+                ethUtil.getBlock(Math.round(high)),
+            ]).then(arr => {
+                const lowBlock = arr[0];
+                const highBlock = arr[1];
+                const diff = highBlock.timestamp - lowBlock.timestamp;
+                const lowDateStr = util.toDateStr(lowBlock.timestamp, {scale: diff});
+                const highDateStr = util.toDateStr(highBlock.timestamp, {scale: diff});
+                const timeStr = util.toTime(diff);
+                return `<b>${lowDateStr}</b> to <b>${highDateStr}</b> (${timeStr})`;
+            });
+        }
+    };
+
+    this.createPreviewXTicks = function(minBlock, maxBlock, util) {
+        return [minBlock, maxBlock].map(b => {
+            return {
+                x: b.number,
+                label: util.toDateStr(b.timestamp, {second: null})
+            };
+        });
+    };
+
+    this.createPreviewFormatFn = function(util, avgBlocktime){
+        return function(low, high) {
+            const num = Math.round(high-low).toLocaleString();
+            const timeStr = util.toTime(Math.round((high-low) * avgBlocktime));
+            return `${num} blocks. (~${timeStr})`;
+        };
+    }
 }
 
 function PromiseQueue(maxConcurrency, maxQueueSize) {

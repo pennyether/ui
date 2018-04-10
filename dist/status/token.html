@@ -23,9 +23,9 @@
 		<div style="margin: 10px 0px;">
 			<div class="statusRow one">
 				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
-					<td width="33%"><div class="reserve cell">
+					<td width="33%"><div class="status cell">
 						<div class="titleBar">
-							<span class="tipLeft" data-tippy-trigger="mouseenter" title="The Comptroller interacts with a few hard-coded contracts.">
+							<span>
 								Status
 							<span>
 						</div>
@@ -37,30 +37,30 @@
 								Error loading reserve details: <span class="error-msg"></span>
 							</div>
 							<div class="done-loading hide">
-								Comptroller<br>
-								Frozen<br>
-								TotalSupply<br>
-								TotalBurned<br>
+								<table class="fields" width="100%">
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="Only the Comptroller (hard-coded) can tell the Token contract to Mint and Burn tokens. Minting occurs during the CrowdSale, and when raising more Capital (via Governance). Burning can occur any time after the CrowdSale.">Comptroller:</div>
+										</td>
+										<td>
+											<div class="value comptroller-info"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="Tokens cannot be transferred until after the CrowdSale. Once unfrozen, they can never be frozen again.">Frozen:</div>
+										</td>
+										<td>
+											<div class="value is-frozen"></div>
+										</td>
+									</tr>
+								</table>
 							</div>
 						</div>
 					</div></td>
-					<td width="66%"><div class="cell allocation">
+					<td width="66%"><div class="cell dividends">
 						<div class="titleBar">
-							<span class="tipLeft" data-tippy-trigger="mouseenter" title="The Comptroller can hold a one-time CrowdSale. The configuration can change until the CrowdSale has started.">
-								Supply
-							</span>
-						</div>
-						<div class="body">
-							Chart of TotalSupply and TotalBurned
-						</div>
-					</div></td>
-				</tr></table>
-			</div>
-			<div class="statusRow two">
-				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
-					<td width="33%"><div class="cell profits">
-						<div class="titleBar">
-							<span class="tipLeft" data-tippy-trigger="mouseenter" title="The Comptroller is the only contract that can Mint and Burn tokens.">
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="Any Ether sent to the Token Contract is considered a Dividend. Typically, dividends originate from the Treasury.">
 								Dividends
 							</span>
 						</div>
@@ -72,34 +72,73 @@
 								Error loading profits: <span class="error-msg"></span>
 							</div>
 							<div class="done-loading hide">
-								Total Received:
-								Total Collected:
-								Total Uncollected:
+								<div class="blob-ctnr" style="text-align: center;">
+									<div class="blob" style="display: inline-block; margin-right: 10px;">
+										<div class="label">Total Dividends</div>
+										<div class="value total-dividends"></div>
+										<div class="eth">ETH</div>
+									</div>
+									<div class="blob" style="display: inline-block; margin-right: 10px;">
+										<div class="label">Total Collected</div>
+										<div class="value total-collected"></div>
+										<div class="eth">ETH</div>
+									</div>
+									<div class="blob" style="display: inline-block">
+										<div class="label">Total Uncollected</div>
+										<div class="value total-uncollected"></div>
+										<div class="eth">ETH</div>
+									</div>
+								</div>
+								<div class="graph-ctnr" style="margin-top: 5px;"></div>
 							</div>
-						</div>
-					</div></td>
-					<td width="66%"><div class="cell total-profits">
-						<div class="titleBar">
-							<span>
-								Dividends Over Time
-							</span>
-						</div>
-						<div class="body">
-							Chart of received and collected.
 						</div>
 					</div></td>
 				</tr></table>
 			</div>
 			<div class="statusRow two">
 				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
-					<td width="33%"><div class="cell profits">
+					<td width="100%"><div class="cell supply">
+						<div class="titleBar">
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="The supply of PENNY only changes during the CrowdSale, or after the CrowdSale if users burn tokens. Additional PENNY can be sold to fund the Treasury, should it need Capital (see: Comptroller).">
+								Supply
+							</span>
+						</div>
+						<div class="body">
+							<div class="loading">
+								Loading...
+							</div>
+							<div class="error hide">
+								Error loading profits: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								<div class="blob-ctnr" style="text-align: center;">
+									<div class="blob" style="display: inline-block; margin-right: 10px;">
+										<div class="label">Total Supply</div>
+										<div class="value total-supply"></div>
+										<div class="eth">PENNY</div>
+									</div>
+									<div class="blob" style="display: inline-block">
+										<div class="label">Total Burned</div>
+										<div class="value total-burned"></div>
+										<div class="eth">PENNY</div>
+									</div>
+								</div>
+								<div class="graph-ctnr" style="margin-top: 5px;"></div>
+							</div>
+						</div>
+					</div></td>
+				</tr></table>
+			</div>
+			<div class="statusRow two">
+				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+					<td width="33%"><div class="cell events">
 						<div class="titleBar">
 							<span>
 								Events
 							</span>
 						</div>
 						<div class="body">
-							Event viewer
+							<div class="log-viewer"></div>
 						</div>
 					</div></td>
 				</tr></table>

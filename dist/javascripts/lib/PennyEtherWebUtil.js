@@ -171,10 +171,11 @@
         };
 
         // Shows value in ETH, with up to "maxDecimals" decimals
-        this.toEthStrFixed = function(wei, maxDecimals) {
+        this.toEthStrFixed = function(wei, maxDecimals, unit) {
             try { wei = new BigNumber(wei); }
             catch (e) { throw new Error(`${wei} is not convertable to a BigNumber`); }
             if (maxDecimals === undefined) maxDecimals = 5;
+            if (unit===undefined) unit = "ETH";
             const dispNum = wei.div(1e18);
 
             // Show up to three decimals, eg: "123" "12.3" "1.23" ".123"
@@ -185,7 +186,7 @@
             var ethStr = dispNum.toNumber().toLocaleString(window.navigator.language, {
                 maximumFractionDigits: numDecimals,
             });
-            return `${ethStr} ETH`;
+            return `${ethStr}${unit ? ` ${unit}` : ""}`;
         };
 
         this.toEthStr = function(wei, unit) {

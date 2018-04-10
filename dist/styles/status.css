@@ -10,6 +10,11 @@
 	vertical-align: top;
 }
 
+table.fields td > div.label {
+	display: inline-block;
+	white-space: nowrap;
+}
+
 .cell .titleBar {
 	text-transform: uppercase;
 	font-size: 80%;
