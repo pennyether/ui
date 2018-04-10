@@ -231,9 +231,9 @@
                 ? _self.pollEthCall("getTransaction", [transactionHash])
                 : _self.doEthCall("getTransaction", [transactionHash]);
         };
-        this.getBalance = function(addr) {
+        this.getBalance = function(addr, block) {
             if (addr.address) addr = addr.address;
-            return _self.doEthCall("getBalance", [addr]);
+            return _self.doEthCall("getBalance", [addr, block]);
         };
         this.getBlockNumber = function(){
             return _self.doEthCall("getBlockNumber");

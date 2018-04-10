@@ -4,18 +4,26 @@
 		<script src="/javascripts/lib/Loader.js"></script>
 		<script src="/javascripts/status/monarchy.js"></script>
 		<script src="/javascripts/lib/EthGraph.js"></script>
+		<script src="/javascripts/shared/BankrollableUtil.js"></script>
 		<link rel="stylesheet" type="text/css" href="/styles/status.css"/>
 		<style>
 		</style>
 	</head>
 	<body><div id="Content">
-		<div class="pageTitle">
-			Monarchy Status
+		<div class="page-header">
+			<div class="title">
+				Monarchy Status
+			</div>
+			<div class="links">
+				<a href="/about/contracts.html#monarchy">Contract Info</a>
+				•
+				<a href="">Etherscan Link</a>
+			</div>
 		</div>
 		<div style="margin: 10px 0px;">
 			<div class="statusRow one">
 				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
-					<td width="33%"><div class="cell health">
+					<td width="40%"><div class="cell health">
 						<div class="titleBar">Health</div>
 						<div class="body">
 							<div class="loading">
@@ -25,26 +33,22 @@
 								Error loading reserve details: <span class="error-msg"></span>
 							</div>
 							<div class="done-loading hide">
-								<div class="hb-ctnr"></div>
-								* Currently running at a slight deficit of .123 ETH.<br>
-								* Of 58.34 ETH bankrolled, 55.21 ETH (94%) is available
-								to stake games.
+								<div class="health-ctnr"></div>
 							</div>
 						</div>
 					</div></td>
-					<td width="66%"><div class="cell">
-						<div class="titleBar">Stats</div>
+					<td width="60%"><div class="cell status">
+						<div class="titleBar">Status</div>
 						<div class="body">
-							<select>
-								<option>All Time</option>
-								<option>Last 7 Days</option>
-								<option>Last 30 Days</option>
-								<option>Last 13 Weeks</option>
-								<option>Last 12 Months</option>
-							</select>
-							<br>
-							totalFees, totalBids*, totalPrizes*, numEndedGames<br>
-							* values are updated only when a game has ended
+							<div class="loading">
+								Loading...
+							</div>
+							<div class="error hide">
+								Error loading reserve details: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								
+							</div>
 						</div>
 					</div></td>
 				</tr></table>

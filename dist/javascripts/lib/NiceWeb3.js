@@ -138,7 +138,7 @@
             const constructorDef = abi.find(def=>def.type==='constructor');
             const inputs = _validateInputs(inputsObj, constructorDef.inputs);
             if (!options) options = {from: _ethUtil.NO_ADDRESS};
-            options = _validateOpts(options, constructorDef.payable);
+            options = _validateOpts(options, constructorDef.payable, false);
             options.data = unlinked_binary;
             const data = _self.contract.new.getData.apply(_self.contract.new, inputs.concat(options));
             return _ethUtil.doEthCall("estimateGas", [{data: data}]).then(res=>{
@@ -238,7 +238,7 @@
                 }
                 try {
                     [inputsArr, inputsObj] = _validateInputs(inputsObj, abiInputs);
-                    opts = _validateOpts(opts, isPayable);
+                    opts = _validateOpts(opts, isPayable, isConstant);
                     if (isConstructor){
                         if (!unlinked_binary) throw new Error(`No unlinked_binary provided.`);
                         opts.data = unlinked_binary;
@@ -285,7 +285,7 @@
             const optsStr = Object.keys(metadata.opts)
                 .map(name=>`${name}: ${metadata.opts[name]}`).join(", ");
             const callStr = `${contractName}.${fnName}(${inputStr}, {${optsStr}})`;
-            
+            const defaultBlock = opts.defaultBlock;
             
             const txCallPromise = new Promise((resolve, reject)=>{
                 function callbackHandler(err, result) {
@@ -298,7 +298,7 @@
                         : result.transactionHash || result;
                     resolve(ret);
                 }
-                oldCallFn.apply(null, inputs.concat(opts, callbackHandler));
+                oldCallFn.apply(null, inputs.concat(opts, defaultBlock, callbackHandler));
             });
             const txResultPromise = Promise.resolve(txCallPromise).then((hashOrResult)=>{
                 const txHash = isConstant ? null : hashOrResult;
@@ -416,8 +416,8 @@
     }
 
     // Validates options passed in against isPayable
-    function _validateOpts(opts, isPayable) {
-        const allowedNames = ["from","to","value","gas","gasPrice","blockNumber"];
+    function _validateOpts(opts, isPayable, allowDefaultBlock) {
+        const allowedNames = ["from","to","value","gas","gasPrice","defaultBlock"];
         const invalidOpts = [];
         Object.keys(opts).forEach((name)=>{
             if (allowedNames.indexOf(name)===-1) invalidOpts.push(name);
@@ -430,6 +430,9 @@
         }
         if (!isPayable && opts.hasOwnProperty('value')){
             throw new Error(`Is not payable, but was passed a value in options.`);
+        }
+        if (opts.hasOwnProperty("defaultBlock") && !allowDefaultBlock) {
+            throw new Error(`"defaultBlock" only available for constant calls.`);
         }
         if (!opts.hasOwnProperty("from") || !opts.from) {
             throw new Error(`'from' option is missing.`);

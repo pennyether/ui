@@ -77,7 +77,7 @@
 					iBlock: ev.blockNumber,
 					iBlockHash: ev.blockHash,
 					iBlocksLeft: null,
-					iHandRaw: PUtil.getIHand(ev.blockHash, id),
+					iHandRaw: PokerUtil.getIHand(ev.blockHash, id),
 	                iHand: null,
 					draws: new BigNumber(0),
 					dBlock: null,
@@ -98,7 +98,7 @@
 				};
 				// compute iHand, dHand
 				gs.iBlocksLeft = Math.max((gs.iBlock + 255) - curBlock, 0);
-				gs.iHand = gs.iBlocksLeft > 0 ? gs.iHandRaw : new PUtil.Hand(0);
+				gs.iHand = gs.iBlocksLeft > 0 ? gs.iHandRaw : new PokerUtil.Hand(0);
 	            gs.isActive = true;
 	            gs.blockUpdated = blockUpdated;
 				_gameStates[id] = gs;
@@ -115,11 +115,11 @@
 				gs.draws = ev.args.draws;
 				gs.dBlock = ev.blockNumber;
 				gs.dBlockHash = ev.blockHash;
-				gs.iHand = new PUtil.Hand(ev.args.iHand);
+				gs.iHand = new PokerUtil.Hand(ev.args.iHand);
 
 				// compute blocksLeft, iHand, dHand, handRank, payout
 				gs.dBlocksLeft = Math.max((gs.dBlock + 255) - curBlock, 0);
-				gs.dHandRaw = PUtil.getDHand(gs.dBlockHash, id, gs.iHand.toNumber(), gs.draws);
+				gs.dHandRaw = PokerUtil.getDHand(gs.dBlockHash, id, gs.iHand.toNumber(), gs.draws);
 				gs.dHand = gs.dBlocksLeft > 0 ? gs.dHandRaw : gs.iHand;
 				gs.handRank = gs.dHand.getRank();
 				gs.payout = gs.bet.mul(gs.payTable[gs.handRank]);
@@ -136,7 +136,7 @@
 				gs.state = "finalized";
 	            gs.finalizeEvent = ev;
 	            gs.latestEvent = ev;
-				gs.dHand = new PUtil.Hand(ev.args.dHand);
+				gs.dHand = new PokerUtil.Hand(ev.args.dHand);
 	            // They skipped drawing. We set iHand and dHandRaw to final hand.
 	            if (!gs.dHandRaw) {
 	                gs.iHand = gs.dHand;
@@ -640,7 +640,7 @@
 		};
 	}());
 
-	window.PUtil = {
+	window.PokerUtil = {
 		VpController: VpController,
 		GameHistoryViewer: GameHistoryViewer,
 		Hand: HandUtil.Hand,

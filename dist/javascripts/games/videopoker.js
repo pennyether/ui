@@ -1,6 +1,6 @@
 Loader.require("vp")
 .then(function(vp){
-    if (!PUtil) throw new Error("This requires PUtil to be loaded.");
+    if (!PokerUtil) throw new Error("This requires PokerUtil to be loaded.");
 
     ethUtil.onStateChanged((state)=>{
         if (!state.isConnected) return;
@@ -9,8 +9,8 @@ Loader.require("vp")
         syncGames().then(syncUserCredits);
     });
 
-    const ghv = new PUtil.GameHistoryViewer();
-    const controller = new PUtil.VpController(vp, ethUtil);
+    const ghv = new PokerUtil.GameHistoryViewer();
+    const controller = new PokerUtil.VpController(vp, ethUtil);
     const tabber = new Tabber();
     tabber.$e.appendTo($("#Machine .tabber-ctnr"));
     ghv.$e.appendTo("#History .history-ctnr");

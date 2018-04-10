@@ -159,7 +159,7 @@
                 })[_network];
                 window._web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
                 window._niceWeb3 = new NiceWeb3(_web3, ethAbi, EthUtil);
-                console.log(`Created _web3 @ ${providerUrl}`);
+                console.log(`Created _web3 [${_network}] @ ${providerUrl}`);
                 _triggerWeb3Ready();
 
                 // Load registry depending on web3 network name

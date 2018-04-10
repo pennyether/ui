@@ -537,7 +537,7 @@
             const dateStr = e.args && e.args.time
                 ? util.toDateStr(e.args.time)
                 : `Block ${e.blockNumber}`;
-            return util.$getTxLink(dateStr, e.transactionHash);
+            return util.$getTxLink(dateStr, e.transactionHash).attr("title", `Block #{e.blockNumber}`);
         }
         function _defaultValueFn(e) {
             var $argVals = {};

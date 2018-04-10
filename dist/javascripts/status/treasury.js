@@ -366,22 +366,10 @@ Loader.require("reg", "comp", "tr", "token")
 		$e.find(".graph-ctnr").append(graph.$e);
 
 		const getProfits = (block) => {
-			block = Math.round(block);
-			return _niceWeb3.ethUtil
-				.getStorageAt(tr.address, 16, block)
-				.then(gwei => {
-					if (gwei == "0x") return null;
-					return new BigNumber(gwei);
-				});
+			return tr.profitsTotal([], {defaultBlock: Math.round(block)})
 		};
 		const getDividends = (block) => {
-			block = Math.round(block);
-			return _niceWeb3.ethUtil
-				.getStorageAt(tr.address, 15, block)
-				.then(gwei => {
-					if (gwei == "0x") return null;
-					return new BigNumber(gwei);
-				});
+			return tr.profitsSent([], {defaultBlock: Math.round(block)})
 		};
 
 		graph.init({

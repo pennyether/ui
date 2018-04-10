@@ -15,75 +15,55 @@ table.fields td > div.label {
 	white-space: nowrap;
 }
 
-.cell .titleBar {
-	text-transform: uppercase;
-	font-size: 80%;
-	letter-spacing: .3em;
-	margin-bottom: 10px;
-	overflow: hidden;
-	text-align: center;
-}
-.cell .titleBar:before,
-.cell .titleBar:after {
-	position: relative;
-	display: inline-block;
-	vertical-align: middle;
-	width: 50%;
-	top: -1px;
-	height: 1px;
-	border-top: 1px solid rgba(0,0,0,.3);
-	content: "";
-}
-.cell .titleBar:before {
-	right: 0em;
-	margin-left: -50%;
-}
-.cell .titleBar:after {
- 	left: 0em;
- 	margin-right: -50%;
-}
-
 .cell {
 	padding: 5px 10px;
 }
-.cell .body {
-	padding: 5px;
-	background: linear-gradient(0deg, #EEE 0%, #DDD 100%);
-	border-radius: 4px;
-	/*min-height: 100px;*/
-}
+	.cell .body {
+		padding: 5px;
+		background: linear-gradient(0deg, #EEE 0%, #DDD 100%);
+		border-radius: 4px;
+		/*min-height: 100px;*/
+	}
+	.cell .bubble {
+		text-align: center;
+		font-weight: bold;
+		padding: 3px 5px;
+		border-radius: 3px;
+		background: rgba(0,0,0,.1);
+		margin-bottom: 5px;
+	}
+
+	.cell .titleBar {
+		text-transform: uppercase;
+		font-size: 80%;
+		letter-spacing: .3em;
+		margin-bottom: 10px;
+		overflow: hidden;
+		text-align: center;
+	}
+		.cell .titleBar:before,
+		.cell .titleBar:after {
+			position: relative;
+			display: inline-block;
+			vertical-align: middle;
+			width: 50%;
+			top: -1px;
+			height: 1px;
+			border-top: 1px solid rgba(0,0,0,.3);
+			content: "";
+		}
+		.cell .titleBar:before {
+			right: 0em;
+			margin-left: -50%;
+		}
+		.cell .titleBar:after {
+		 	left: 0em;
+		 	margin-right: -50%;
+		}
 
 .cell .select-ctnr {
 	text-align: center;
 }
-
-	.cell .tiny-bar {
-		margin-bottom: 8px;
-	}
-		.cell .tiny-bar .label {
-			display: inline-block;
-			font-size: 90%;
-			margin-bottom: 5px;
-		}
-		.cell .tiny-bar .txt {
-			display: inline-block;
-			font-size: 90%;
-			font-weight: bold;
-		}
-		.cell .tiny-bar .bar {
-			position: relative;
-			background: #CCC;
-			width: 100%;
-			height: 10px;
-			border: 1px solid gray;
-		}
-		.cell .tiny-bar .amt {
-			position: relative;
-			height: 100%;
-			background: green;
-			transition: width .5s;
-		}
-
 	.cell .table-ctnr {
 		padding: 5px;
 	}
@@ -103,72 +83,81 @@ table.fields td > div.label {
 			text-align: right;
 		}
 
-.cell .blob {
-	margin: 5px;
-	padding: 3px;
-	border-radius: 3px;
-	background: #CCC;
-	text-align: center;
-	white-space: nowrap;
+	.cell .blob {
+		display: inline-block;
+		margin: 5px;
+		padding: 3px;
+		border-radius: 3px;
+		background: #CCC;
+		text-align: center;
+		white-space: nowrap;
+	}
+		.cell .blob:not(:last-child) {
+			margin-right: 10px
+		}
+		.cell .blob .label {
+			color: black;
+			font-size: 80%;
+		}
+		.cell .blob .value {
+			font-size: 140%;
+			text-shadow: 1px 1px 1px rgba(255,255,255,1);
+			padding-top: 2px;
+			padding-bottom: 0px;
+		}
+		.cell .blob .eth {
+			font-size: 60%;
+		}
+
+.Health {
+
 }
-	.cell .blob .label {
-		color: black;
+	.Health table {
+		margin-top: 10px;
+	}
+		.Health table td {
+			white-space: nowrap;
+			font-size: 90%;
+		}
+		.Health .label {
+			font-weight: bold;
+		}
+		.Health td.value {
+			color: navy;
+			padding-left: 10px;
+			text-align: right;
+			text-shadow: 1px 1px 0px rgba(255,255,255,.5);
+		}
+		.Health .bar {
+			vertical-align: middle;
+		}
+		.Health .inner-bar {
+			position: relative;
+			height: 8px;
+			width: 0%;
+		}
+		.Health .collateral .inner-bar {
+			background: rgba(0, 0, 0, .7);
+			transition: width .5s;
+		}
+		.Health .bankroll .inner-bar {
+			background: rgba(0, 0, 0, .4);
+			transition: width .5s .5s;
+		}
+		.Health .balance .inner-bar {
+			background: rgba(0, 80, 128, 1);
+			transition: width .5s 1s;
+		}
+		.Health .profit .inner-bar {
+			transition: width .5s 1.5s;
+		}
+	.Health .status {
+		margin-top: 10px;
 		font-size: 80%;
 	}
-	.cell .blob .value {
-		font-size: 140%;
-		text-shadow: 1px 1px 1px rgba(255,255,255,1);
-		padding-top: 2px;
-		padding-bottom: 0px;
+	.Health .status .item {
+		margin: 4px 0px;
 	}
-	.cell .blob .eth {
-		font-size: 60%;
-	}
-
-.cell.events .legend {
-	text-align: center;
-	padding: 4px 0px;
-}
-	.cell.events .legend label {
-		font-size: 90%;
-		background: #CCC;
-		border-radius: 3px;
-		padding: 2px 3px;
-	}
-
-.HealthBar table td {
-	white-space: nowrap;
-	font-size: 90%;
-}
-	.HealthBar .label {
-		font-weight: bold;
-	}
-	.HealthBar .value {
-		color: navy;
-		padding-left: 10px;
-		text-align: right;
-		text-shadow: 1px 1px 0px rgba(255,255,255,.5);
-	}
-	.HeathBar .bar {
-		vertical-align: middle;
-	}
-	.HealthBar .inner-bar {
-		position: relative;
-		height: 8px;
-		width: 0%;
-	}
-	.HealthBar .collateral .inner-bar {
-		background: rgba(0, 0, 0, .7);
-		transition: width .5s;
-	}
-	.HealthBar .bankroll .inner-bar {
-		background: rgba(0, 0, 0, .4);
-		transition: width .5s .5s;
-	}
-	.HealthBar .balance .inner-bar {
-		background: rgba(0, 80, 128, 1);
-		transition: width .5s 1s;
-	}
-	.HealthBar .profit .inner-bar {
-		transition: width .5s 1.5s;
+	.Health .status .item:before {
+		content: "•";
 	}

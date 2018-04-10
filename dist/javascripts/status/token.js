@@ -71,22 +71,10 @@ Loader.require("token")
 		$e.find(".graph-ctnr").append(graph.$e);
 
 		const getTotalDividends = (block) => {
-			block = Math.round(block);
-			return _niceWeb3.ethUtil
-				.getStorageAt(token.address, 7, block)
-				.then(gwei => {
-					if (gwei == "0x") return null;
-					return new BigNumber(gwei);
-				});
+			return token.dividendsTotal([], {defaultBlock: Math.round(block)});
 		};
 		const getTotalCollected = (block) => {
-			block = Math.round(block);
-			return _niceWeb3.ethUtil
-				.getStorageAt(token.address, 8, block)
-				.then(gwei => {
-					if (gwei == "0x") return null;
-					return new BigNumber(gwei);
-				});
+			return token.dividendsCollected([], {defaultBlock: Math.round(block)});
 		};
 		graph.init({
 			sequences: [{
@@ -125,10 +113,9 @@ Loader.require("token")
 		const $error = $e.find(".error").hide();
 		const $doneLoading = $e.find(".done-loading").hide();
 
-		var totalDividends, collectedDividends;
 		return Promise.obj({
-			total: token.totalDividends(),
-			collected: token.collectedDividends()
+			total: token.dividendsTotal(),
+			collected: token.dividendsCollected()
 		}).then(doRefresh).then(()=>{
 			$loading.hide();
 			$doneLoading.show();
@@ -154,24 +141,11 @@ Loader.require("token")
 		$e.find(".graph-ctnr").append(graph.$e);
 
 		const getTotalSupply = (block) => {
-			block = Math.round(block);
-			return _niceWeb3.ethUtil
-				.getStorageAt(token.address, 3, block)
-				.then(gwei => {
-					if (gwei == "0x") return null;
-					return new BigNumber(gwei);
-				});
+			return token.totalSupply([], {defaultBlock: Math.round(block)});
 		};
 		const getTotalBurned = (block) => {
-			block = Math.round(block);
-			return _niceWeb3.ethUtil
-				.getStorageAt(token.address, 10, block)
-				.then(gwei => {
-					if (gwei == "0x") return null;
-					return new BigNumber(gwei);
-				});
+			return token.totalBurned([], {defaultBlock: Math.round(block)});
 		};
-
 		graph.init({
 			sequences: [{
 				name: "totalSupply",
