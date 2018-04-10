@@ -40,17 +40,10 @@ Loader.require("token")
 		const $doneLoading = $e.find(".done-loading").hide();
 
 		// comptro
-		var comptroller, isFrozen;
-		return Promise.all([
-			token.comptroller(),
-			token.isFrozen()
-		]).then(arr => {
-			comptroller = arr[0];
-			isFrozen = arr[1];
-			totalSupply = arr[2];
-			totalBurned = arr[3];
-			doRefresh();
-		}).then(()=>{
+		return Promise.obj({
+			comptroller: token.comptroller(),
+			isFrozen: token.isFrozen()
+		}).then(doRefresh).then(()=>{
 			$loading.hide();
 			$doneLoading.show();
 		},e => {
@@ -59,13 +52,13 @@ Loader.require("token")
 			$error.find(".error-msg").text(e.message);
 		});
 
-		function doRefresh() {
+		function doRefresh(obj) {
 			const $eComptroller = $e.find(".comptroller-info");
 			$(`<a href="/status/comptroller.html" target="_blank">status</a>`).appendTo($eComptroller);
-			util.$getAddrLink("etherscan", comptroller).appendTo($eComptroller.append(" "));
+			util.$getAddrLink("etherscan", obj.comptroller).appendTo($eComptroller.append(" "));
 			$(`<a href="/about/contracts.html#comptroller" target="_blank">info</a>`).appendTo($eComptroller.append(" "));
 
-			$e.find(".is-frozen").text(isFrozen);
+			$e.find(".is-frozen").text(obj.isFrozen);
 		}
 	}
 
@@ -133,14 +126,10 @@ Loader.require("token")
 		const $doneLoading = $e.find(".done-loading").hide();
 
 		var totalDividends, collectedDividends;
-		return Promise.all([
-			token.totalDividends(),
-			token.collectedDividends()
-		]).then(arr => {
-			totalDividends = arr[0];
-			collectedDividends = arr[1];
-			doRefresh();
-		}).then(()=>{
+		return Promise.obj({
+			total: token.totalDividends(),
+			collected: token.collectedDividends()
+		}).then(doRefresh).then(()=>{
 			$loading.hide();
 			$doneLoading.show();
 		}, e=>{
@@ -149,10 +138,10 @@ Loader.require("token")
 			$error.find(".error-msg").text(e.message);
 		});
 
-		function doRefresh() {
-			$e.find(".total-dividends").text(util.toEthStrFixed(totalDividends, 3, ""));
-			$e.find(".total-collected").text(util.toEthStrFixed(collectedDividends, 3, ""));
-			$e.find(".total-uncollected").text(util.toEthStrFixed(totalDividends.minus(collectedDividends), 3, ""));
+		function doRefresh(obj) {
+			$e.find(".total-dividends").text(util.toEthStrFixed(obj.total, 3, ""));
+			$e.find(".total-collected").text(util.toEthStrFixed(obj.collected, 3, ""));
+			$e.find(".total-uncollected").text(util.toEthStrFixed(obj.total.minus(obj.collected), 3, ""));
 		}
 	}
 
@@ -220,15 +209,10 @@ Loader.require("token")
 		const $error = $e.find(".error").hide();
 		const $doneLoading = $e.find(".done-loading").hide();
 
-		var totalSupply, totalBurned;
-		return Promise.all([
-			token.totalSupply(),
-			token.totalBurned()
-		]).then(arr => {
-			totalSupply = arr[0];
-			totalBurned = arr[1];
-			doRefresh();
-		}).then(()=>{
+		return Promise.obj({
+			supply: token.totalSupply(),
+			burned: token.totalBurned()
+		}).then(doRefresh).then(()=>{
 			$loading.hide();
 			$doneLoading.show();
 		}, e=>{
@@ -237,9 +221,9 @@ Loader.require("token")
 			$error.find(".error-msg").text(e.message);
 		});
 
-		function doRefresh() {
-			$e.find(".total-supply").text(util.toEthStrFixed(totalSupply, 4, ""));
-			$e.find(".total-burned").text(util.toEthStrFixed(totalBurned, 4, ""));
+		function doRefresh(obj) {
+			$e.find(".total-supply").text(util.toEthStrFixed(obj.supply, 4, ""));
+			$e.find(".total-burned").text(util.toEthStrFixed(obj.burned, 4, ""));
 		}
 	}
 

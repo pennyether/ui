@@ -22,19 +22,12 @@ Loader.require("comp", "tr")
 		const $error = $e.find(".error").hide();
 		const $doneLoading = $e.find(".done-loading").hide();
 
-		var wallet, treasury, token, locker;
-		return Promise.all([
-			comp.wallet(),
-			comp.treasury(),
-			comp.token(),
-			comp.locker()
-		]).then(arr => {
-			wallet = arr[0];
-			treasury = arr[1];
-			token = arr[2];
-			locker = arr[3];
-			doRefresh();
-		}).then(()=>{
+		return Promise.obj({
+			wallet: comp.wallet(),
+			treasury: comp.treasury(),
+			token: comp.token(),
+			locker: comp.locker()
+		}).then(doRefresh).then(()=>{
 			$loading.hide();
 			$doneLoading.show();
 		},e => {
@@ -43,23 +36,23 @@ Loader.require("comp", "tr")
 			$error.find(".error-msg").text(e.message);
 		});
 
-		function doRefresh() {
+		function doRefresh(obj) {
 			const $eWallet = $e.find(".cell.wallet-info");
-			util.$getAddrLink("etherscan", wallet).appendTo($eWallet);
+			util.$getAddrLink("etherscan", obj.wallet).appendTo($eWallet);
 			$(`<a href="/about/contracts.html#wallet" target="_blank">info</a>`).appendTo($eWallet.append(" "));
 
 			const $eTreasury = $e.find(".treasury-info");
 			$(`<a href="/status/treasury.html" target="_blank">status</a>`).appendTo($eTreasury);
-			util.$getAddrLink("etherscan", treasury).appendTo($eTreasury.append(" "));
+			util.$getAddrLink("etherscan", obj.treasury).appendTo($eTreasury.append(" "));
 			$(`<a href="/about/contracts.html#treasury" target="_blank">info</a>`).appendTo($eTreasury.append(" "));
 
 			const $eToken = $e.find(".token-info");
 			$(`<a href="/status/token.html" target="_blank">status</a>`).appendTo($eToken);
-			util.$getAddrLink("etherscan", token).appendTo($eToken.append(" "));
+			util.$getAddrLink("etherscan", obj.token).appendTo($eToken.append(" "));
 			$(`<a href="/about/contracts.html#token" target="_blank">info</a>`).appendTo($eToken.append(" "));
 
 			const $eLocker = $e.find(".locker-info");
-			util.$getAddrLink("etherscan", locker).appendTo($eLocker);
+			util.$getAddrLink("etherscan", obj.locker).appendTo($eLocker);
 			$(`<a href="/about/contracts.html#token-locker" target="_blank">info</a>`).appendTo($eLocker.append(" "));
 		}
 	}
@@ -70,23 +63,14 @@ Loader.require("comp", "tr")
 		const $error = $e.find(".error").hide();
 		const $doneLoading = $e.find(".done-loading").hide();
 
-		var dateSaleStarted, dateSaleEnded, softCap, hardCap, bonusCap, capitalPct
-		return Promise.all([
-			comp.dateSaleStarted(),
-			comp.dateSaleEnded(),
-			comp.softCap(),
-			comp.hardCap(),
-			comp.bonusCap(),
-			comp.capitalPctBips()
-		]).then(arr => {
-			dateSaleStarted = arr[0];
-			dateSaleEnded = arr[1];
-			softCap = arr[2];
-			hardCap = arr[3];
-			bonusCap = arr[4];
-			capitalPct = arr[5].div(10000);
-			doRefresh();
-		}).then(()=>{
+		return Promise.obj({
+			dateSaleStarted: comp.dateSaleStarted(),
+			dateSaleEnded: comp.dateSaleEnded(),
+			softCap: comp.softCap(),
+			hardCap: comp.hardCap(),
+			bonusCap: comp.bonusCap(),
+			capitalPct: comp.capitalPctBips()
+		}).then(doRefresh).then(()=>{
 			$loading.hide();
 			$doneLoading.show();
 		},e => {
@@ -95,7 +79,14 @@ Loader.require("comp", "tr")
 			$error.find(".error-msg").text(e.message);
 		});
 
-		function doRefresh() {
+		function doRefresh(obj) {
+			const dateSaleStarted = obj.dateSaleStarted;
+			const dateSaleEnded = obj.dateSaleEnded;
+			const softCap = obj.softCap;
+			const hardCap = obj.hardCap;
+			const bonusCap = obj.bonusCap;
+			const capitalPct = obj.capitalPct;
+			
 			$e.find(".date-sale-started").text(util.toDateStr(dateSaleStarted));
 			$e.find(".date-sale-ended").text(util.toDateStr(dateSaleEnded));
 			$e.find(".soft-cap").text(util.toEthStr(softCap));
@@ -136,19 +127,12 @@ Loader.require("comp", "tr")
 		const $error = $e.find(".error").hide();
 		const $doneLoading = $e.find(".done-loading").hide();
 
-		var softCap, hardCap, bonusCap, capitalPct;
-		return Promise.all([
-			comp.softCap(),
-			comp.hardCap(),
-			comp.bonusCap(),
-			comp.capitalPctBips()
-		]).then(arr => {
-			softCap = arr[0];
-			hardCap = arr[1];
-			bonusCap = arr[2];
-			capitalPct = arr[3].div(10000);
-			doRefresh();
-		}).then(()=>{
+		return Promise.obj({
+			softCap: comp.softCap(),
+			hardCap: comp.hardCap(),
+			bonusCap: comp.bonusCap(),
+			capitalPct: comp.capitalPctBips()
+		}).then(doRefresh).then(()=>{
 			$loading.hide();
 			$doneLoading.show();
 		},e => {
@@ -157,11 +141,16 @@ Loader.require("comp", "tr")
 			$error.find(".error-msg").text(e.message);
 		});
 
-		function doRefresh() {
+		function doRefresh(obj) {
+			const softCap = obj.softCap;
+			const hardCap = obj.hardCap;
+			const bonusCap = obj.bonusCap;
+			const capitalPct = obj.capitalPct;
 			// softCap = new BigNumber(20000e18);
 			// hardCap = new BigNumber(77500e18);
 			// bonusCap = new BigNumber(10000e18);
 			// capitalPct = new BigNumber(.10);
+
 			if (hardCap.equals(0)) {
 				$e.find(".na").show();
 				return;
@@ -212,15 +201,10 @@ Loader.require("comp", "tr")
 		const $error = $e.find(".error").hide();
 		const $doneLoading = $e.find(".done-loading").hide();
 
-		var softCapMet, capitalFundable;
-		return Promise.all([
-			comp.wasSoftCapMet(),
-			comp.capitalFundable()
-		]).then(arr => {
-			softCapMet = arr[0];
-			capitalFundable = arr[1];
-			doRefresh();
-		}).then(()=>{
+		return Promise.obj({
+			softCapMet: comp.wasSoftCapMet(),
+			capitalFundable: comp.capitalFundable()
+		}).then(doRefresh).then(()=>{
 			$loading.hide();
 			$doneLoading.show();
 		},e => {
@@ -229,7 +213,10 @@ Loader.require("comp", "tr")
 			$error.find(".error-msg").text(e.message);
 		});
 
-		function doRefresh() {
+		function doRefresh(obj) {
+			const softCapMet = obj.softCapMet;
+			const capitalFundable = obj.capitalFundable;
+
 			if (!softCapMet) {
 				$e.find(".is-na").show();
 			} else if (capitalFundable.gt(0)) {

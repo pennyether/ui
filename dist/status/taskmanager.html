@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/javascripts/lib/Loader.js"></script>
+		<script src="/javascripts/status/taskmanager.js"></script>
+		<script src="/javascripts/lib/EthGraph.js"></script>
+		<link rel="stylesheet" type="text/css" href="/styles/status.css"/>
+		<style>
+			
+		</style>
+	</head>
+	<body><div id="Content">
+		<div class="page-header">
+			<div class="title">
+				TaskManager Status
+			</div>
+			<div class="links">
+				<a href="/about/contracts.html#task-manager">Contract Info</a>
+				•
+				<a href="">Etherscan Link</a>
+			</div>
+		</div>
+		<div style="margin: 10px 0px;">
+			<div class="statusRow one">
+				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+					<td width="50%"><div class="cell settings">
+						<div class="titleBar">
+							<span>
+								Settings
+							<span>
+						</div>
+						<div class="body">
+							<div class="loading">
+								Loading...
+							</div>
+							<div class="error hide">
+								Error loading reserve details: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								<table class="fields" width="100%">
+									<tr>
+										<td colspan="2" style="text-align: center;">
+											<b>Info</b>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The amount of Ether available to pay for rewards.">Balance:</div>
+										</td>
+										<td>
+											<div class="value balance-info"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The Admin can alter the reward amounts, up to certain maximums.">Admin:</div>
+										</td>
+										<td>
+											<div class="value admin-info"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The Monarchy game controller that the TaskManager will interface with.">Monarchy Controller:</div>
+										</td>
+										<td>
+											<div class="value pac-info"></div>
+										</td>
+									</tr>
+									<tr>
+										<td colspan="2" style="text-align: center; padding-top: 7px;">
+											<b>Rewards</b>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="When profits are sent from a Game Controller to the Treasury, a small reward is paid. This ensures profits are always flowing to the Treasury.">Send Profits:</div>
+										</td>
+										<td>
+											<div class="value send-profits-reward"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="When a pre-defined Monarchy game is started, a reward is paid. This ensures there are always ongoing games. A game can only be started once it has ended.">Start Monarchy Game:</div>
+										</td>
+										<td>
+											<div class="value pa-start-reward"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="When a Monarchy game is over, the winner must be paid and the profits must be sent to the game controller. A reward is paid for ending the game.">End Monarchy Game:</div>
+										</td>
+										<td>
+											<div class="value pa-end-reward"></div>
+										</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+					</div></td>
+					<td width="50%"><div class="cell tasks">
+						<div class="titleBar">
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="Any Ether sent to the Token Contract is considered a Dividend. Typically, dividends originate from the Treasury.">
+								Current Tasks
+							</span>
+						</div>
+						<div class="body">
+							<div class="loading">
+								Loading...
+							</div>
+							<div class="error hide">
+								Error loading profits: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								<table class="fields" width="100%">
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="This sends any profits accrued by Monarchy to the Treasury.">Send Monarchy Profits:</div>
+										</td>
+										<td>
+											<div class="value send-monarchy-profits"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="This sends any profits accrued by InstaDice to the Treasury">Send InstaDice Profits:</div>
+										</td>
+										<td>
+											<div class="value send-instadice-profits"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="This sends any profits accrued by VideoPoker to the Treasury.">Send VideoPoker Profits:</div>
+										</td>
+										<td>
+											<div class="value send-videopoker-profits"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="This starts a pre-defined Monarchy game.">Start Monarchy Game:</div>
+										</td>
+										<td>
+											<div class="value start-monarchy-game"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="This ends a Monarchy game, so that it can begin again. It sends profits to the winner, and sends revenue to Monarchy.">End Monarchy Game:</div>
+										</td>
+										<td>
+											<div class="value end-monarchy-game"></div>
+										</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+					</div></td>
+				</tr></table>
+			</div>
+			<div class="statusRow two">
+				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+					<td width="50%"><div class="cell rewards">
+						<div class="titleBar">
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="A Graph of the amount rewarded.">
+								Rewards
+							</span>
+						</div>
+						<div class="body">
+							<div class="loading">
+								Loading...
+							</div>
+							<div class="error hide">
+								Error loading profits: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								<div class="blob-ctnr" style="text-align: center;">
+									<div class="blob" style="display: inline-block; margin-right: 10px;">
+										<div class="label">Total Rewarded</div>
+										<div class="value total-rewarded"></div>
+										<div class="eth">ETH</div>
+									</div>
+								</div>
+								<div class="graph-ctnr" style="margin-top: 5px;"></div>
+							</div>
+						</div>
+					</div></td>
+					<td width="50%"><div class="cell events">
+						<div class="titleBar">
+							<span>
+								Events
+							</span>
+						</div>
+						<div class="body">
+							<div class="log-viewer"></div>
+						</div>
+					</div></td>
+				</tr></table>
+				</tr></table>
+			</div>
+		</div>
+	</div></body>
+</html>

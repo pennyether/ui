@@ -59,6 +59,9 @@
                     name: "Token Status",
                     url: "/status/token.html"
                 },{
+                    name: "TaskManager Status",
+                    url: "/status/taskmanager.html"
+                },{
                     name: "Monarchy Status",
                     url: "/status/monarchy.html"
                 },{

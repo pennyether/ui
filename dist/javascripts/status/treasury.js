@@ -36,16 +36,10 @@ Loader.require("reg", "comp", "tr", "token")
 		const $error = $e.find(".error").hide();
 		const $doneLoading = $e.find(".done-loading").hide();
 
-		var reserve;
-		var totalSupply;
-		return Promise.all([
-			tr.reserve(),
-			token.totalSupply()
-		]).then(arr => {
-			reserve = arr[0];
-			totalSupply = arr[1];
-			doRefresh();
-		}).then(()=>{
+		return Promise.obj({
+			reserve: tr.reserve(),
+			totalSupply: token.totalSupply()
+		}).then(doRefresh).then(()=>{
 			$loading.hide();
 			$doneLoading.show();
 		},e => {
@@ -54,7 +48,10 @@ Loader.require("reg", "comp", "tr", "token")
 			$error.find(".error-msg").text(e.message);
 		});
 
-		function doRefresh() {
+		function doRefresh(obj) {
+			const reserve = obj.reserve;
+			const totalSupply = obj.totalSupply;
+
 			const $bar = $e.find(".bar").hide();
 			const $barAmt = $e.find(".amt");
 			const $barTxt = $e.find(".txt");
@@ -150,16 +147,10 @@ Loader.require("reg", "comp", "tr", "token")
 		const $error = $e.find(".error").hide();
 		const $doneLoading = $e.find(".done-loading").hide();
 
-		var capitalRaised;
-		var capitalTarget;
-		return Promise.all([
-			tr.capitalRaised(),
-			tr.capitalRaisedTarget()
-		]).then(arr => {
-			capitalRaised = arr[0];
-			capitalTarget = arr[1];
-			doRefresh();
-		}).then(() => {
+		return Promise.obj({
+			capitalRaised: tr.capitalRaised(),
+			capitalTarget: tr.capitalRaisedTarget()
+		}).then(doRefresh).then(() => {
 			$loading.hide();
 			$doneLoading.show();
 		}, e => {
@@ -169,6 +160,8 @@ Loader.require("reg", "comp", "tr", "token")
 		});
 
 		function doRefresh() {
+			const capitalRaised = obj.capitalRaised;
+			const capitalTarget = obj.capitalTarget;
 			const $targetTxt = $e.find(".target .txt");
 			const $targetAmt = $e.find(".target .amt");
 			const $raisedTxt = $e.find(".raised .txt");
@@ -425,15 +418,10 @@ Loader.require("reg", "comp", "tr", "token")
 		const $error = $e.find(".error").hide();
 		const $doneLoading = $e.find(".done-loading").hide();
 
-		var profits, dividends;
-		return Promise.all([
-			tr.profitsTotal(),
-			tr.profitsSent()
-		]).then(arr => {
-			profits = arr[0];
-			dividends = arr[1];
-			doRefresh();
-		}).then(()=>{
+		return Promise.obj({
+			profits: tr.profitsTotal(),
+			dividends: tr.profitsSent()
+		}).then(doRefresh).then(()=>{
 			$loading.hide();
 			$doneLoading.show();
 		}, e=>{
@@ -442,11 +430,9 @@ Loader.require("reg", "comp", "tr", "token")
 			$error.find(".error-msg").text(e.message);
 		});
 
-		function doRefresh() {
-			const $profits = $e.find(".profits");
-			const $divs = $e.find(".dividends");
-			$profits.text(util.toEthStrFixed(profits, 4, ""));
-			$divs.text(util.toEthStrFixed(dividends, 4, ""));
+		function doRefresh(obj) {
+			$e.find(".profits").text(util.toEthStrFixed(obj.profits, 4, ""));
+			$e.find(".dividends").text(util.toEthStrFixed(obj.dividends, 4, ""));
 		}
 	}
 

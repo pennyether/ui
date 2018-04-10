@@ -335,4 +335,11 @@ Array.prototype.stableSort = function(cmp) {
         this[i] = stabilizedThis[i][0];
     }
     return this;
-}
+};
+
+Promise.obj = function(obj) {
+    const promises = Object.keys(obj).map(name => {
+        return obj[name].then(val => obj[name] = val);
+    });
+    return Promise.all(promises).then(() => obj);
+};
