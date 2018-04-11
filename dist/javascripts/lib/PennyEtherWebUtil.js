@@ -545,13 +545,13 @@
                 $argVals["Error"] = "Unable to decode data.";
             } else {
                 Object.keys(e.args || [])
-                    .filter(name=>name !== "time")
-                    .map(name=>{
+                    .filter(name => name !== "time")
+                    .map(name => {
                         var eventDef = opts.events.find(def => def.name===e.name);
                         if (!eventDef) eventDef = opts.events.find(def => def.name=="all");
                         const defaultValue = _defaultFormatter(e.args[name], name);
                         $argVals[name] = eventDef.formatters && eventDef.formatters[name]
-                            ? eventDef.formatters[name](e.args[name], name, defaultValue)
+                            ? eventDef.formatters[name](e.args[name], name, defaultValue, e)
                             : defaultValue;
                     })
                     .filter(str => !!str);

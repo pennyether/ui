@@ -30,7 +30,7 @@
 		// Updates _gameStates to contain gameStates of a user in the last numBlocks.
 		// Will remove any gameStates that were updated over a block ago.
 		function _getLatestGameStates() {
-			if (!_user || !_numBlocks) return _gameStates;
+			if (!_user || !_numBlocks) return _self.getGameStates();
 
 			const curBlockNum = _ethUtil.getCurrentStateSync().latestBlock.number;
 			const blockCutoff = curBlockNum - _numBlocks;
@@ -464,20 +464,9 @@
 	        };
 
 	        this.getRankString = function(){
-                const rank = this.getRank();
-	            return ({
-	                1: "Royal Flush",
-	                2: "Straight Flush",
-	                3: "Four of a Kind",
-	                4: "Full House",
-	                5: "Flush",
-	                6: "Straight",
-	                7: "Three of a Kind",
-	                8: "Two Pair",
-	                9: "Jacks or Better",
-	                10: isLowPair() ? "Low Pair" : "High Card",
-	                11: "Invalid Hand"
-	            })[rank];
+	            const str = Hand.getRankString(this.getRank());
+	            if (str == "Nothing") return isLowPair() ? "Low Pair" : "High Card";
+	            else return str;
 	        };
 
 	        function isRoyalFlush() {
@@ -531,6 +520,21 @@
 	            return arr.sort().every((exp,i) => exp===counts[i]);
 	        }
 	    }
+	    Hand.getRankString = function(rank) {
+			return ({
+                1: "Royal Flush",
+                2: "Straight Flush",
+                3: "Four of a Kind",
+                4: "Full House",
+                5: "Flush",
+                6: "Straight",
+                7: "Three of a Kind",
+                8: "Two Pair",
+                9: "Jacks or Better",
+                10: "Nothing",
+                11: "Invalid Hand"
+            })[rank];
+	    };
 
         function Card(cardNum) {
             this.cardNum = cardNum;
@@ -594,12 +598,7 @@
 	        const newCards = getCardsFromHash(hexHash, 5, excludedCardNums);
 
 	        // swap out oldCards for newCards.
-	        const drawsArr = [0,0,0,0,0];
-	        if (drawsNum & 1) drawsArr[0] = 1;
-	        if (drawsNum & 2) drawsArr[1] = 1;
-	        if (drawsNum & 4) drawsArr[2] = 1;
-	        if (drawsNum & 8) drawsArr[3] = 1;
-	        if (drawsNum & 16) drawsArr[4] = 1;
+	        const drawsArr = getDrawsArray(drawsNum);
 	        const oldCards = iHand.cards.map(c => c.cardNum);
 	        const cards = drawsArr.map((useNew, i)=>{
 	            return useNew ? newCards[i] : oldCards[i];
@@ -607,6 +606,16 @@
 
 	        // return hand
 	        return new Hand(cards);
+	    }
+
+	    function getDrawsArray(drawsNum) {
+	    	const drawsArr = [0,0,0,0,0];
+	        if (drawsNum & 1) drawsArr[0] = 1;
+	        if (drawsNum & 2) drawsArr[1] = 1;
+	        if (drawsNum & 4) drawsArr[2] = 1;
+	        if (drawsNum & 8) drawsArr[3] = 1;
+	        if (drawsNum & 16) drawsArr[4] = 1;
+	        return drawsArr;
 	    }
 
 	    function getCardsFromHash(hexHash, numCards, excludedCardNums) {
@@ -637,6 +646,7 @@
 			Hand: Hand,
 		    getIHand: getIHand,
 		    getDHand: getDHand,
+		    getDrawsArray: getDrawsArray
 		};
 	}());
 
@@ -645,6 +655,7 @@
 		GameHistoryViewer: GameHistoryViewer,
 		Hand: HandUtil.Hand,
 		getIHand: HandUtil.getIHand,
-		getDHand: HandUtil.getDHand
+		getDHand: HandUtil.getDHand,
+		getDrawsArray: HandUtil.getDrawsArray
 	}
 }())

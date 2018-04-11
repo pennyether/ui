@@ -100,6 +100,7 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
     // PAC
     util.bindToElement(pac.numActiveAuctions(), $(".pac-active-games"));
     util.bindToElement(pac.numEndedAuctions(), $(".pac-ended-games"));
+    util.bindToElement(pac.numDefinedAuctions(), $(".pac-defined-games"));
     util.bindToElement(pac.profits().then(util.toEthStr), $(".pac-cur-profits"));
 
     // ID

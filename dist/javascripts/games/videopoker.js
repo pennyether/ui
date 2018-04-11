@@ -588,7 +588,7 @@ function Game(vp) {
     function _refreshDrawBtn() {
         _miniHd.setDraws(_hd.getDraws());
         const numDraws = _hd.getNumDraws();
-        const cardsStr = numDraws == "1" ? "Card" : "Cards";
+        const cardsStr = numDraws == 1 ? "Card" : "Cards";
         _$e.find(".btnDraw").text(`Draw ${numDraws} ${cardsStr}`);
     }
 

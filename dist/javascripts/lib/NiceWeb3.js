@@ -69,7 +69,14 @@
                 toBlock: toHex,
                 topics: topics
             }]).then((events)=>{
-                return _self.decodeKnownEvents(events);
+                // decode each event, then order .args by the ABI definition
+                return _self.decodeKnownEvents(events).map(ev => {
+                    if (!ev.args) return;
+                    const args = {};
+                    def.inputs.forEach(input => args[input.name] = ev.args[input.name]);
+                    ev.args = args;
+                    return ev;
+                });
             });
         }
         // will decode events where the address matches a known instance
