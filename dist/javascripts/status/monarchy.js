@@ -65,7 +65,11 @@ Loader.require("pac")
                         const instance = new BigNumber(arr[0])==0 ? null : PennyAuction.at(arr[0]);
                         return Promise.obj({
                             isStartable: pac.getIsStartable([id]),
-                            isEnded: instance ? instance.isEnded() : Promise.resolve(false)
+                            isEndable: instance ? instance.isEnded() : Promise.resolve(false),
+                            currentWinner: instance ? instance.currentWinner() : Promise.resolve(null),
+                            prize: instance ? instance.prize() : Promise.resolve(null),
+                            numBids: instance ? instance.numBids() : Promise.resolve(null),
+                            blocksLeft: instance ? instance.getBlocksRemaining() : Promise.resolve(null)
                         }).then(obj => {
                             return {
                                 id: id,
@@ -77,8 +81,12 @@ Loader.require("pac")
                                 bidIncr: arr[5],
                                 bidAddBlocks: arr[6],
                                 initialBlocks: arr[7],
-                                isStarted: obj.isStarted,
-                                isEnded: obj.isEnded
+                                isStartable: obj.isStartable,
+                                isEnded: obj.isEnded,
+                                currentWinner: obj.currentWinner,
+                                prize: obj.prize,
+                                numBids: obj.numBids,
+                                blocksLeft: obj.blocksLeft
                             };
                         });
                     }));
@@ -106,34 +114,51 @@ Loader.require("pac")
             $e.find(".num-defined").text(obj.definedGames.length);
 
             // Display defined games.
-            const $tbody = $e.find(".defined-games tbody");
-            if (obj.definedGames.length == 0) {
-                $tbody.append("<tr><td colspan=9>There are no defined games</td></tr>");
-            } else {
-                obj.definedGames.forEach(game => {
-                    const status = game.instance == null
-                        ? game.isStartable ? "startable" : "not startable"
-                        : game.isEndable ? "endable" : "ongoing";
-                    const $link = game.instance == null ? "None" : Loader.linkOf(game.instance.address);
-                    const $row = $("<tr></tr>");
-                    $row.append($("<td></td>").text(game.id));
-                    $row.append($("<td></td>").text(status));
-                    $row.append($("<td></td>").text($link));
-                    $row.append($("<td></td>").text(game.summary));
-                    $row.append($("<td></td>").text(game.isEnabled));
-                    $row.append($("<td></td>").text(util.toEthStrFixed(game.initialPrize)));
-                    $row.append($("<td></td>").text(util.toEthStrFixed(game.bidPrice)));
-                    $row.append($("<td></td>").text(util.toEthStrFixed(game.bidIncr)));
-                    $row.append($("<td></td>").text(game.bidAddBlocks));
-                    $row.append($("<td></td>").text(game.initialBlocks));
-                    $row.appendTo($tbody);
-                });
-            }
+            (function(){
+                const $tbody = $e.find(".defined-games tbody");
+                if (obj.definedGames.length == 0) {
+                    $tbody.append("<tr><td colspan=9>There are no defined games</td></tr>");
+                } else {
+                    obj.definedGames.forEach(game => {
+                        const status = game.instance == null
+                            ? game.isStartable ? "startable" : "not-startable"
+                            : game.isEndable ? "endable" : "active";
+                        const $link = game.instance == null ? "None" : Loader.linkOf(game.instance.address);
+                        const $row = $("<tr></tr>").addClass(status);
+                        $row.append($("<td></td>").text(game.id));
+                        $row.append($("<td></td>").append($link));
+                        $row.append($("<td></td>").text(game.summary));
+                        $row.append($("<td></td>").text(game.isEnabled));
+                        $row.append($("<td></td>").text(util.toEthStrFixed(game.initialPrize)));
+                        $row.append($("<td></td>").text(util.toEthStrFixed(game.bidPrice)));
+                        $row.append($("<td></td>").text(util.toEthStrFixed(game.bidIncr)));
+                        $row.append($("<td></td>").text(game.bidAddBlocks));
+                        $row.append($("<td></td>").text(game.initialBlocks));
+                        $row.appendTo($tbody);
+                    });
+                }
+            }());
+            
+            // Display active games
+            (function(){
+                const $tbody = $e.find(".active-games tbody");
+                if (obj.definedGames.length == 0) {
+                    $tbody.append("<tr><td colspan=5>There are no active games</td></tr>");
+                } else {
+                    obj.definedGames.forEach(game => {
+                        if (game.instance == null) return;
+                        const $row = $("<tr></tr>");
+                        $row.append($("<td></td>").text(game.id));
+                        $row.append($("<td></td>").text(util.toEthStrFixed(game.prize)));
+                        $row.append($("<td></td>").append(Loader.linkOf(game.currentWinner)));
+                        $row.append($("<td></td>").text(game.numBids));
+                        $row.append($("<td></td>").text(game.blocksLeft));
+                        $row.appendTo($tbody);
+                    });
+                }
+            }());
 
-            // Display active games (link the ID back to defined, if possible)
-            function loadGameObj(addr) {
-
-            }
+            
         }
     }
 });

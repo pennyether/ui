@@ -30,28 +30,28 @@
 								<div class="tipLeft" title="The amount of Ether that cannot be used as bankroll.">Collateral:</div>
 							</td>
 							<td class="value"></td>
-							<td class="bar"><div class="inner-bar"></div></div>
+							<td><div class="bar"><div class="inner-bar"></div></div></div>
 						</tr>
 						<tr class="bankroll">
 							<td class="label">
 								<div class="tipLeft" title="The amount of Ether to be used to stake games.">Bankroll:</div>
 							</td>
 							<td class="value"></td>
-							<td class="bar" width="100%"><div class="inner-bar"></div></div>
+							<td width="100%"><div class="bar"><div class="inner-bar"></div></div></div>
 						</tr>
 						<tr class="balance">
 							<td class="label">
 								<div class="tipLeft" title="The total amount of Ether this contract has.">Balance:</div>
 							</td>
 							<td class="value"></td>
-							<td class="bar"><div class="inner-bar"></div></div>
+							<td><div class="bar"><div class="inner-bar"></div></div></div>
 						</tr>
 						<tr class="profit">
 							<td class="label">
 								<div class="tipLeft" title="Balance - (collateral + bankroll).">Profit:</div>
 							</td>
 							<td class="value"></td>
-							<td class="bar"><div class="inner-bar"></div></div>
+							<td><div class="bar"><div class="inner-bar"></div></div></div>
 						</tr>
 					</table>
 					<div class="status">
@@ -99,6 +99,19 @@
 				const profit = balance.minus(collateral.plus(bankroll));
 				const bankrollAvailable = BigNumber.max(balance.minus(collateral), 0);
 
+				const lossColor = (function(){
+					function interp(p, color1, color2) {
+						return color1.map((rgba, i) => {
+							const v = rgba + p*(color2[i] - rgba);
+							return i==3 ? v.toFixed(2) : Math.round(v);
+						});
+					}
+
+					const p = profit.abs().div(bankroll);
+					const c = interp(p, [0,0,0,.2], [255,0,0,.8]);
+					return `rgba(${c[0]},${c[1]},${c[2]},${c[3]})`;
+				}());
+
 				// update the blobs
 				$e.find(".blob .total-bankrolled").text(util.toEthStrFixed(bankroll, 3, ""));
 				$e.find(".blob .bankroll-available").text(util.toEthStrFixed(bankrollAvailable, 3, ""));
@@ -115,6 +128,7 @@
 					const bankrollStr = `${util.toEthStr(bankrollAvailable)} (${bankrollPct}%)`;
 					$el.find(".available").text(bankrollStr);
 					$el.find(".amount").text(util.toEthStr(profit.mul(-1)));
+					$el.css("background", lossColor);
 					if (collateral.gt(0)) $el.find(".collateral").show();
 				} else {
 					const $el = $status.find(".insolvant").show();
@@ -145,39 +159,23 @@
 				$table.find(".balance .inner-bar").width(toPct(balance));
 
 				$table.find(".profit .value").text(util.toEthStr(profit));			
-				// profit
 				if (profit.gte(0)) {
 					$table.find(".profit .inner-bar")
 						.css("left", toPct(collateral.plus(bankroll)))
 						.width(toPct(profit))
 						.css("background", "rgba(0,128,0,.8)");
-					return;
-				}
-				// loss (or insolvant)
-				$table.find(".profit .inner-bar")
-					.css("left", toPct(balance))
-					.width(toPct(max.minus(balance)))
-				if (profit.abs().gt(bankroll)) {
-					$table.find(".profit .inner-bar")
-						.css("background", "red");
-					$table.find(".profit.bubble").show();
 				} else {
-					const p = profit.abs().div(bankroll);
-					const c = interp(p, [0,0,0,.2], [255,0,0,1]);
+					// loss (or insolvant)
 					$table.find(".profit .inner-bar")
-						.css("background", `rgba(${c[0]},${c[1]},${c[2]},${c[3]})`);
+						.css("left", toPct(balance))
+						.width(toPct(max.minus(balance)))
+						.css("background", lossColor);
+					$table.find(".balance .bar").css("background", `rgba(0,0,0,.2)`);
 				}
 			}, 100);
 
 			return $e;
 		});
-
-		function interp(p, color1, color2) {
-			return color1.map((rgba, i) => {
-				const v = rgba + p*(color2[i] - rgba);
-				return i==3 ? v.toFixed(2) : Math.round(v);
-			});
-		}
 	}
 
 	window.BankrollableUtil = {

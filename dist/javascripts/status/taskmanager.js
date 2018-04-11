@@ -98,14 +98,14 @@ Loader.require("tm", "token")
 
             if (obj.startGame[0].gt(0)){
                 const rewardStr = util.toEthStr(obj.startGame[0]);
-                $e.find(".start-monarchy-game").text(`Game #${obj.startGame[1]} (${rewardStr})`)
+                $e.find(".start-monarchy-game").text(`Game #${obj.startGame[1]} (${rewardStr} reward)`)
             } else {
                 $e.find(".start-monarchy-game").text(`Not Needed.`);
             }
 
             if (obj.endGame[0].gt(0)) {
                 const rewardStr = util.toEthStr(obj.endGame[0]);
-                $e.find(".end-monarchy-game").text(`${obj.endGame[1]} games (${rewardStr})`)
+                $e.find(".end-monarchy-game").text(`${obj.endGame[1]} games (${rewardStr} reward)`)
             } else {
                 $e.find(".end-monarchy-game").text(`Not Needed.`)
             }

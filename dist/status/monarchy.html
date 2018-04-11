@@ -7,6 +7,51 @@
 		<script src="/javascripts/shared/BankrollableUtil.js"></script>
 		<link rel="stylesheet" type="text/css" href="/styles/status.css"/>
 		<style>
+		.cell.games .legend {
+			text-align: right;
+			padding: 5px 0px;
+		}
+			.cell.games .legend .item {
+				display: inline-block;
+				margin-right: 5px;
+			}
+				.cell.games .legend .item .box {
+					display: inline-block;
+					vertical-align: middle;
+					margin-right: 0px;
+					width: 10px;
+					height: 10px;
+					border: 1px solid rgba(0,0,0,.4);
+				}
+				.cell.games .legend .item .label {
+					display: inline-block;
+					vertical-align: middle;
+				}
+			.cell.games tr.startable,
+			.cell.games .legend .startable .box {
+				background: rgba(0,0,255,.2);
+			}
+			.cell.games tr.endable,
+			.cell.games .legend .endable .box {
+				background: rgba(200,200,0,.2);
+			}
+			.cell.games tr.active,
+			.cell.games .legend .active .box {
+				background: rgba(0,128,0,.2);
+			}
+			.cell.games tr.not-startable,
+			.cell.games .legend .not-startable .box {
+				background: rgba(255,255,255,.1);
+			}
+
+			.cell.games .table-header {
+				border-bottom: 1px solid rgba(0,0,0,.1);
+				font-weight: bold;
+				font-size: 90%;
+				color: gray;
+				padding: 2px 0px;
+				margin-bottom: 5px;
+			}
 		</style>
 	</head>
 	<body><div id="Content">
@@ -64,14 +109,13 @@
 										<div class="eth">Games</div>
 									</div>
 								</div>
-								<div class="defined-games-header">
+								<div class="table-header">
 									Defined Games
 								</div>
 								<div class="defined-games" style="font-size: 80%; white-space: nowrap;">
 									<table class="table" width=100% cellpadding="0" cellspacing="0">
 										<thead><tr>
 											<td class="tipLeft" data-tippy-trigger="mouseenter" title="The id of this defiend game.">Id</td>
-											<td class="tipLeft" data-tippy-trigger="mouseenter" title="The current status of this defined game.">Status</td>
 											<td class="tipLeft" data-tippy-trigger="mouseenter" title="The address of this game if it is started.">Game</td>
 											<td class="tipLeft" data-tippy-trigger="mouseenter" title="A summary of the defined game, used only for reference.">Summary</td>
 											<td class="tipLeft" data-tippy-trigger="mouseenter" title="Whether or not the game can be restarted after it is completed.">Enabled</td>
@@ -83,14 +127,32 @@
 										</tr></thead>
 										<tbody></tbody>
 									</table>
+									<div class="legend">
+										<div class="item not-startable">
+											<div class="box"></div>
+											<div class="label">Not Startable</div>
+										</div>
+										<div class="item startable">
+											<div class="box"></div>
+											<div class="label">Startable</div>
+										</div>
+										<div class="item endable">
+											<div class="box"></div>
+											<div class="label">Ended</div>
+										</div>
+										<div class="item active">
+											<div class="box"></div>
+											<div class="label">Active</div>
+										</div>
+									</div>
 								</div>
-								<div class="active-games-header">
+								<div class="table-header">
 									Active Games
 								</div>
 								<div class="active-games" style="font-size: 80%; white-space: nowrap;">
 									<table class="table" width=100% cellpadding="0" cellspacing="0">
 										<thead><tr>
-											<td class="tipLeft" data-tippy-trigger="mouseenter" title="The defined ID of the game, if it was started automatically.">Id</td>
+											<td class="tipLeft" data-tippy-trigger="mouseenter" title="The defined ID of the game.">Id</td>
 											<td class="tipLeft" data-tippy-trigger="mouseenter" title="The current prize.">Current Prize</td>
 											<td class="tipLeft" data-tippy-trigger="mouseenter" title="The current winner.">Current Monarch</td>
 											<td class="tipLeft" data-tippy-trigger="mouseenter" title="The total number of non-unique Monarchs."># Overthrows</td>

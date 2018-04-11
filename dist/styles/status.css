@@ -129,12 +129,17 @@ table.fields td > div.label {
 			text-shadow: 1px 1px 0px rgba(255,255,255,.5);
 		}
 		.Health .bar {
-			vertical-align: middle;
+			height: 8px;
+		}
+		.Health .balance .bar {
+			height: 8px;
+			border: 1px solid rgba(0, 80, 128, 1);
+			transition: background 1s 1.5s;
 		}
 		.Health .inner-bar {
 			position: relative;
-			height: 8px;
 			width: 0%;
+			height: 100%;
 		}
 		.Health .collateral .inner-bar {
 			background: rgba(0, 0, 0, .7);
@@ -149,15 +154,22 @@ table.fields td > div.label {
 			transition: width .5s 1s;
 		}
 		.Health .profit .inner-bar {
-			transition: width .5s 1.5s;
+			transition: width 1s 1.5s;
 		}
 	.Health .status {
 		margin-top: 10px;
 		font-size: 80%;
 	}
-	.Health .status .item {
-		margin: 4px 0px;
-	}
-	.Health .status .item:before {
-		content: "•";
-	}
+		.Health .status .profit {
+			background: rgba(0,128,0,.2);
+		}
+		.Health .status .loss {  }
+		.Health .status .insolvant {
+			background: rgba(255,0,0,.2);
+		}
+		.Health .status .item {
+			margin: 4px 0px;
+		}
+		.Health .status .item:before {
+			content: "•";
+		}
