@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/javascripts/lib/Loader.js"></script>
+		<script src="/javascripts/status/instadice.js"></script>
+		<script src="/javascripts/lib/EthGraph.js"></script>
+		<script src="/javascripts/shared/BankrollableUtil.js"></script>
+		<link rel="stylesheet" type="text/css" href="/styles/status.css"/>
+		<style>
+			.status .done-loading > .header {
+				padding: 4px 0px;
+				margin: 0px 5px 5px 5px;
+				border-bottom: 1px dotted rgba(0,0,0,.15);
+			}
+		</style>
+	</head>
+	<body><div id="Content">
+		<div class="page-header">
+			<div class="title">
+				InstaDice Status
+			</div>
+			<div class="links">
+				<a href="/about/contracts.html#instadice">Contract Info</a>
+				•
+				<a href="">Etherscan Link</a>
+			</div>
+		</div>
+		<div style="margin: 10px 0px;">
+			<div class="statusRow one">
+				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+					<td width="33%"><div class="cell health">
+						<div class="titleBar">Health</div>
+						<div class="body">
+							<div class="loading">
+								Loading...
+							</div>
+							<div class="error hide">
+								Error loading reserve details: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								<div class="health-ctnr"></div>
+							</div>
+						</div>
+					</div></td>
+					<td width="66%"><div class="cell status">
+						<div class="titleBar">
+							Status
+						</div>
+						<div class="body">
+							<div class="loading">
+								Loading...
+							</div>
+							<div class="error hide">
+								Error loading reserve details: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								<div class="header">
+									<span class="tipLeft" data-tippy-trigger="mouseenter" title="These settings are changable by the Admin (soon to be DAO).">
+										Settings
+									</span>
+								</div>
+								<div style="text-align: center;">
+									<div class="blob">
+										<div class="label tipLeft" data-tippy-trigger="mouseenter" title="On average, InstaDice should earn this percent in profit per roll.">House Fee</div>
+										<div class="value fee-pct"></div>
+										<div class="eth">pct</div>
+									</div>
+									<div class="blob">
+										<div class="label tipLeft" data-tippy-trigger="mouseenter" title="The minimum bet a user is allowed to place.">Min Bet</div>
+										<div class="value min-bet"></div>
+										<div class="eth">ETH</div>
+									</div>
+									<div class="blob">
+										<div class="label tipLeft" data-tippy-trigger="mouseenter" title="The maximum allowed bet is calculated based on the available Bankroll. This ensures all winning rolls can be paid out in full. A hard limit is set by the Admin.">Max Bet</div>
+										<div class="value max-bet"></div>
+										<div class="eth">ETH</div>
+									</div>
+									<div class="blob">
+										<div class="label tipLeft" data-tippy-trigger="mouseenter" title="The minimum number the user can select. This also sets the highest payout multiple.">Min Number</div>
+										<div class="value min-number"></div>
+										<div class="eth"></div>
+									</div>
+									<div class="blob">
+										<div class="label tipLeft" data-tippy-trigger="mouseenter" title="The maximum number the user can select. This also sets the lowest payout multiple.">Max Number</div>
+										<div class="value max-number"></div>
+										<div class="eth"></div>
+									</div>
+								</div>
+								<div class="header" style="margin-top: 10px">
+									<span class="tipLeft" data-tippy-trigger="mouseenter" title="The shorter the queue, the faster winning rolls are automatically paid out.">
+										Queue Size
+									</span>
+									<div class="graph-ctnr"></div>
+								</div>
+							</div>
+						</div>
+					</div></td>
+				</tr></table>
+			</div>
+			<div class="statusRow two">
+				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+					<td width="50%"><div class="cell activity">
+						<div class="titleBar">Activity</div>
+						<div class="body">
+							<div class="loading">
+								Loading...
+							</div>
+							<div class="error hide">
+								Error loading reserve details: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								<div style="text-align: center;">
+									<div class="blob">
+										<div class="label">Rolls</div>
+										<div class="value num-rolls"></div>
+										<div class="eth">rolls</div>
+									</div>
+									<div class="blob">
+										<div class="label">Total Wagered</div>
+										<div class="value total-wagered"></div>
+										<div class="eth">ETH</div>
+									</div>
+									<div class="blob">
+										<div class="label">Unique Users</div>
+										<div class="value num-users"></div>
+										<div class="eth">users</div>
+									</div>
+								</div>
+							</div>
+							<div class="graph-ctnr"></div>
+						</div>
+					</div></td>
+					<td width="50%"><div class="cell profits">
+						<div class="titleBar">Profits</div>
+						<div class="body">
+							<div class="profits-ctnr"></div>
+						</div>
+					</div></td>
+				</tr></table>
+			</div>
+			<div class="statusRow three">
+				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+					<td width="100%"><div class="cell events">
+						<div class="titleBar">
+							<span>
+								Events
+							</span>
+						</div>
+						<div class="body">
+							<div class="log-viewer"></div>
+						</div>
+					</div></td>
+				</tr></table>
+			</div>
+		</div>
+	</div></body>
+</html>

@@ -36,6 +36,8 @@
                 font-size: 90%;
             }
             .EthGraph > .graph-ctnr .info-ctnr .deltas .delta {
+                display: inline-block;
+                white-space: nowrap;
                 padding: 2px 0px;
                 font-size: 90%;
                 padding: 0px 4px;

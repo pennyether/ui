@@ -9,17 +9,17 @@
 				<div class="Health">
 					<div class="blob-ctnr" style="text-align: center;">
 						<div class="blob">
-							<div class="label">Bankrolled</div>
+							<div class="label tipLeft" title="The amount of Ether sent to this contract to be used to generate revenue.">Bankrolled</div>
 							<div class="value total-bankrolled"></div>
 							<div class="eth">ETH</div>
 						</div>
 						<div class="blob">
-							<div class="label">Available Bankroll</div>
+							<div class="label tipLeft" title="The amount of Bankroll that is currently usable.">Available</div>
 							<div class="value bankroll-available"></div>
 							<div class="eth">ETH</div>
 						</div>
 						<div class="blob">
-							<div class="label">Current Profit</div>
+							<div class="label tipLeft" title="Any profits can be immediately be sent to the Treasury. A small negative value is typical.">Profits</div>
 							<div class="value profit"></div>
 							<div class="eth">ETH</div>
 						</div>
@@ -34,7 +34,7 @@
 						</tr>
 						<tr class="bankroll">
 							<td class="label">
-								<div class="tipLeft" title="The amount of Ether to be used to stake games.">Bankroll:</div>
+								<div class="tipLeft" title="The amount of Ether sent to this contract to be used to generate revenue.">Bankrolled:</div>
 							</td>
 							<td class="value"></td>
 							<td width="100%"><div class="bar"><div class="inner-bar"></div></div></div>
@@ -48,7 +48,7 @@
 						</tr>
 						<tr class="profit">
 							<td class="label">
-								<div class="tipLeft" title="Balance - (collateral + bankroll).">Profit:</div>
+								<div class="tipLeft" title="Balance - (collateral + bankrolled). Any positive value can be sent to Treasury.">Profit:</div>
 							</td>
 							<td class="value"></td>
 							<td><div class="bar"><div class="inner-bar"></div></div></div>
@@ -60,7 +60,7 @@
 								This contract can currently send <span class="amount"></span> to the Treasury.
 							</div>
 							<div class="item">
-								All bankroll is available to be recalled.
+								All bankroll is available, and can be recalled by Treasury.
 							</div>
 							<div class="item collateral hide">
 								All collateral is covered.
@@ -71,7 +71,7 @@
 								This contract needs <span class="amount"></span> more in order to have profits.
 							</div>
 							<div class="item">
-								<span class="available"></span> of bankroll is available and can be recalled.
+								<span class="available"></span> of bankroll is available, and can be recalled.
 							</div>
 							<div class="item collateral hide">
 								All collateral is covered.
@@ -141,6 +141,7 @@
 
 				// draw the bars
 				tippy($table.find(".label div").toArray(), {trigger: "mouseenter", placement: "left"});
+				tippy($e.find(".blob .tipLeft").toArray(), {trigger: "mouseenter", placement: "top"});
 				const max = BigNumber.max(balance, collateral.plus(bankroll));
 				function toPct(v, offsetLeft){
 					const thisMax = offsetLeft ? max.minus(offsetLeft) : max;
@@ -225,8 +226,8 @@
 
 	        const minBlock = creationBlock;
 	        const maxBlock = ethUtil.getCurrentStateSync().latestBlock;
-	        const getProfits = (block) => {
-	            return instance.profits([], {defaultBlock: Math.round(block)});
+	        const getProfitsTotal = (block) => {
+	            return instance.profitsTotal([], {defaultBlock: Math.round(block)});
 	        };
 	        const getProfitsSent = (block) => {
 	            return instance.profitsSent([], {defaultBlock: Math.round(block)});
@@ -234,11 +235,11 @@
 	        graph.init({
 	            sequences: [{
 	                name: "profits",
-	                valFn: getProfits,
+	                valFn: getProfitsTotal,
 	                showInPreview: true,
 	                maxPoints: 20,
 	                color: "green",
-	                yScaleHeader: "Profits",
+	                yScaleHeader: "Total Profits",
 	                yTickCount: 3,
 	                yFormatFn: (y) => util.toEthStr(y),
 	            },{

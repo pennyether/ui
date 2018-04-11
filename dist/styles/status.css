@@ -20,7 +20,7 @@ table.fields td > div.label {
 }
 	.cell .body {
 		padding: 5px;
-		background: linear-gradient(0deg, #EEE 0%, #DDD 100%);
+		background: radial-gradient(rgba(0, 10, 20, 0) 0%, rgba(0, 10, 20, .15) 100%);
 		border-radius: 4px;
 		/*min-height: 100px;*/
 	}
@@ -85,18 +85,22 @@ table.fields td > div.label {
 
 	.cell .blob {
 		display: inline-block;
-		margin: 5px;
-		padding: 3px;
+		margin: 5px 0px;
+		padding: 5px;
 		border-radius: 3px;
-		background: #CCC;
+		border: 1px inset rgba(0,0,0,.3);
+		box-shadow: inset 2px 2px 3px 0px rgba(0,0,0,.15);
+		background: linear-gradient(to bottom, rgba(255,255,255,.8) 0%, rgba(255,255,255,.3) 100%);
 		text-align: center;
 		white-space: nowrap;
+		text-shadow: 2px 2px 0px rgba(0,0,0,.1);
 	}
 		.cell .blob:not(:last-child) {
-			/*margin-right: 10px*/
+			margin-right: 5px;
 		}
 		.cell .blob .label {
 			color: black;
+			letter-spacing: .05em;
 			font-size: 80%;
 		}
 		.cell .blob .value {
@@ -104,6 +108,8 @@ table.fields td > div.label {
 			text-shadow: 1px 1px 1px rgba(255,255,255,1);
 			padding-top: 2px;
 			padding-bottom: 0px;
+			color: navy;
+			text-shadow: 1px 1px 1px rgba(0,0,0,.3);
 		}
 		.cell .blob .eth {
 			font-size: 60%;
@@ -172,4 +178,7 @@ table.fields td > div.label {
 		}
 		.Health .status .item:before {
 			content: "•";
+		}
+		.Health .status .bubble {
+			margin-bottom: 0px;
 		}
