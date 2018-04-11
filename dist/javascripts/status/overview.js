@@ -5,7 +5,7 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
     util.bindToElement(tr.profitsSent().then(util.toEthStr), $(".tr-dividends"));
     util.bindToElement(token.totalSupply().then(val => util.toEthStr(val, "PENNY")), $(".token-total-supply"));
     util.bindToElement(token.totalBurned().then(val => util.toEthStr(val, "PENNY")), $(".token-total-burned"));
-    util.bindToElement(token.collectedDividends().then(util.toEthStr), $(".token-total-collected"));
+    util.bindToElement(token.dividendsCollected().then(util.toEthStr), $(".token-total-collected"));
     util.bindToElement(tm.totalRewarded().then(util.toEthStr), $(".tm-rewards-paid"))
 
     // bankrolled amounts
@@ -94,7 +94,7 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
     // PENNY
     //util.bindToElement(token.totalSupply().then(util.toEthStr), $(".token-total-supply"));
     util.bindToElement(token.isFrozen(), $(".token-is-frozen"));
-    util.bindToElement(token.totalDividends().then(util.toEthStr), $(".token-total-dividends"));
+    util.bindToElement(token.dividendsCollected().then(util.toEthStr), $(".token-total-dividends"));
     
 
     // PAC
