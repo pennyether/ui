@@ -35,27 +35,21 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
             if (profits.lte(0)) {
                 $e.text("Not needed.")
             } else {
-                $e.text(`${util.toEthStr(reward)} reward`);
+                $e.text(`${util.toEthStrFixed(reward, 3)} reward`);
             }
         });
     });
-    tm.startPennyAuctionReward().then(arr => {
-        const reward = arr[0];
-        const $e = $(".pac-start-game");
-        if (reward.lte(0)) {
-            $e.text("Not needed.")
-        } else {
-            $e.text(`Yes! (${util.toEthStr(reward)} reward)`)
-        }
-    })
-    tm.refreshPennyAuctionsReward().then(arr => {
-        const reward = arr[0];
-        const $e = $(".pac-end-game");
-        if (reward.lte(0)) {
-            $e.text("Not needed.")
-        } else {
-            $e.text(`Yes! (${util.toEthStr(reward)} reward)`)
-        }
+
+    [
+        ["startPennyAuctionReward", ".pac-start-game"],
+        ["refreshPennyAuctionsReward", ".pac-end-game"],
+        ["sendDividendsReward", ".tr-send-dividends"]
+    ].forEach(arr => {
+        tm[arr[0]]().then(res => {
+            const reward = res[0];
+            if (reward.lte(0)) $(arr[1]).text("Not needed.");
+            else $(arr[1]).text(`${util.toEthStrFixed(reward, 3)} reward`);
+        })
     });
     ///////////////////////////////////////////////////////////////
 
@@ -129,12 +123,14 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
 
     // Task Manager
     util.bindToElement(ethUtil.getBalance(tm).then(util.toEthStr), $(".tm-balance"))
+    util.bindToElement(tm.sendDividendsRewardBips().then(val => {
+        return `${val.div(10000).toFixed(3)}%`
+    }), $(".tm-send-dividends-reward"))
     util.bindToElement(tm.sendProfitsRewardBips().then(val => {
         return `${val.div(10000).toFixed(3)}%`;
     }), $(".tm-send-profits-reward"));
     util.bindToElement(tm.paStartReward().then(util.toEthStr), $(".tm-pa-start-reward"));
     util.bindToElement(tm.paEndReward().then(util.toEthStr), $(".tm-pa-end-reward"));
-
     ///////////////////////////////////////////////////////////////
 });
 

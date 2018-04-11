@@ -224,7 +224,7 @@ Loader.require("dice")
             user: (val) => Loader.linkOf(val),
             id: (val) => {
                 return $("<a target='_blank'></a>").text(`Roll #${val}`)
-                    .attr("href", `/games/viewroll.html#${val}`);
+                    .attr("href", `/games/instadice-roll.html#${val}`);
             },
             bet: (val) => util.toEthStrFixed(val, 3),
             payout: (val) => util.toEthStrFixed(val, 3),

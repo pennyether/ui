@@ -66,9 +66,10 @@
 
         function _updateStateFromEvent(ev) {
             const curBlockNum = _ethUtil.getCurrentStateSync().latestBlock.number;
-            const blockUpdated = Math.max(curBlockNum, ev.blockNumber);
             const id = ev.args.id;
             const state = _states[id] || {};
+            // Do not update this item, we already have a state.
+            if (state.blockUpdated && ev.blockNumber < state.blockUpdated) return;
 
             // If parseEventFn returns nothing, it means it refused to update the roll.
             // It probably got an event that requires the state to exist but it doesnt.
@@ -77,7 +78,7 @@
             if (!state.id) {
                 throw new Error(`State object must have an ID after being parsed.`);
             }
-            state.blockUpdated = blockUpdated;
+            state.blockUpdated = ev.blockNumber;
             _states[state.id] = state;
             return state;
         }

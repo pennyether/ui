@@ -51,6 +51,7 @@ Loader.require("dice")
             roll = new Roll();
             roll.setOnEvent(ev => updateRollFromEvent(ev, roll));
             roll.$e.appendTo(_$pastRolls);
+            _rolls[state.txId] = roll;
         }
         roll.setState(state);
         return roll;
@@ -207,7 +208,7 @@ Loader.require("dice")
                                 <button class="btn-claim">Claim Winnings Now</button>
                                 <div class="claim-status"></div>
                                 <div class="time-warning tipLeft" title="Results are based off of the blockhash,
-                                and the contract cannot look back further than 256 blocks. This is a limitation of Ethereum.">
+                                and InstaDice cannot look back farther than 256 blocks. This is a limitation of Ethereum.">
                                     Note: If not enough rolls occur, you must claim within <div class="finalize-blocks-left"></div> blocks.
                                 </div>
                             </div>
@@ -367,6 +368,8 @@ Loader.require("dice")
             if (_initClaimStuff.done) return;
             _initClaimStuff.done = true;
 
+            tippy(_$e.find(".time-warning")[0]);
+
             const gps = util.getGasPriceSlider(5);
             const $claimTip = $("<div></div>").append(gps.$e);
             (function attachTip(){
@@ -390,7 +393,7 @@ Loader.require("dice")
                 this._tippy.hide(0);
                 $(this).blur();
 
-                const promise = dice.payoutRoll([_state.id], {gasPrice: gps.getGasPrice()});
+                const promise = dice.payoutRoll([_state.id], {gasPrice: gps.getValue()});
                 const $txStatus = util.$getTxStatus(promise, {
                     waitTimeMs: (gps.getWaitTimeS() || 45) * 1000,
                     miningMsg: "Your payout is being claimed...",
@@ -427,7 +430,7 @@ Loader.require("dice")
 
         function _$getViewLink(txt) {
             return $("<a target='_blank'></a>")
-                .attr("href", `/games/viewroll.html#${_state.txId}`)
+                .attr("href", `/games/instadice-roll.html#${_state.txId}`)
                 .text(txt);
         }
 
@@ -645,7 +648,7 @@ Loader.require("dice")
 
                     const $txLink = util.$getTxLink(dateStr, txId);
                     const $rollLink = $("<a target='_blank'></a>")
-                        .attr("href", `/games/viewroll.html#${rollId}`)
+                        .attr("href", `/games/instadice-roll.html#${rollId}`)
                         .text(`Roll #${rollId}`);
                     const $e = $(".mini-roll.template")
                         .clone()

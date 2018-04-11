@@ -32,16 +32,55 @@
                 url: "/games/pennyauctions.html",
                 children: [{
                     name: "Penny Auctions",
-                    url: "/games/pennyauctions.html"
+                    url: "/games/pennyauctions.html",
+                    linkInBreadcrumb: true,
+                    children: [{
+                        name: "View Game",
+                        url: "/games/monarchy-game.html"
+                    }]
                 },{
                     name: "InstaDice",
-                    url: "/games/instadice.html"
+                    url: "/games/instadice.html",
+                    linkInBreadcrumb: true,
+                    children: [{
+                        name: "View Roll",
+                        url: "/games/instadice-roll.html"
+                    }]
                 },{
                     name: "Video Poker",
-                    url: "/games/videopoker.html"
+                    url: "/games/videopoker.html",
+                    linkInBreadcrumb: true,
+                    children: [{
+                        name: "View Game",
+                        url: "/games/videopoker-game.html"
+                    }]
                 },{
                     name: "Tasks",
                     url: "/games/tasks.html"
+                }]
+            }, {
+                name: "About",
+                url: "/about/mission.html",
+                children: [{
+                    name: "Our Mission",
+                    url: "/about/mission.html"
+                },{
+                    name: "Overview",
+                    url: "/about/pennyether.html"
+                },{
+                    name: "Contracts",
+                    url: "/about/contracts.html",
+                    linkInBreadcrumb: true,
+                    children: [{
+                        name: "Test Results",
+                        url: "/test-results/index.html"
+                    }]
+                },{
+                    name: "Audits",
+                    url: "/about/audits.html"
+                },{
+                    name: "Contact",
+                    url: "/about/contact.html"
                 }]
             }, {
                 name: "Status",
@@ -63,37 +102,33 @@
                     url: "/status/taskmanager.html"
                 },{
                     name: "Monarchy Status",
-                    url: "/status/monarchy.html"
+                    url: "/status/monarchy.html",
                 },{
                     name: "InstaDice Status",
-                    url: "/status/instadice.html"
-                },{
-                    name: "VideoPoker Status",
-                    url: "/status/videopoker.html"
-                }]
-            }, {
-                name: "About",
-                url: "/about/mission.html",
-                children: [{
-                    name: "Our Mission",
-                    url: "/about/mission.html"
-                },{
-                    name: "Overview",
-                    url: "/about/pennyether.html"
-                },{
-                    name: "Contracts",
-                    url: "/about/contracts.html",
-                    linkInBreacrumb: true,
+                    url: "/status/instadice.html",
+                    linkInBreadcrumb: true,
                     children: [{
-                        name: "Test Results",
-                        url: "/test-results/index.html"
+                        name: "View Roll",
+                        url: "/status/instadice-roll.html"
                     }]
                 },{
-                    name: "Audits",
-                    url: "/about/audits.html"
+                    name: "VideoPoker Status",
+                    url: "/status/videopoker.html",
+                    linkInBreadcrumb: true,
+                    children: [{
+                        name: "View Game",
+                        url: "/status/videopoker-game.html"
+                    }]
+                }]
+            }, {
+                name: "UIs",
+                url: "/status/system.html",
+                children: [{
+                    name: "Token Holder UI",
+                    url: "/uis/tokenholder.html"
                 },{
-                    name: "Contact",
-                    url: "/about/contact.html"
+                    name: "Admin UI",
+                    url: "/uis/admin.html"
                 }]
             }, {
                 name: "ICO",
@@ -169,7 +204,7 @@
                 const $item = $("<div></div>")
                     .addClass("item")
                     .appendTo($breadcrumb);
-                if (item.linkInBreacrumb && breadcrumb.length) {
+                if (item.linkInBreadcrumb && breadcrumb.length) {
                     $item.append($("<a></a>").attr("href", item.url).text(item.name))
                 } else {
                     $item.text(item.name);
