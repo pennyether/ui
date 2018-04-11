@@ -76,7 +76,7 @@ table.fields td > div.label {
 			border: 1px solid rgba(0,0,0,.1);
 		}
 		.cell .table thead td {
-			background: rgba(0,0,0,.2);
+			background: linear-gradient(to bottom, rgba(0,0,0,.05) 0%, rgba(0,0,0,.1) 100%);
 			font-weight: bold;
 		}
 		.cell .table td:nth-child(n+2) {
@@ -93,7 +93,7 @@ table.fields td > div.label {
 		white-space: nowrap;
 	}
 		.cell .blob:not(:last-child) {
-			margin-right: 10px
+			/*margin-right: 10px*/
 		}
 		.cell .blob .label {
 			color: black;
@@ -119,7 +119,7 @@ table.fields td > div.label {
 			white-space: nowrap;
 			font-size: 90%;
 		}
-		.Health .label {
+		.Health table .label {
 			font-weight: bold;
 		}
 		.Health td.value {

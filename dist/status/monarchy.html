@@ -23,7 +23,7 @@
 		<div style="margin: 10px 0px;">
 			<div class="statusRow one">
 				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
-					<td width="40%"><div class="cell health">
+					<td width="33%"><div class="cell health">
 						<div class="titleBar">Health</div>
 						<div class="body">
 							<div class="loading">
@@ -37,8 +37,8 @@
 							</div>
 						</div>
 					</div></td>
-					<td width="60%"><div class="cell status">
-						<div class="titleBar">Status</div>
+					<td width="66%"><div class="cell games">
+						<div class="titleBar">Games</div>
 						<div class="body">
 							<div class="loading">
 								Loading...
@@ -47,7 +47,58 @@
 								Error loading reserve details: <span class="error-msg"></span>
 							</div>
 							<div class="done-loading hide">
-								
+								<div style="text-align: center;">
+									<div class="blob">
+										<div class="label">Active Games</div>
+										<div class="value num-active"></div>
+										<div class="eth">Games</div>
+									</div>
+									<div class="blob">
+										<div class="label">Ended Games</div>
+										<div class="value num-ended"></div>
+										<div class="eth">Games</div>
+									</div>
+									<div class="blob">
+										<div class="label">Defined Games</div>
+										<div class="value num-defined"></div>
+										<div class="eth">Games</div>
+									</div>
+								</div>
+								<div class="defined-games-header">
+									Defined Games
+								</div>
+								<div class="defined-games" style="font-size: 80%; white-space: nowrap;">
+									<table class="table" width=100% cellpadding="0" cellspacing="0">
+										<thead><tr>
+											<td class="tipLeft" data-tippy-trigger="mouseenter" title="The id of this defiend game.">Id</td>
+											<td class="tipLeft" data-tippy-trigger="mouseenter" title="The current status of this defined game.">Status</td>
+											<td class="tipLeft" data-tippy-trigger="mouseenter" title="The address of this game if it is started.">Game</td>
+											<td class="tipLeft" data-tippy-trigger="mouseenter" title="A summary of the defined game, used only for reference.">Summary</td>
+											<td class="tipLeft" data-tippy-trigger="mouseenter" title="Whether or not the game can be restarted after it is completed.">Enabled</td>
+											<td class="tipLeft" data-tippy-trigger="mouseenter" title="The initial prize.">Prize</td>
+											<td class="tipLeft" data-tippy-trigger="mouseenter" title="The cost to become the Monarch.">Fee</td>
+											<td class="tipLeft" data-tippy-trigger="mouseenter" title="The amount the prize will go up or down on each new Monarch.">Incr</td>
+											<td class="tipLeft" data-tippy-trigger="mouseenter" title="The amount of blocks added to the game on each new Monarch.">+Blocks</td>
+											<td class="tipLeft" data-tippy-trigger="mouseenter" title="The amount of blocks the game starts with.">Blocks</td>
+										</tr></thead>
+										<tbody></tbody>
+									</table>
+								</div>
+								<div class="active-games-header">
+									Active Games
+								</div>
+								<div class="active-games" style="font-size: 80%; white-space: nowrap;">
+									<table class="table" width=100% cellpadding="0" cellspacing="0">
+										<thead><tr>
+											<td class="tipLeft" data-tippy-trigger="mouseenter" title="The defined ID of the game, if it was started automatically.">Id</td>
+											<td class="tipLeft" data-tippy-trigger="mouseenter" title="The current prize.">Current Prize</td>
+											<td class="tipLeft" data-tippy-trigger="mouseenter" title="The current winner.">Current Monarch</td>
+											<td class="tipLeft" data-tippy-trigger="mouseenter" title="The total number of non-unique Monarchs."># Overthrows</td>
+											<td class="tipLeft" data-tippy-trigger="mouseenter" title="The blocks left until the current Monarch wins.">Blocks Left</td>
+										</tr></thead>
+										<tbody></tbody>
+									</table>
+								</div>
 							</div>
 						</div>
 					</div></td>
