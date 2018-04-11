@@ -108,7 +108,9 @@
 					}
 
 					const p = profit.abs().div(bankroll);
-					const c = interp(p, [0,0,0,.2], [255,0,0,.8]);
+					const c = p.lt(.5)
+						? interp(p.div(.5), [50,128,50,.2], [200,200,0,.2])
+						: interp(p.minus(.5).mul(2), [200,200,0,.2], [255,0,0,.8]);
 					return `rgba(${c[0]},${c[1]},${c[2]},${c[3]})`;
 				}());
 
@@ -178,7 +180,94 @@
 		});
 	}
 
+	function $getProfitsInfo(instance) {
+		const $e = $(`
+			<div class="ProfitsInfo">
+				<div class="blob-ctnr" style="text-align: center;">
+					<div class="blob">
+						<div class="label">Current Profits</div>
+						<div class="value profits"></div>
+						<div class="eth">ETH</div>
+					</div>
+					<div class="blob">
+						<div class="label">Total Profits</div>
+						<div class="value profits-total"></div>
+						<div class="eth">ETH</div>
+					</div>
+					<div class="blob">
+						<div class="label">Profits Sent</div>
+						<div class="value profits-sent"></div>
+						<div class="eth">ETH</div>
+					</div>
+				</div>
+				<div class="graph-ctnr"></div>
+			</div>
+		`);
+		Promise.obj({
+			profits: instance.profits(),
+			profitsTotal: instance.profitsTotal(),
+			profitsSent: instance.profitsSent(),
+			creationBlock: instance.getEvents("Created")
+				.then(arr => ethUtil.getBlock(arr[0].blockNumber)),
+			avgBlocktime: ethUtil.getAverageBlockTime()
+		}).then(obj => {
+			$e.find(".blob .profits").text(util.toEthStrFixed(obj.profits, 3, ""));
+			$e.find(".blob .profits-total").text(util.toEthStrFixed(obj.profitsTotal, 3, ""));
+			$e.find(".blob .profits-sent").text(util.toEthStrFixed(obj.profitsSent, 3, ""));
+
+			// this requires $e to be in DOM
+			setTimeout(() => initGraph(obj.creationBlock, obj.avgBlocktime), 10);
+		});
+
+		function initGraph(creationBlock, avgBlocktime) {
+			const graph = new EthGraph();
+	        $e.find(".graph-ctnr").append(graph.$e);
+
+	        const minBlock = creationBlock;
+	        const maxBlock = ethUtil.getCurrentStateSync().latestBlock;
+	        const getProfits = (block) => {
+	            return instance.profits([], {defaultBlock: Math.round(block)});
+	        };
+	        const getProfitsSent = (block) => {
+	            return instance.profitsSent([], {defaultBlock: Math.round(block)});
+	        };
+	        graph.init({
+	            sequences: [{
+	                name: "profits",
+	                valFn: getProfits,
+	                showInPreview: true,
+	                maxPoints: 20,
+	                color: "green",
+	                yScaleHeader: "Profits",
+	                yTickCount: 3,
+	                yFormatFn: (y) => util.toEthStr(y),
+	            },{
+	                name: "profitsSent",
+	                valFn: getProfitsSent,
+	                showInPreview: true,
+	                maxPoints: 20,
+	                color: "blue",
+	                yScaleHeader: "Profits Sent",
+	                yTickCount: 3,
+	                yFormatFn: (y) => util.toEthStr(y),
+	            }],
+	            min: minBlock.number,
+	            max: maxBlock.number,
+	            previewXTicks: graph.createPreviewXTicks(minBlock, maxBlock, util),
+	            previewNumPoints: 20,
+	            previewFormatFn: graph.createPreviewFormatFn(util, avgBlocktime),
+	            titleFormatFn: graph.createTitleFormatter(_niceWeb3.ethUtil, util),
+	        });
+
+	        const dayInBlocks = 60*60*24 / avgBlocktime;
+	        graph.setView(maxBlock.number - 7*dayInBlocks, maxBlock.number);
+		}
+
+		return $e;
+	}
+
 	window.BankrollableUtil = {
-		$getHealth: $getHealth
+		$getHealth: $getHealth,
+		$getProfitsInfo: $getProfitsInfo,
 	};
 }())

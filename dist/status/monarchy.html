@@ -136,20 +136,20 @@
 											<div class="box"></div>
 											<div class="label">Startable</div>
 										</div>
-										<div class="item endable">
-											<div class="box"></div>
-											<div class="label">Ended</div>
-										</div>
 										<div class="item active">
 											<div class="box"></div>
 											<div class="label">Active</div>
 										</div>
+										<div class="item endable">
+											<div class="box"></div>
+											<div class="label">Ended</div>
+										</div>
 									</div>
 								</div>
 								<div class="table-header">
-									Active Games
+									Games
 								</div>
-								<div class="active-games" style="font-size: 80%; white-space: nowrap;">
+								<div class="games" style="font-size: 80%; white-space: nowrap;">
 									<table class="table" width=100% cellpadding="0" cellspacing="0">
 										<thead><tr>
 											<td class="tipLeft" data-tippy-trigger="mouseenter" title="The defined ID of the game.">Id</td>
@@ -168,88 +168,55 @@
 			</div>
 			<div class="statusRow two">
 				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
-					<td width="33%"><div class="cell">
-						<div class="titleBar">Profits</div>
+					<td width="50%"><div class="cell activity">
+						<div class="titleBar">Completed Games</div>
 						<div class="body">
-							<select>
-								<option>All Time</option>
-								<option>Last 30 Days</option>
-								<option>Last 60 Days</option>
-								<option>Last 90 Days</option>
-							</select>
-							<div>
-								Go through all Registry items that we know
-								are Bankrollable and get their profitsSent()
-								delta between estimated blocks. Break out the
-								chart by Registry name (or nice version)
+							<div class="loading">
+								Loading...
 							</div>
+							<div class="error hide">
+								Error loading reserve details: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								<div class="blob-ctnr" style="text-align: center;">
+									<div class="blob">
+										<div class="label">Total Prizes</div>
+										<div class="value total-prizes"></div>
+										<div class="eth">ETH</div>
+									</div>
+									<div class="blob">
+										<div class="label">Total Games</div>
+										<div class="value total-games"></div>
+										<div class="eth">games</div>
+									</div>
+									<div class="blob">
+										<div class="label">Total Overthrows</div>
+										<div class="value total-overthrows"></div>
+										<div class="eth">overthrows</div>
+									</div>
+								</div>
+							</div>
+							<div class="graph-ctnr"></div>
 						</div>
 					</div></td>
-					<td width="67%"><div class="cell">
-						<div class="titleBar">Profits History</div>
+					<td width="50%"><div class="cell profits">
+						<div class="titleBar">Profits</div>
 						<div class="body">
-							<select>
-								<option>All Time</option>
-								<option>Last 7 Days</option>
-								<option>Last 30 Days</option>
-								<option>Last 13 Weeks</option>
-								<option>Last 12 Months</option>
-							</select>
-							<br>
-							Show a line chart of profits over time.<br>
-							Also show profits per unit of time (as a bar).<br>
-							Generate chart from .storageAt(profitsSent) at various points.
+							<div class="profits-ctnr"></div>
 						</div>
 					</div></td>
 				</tr></table>
 			</div>
-			<div class="statusRow two">
+			<div class="statusRow three">
 				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
-					<td width="50%"><div class="cell">
-						<div class="titleBar">Governance</div>
-						<div class="body">
-							<div class="legend">
-								<select>
-									<option>Pending</option>
-									<option>Executed</option>
-									<option>Cancelled</option>
-								</select>
-								<div style="max-height: 250px; overflow: auto;">
-									<div class="request">
-										Governance #1
-									</div>
-									<div class="request">
-										Governance #2
-									</div>
-									<div class="request">
-										Governance #3
-									</div>
-									<div class="request">
-										Governance #4
-									</div>
-									<div class="request">
-										Governance #5
-									</div>
-									<div class="request">
-										Governance #6
-									</div>
-									<div class="request">
-										Governance #7
-									</div>
-								</div>
-							</div>
+					<td width="100%"><div class="cell events">
+						<div class="titleBar">
+							<span>
+								Events
+							</span>
 						</div>
-					</div></td>
-					<td width="50%"><div class="cell">
-						<div class="titleBar">Events</div>
 						<div class="body">
-							<div class="legend">
-								<label><input type=checkbox checked> Capital</label>
-								<label><input type=checkbox > Reserve</label>
-								<label><input type=checkbox > Profits</label>
-								<label><input type=checkbox checked> Distributions</label>
-								<label><input type=checkbox checked> Governance</label>
-							</div>
+							<div class="log-viewer"></div>
 						</div>
 					</div></td>
 				</tr></table>

@@ -62,7 +62,6 @@ Loader.require("tm", "token")
         const $error = $e.find(".error").hide();
         const $doneLoading = $e.find(".done-loading").hide();
 
-        // comptro
         return Promise.obj({
             sendMonarchy: tm.sendProfitsReward([Loader.addressOf("PENNY_AUCTION_CONTROLLER")]),
             sendInstaDice: tm.sendProfitsReward([Loader.addressOf("INSTA_DICE")]),
