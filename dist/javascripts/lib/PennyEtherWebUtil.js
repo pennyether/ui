@@ -72,6 +72,14 @@
             return new Slider($topLabel);
         };
 
+        this.gasifyButton = function($btn, onClickFn){
+            gasifyButton($btn, onClickFn);
+        };
+
+        this.$getAddressInput = function(onChangeCb) {
+            return (new AddressInput(onChangeCb)).$e;
+        };
+
         this.$getShortAddrLink = function(addr) {
             const addrStr = addr.slice(0, 6) + "..." + addr.slice(-4);
             return _self.$getAddrLink(addrStr, addr);
@@ -251,6 +259,7 @@
         var _startTime;
         var _finished;
 
+        if (timeMs.toNumber) timeMs = timeMs.toNumber();
         const timeStr = util.toTime(Math.round(timeMs / 1000));
         if (!hideTip) {
             _$e.attr("title", `This is an estimate of time (~${timeStr}), based on the chosen gas price.`);
@@ -753,10 +762,11 @@
                 <div class='clear'>×</div>
                 <div class='status'></div>
             </div>
-        `).data("TxStatus", this);
+        `);
         const _opts = {};
         const _$clear = _$e.find(".clear").hide();
         const _$status = _$e.find(".status");
+        var _isStarted;
 
         _$clear.click(function(){
             _$e.remove();
@@ -765,6 +775,9 @@
 
         function _setTxPromise(p, opts) {
             _addOpts(opts);
+            if (_isStarted) throw new Error(`TxStatus can only be used once.`);
+            _isStarted = true;
+
             const miningMsg = _opts.miningMsg || "Your transaction is being mined...";
             const successMsg = _opts.successMsg || "Your transaction was mined!";
             const waitTimeMs = _opts.waitTimeMs || 30000;
@@ -812,17 +825,103 @@
         }
 
         function _addOpts(opts) {
+            if (_isStarted) throw new Error("Cannot set options after TxStatus has started.");
             if (!opts) return;
             Object.assign(_opts, opts);
         }
 
+        function _addCustomMsg($e, cls) {
+            $(`<div class="custom-msg success">`).append($e).appendTo(_$status);
+        }
+
         this.setTxPromise = (p, opts) => { _setTxPromise(p, opts); };
-        this.setStatus = (str) => { _$status.text(str); };
         this.addOpts = (opts) => { _addOpts(opts); };
+        this.setStatus = (str) => { _$status.text(str); };
+        this.addSuccessMsg = $e => _addCustomMsg($e, "success");
+        this.addFailureMsg = $e => _addCustomMsg($e, "failure");
+        this.addWarningMsg = $e => _addCustomMsg($e, "warning");
         this.fail = (str) => { _$clear.show(); _$status.text(str); };
         this.$e = _$e;
         this.$status = _$status;
         this.$clear = _$clear;
+    }
+
+    // Takes a $btn object and shows a tooltip to select gas price.
+    // Executes onClickFn() with gasPrice and waitTimeS.
+    function gasifyButton($btn, onClickFn) {
+        if (!$btn.length==1) throw new Error(`Must be passed exactly 1 element.`);
+        if (!$btn.is("button")) throw new Error(`Must be passed a "button" DOM element.`);
+
+        const button = $btn[0];
+        if (button.isGasified) throw new Error(`This button is already gasified.`);
+        if (button._tippy) throw new Error(`This button already has a tippy.`);
+
+        // set class/click on button, mark as gasified
+        $(button).addClass("gasified-btn").click(onClick);
+        button.isGasified = true;
+        // create tip with gps in it.
+        const $tip = $("<div></div>");
+        const gps = new GasPriceSlider();
+        gps.$e.appendTo($tip);
+        
+        // bind the tip.
+        (function attachTip(){
+            tippy(button, {
+                // arrow: false,
+                theme: "light",
+                animation: "fade",
+                placement: "top",
+                html: $tip[0],
+                trigger: "mouseenter",
+                onShow: function(){ gps.refresh(); },
+                onHidden: function(){
+                    // fixes a firefox bug where the tip won't be displayed again.
+                    button._tippy.destroy();
+                    attachTip();
+                }
+            });
+        }());
+
+        function onClick() {
+            onClickFn({
+                gasPrice: gps.getValue(),
+                waitTimeS: gps.getWaitTimeS()
+            });
+        }
+    }
+
+    function AddressInput(onChangeFn) {
+        const _$e = $(`
+            <div class="AddressInput">
+                <input class="input" type="text" placeholder="Address" style="box-sizing: border-box; display: block; width: 100%;">
+                <div class="error"></div>
+            </div>
+        `);
+        const _$input = _$e.find("input").on("input", _onChange);
+        const _$error = _$e.find(".error").hide();
+
+        function _onChange() {
+            _$error.hide();
+            const val = _$input.val();
+            if (val.length == 0) {
+                return onChangeFn(null);
+            }
+            if (!val.startsWith("0x")) {
+                _$error.show().text(`Address should begin with "0x"`);
+                return onChangeFn(null);
+            }
+            if (!RegExp("^0x[0-9a-fA-F]*$").test(val)) {
+                _$error.show().text(`Address contains an invalid character.`);
+                return onChangeFn(null);
+            }
+            if (val.length != 42) {
+                _$error.show().text(`Address should be 42 characters long.`);
+                return onChangeFn(null);
+            }
+            onChangeFn(val);
+        }
+
+        this.$e = _$e;
     }
 
 

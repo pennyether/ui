@@ -614,6 +614,10 @@ fieldset {
 		from {background: #8AF;}
 		to {background: blue;}
 	}
+	@keyframes animateOpacity {
+		from {opacity: .3;}
+		to {opacity: 1;}
+	}
 
 
 /*
@@ -765,18 +769,30 @@ fieldset {
 		line-height: 11px;
 		font-size: 10px;
 		border-radius: 20px;
-		background: rgba(255,128,128,.5);
-		color: rgba(255,255,255,.5);
+		background: rgba(255, 0, 0, .8);
+		color: rgba(255, 255, 255, .8);
 		cursor: pointer;
+		animation: animateOpacity 1s 0s infinite ease-in-out alternate;
 		transition: background .3s, color .3s;
 	}
 	.TxStatus .clear:hover {
-		color: rgba(255,255,255,.8);
-		background: rgba(255,0,0,.7);
+		color: rgba(255, 255, 255, 1);
+		background: rgba(255, 0, 0, .7);
+		animation: none;
 	}
 	.TxStatus.error .status {
 		color: maroon;
 	}
+	.TxStatus .status .custom-msg {
+		margin-top: 2px;
+		padding: 2px;
+		border-radius: 2px;
+		font-size: 90%;
+		background: rgba(0,0,0,.2);
+	}
+	.TxStatus .status .custom-msg.success { background: rgba(0,255,0,.2); }
+	.TxStatus .status .custom-msg.failure { background: rgba(255,0,0,.2); }
+	.TxStatus .status .custom-msg.warning { background: rgba(200,200,0,.2); }
 
 .Slider {
 	display: table;
