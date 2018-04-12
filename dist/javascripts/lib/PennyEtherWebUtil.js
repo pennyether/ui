@@ -639,7 +639,7 @@
         function _refresh(fresh) {
             _$loading.show().text(`Loading gas data...`);
             _$content.hide();
-            ethUtil.getGasPrices(fresh).then(data=>{
+            return ethUtil.getGasPrices(fresh).then(data=>{
                 var min = null;
                 var max = null;
                 var auto = Infinity;
@@ -670,6 +670,7 @@
         // updates display of _$wait and _$gasPrice
         function _onSliderChanged() {
             var val = _$slider.val();
+            // if the value isnt in _gasData, get the closest matching value.
             if (!_gasData[val]) {
                 val = Object.keys(_gasData).reduce((prev, cur)=>{
                     return Math.abs(cur - val) < Math.abs(prev - val) ? cur : prev;
@@ -724,6 +725,7 @@
     //  - .onFailure: (e)=>{} - called if fails
     //  - .onClear: ()=>{} - called when user clears success/error message
     function TxStatus(_util) {
+        const _self = this;
         const _$e = $(`
             <div class='TxStatus'>
                 <div class='clear'>×</div>
@@ -744,8 +746,8 @@
             const miningMsg = _opts.miningMsg || "Your transaction is being mined...";
             const successMsg = _opts.successMsg || "Your transaction was mined!";
             const waitTimeMs = _opts.waitTimeMs || 30000;
-            const onSuccess = _opts.onSuccess || function(){};
-            const onFailure = _opts.onFailure || function(){};
+            const onSuccess = _opts.onSuccess || function(res, self){};
+            const onFailure = _opts.onFailure || function(self){};
             var txId;
             var loadingBar;
 
@@ -765,10 +767,10 @@
                     loadingBar.finish(500).then(()=>{
                         _$clear.show();
                         _$status.empty().append(_util.$getTxLink(successMsg, txId));
-                        onSuccess(res);
+                        onSuccess(res, _self);
                     });
                 } else {
-                    onSuccess(res);
+                    onSuccess(res, _self);
                 }
             }).catch((e)=>{
                 _$clear.show();
@@ -778,11 +780,11 @@
                         _$status.empty()
                             .append(util.$getTxLink("Your tx failed.", txId))
                             .append(`<br>${e.message}`);
-                        onFailure();
+                        onFailure(_self);
                     });
                 } else {
                     _$status.text(`${e.message.split("\n")[0]}`);   
-                    onFailure();
+                    onFailure(_self);
                 }
             });
         }

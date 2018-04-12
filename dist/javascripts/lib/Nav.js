@@ -54,9 +54,6 @@
                         name: "View Game",
                         url: "/games/videopoker-game.html"
                     }]
-                },{
-                    name: "Tasks",
-                    url: "/games/tasks.html"
                 }]
             }, {
                 name: "About",

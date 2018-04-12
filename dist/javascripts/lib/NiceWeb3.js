@@ -305,7 +305,9 @@
                         : result.transactionHash || result;
                     resolve(ret);
                 }
-                oldCallFn.apply(null, inputs.concat(opts, defaultBlock, callbackHandler));
+                defaultBlock
+                    ? oldCallFn.apply(null, inputs.concat(opts, defaultBlock, callbackHandler))
+                    : oldCallFn.apply(null, inputs.concat(opts, callbackHandler));
             });
             const txResultPromise = Promise.resolve(txCallPromise).then((hashOrResult)=>{
                 const txHash = isConstant ? null : hashOrResult;

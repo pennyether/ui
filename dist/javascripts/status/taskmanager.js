@@ -1,13 +1,18 @@
 Loader.require("tm", "token")
 .then(function(tm, token){
+    // run this once
+    _initTasks();
+    ethUtil.onStateChanged(()=>{
+        _refreshTasks();
+    })
+
+    // do _refreshAll() just once.
     ethUtil.getCurrentState().then(() => {
         _refreshAll();
     });
-
     function _refreshAll(){
         Promise.all([
             _refreshSettings(),
-            _refreshTasks(),
             _refreshRewards(),
         ]).then(()=>{
             tm.getEvents("Created").then(arr => {
@@ -58,6 +63,228 @@ Loader.require("tm", "token")
         }
     }
 
+    function _initTasks() {
+        const $e = $(".cell.tasks");
+        const $taskerRow = $e.find(".tasker-row").detach();
+        const tasker = new Tasker();
+        tasker.$e.appendTo($taskerRow.find(".tasker-ctnr"));
+
+        const monarchy = Loader.addressOf("PENNY_AUCTION_CONTROLLER");
+        const dice = Loader.addressOf("INSTA_DICE");
+        const poker = Loader.addressOf("VIDEO_POKER");
+        const tasks = [{
+            $trigger: $e.find(".issue-dividend"),
+            getDetails: () => {
+                return Promise.obj({
+                    reward: tm.issueDividendReward().then(arr => arr[0]),
+                    estGas: tm.doIssueDividend.estimateGas(),
+                    execute: (opts) => tm.doIssueDividend([], opts),
+                    riskGas: new BigNumber(40000)
+                });
+            }
+        },{
+            $trigger: $e.find(".send-monarchy-profits"),
+            getDetails: () => {
+                return Promise.obj({
+                    reward: tm.sendProfitsReward([monarchy]).then(arr=>arr[0]),
+                    estGas: tm.doSendProfits.estimateGas([monarchy]),
+                    execute: (opts) => tm.doSendProfits([monarchy], opts),
+                    riskGas: new BigNumber(34000)
+                });
+            }
+        },{
+            $trigger: $e.find(".send-instadice-profits"),
+            getDetails: () => {
+                return Promise.obj({
+                    reward: tm.sendProfitsReward([dice]).then(arr=>arr[0]),
+                    estGas: tm.doSendProfits.estimateGas([dice]),
+                    execute: (opts) => tm.doSendProfits([dice], opts),
+                    riskGas: new BigNumber(34000)
+                });
+            }
+        },{
+            $trigger: $e.find(".send-videopoker-profits"),
+            getDetails: () => {
+                return Promise.obj({
+                    reward: tm.sendProfitsReward([poker]).then(arr=>arr[0]),
+                    estGas: tm.doSendProfits.estimateGas([poker]),
+                    execute: (opts) => tm.doSendProfits([poker], opts),
+                    riskGas: new BigNumber(34000)
+                });
+            }
+        },{
+            $trigger: $e.find(".start-monarchy-game"),
+            getDetails: () => {
+                return tm.startPennyAuctionReward().then(arr => {
+                    const reward = arr[0];
+                    const index = arr[1];
+                    return Promise.obj({
+                        reward: reward,
+                        estGas: tm.startPennyAuction.estimateGas([index]),
+                        execute: (opts) => tm.startPennyAuction([index], opts),
+                        riskGas: new BigNumber(50000)
+                    });
+                })
+            }
+        },{
+            $trigger: $e.find(".end-monarchy-game"),
+            getDetails: () => {
+                return Promise.obj({
+                    reward: tm.refreshPennyAuctionsReward().then(arr=>arr[0]),
+                    estGas: tm.refreshPennyAuctions.estimateGas(),
+                    execute: (opts) => tm.refreshPennyAuctions([], opts),
+                    riskGas: new BigNumber(50000)
+                })
+            }
+        }];
+
+        tasks.forEach(obj => {
+            obj.$trigger.click((ev) => {
+                // Don't do anything until they clear the transaction.
+                if (tasker.isPending()) return;
+
+                // Hide it.
+                const $tr = obj.$trigger.closest("tr");
+                if ($tr.next().find(".Tasker").length > 0) {
+                    $tr.removeClass("selected");
+                    $taskerRow.detach();
+                    return;
+                }
+                // Don't show it if this trigger isnt available
+                if (!obj.$trigger.is(".available")) return;
+
+                // Show append to the next row, and refresh it
+                $tr.siblings("tr").removeClass("selected");
+                $tr.addClass("selected");
+                $taskerRow.insertAfter($tr).show();
+                tasker.setDetailsFn(obj.getDetails);
+            });
+        });
+
+        function Tasker() {
+            const _$e = $(`
+                <div class="Tasker">
+                    <table width="100%">
+                        <tr>
+                            <td class="label tipLeft" title="The higher the Gas Price, the faster your transaction will be mined.
+                            This increases the chance that you will win the reward instead of somebody else.">Gas Price:</td>
+                            <td class="gps-ctnr" width=100%></td>
+                        </tr>
+                        <tr>
+                            <td class="label tipLeft" title="The reward you will be paid if the Task is executed.">Reward:</td>
+                            <td class="value reward"></td>
+                        </tr>
+                        <tr>
+                            <td class="label tipLeft" title="The estimated gas cost to execute this Task.">Estimated Tx Cost:</td>
+                            <td class="value tx-cost"></td>
+                        </tr>
+                        <tr>
+                            <td class="label tipLeft" title="Reward - Tx Cost">Possible Gain:</td>
+                            <td class="value gain"></td>
+                        </tr>
+                        <tr>
+                            <td class="label tipLeft" title="If the Task is no longer available by the time your transaction
+                            is mined, you may lose this amount.">Possible Loss:</td>
+                            <td class="value risk"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="text-align: center;">
+                                <button>Execute Task</button>
+                                <div class="status-ctnr"></div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            `);
+            const _$reward = _$e.find(".reward");
+            const _$txCost = _$e.find(".tx-cost");
+            const _$gain = _$e.find(".gain");
+            const _$risk = _$e.find(".risk");
+            const _$execute = _$e.find("button");
+            const _$status = _$e.find(".status-ctnr");
+            const _$values = _$e.find(".value");
+
+            var _detailsFn;
+            var _isPending;
+            const _refreshDebounced = util.debounce(250, _refresh);
+
+            const _gps = util.getGasPriceSlider(5);
+            _gps.$head.hide();
+            _gps.$e.appendTo(_$e.find(".gps-ctnr"));
+            _gps.onChange(_refreshDebounced);
+            tippy(_$e.find(".label").toArray(), {trigger: "mouseenter", placement: "left"});
+
+            this.$e = _$e;
+            this.setDetailsFn = (detailsFn) => {
+                _loading();
+                _detailsFn = detailsFn;
+                _gps.refresh().then(_refreshDebounced).catch(_refreshDebounced);
+            };
+            this.isPending = () => _isPending;
+
+            var _cancelPrevPromise = ()=>{};
+            function _refresh() {
+                _cancelPrevPromise();
+                var cancelled = false;
+                _cancelPrevPromise = () => cancelled = true;
+
+                _loading();
+                _detailsFn().then(obj => {
+                    if (cancelled) return;
+                    _enable();
+                    _$execute.removeAttr("disabled");
+                    // fill in values
+                    const gasPrice = _gps.getValue();
+                    const cost = gasPrice.mul(obj.estGas);
+                    const gain = obj.reward.minus(cost);
+                    const risk = obj.riskGas.mul(gasPrice);
+                    _$reward.text(util.toEthStrFixed(obj.reward));
+                    _$txCost.text(`${util.toEthStrFixed(cost)} (${obj.estGas} gas)`);
+                    _$gain.text(`${util.toEthStrFixed(gain)}`);
+                    _$risk.text(`${util.toEthStrFixed(risk)}`);
+                    // rebind execute button
+                    _$execute.unbind("click").bind("click", ()=>{
+                        _execute(obj.execute({gasPrice: gasPrice}));
+                    })
+                });
+            }
+
+            function _execute(txPromise) {
+                _disable(true);
+                _isPending = true;
+                util.$getTxStatus(txPromise, {
+                    onSuccess: (res, txStatus) => {
+                        const $status = $("<div class='tasker-result'></div>").appendTo(txStatus.$status);
+                        const error = res.events.find(ev => ev.name=="TaskError");
+                        const success = res.events.find(ev => ev.name=="RewardSuccess");
+                        const failure = res.events.find(ev => ev.name=="RewardFailure");
+                        if (error) {
+                            $status.append(`The Task was not completed: ${error.args.msg}`).addClass("error");
+                        } else if (failure) {
+                            $status.append(`The Task was completed, but TaskManager could not reward you: ${failure.args.msg}`).addClass("error");
+                        } else {
+                            const ethStr = util.toEthStrFixed(success.args.reward);
+                            $status.append(`The Task was completed, and you were rewarded ${ethStr}.`);
+                        }
+                    },
+                    onClear: () => { _isPending = false; _enable(); _refresh(); }
+                }).appendTo(_$status);
+            }
+
+            function _loading() {
+                _$values.text("Loading...");
+                _disable(false);
+            }
+            function _disable(alsoDisableGps) {
+                _$execute.attr("disabled", "disabled");
+                if (alsoDisableGps) _gps.enable(false);
+            }
+            function _enable() {
+                _$execute.removeAttr("disabled");
+                _gps.enable(true);
+            }
+        }
+    }
     function _refreshTasks() {
         const $e = $(".cell.tasks");
         const $loading = $e.find(".loading").show();
@@ -91,26 +318,27 @@ Loader.require("tm", "token")
                 const profits = arr[1][1];
                 const $el = $e.find(arr[0]);
                 const profitStr = profits.gt(0)
-                    ? `${util.toEthStr(profits)}`
+                    ? `${util.toEthStrFixed(profits)}`
                     : "Not Needed."
                 const rewardStr = profits.gt(0)
-                    ? ` (${util.toEthStr(reward)} reward)`
+                    ? ` (${util.toEthStrFixed(reward)} reward)`
                     : "";
-                $el.text(`${profitStr}${rewardStr}`);
+                profits.gt(0) ? $el.addClass("available") : $el.removeClass("available");
+                $el.text(`${profitStr}${rewardStr}`)
             });
 
             if (obj.startGame[0].gt(0)){
-                const rewardStr = util.toEthStr(obj.startGame[0]);
-                $e.find(".start-monarchy-game").text(`Game #${obj.startGame[1]} (${rewardStr} reward)`)
+                const rewardStr = `(${util.toEthStrFixed(obj.startGame[0])} reward)`;
+                $e.find(".start-monarchy-game").text(`Game #${obj.startGame[1]} ${rewardStr}`).addClass("available");
             } else {
-                $e.find(".start-monarchy-game").text(`Not Needed.`);
+                $e.find(".start-monarchy-game").text(`Not Needed.`).removeClass("available");
             }
 
             if (obj.endGame[0].gt(0)) {
-                const rewardStr = util.toEthStr(obj.endGame[0]);
-                $e.find(".end-monarchy-game").text(`${obj.endGame[1]} games (${rewardStr} reward)`)
+                const rewardStr = `(${util.toEthStrFixed(obj.endGame[0])} reward)`;
+                $e.find(".end-monarchy-game").text(`${obj.endGame[1]} games ${rewardStr}`).addClass("available");
             } else {
-                $e.find(".end-monarchy-game").text(`Not Needed.`)
+                $e.find(".end-monarchy-game").text(`Not Needed.`).removeClass("available");
             }
         }
     }
