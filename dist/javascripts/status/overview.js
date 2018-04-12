@@ -43,7 +43,7 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
     [
         ["startPennyAuctionReward", ".pac-start-game"],
         ["refreshPennyAuctionsReward", ".pac-end-game"],
-        ["sendDividendsReward", ".tr-send-dividends"]
+        ["issueDividendReward", ".tr-issue-dividend"]
     ].forEach(arr => {
         tm[arr[0]]().then(res => {
             const reward = res[0];
@@ -123,9 +123,9 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
 
     // Task Manager
     util.bindToElement(ethUtil.getBalance(tm).then(util.toEthStr), $(".tm-balance"))
-    util.bindToElement(tm.sendDividendsRewardBips().then(val => {
+    util.bindToElement(tm.issueDividendRewardBips().then(val => {
         return `${val.div(10000).toFixed(3)}%`
-    }), $(".tm-send-dividends-reward"))
+    }), $(".tm-issue-dividend-reward"))
     util.bindToElement(tm.sendProfitsRewardBips().then(val => {
         return `${val.div(10000).toFixed(3)}%`;
     }), $(".tm-send-profits-reward"));

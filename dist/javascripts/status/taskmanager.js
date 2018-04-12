@@ -34,6 +34,7 @@ Loader.require("tm", "token")
             balance: ethUtil.getBalance(tm),
             admin: tm.getAdmin(),
             pac: tm.getPennyAuctionController(),
+            idRewardBips: tm.issueDividendRewardBips(),
             spRewardBips: tm.sendProfitsRewardBips(),
             paStartReward: tm.paStartReward(),
             paEndReward: tm.paEndReward()
@@ -50,6 +51,7 @@ Loader.require("tm", "token")
             $e.find(".balance-info").empty().append(util.toEthStr(obj.balance));
             $e.find(".admin-info").empty().append(Loader.linkOf(obj.admin));
             $e.find(".pac-info").empty().append(Loader.linkOf(obj.pac));
+            $e.find(".issue-dividend-reward").text(`${obj.idRewardBips.div(100).toFixed(2)}% (max: .1%)`);
             $e.find(".send-profits-reward").text(`${obj.spRewardBips.div(100).toFixed(2)}% (max: 1%)`);
             $e.find(".pa-start-reward").text(`${util.toEthStrFixed(obj.paStartReward)} (max: 1 ETH)`);
             $e.find(".pa-end-reward").text(`${util.toEthStrFixed(obj.paEndReward)} (max: 1 ETH)`);
@@ -63,6 +65,7 @@ Loader.require("tm", "token")
         const $doneLoading = $e.find(".done-loading").hide();
 
         return Promise.obj({
+            issueDividend: tm.issueDividendReward(),
             sendMonarchy: tm.sendProfitsReward([Loader.addressOf("PENNY_AUCTION_CONTROLLER")]),
             sendInstaDice: tm.sendProfitsReward([Loader.addressOf("INSTA_DICE")]),
             sendVideoPoker: tm.sendProfitsReward([Loader.addressOf("VIDEO_POKER")]),
@@ -79,6 +82,7 @@ Loader.require("tm", "token")
 
         function doRefresh(obj) {
             [
+                [".issue-dividend", obj.issueDividend],
                 [".send-monarchy-profits", obj.sendMonarchy],
                 [".send-instadice-profits", obj.sendInstaDice],
                 [".send-videopoker-profits", obj.sendVideoPoker],
@@ -203,6 +207,7 @@ Loader.require("tm", "token")
             initialPrize: (val) => util.toEthStr(val),
             feesCollected: (val) => util.toEthStr(val),
             caller: (val) => util.$getShortAddrLink(val),
+            treasury: (val) => Loader.linkOf(val),
             bankroller: (val) => Loader.linkOf(val),
             amount: (val) => util.toEthStr(val),
             bankroll: (val) => util.toEthStr(val),
@@ -215,7 +220,7 @@ Loader.require("tm", "token")
         }];
         // define legends, build events from this.
         const labels = {
-            "Tasks": [true, ["SendProfitsSuccess", "PennyAuctionStarted", "PennyAuctionsRefreshed"]],
+            "Tasks": [true, ["IssueDividendSuccess", "SendProfitsSuccess", "PennyAuctionStarted", "PennyAuctionsRefreshed"]],
             "Settings": [true, ["SendProfitsRewardChanged", "PennyAuctionRewardsChanged"]],
             "Rewards": [false, ["RewardSuccess"]],
             "Error": [false, ["RewardFailure","TaskError"]],
