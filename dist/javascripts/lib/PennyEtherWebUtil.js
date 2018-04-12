@@ -624,8 +624,10 @@
         const _$slider = _$e.find("input").on("input", _onSliderChanged);
         const _$refresh = _$e.find(".refresh").hide().click(()=>_refresh(true));
         var _gasData = {};
-        var _value = defaultGWei || new BigNumber(0);
+        var _value = null;
         var _waitTimeS = null;
+        var _autoChoose = autoChoose;
+        var _defaultGWei = defaultGWei;
         var _onChangeCb;
 
         // Retrieves gas data (up to 60s old)
@@ -639,31 +641,47 @@
         function _refresh(fresh) {
             _$loading.show().text(`Loading gas data...`);
             _$content.hide();
-            return ethUtil.getGasPrices(fresh).then(data=>{
-                var min = null;
-                var max = null;
-                var auto = Infinity;
-                _gasData = {};
-                data.forEach(d=>{
-                    _gasData[d.gasPrice] = d;
-                    // set min/max to first value that meets criteria
-                    if (!min && d.waitTimeS <= 2*60*60) min = d.gasPrice;
-                    if (!max && d.waitBlocks <= 2) max = d.gasPrice;
-                    // autochoose value to smallest value that meets criteria
-                    if (autoChoose && d.waitTimeS <= AUTO_WAIT_TIME_S) auto = Math.min(auto, d.gasPrice);
+            return ethUtil.getGasPrices(fresh).then(data => {
+                // create a sorted list of gasPrices (note: these are all x10)
+                const gasPrices = Object.keys(data)
+                    .map(n => Number(n))
+                    .sort((a,b) => a - b);
+                // find min and max. (first price under <=2 hours, first price <=2 blocks)
+                var min = null; var max = null; var auto = null;
+                gasPrices.forEach(n => {
+                    if (min==null && data[n].waitTimeS<=2*60*60) min = n;
+                    if (max==null && data[n].waitBlocks<=2) max = n;
+                    if (auto==null && data[n].waitTimeS<=AUTO_WAIT_TIME_S) auto = n;
                 });
-                if (auto !== Infinity) _value = auto;
-                if (min < 1) { max = max + min; }
-                _$slider.attr("min", min).attr("max", max).val(_value);
-                if (_$slider.val() > max) _$slider.val(max);
-                if (_$slider.val() < min) _$slider.val(min);
+                // shift min down one if it's the same as max
+                if (min == max) {
+                    min = gasPrices[gasPrices.indexOf(min)-1] || min;
+                }
+                // populate _gasData between min/max
+                _gasData = {};
+                gasPrices.forEach(n => {
+                    if (n < min || n > max) return;
+                    _gasData[n / 10] = data[n];
+                });
+
+                // set slider min, max, and step
+                min = min / 10; max = max / 10; auto = auto / 10;
+                _$slider.attr("min", min).attr("max", max).attr("step", min < 1 ? "0.1" : "1");
+                // autochoose if no value otherwise compress slider value.
+                if (_autoChoose && _value == null) {
+                    _$slider.val(auto);
+                } else {
+                    if (_$slider.val() > max) _$slider.val(max);
+                    if (_$slider.val() < min) _$slider.val(min);    
+                }
+                // ok, update text below slider and stuff
                 _$loading.hide();
                 _$content.show();
                 _onSliderChanged();
-            }, (e)=>{
+            }, (e) => {
                 _$loading.show().text(`Error: ${e.message}`);
                 _$content.hide();
-            });
+            }).catch(e => console.warn(e));
         }
 
         // sets _value and _waitTimeS to the closest matching _gasData[] value.
@@ -694,6 +712,7 @@
             _onChangeCb = fn;
         };
         this.getValue = function(defaultValue){
+            if (!_value) return new BigNumber(_defaultGWei || 0);
             return (new BigNumber(_value)).mul(1e9);
         };
         this.getWaitTimeS = function(){

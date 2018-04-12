@@ -434,7 +434,7 @@ Loader.require("reg", "comp", "tr", "token")
 			// CapitalAdded/Removed, ProfitsReceived, 
 			sender: (val) => Loader.linkOf(val),
 			recipient: (val) => Loader.linkOf(val),
-			// DistributeSuccess/Failure
+			// DividendSuccess/Failure
 			token: (val) => Loader.linkOf(val),
 			// All
 			amount: (val) => util.toEthStr(val)
@@ -450,7 +450,7 @@ Loader.require("reg", "comp", "tr", "token")
 			"Capital": [true, ["CapitalAdded", "CapitalRemoved", "CapitalRaised"]],
 			"Reserve": [true, ["ReserveAdded", "ReserveRemoved"]],
 			"Profits": [true, ["ProfitsReceived"]],
-			"Dividends": [true, ["DistributeSuccess", "DistributeFailure"]],
+			"Dividends": [true, ["DividendSuccess", "DividendFailure"]],
 			"Governance": [false, ["ExecutedSendCapital", "ExecutedRecallCapital", "ExecutedRaiseCapital"]]
 		}
 		Object.keys(labels).forEach(groupName => {
