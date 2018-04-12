@@ -870,7 +870,15 @@ fieldset {
 			border-radius: 2px;
 		}
 
-
+.AddressInput {}
+.AddressInput .error {
+	margin-top: 4px;
+	text-align: center;
+	font-size: 60%;
+	padding: 2px;
+	background: rgba(255,0,0,.2);
+	border-radius: 2px;
+}
 
 .LoadingBar {
 	height: 5px;

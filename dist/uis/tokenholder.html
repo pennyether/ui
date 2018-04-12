@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/javascripts/lib/Loader.js"></script>
+		<script src="/javascripts/uis/tokenholder.js"></script>
+		<script src="/javascripts/lib/EthGraph.js"></script>
+		<link rel="stylesheet" type="text/css" href="/styles/status.css"/>
+		<style>
+			button.gasified-btn {
+				font-size: 120%;
+			}
+			.cell.approve .header {
+				text-align: center;
+				color: gray;
+				font-size: 80%;
+				text-transform: uppercase;
+				font-weight: bold;
+				letter-spacing: .09em;
+				margin: 5px 0px;
+			}
+			.cell.approve .header.view-approval {
+				margin-top: 15px;
+			}
+			input:disabled {
+				opacity: .7;
+			}
+		</style>
+	</head>
+	<body><div id="Content">
+		<div class="page-header">
+			<div class="title">
+				PENNY Token UI
+			</div>
+			<div class="links">
+				<a href="/status/token.html">Token Status</a>
+				•
+				<a href="">Etherscan Link</a>
+			</div>
+		</div>
+		<div style="margin: 10px 0px;">
+			<div class="statusRow one">
+				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+					<td width="33%"><div class="cell balance">
+						<div class="titleBar">
+							<span>
+								Balance & Dividends
+							<span>
+						</div>
+						<div class="body">
+							<div class="not-available bubble">
+								No account is available.<br>Please log in to MetaMask.
+							</div>
+							<fieldset class="has-account">
+								<table class="fields" width="100%">
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The number of PENNY you own.">Balance:</div>
+										</td>
+										<td>
+											<div class="value balance"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The amounts of dividends available to be collected">Dividends Owed:</div>
+										</td>
+										<td>
+											<div class="value dividends"></div>
+										</td>
+									</tr>
+									<tr>
+										<td colspan=2 style="text-align: center; padding-top: 5px;">
+											<fieldset class="has-dividends">
+												<button class="btn-collect">Collect Dividends</button>
+												<div class="status-ctnr" style="margin-top: 5px;"></div>
+											</fieldset>
+										</td>
+									</tr>
+								</table>
+							</fieldset>
+						</div>
+					</div></td>
+					<td width="33%"><div class="cell transfer">
+						<div class="titleBar">
+							<span>
+								Transfer
+							</span>
+						</div>
+						<div class="body">
+							<div class="not-available bubble">
+								No account is available.<br>Please log in to MetaMask.
+							</div>
+							<fieldset class="has-account">
+							<fieldset class="is-ready">
+								<table class="fields" width="100%">
+									<tr>
+										<td valign="top">
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The address of the account you wish to transfer PENNY to.">To:</div>
+										</td>
+										<td>
+											<div class="address-ctnr"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The amounts of PENNY to transfer. If this exceeds your balance, the transaction will result in an error.">Amount:</div>
+										</td>
+										<td>
+											<input type=number class="input-value"> PENNY
+										</td>
+									</tr>
+									<tr>
+										<td colspan=2 style="text-align: center; padding-top: 5px;">
+											<button class="btn-transfer">Transfer</button>
+											<div class="status-ctnr" style="margin-top: 5px;"></div>
+										</td>
+									</tr>
+								</table>
+							</fieldset>
+							</fieldset>
+						</div>
+					</div></td>
+					<td width="33%"><div class="cell approve">
+						<div class="titleBar">
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="This allows another account to spend PENNY tokens on your behalf. This is essentially the same thing as Transferring. If you approve an amount it can be deducted at any time by the account. You can also reset an approval amount to 0.">
+								Approve
+							</span>
+						</div>
+						<div class="body">
+							<div class="not-available bubble">
+								No account is available.<br>Please log in to MetaMask.
+							</div>
+							<fieldset class="has-account">
+								<fieldset class="is-ready approve-ctnr">
+									<div class="header set-approval">Set Approval Amount</div>
+									<table class="fields" width="100%">
+										<tr>
+											<td valign="top">
+												<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The account that will be able to transfer PENNY on your behalf.">Account:</div>
+											</td>
+											<td>
+												<div class="address-ctnr"></div>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The amount of PENNY the account will be able to transfer">Amount:</div>
+											</td>
+											<td>
+												<input type=number class="input-value"> PENNY
+											</td>
+										</tr>
+										<tr>
+											<td colspan=2 style="text-align: center; padding-top: 5px;">
+												<button class="btn-approve">Set Approval</button>
+												<div class="status-ctnr" style="margin-top: 5px;"></div>
+											</td>
+										</tr>
+									</table>
+								</fieldset>
+								<div class="view-ctnr">
+									<div class="header view-approval">View Approval Amount</div>
+									<table class="fields" width="100%">
+										<tr>
+											<td valign="top">
+												<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The account that is approved to spend PENNY on your behalf.">Account:</div>
+											</td>
+											<td>
+												<div class="value address-ctnr"></div>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The amount of PENNY the above account can spend on your behalf.">Amount:</div>
+											</td>
+											<td>
+												<div class="approval-value">--</div>
+											</td>
+										</tr>
+									</table>
+								</div>
+							</fieldset>
+						</div>
+					</div></td>
+				</tr></table>
+			</div>
+			<div class="statusRow two">
+				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+					<td width="33%"><div class="cell rewards">
+						<div class="titleBar">
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="View the balance and owed dividends of another account.">
+								View Account
+							</span>
+						</div>
+						<div class="body">
+							<input type="text"> Account
+							<button>Load</button>
+						</div>
+					</div></td>
+					<td width="66%"><div class="cell rewards">
+						<div class="titleBar">
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="This shows all Token events related to an account.">
+								History
+							</span>
+						</div>
+						<div class="body">
+							<div style="text-align: center;">
+								<label>
+									<input type="radio" name="which-account" value="mine"> My account
+								</label>
+								<label>
+									<input type="radio" name="which-account" value="other">
+									<input type=text> Account
+								</label>
+							</div>
+						</div>
+					</div></td>
+				</tr></table>
+				</tr></table>
+			</div>
+		</div>
+	</div></body>
+</html>

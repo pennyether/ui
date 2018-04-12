@@ -778,6 +778,7 @@
             if (_isStarted) throw new Error(`TxStatus can only be used once.`);
             _isStarted = true;
 
+            if (!_opts.waitTimeMs) console.warn(`No waitTimeMs set on TxStatus.`);
             const miningMsg = _opts.miningMsg || "Your transaction is being mined...";
             const successMsg = _opts.successMsg || "Your transaction was mined!";
             const waitTimeMs = _opts.waitTimeMs || 30000;
@@ -861,7 +862,7 @@
         button.isGasified = true;
         // create tip with gps in it.
         const $tip = $("<div></div>");
-        const gps = new GasPriceSlider();
+        const gps = new GasPriceSlider(5e9, true);
         gps.$e.appendTo($tip);
         
         // bind the tip.
@@ -900,28 +901,43 @@
         const _$input = _$e.find("input").on("input", _onChange);
         const _$error = _$e.find(".error").hide();
 
-        function _onChange() {
-            _$error.hide();
+        this.$e = _$e;
+        _$e.isValid = () => _isValid();
+        _$e.getValue = () => _getValue();
+
+        function _getValue() {
+            return _isValid() ? _$input.val() : null;
+        }
+        function _isValid() {
+            return _validate() === true;
+        }
+        function _validate() {
             const val = _$input.val();
             if (val.length == 0) {
-                return onChangeFn(null);
+                return false;
             }
             if (!val.startsWith("0x")) {
-                _$error.show().text(`Address should begin with "0x"`);
-                return onChangeFn(null);
+                return `Address should begin with "0x"`;
             }
             if (!RegExp("^0x[0-9a-fA-F]*$").test(val)) {
-                _$error.show().text(`Address contains an invalid character.`);
-                return onChangeFn(null);
+                return `Address contains an invalid character.`;
             }
             if (val.length != 42) {
-                _$error.show().text(`Address should be 42 characters long.`);
-                return onChangeFn(null);
+                return `Address should be 42 characters long.`;
             }
-            onChangeFn(val);
+            return true;
         }
 
-        this.$e = _$e;
+        function _onChange() {
+            const validation = _validate();
+            if (validation===false || validation===true) _$error.hide();
+            else {
+                _$error.show().text(validation);
+            }
+            onChangeFn();
+        }
+
+        setTimeout(_onChange, 0);
     }
 
 

@@ -235,6 +235,7 @@ Loader.require("tm", "token")
                     _$execute.removeAttr("disabled");
                     // fill in values
                     const gasPrice = _gps.getValue();
+                    const waitTimeMs = (_gps.getWaitTimeS() || 60) * 1000;
                     const cost = gasPrice.mul(obj.estGas);
                     const gain = obj.reward.minus(cost);
                     const risk = obj.riskGas.mul(gasPrice);
@@ -244,29 +245,28 @@ Loader.require("tm", "token")
                     _$risk.text(`${util.toEthStrFixed(risk)}`);
                     // rebind execute button
                     _$execute.unbind("click").bind("click", ()=>{
-                        _execute(obj.execute({gasPrice: gasPrice}));
+                        _execute(obj.execute({gasPrice: gasPrice}, waitTimeMs));
                     })
                 });
             }
 
-            function _execute(txPromise) {
+            function _execute(txPromise, waitTimeMs) {
                 _disable(true);
                 _isPending = true;
                 util.$getTxStatus(txPromise, {
+                    waitTimeMs: waitTimeMs,
                     onSuccess: (res, txStatus) => {
-                        const $status = $("<div class='tasker-result'></div>").appendTo(txStatus.$status);
                         const error = res.events.find(ev => ev.name=="TaskError");
                         const success = res.events.find(ev => ev.name=="RewardSuccess");
                         const failure = res.events.find(ev => ev.name=="RewardFailure");
                         if (error) {
-                            $status.append(`The Task was not completed: ${error.args.msg}`).addClass("error");
+                            txStatus.addFailureMsg(`The Task was not completed: ${error.args.msg}`);
                         } else if (failure) {
-                            $status.append(`The Task was completed, but TaskManager could not reward you: ${failure.args.msg}`).addClass("error");
+                            txStatus.addFailureMsg(`The Task was completed, but TaskManager could not reward you: ${failure.args.msg}`);
                         } else {
                             const ethStr = util.toEthStrFixed(success.args.reward);
-                            $status.append(`The Task was completed, and you were rewarded ${ethStr}.`);
+                            txStatus.addSuccessMsg(`The Task was completed, and you were rewarded ${ethStr}.`);
                         }
-                        $status.append("<br>To continue, close this message box.");
                     },
                     onClear: () => { _isPending = false; _enable(); _refresh(); }
                 }).appendTo(_$status);
@@ -288,7 +288,7 @@ Loader.require("tm", "token")
     }
     function _refreshTasks() {
         const $e = $(".cell.tasks");
-        const $error = $e.find(".error").hide();
+        const $error = $e.find("> .error").hide();
 
         $e.find(".fields td > .value").text("Loading...");
         return Promise.obj({

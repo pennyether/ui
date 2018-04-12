@@ -397,8 +397,7 @@ Loader.require("dice")
                 const $txStatus = util.$getTxStatus(promise, {
                     waitTimeMs: (gps.getWaitTimeS() || 45) * 1000,
                     miningMsg: "Your payout is being claimed...",
-                    onSuccess: res => {
-                        const txStatus = $txStatus.data("TxStatus");
+                    onSuccess: (res, txStatus) => {
                         const finalized = res.events.find(ev => ev.name=="RollFinalized");
                         if (finalized) _onEvent(finalized);
 
