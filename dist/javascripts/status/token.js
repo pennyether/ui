@@ -42,7 +42,9 @@ Loader.require("token")
 		// comptro
 		return Promise.obj({
 			comptroller: token.comptroller(),
-			isFrozen: token.isFrozen()
+			isFrozen: token.isFrozen(),
+			supply: token.totalSupply(),
+			burned: token.totalBurned(),
 		}).then(doRefresh).then(()=>{
 			$loading.hide();
 			$doneLoading.show();
@@ -53,6 +55,9 @@ Loader.require("token")
 		});
 
 		function doRefresh(obj) {
+			$e.find(".total-supply").text(util.toEthStrFixed(obj.supply, 4, ""));
+			$e.find(".total-burned").text(util.toEthStrFixed(obj.burned, 4, ""));
+
 			const $eComptroller = $e.find(".comptroller-info");
 			$(`<a href="/status/comptroller.html" target="_blank">status</a>`).appendTo($eComptroller);
 			util.$getAddrLink("etherscan", obj.comptroller).appendTo($eComptroller.append(" "));

@@ -628,7 +628,7 @@
         var _waitTimeS = null;
         var _autoChoose = autoChoose;
         var _defaultGWei = defaultGWei;
-        var _onChangeCb;
+        var _onChangeCb = ()=>{};
 
         // Retrieves gas data (up to 60s old)
         // Populates available gasPrices:
@@ -642,11 +642,13 @@
             _$loading.show().text(`Loading gas data...`);
             _$content.hide();
             return ethUtil.getGasPrices(fresh).then(data => {
-                // create a sorted list of gasPrices (note: these are all x10)
+                // create a sorted list of gasPrices
+                // !!! NOTE: all prices are all x 10 (10 = 1 Gwei) !!!
                 const gasPrices = Object.keys(data)
                     .map(n => Number(n))
                     .sort((a,b) => a - b);
-                // find min and max. (first price under <=2 hours, first price <=2 blocks)
+                // find min, max, auto
+                // first price <=2 hours, first price <=2 blocks, first price <=60 seconds
                 var min = null; var max = null; var auto = null;
                 gasPrices.forEach(n => {
                     if (min==null && data[n].waitTimeS<=2*60*60) min = n;
@@ -654,20 +656,21 @@
                     if (auto==null && data[n].waitTimeS<=AUTO_WAIT_TIME_S) auto = n;
                 });
                 // shift min down one if it's the same as max
+                // this lets the user see that anything lower is pointless (2 hours+)
                 if (min == max) {
                     min = gasPrices[gasPrices.indexOf(min)-1] || min;
                 }
-                // populate _gasData between min/max
+                // populate _gasData between min/max, using gWei value
                 _gasData = {};
                 gasPrices.forEach(n => {
                     if (n < min || n > max) return;
                     _gasData[n / 10] = data[n];
                 });
 
-                // set slider min, max, and step
+                // convert min,max,auto to gWei, and set slider
                 min = min / 10; max = max / 10; auto = auto / 10;
                 _$slider.attr("min", min).attr("max", max).attr("step", min < 1 ? "0.1" : "1");
-                // autochoose if no value otherwise compress slider value.
+                // autochoose if we need to, otherwise compress _$slider.val()
                 if (_autoChoose && _value == null) {
                     _$slider.val(auto);
                 } else {
@@ -705,7 +708,7 @@
             _$wait.removeClass("fast slow");
             if (data.waitTimeS <= 60) _$wait.addClass("fast");
             else if (data.waitTimeS > 60*15) _$wait.addClass("slow");
-            if (_onChangeCb) _onChangeCb(val);
+            _onChangeCb(val);
         }
 
         this.onChange = function(fn) {

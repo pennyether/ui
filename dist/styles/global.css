@@ -15,6 +15,12 @@ body.dark {
 	background: #222;
 }
 
+fieldset {
+	border: 0;
+	padding: 0;
+	margin: 0;
+}
+
 #Content {
 	position: relative;
 	box-sizing: border-box;
@@ -82,10 +88,7 @@ body.dark {
 #Top .menuItem {
 	position: relative;
 	display: inline-block;
-	padding: 18px 8px;
 	margin: 0px 5px;
-	cursor: pointer;
-	letter-spacing: .1em;
 	transition: color .3s, background .3s;
 }
 #Top .menuItem.on {
@@ -98,49 +101,86 @@ body.dark {
 	background: green;
 	box-shadow: 3px 3px 4px 0px rgba(0,0,0,.15);
 }
-	#Top .middle a {
+	#Top .menuItem a {
 		color: inherit;
 		text-decoration: inherit;
 	}
-
+	#Top .menuItem .link {
+		display: block;
+		padding: 18px 8px;
+		letter-spacing: .1em;
+	}
 	#Top .menuItem .subMenu {
+		display: block;
+		position: absolute;
+		z-index: 3;
+		overflow: hidden;
 		font-weight: normal;
 		font-size: 90%;
-		position: absolute;
-
 		background: linear-gradient(to bottom, green 0%, rgb(100,150,100) 100%);
-		margin-top: 18px; /* should match padding of .menuItem */
-		color: black;
 		right: -1000px;
-		opacity: 0;
-		transition: opacity .3s;
-		box-shadow: 3px 3px 4px 0px rgba(0,0,0,.15);
-		z-index: 3;
 		border-left: 1px solid #AAA;
 		border-right: 1px solid #AAA;
 		border-bottom: 1px solid #AAA;
+		border-top-left-radius: 3px;
+		border-bottom-left-radius: 3px;
+		border-bottom-right-radius: 3px;
+		
+		opacity: 0;
+		transition: opacity .3s;
 	}
 	#Top .menuItem:hover .subMenu {
-		display: block;
 		right: -1px;
 		opacity: 1;
+		box-shadow: 3px 3px 4px 0px rgba(0,0,0,.15);
 	}
-	#Top .menuItem .subItem {
-		display: block;
-		white-space: nowrap;
-		padding: 8px 15px 8px 20px;
-		color: rgb(230,230,230);
-		text-shadow: 1px 1px 1px rgba(0,0,0,.3);
-		transition: background .3s, color .3s;
-	}
-	#Top .menuItem .subItem:hover {
-		color: white;
-		background: rgba(100,200,100,.8);
-	}
-	#Top .menuItem .subItem.on {
-		color: white;
-		background: rgba(100,230,100,.8);
-	}
+		#Top .menuItem .header {
+			display: block;
+			overflow: hidden;
+			text-align: right;
+			text-transform: uppercase;
+			letter-spacing: .1em;
+			font-size: 60%;
+			font-weight: bold;
+			color: rgba(0, 0, 0, .5);
+			padding: 4px 15px 4px 0px;
+		}
+		#Top .menuItem .header:before,
+		#Top .menuItem .header:after {
+			position: relative;
+			display: inline-block;
+			vertical-align: middle;
+			top: -1px;
+			height: 1px;
+			border-top: 1px solid rgba(0,0,0,.2);
+			content: "";
+		}
+		#Top .menuItem .header:before {
+			right: .4em;
+			width: 100%;
+			margin-left: -100%;
+		}
+		#Top .menuItem .header:after {
+			left: .2em;
+			width: 20%;
+		 	margin-right: -20%;
+		}
+		#Top .menuItem .subItem {
+			display: block;
+			white-space: nowrap;
+			padding: 8px 15px 8px 20px;
+			color: rgba(255,255,255,.8);
+			text-shadow: 1px 1px 1px rgba(0,0,0,.3);
+			transition: background .3s, color .3s;
+		}
+		#Top .menuItem .subItem:hover {
+			color: white;
+			background: rgba(100,200,100,.8);
+		}
+		#Top .menuItem .subItem.on {
+			color: white;
+			background: rgba(100,230,100,.8);
+		}
 
 #Bottom {
 	position: relative;

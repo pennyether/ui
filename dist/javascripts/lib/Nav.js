@@ -83,6 +83,8 @@
                 name: "Status",
                 url: "/status/system.html",
                 children: [{
+                    name: "Core"
+                },{
                     name: "System Overview",
                     url: "/status/overview.html"
                 },{
@@ -97,6 +99,8 @@
                 },{
                     name: "TaskManager Status",
                     url: "/status/taskmanager.html"
+                },{
+                    name: "Games"
                 },{
                     name: "Monarchy Status",
                     url: "/status/monarchy.html",
@@ -147,12 +151,12 @@
             var breadcrumb = [];
             const curUrl = window.location.pathname.toLowerCase();
             _$menu.empty();
-            _siteMap.forEach(obj=>{
+            _siteMap.forEach(obj => {
                 // add menu item, set as breadcrumb (if there is none)
-                const $e = $(`<a class='menuItem'></a>`)
-                    .addClass("menuItem")
-                    .attr("href", obj.url)
-                    .text(obj.name)
+                const $e = $(`<div class='menuItem'></div>`)
+                    .append(
+                        $("<a class='link'></a>").attr("href", obj.url).text(obj.name)
+                    )
                     .appendTo(_$menu);
                 if (obj.class) $e.addClass(obj.class);
 
@@ -168,6 +172,12 @@
                 // unless we already have a 2-level breadcrumb.
                 const $sub = $(`<div class='subMenu'></div>`);
                 children.forEach(child=>{
+                    if (!child.url) {
+                        const $e = $("<div class='header'></div>")
+                            .text(child.name)
+                            .appendTo($sub);
+                        return;
+                    }
                     const $child = $(`<a class='subItem'></a>`)
                         .attr("href", child.url)
                         .text(child.name)
