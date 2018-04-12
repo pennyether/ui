@@ -266,6 +266,7 @@ Loader.require("tm", "token")
                             const ethStr = util.toEthStrFixed(success.args.reward);
                             $status.append(`The Task was completed, and you were rewarded ${ethStr}.`);
                         }
+                        $status.append("<br>To continue, close this message box.");
                     },
                     onClear: () => { _isPending = false; _enable(); _refresh(); }
                 }).appendTo(_$status);
@@ -287,10 +288,9 @@ Loader.require("tm", "token")
     }
     function _refreshTasks() {
         const $e = $(".cell.tasks");
-        const $loading = $e.find(".loading").show();
         const $error = $e.find(".error").hide();
-        const $doneLoading = $e.find(".done-loading").hide();
 
+        $e.find(".fields td > .value").text("Loading...");
         return Promise.obj({
             issueDividend: tm.issueDividendReward(),
             sendMonarchy: tm.sendProfitsReward([Loader.addressOf("PENNY_AUCTION_CONTROLLER")]),
@@ -298,11 +298,7 @@ Loader.require("tm", "token")
             sendVideoPoker: tm.sendProfitsReward([Loader.addressOf("VIDEO_POKER")]),
             startGame: tm.startPennyAuctionReward(),
             endGame: tm.refreshPennyAuctionsReward(),
-        }).then(doRefresh).then(()=>{
-            $loading.hide();
-            $doneLoading.show();
-        },e => {
-            $loading.hide();
+        }).then(doRefresh).catch(e => {
             $error.show();
             $error.find(".error-msg").text(e.message);
         });
