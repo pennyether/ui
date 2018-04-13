@@ -58,12 +58,14 @@ Loader.require("token")
         }
 
         const $fieldset = $e.find("fieldset.has-dividends");
+        const $account = $e.find(".account").text("Loading...");
         const $balance = $e.find(".balance").text("Loading...");
         const $divs = $e.find(".dividends").text("Loading...");
         Promise.obj({
             balance: token.balanceOf([account]),
             divs: token.getOwedDividends([account])
         }).then(obj => {
+            $account.empty().append(util.$getShortAddrLink(account));
             $balance.text(util.toEthStr(obj.balance, "PENNY"));
             $divs.text(util.toEthStr(obj.divs, "PENNY"));
             if (obj.divs.gt(0)) {
@@ -72,6 +74,7 @@ Loader.require("token")
                 $fieldset.attr("disabled", "disabled");
             }
         }).catch(e => {
+            $account.text(`Error: ${e.message}`);
             $balance.text(`Error: ${e.message}`);
             $divs.text(`Error: ${e.message}`);
         });
