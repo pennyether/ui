@@ -24,6 +24,9 @@
 			input:disabled {
 				opacity: .7;
 			}
+			table.fields td:nth-child(n + 1) {
+				text-align: right;
+			}
 		</style>
 	</head>
 	<body><div id="Content">
@@ -54,15 +57,19 @@
 								<table class="fields" width="100%">
 									<tr>
 										<td>
-											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The number of PENNY you own.">Balance:</div>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The number of PENNY you own.">
+												Balance:
+											</div>
 										</td>
-										<td>
+										<td width=100%>
 											<div class="value balance"></div>
 										</td>
 									</tr>
 									<tr>
 										<td>
-											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The amounts of dividends available to be collected">Dividends Owed:</div>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The amounts of dividends available to be collected.">
+												Dividends Owed:
+											</div>
 										</td>
 										<td>
 											<div class="value dividends"></div>
@@ -95,15 +102,19 @@
 								<table class="fields" width="100%">
 									<tr>
 										<td valign="top">
-											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The address of the account you wish to transfer PENNY to.">To:</div>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The address of the account you wish to transfer PENNY to.">
+												To:
+											</div>
 										</td>
-										<td>
+										<td width=100%>
 											<div class="address-ctnr"></div>
 										</td>
 									</tr>
 									<tr>
 										<td>
-											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The amounts of PENNY to transfer. If this exceeds your balance, the transaction will result in an error.">Amount:</div>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The amounts of PENNY to transfer. If this exceeds your balance, the transaction will result in an error.">
+												Amount:
+											</div>
 										</td>
 										<td>
 											<input type=number class="input-value"> PENNY
@@ -136,15 +147,19 @@
 									<table class="fields" width="100%">
 										<tr>
 											<td valign="top">
-												<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The account that will be able to transfer PENNY on your behalf.">Account:</div>
+												<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The account that will be able to transfer PENNY on your behalf.">
+													Account:
+												</div>
 											</td>
-											<td>
+											<td width="100%">
 												<div class="address-ctnr"></div>
 											</td>
 										</tr>
 										<tr>
 											<td>
-												<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The amount of PENNY the account will be able to transfer">Amount:</div>
+												<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The amount of PENNY the account will be able to transfer">
+													Amount:
+												</div>
 											</td>
 											<td>
 												<input type=number class="input-value"> PENNY
@@ -160,24 +175,30 @@
 								</fieldset>
 								<div class="view-ctnr">
 									<div class="header view-approval">View Approval Amount</div>
+									<fieldset class="is-ready">
 									<table class="fields" width="100%">
 										<tr>
 											<td valign="top">
-												<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The account that is approved to spend PENNY on your behalf.">Account:</div>
+												<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The account that is approved to spend PENNY on your behalf.">
+													Account:
+												</div>
 											</td>
-											<td>
+											<td width="100%">
 												<div class="value address-ctnr"></div>
 											</td>
 										</tr>
 										<tr>
 											<td>
-												<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The amount of PENNY the above account can spend on your behalf.">Amount:</div>
+												<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The amount of PENNY the above account can spend on your behalf.">
+													Amount:
+												</div>
 											</td>
 											<td>
 												<div class="approval-value">--</div>
 											</td>
 										</tr>
 									</table>
+									</fieldset>
 								</div>
 							</fieldset>
 						</div>
@@ -186,18 +207,50 @@
 			</div>
 			<div class="statusRow two">
 				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
-					<td width="33%"><div class="cell rewards">
+					<td width="33%"><div class="cell view">
 						<div class="titleBar">
 							<span class="tipLeft" data-tippy-trigger="mouseenter" title="View the balance and owed dividends of another account.">
 								View Account
 							</span>
 						</div>
 						<div class="body">
-							<input type="text"> Account
-							<button>Load</button>
+							<fieldset class="is-ready">
+							<table class="fields" width="100%">
+								<tr>
+									<td valign="top">
+										<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The account whose details you'd like to view">
+											Account:
+										</div>
+									</td>
+									<td width="100%">
+										<div class="value address-ctnr"></div>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The amount of PENNY the above account owns.">
+											Balance:
+										</div>
+									</td>
+									<td>
+										<div class="balance">--</div>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The amount of dividends claimable by the account.">
+											Owed Dividends:
+										</div>
+									</td>
+									<td>
+										<div class="dividends">--</div>
+									</td>
+								</tr>
+							</table>
+							</fieldset>
 						</div>
 					</div></td>
-					<td width="66%"><div class="cell rewards">
+					<td width="66%"><div class="cell events">
 						<div class="titleBar">
 							<span class="tipLeft" data-tippy-trigger="mouseenter" title="This shows all Token events related to an account.">
 								History
@@ -206,13 +259,14 @@
 						<div class="body">
 							<div style="text-align: center;">
 								<label>
-									<input type="radio" name="which-account" value="mine"> My account
+									<input class="mine" type="radio" name="which-account" checked> My account
 								</label>
-								<label>
-									<input type="radio" name="which-account" value="other">
-									<input type=text> Account
+								<label style="margin-left: 15px;">
+									<input class="other" type="radio" name="which-account">
+									<div class="address-ctnr" style="display: inline-block; vertical-align: top;"></div>
 								</label>
 							</div>
+							<div class="log-viewer"></div>
 						</div>
 					</div></td>
 				</tr></table>

@@ -9,17 +9,24 @@
 				<div class="Health">
 					<div class="blob-ctnr" style="text-align: center;">
 						<div class="blob">
-							<div class="label tipLeft" title="The amount of Ether sent to this contract to be used to generate revenue.">Bankrolled</div>
+							<div class="label tipLeft" title="The amount of Ether sent to this contract to be used to generate revenue.">
+								Bankrolled
+							</div>
 							<div class="value total-bankrolled"></div>
 							<div class="eth">ETH</div>
 						</div>
 						<div class="blob">
-							<div class="label tipLeft" title="The amount of Bankroll that is currently usable.">Available</div>
+							<div class="label tipLeft" title="The amount of Bankroll that is currently usable.">
+								Available
+							</div>
 							<div class="value bankroll-available"></div>
 							<div class="eth">ETH</div>
 						</div>
 						<div class="blob">
-							<div class="label tipLeft" title="Any profits can be immediately be sent to the Treasury. A small negative value is typical.">Profits</div>
+							<div class="label tipLeft" title="Any profits can be immediately be sent to the Treasury.
+							A small negative value is typical.">
+								Profits
+							</div>
 							<div class="value profit"></div>
 							<div class="eth">ETH</div>
 						</div>
@@ -27,28 +34,38 @@
 					<table width=100%>
 						<tr class="collateral hide">
 							<td class="label">
-								<div class="tipLeft" title="The amount of Ether that cannot be used as bankroll.">Collateral:</div>
+								<div class="tipLeft" title="The amount of Ether that cannot be used as bankroll.">
+									Collateral:
+								</div>
 							</td>
 							<td class="value"></td>
 							<td><div class="bar"><div class="inner-bar"></div></div></div>
 						</tr>
 						<tr class="bankroll">
 							<td class="label">
-								<div class="tipLeft" title="The amount of Ether sent to this contract to be used to generate revenue.">Bankrolled:</div>
+								<div class="tipLeft" title="The amount of Ether sent to this contract to be used to
+								generate revenue.">
+									Bankrolled:
+								</div>
 							</td>
 							<td class="value"></td>
 							<td width="100%"><div class="bar"><div class="inner-bar"></div></div></div>
 						</tr>
 						<tr class="balance">
 							<td class="label">
-								<div class="tipLeft" title="The total amount of Ether this contract has.">Balance:</div>
+								<div class="tipLeft" title="The total amount of Ether this contract has.">
+									Balance:
+								</div>
 							</td>
 							<td class="value"></td>
 							<td><div class="bar"><div class="inner-bar"></div></div></div>
 						</tr>
 						<tr class="profit">
 							<td class="label">
-								<div class="tipLeft" title="Balance - (collateral + bankrolled). Any positive value can be sent to Treasury.">Profit:</div>
+								<div class="tipLeft" title="Balance - (collateral + bankrolled). Any positive
+								value can be sent to Treasury.">
+									Profit:
+								</div>
 							</td>
 							<td class="value"></td>
 							<td><div class="bar"><div class="inner-bar"></div></div></div>

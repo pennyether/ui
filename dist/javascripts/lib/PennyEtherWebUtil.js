@@ -52,6 +52,10 @@
             return lv.$e;
         };
 
+        this.getLogViewer = function(opts) {
+            return new LogViewer(opts);
+        };
+
         this.getGasPriceSlider = function(defaultGWei, chooseInitialValue){
             return new GasPriceSlider(defaultGWei, chooseInitialValue);
         };
@@ -342,9 +346,11 @@
 
         const _$e = $(`
             <div class='LogViewer'>
-                <div class="legend">
-                    <button>Load</button>
-                </div>
+                <fieldset>
+                    <div class="legend">
+                        <button>Load</button>
+                    </div>
+                </fieldset>
                 <div class='head'></div>
                 <div class='logs' style='overflow-y: auto;'>
                     <div class='empty'>No Logs Found</div>
@@ -354,8 +360,9 @@
                 <div class='status'></div>
             </div>
         `);
+        const _$fieldset = _$e.find("fieldset");
         const _$legend = _$e.find(".legend");
-        const _$btnLoad = _$legend.find("button").click(_resetAndLoad);
+        const _$btnLoad = _$legend.find("button").click(() => _reset(true));
         const _$head = _$e.find(".head");
         const _$logs = _$e.find(".logs").bind("scroll", _maybeLoadMore)
         const _$table = _$e.find("table");
@@ -424,7 +431,7 @@
         }());
 
         // Cancels the current loading, then resets and starts loading again.
-        function _resetAndLoad() {
+        function _reset(doLoad) {
             if (_isResetPending) return;
 
             _isResetPending = true;
@@ -438,8 +445,9 @@
                 _leastBlockLoaded = Infinity;
                 _greatestBlockLoaded = 0;
                 _$table.empty();
-                _$empty.show();
-                _maybeLoadMore();
+                _$empty.hide();
+                _$load.show();
+                if (doLoad) _maybeLoadMore();
             });
         }
 
@@ -456,7 +464,6 @@
                 _loadingPromise = null;
                 if (_isResetPending) return;
 
-                if (events.length > 0) _$empty.hide();
                 events.forEach((event, i)=>{
                     const $row = $(`<tr></tr>`).appendTo(_$table);
                     const $dateTd = $(`<td class='date'></td>`).appendTo($row);
@@ -474,6 +481,8 @@
                     _prevEvent = event;
                     _$prevDateTd = $dateTd;
                 });
+                if (_$table.children().length == 0) _$empty.show()
+                else _$empty.hide();
 
                 _maybeLoadMore();
             });
@@ -592,9 +601,19 @@
         }
 
         this.$e = _$e;
+        this.reset = _reset;
+        this.enable = function(bool) {
+            if (bool) {
+                _$fieldset.removeAttr("disabled");
+                _$e.addClass("disabled");
+            } else {
+                _$fieldset.attr("disabled", "disabled");
+                _$e.removeClass("disabled");
+            }
+        };
 
         _$head.empty().append(opts.$head || "Log Viewer");
-        if (!_hasLegend) _resetAndLoad();
+        if (!_hasLegend) _reset(true);
     }
 
     // A slider to help the user choose a gas price.
