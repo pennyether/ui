@@ -21,6 +21,7 @@ Loader.require("token")
         _refreshBalance();
         _refreshTransfer();
         _refreshApprove();
+        _refreshEventLog();
     }
 
     function _initBalance() {
@@ -48,19 +49,22 @@ Loader.require("token")
         const $e = $(".cell.balance");
         const $notAvailable = $e.find(".body > .not-available").hide();
         const $noAccountFieldset = $e.find("fieldset.has-account");
+        const $account = $e.find(".account");
+        const $balance = $e.find(".balance");
+        const $divs = $e.find(".dividends")
+
         const account = ethUtil.getCurrentAccount();
         if (!account) {
             $notAvailable.show();
             $noAccountFieldset.attr("disabled", "disabled");
+            [$account, $balance, $divs].forEach(_ => _.text("--"));
             return;
         } else {
             $noAccountFieldset.removeAttr("disabled", "disabled");
         }
 
         const $fieldset = $e.find("fieldset.has-dividends");
-        const $account = $e.find(".account").text("Loading...");
-        const $balance = $e.find(".balance").text("Loading...");
-        const $divs = $e.find(".dividends").text("Loading...");
+        [$account, $balance, $divs].forEach(_ => _.text("Loading..."));
         Promise.obj({
             balance: token.balanceOf([account]),
             divs: token.getOwedDividends([account])
@@ -74,9 +78,8 @@ Loader.require("token")
                 $fieldset.attr("disabled", "disabled");
             }
         }).catch(e => {
-            $account.text(`Error: ${e.message}`);
-            $balance.text(`Error: ${e.message}`);
-            $divs.text(`Error: ${e.message}`);
+            console.error(`Error loading Balance details`, e);
+            [$account, $balance, $divs].forEach(_ => _.text(`Error Loading`));
         });
     }
 
@@ -350,6 +353,19 @@ Loader.require("token")
                 })
             });
             return events;
+        }
+    }
+
+    function _refreshEventLog() {
+        const $e = $(".cell.events");
+        const $mine = $e.find(".mine"); 
+        const $other = $e.find(".other");
+        const account = ethUtil.getCurrentAccount();
+        if (!account) {
+            $mine.attr("disabled", "disabled");
+            $other.click();
+        } else {
+            $mine.removeAttr("disabled");
         }
     }
     
