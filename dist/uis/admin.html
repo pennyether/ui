@@ -91,7 +91,119 @@
 			</div>
 		</div>
 		<div style="margin: 10px 0px;">
-			<div class="statusRow one">
+			<div class="statusRow">
+				<div class="cell governance">
+					<div class="titleBar">
+						<span>
+							Governance
+						</span>
+					</div>
+					<div class="body">
+						<div class="not-admin bubble">
+							Values can only be changed by the Admin.
+						</div>
+						<fieldset class="is-admin">
+							<div class="header">
+								Pending Requests
+							</div>
+							<div class="requests-ctnr">
+								<div class="request template hide">
+									<table class="fields" style="margin: 0px auto;">
+										<tr>
+											<td>Summary:</td>
+											<td class="summary"></td>
+										</tr>
+										<tr>
+											<td>Type:</td>
+											<td class="type"></td>
+										</tr>
+										<tr>
+											<td>Target:</td>
+											<td class="target"></td>
+										</tr>
+										<tr>
+											<td>Value:</td>
+											<td class="value"></td>
+										</tr>
+										<tr>
+											<td>Time Left:</td>
+											<td class="time-left"></td>
+										</tr>
+										<tr>
+											<td colspan="2" style="text-align: center;">
+												<button class="btn-execute">Execute</button>
+												<br>
+												<input type="text" class="cancel-msg">
+												<button class="btn-cancel">Cancel</button>
+											</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+							<div class="header" style="margin-top: 20px;">
+								New Request
+							</div>
+							<div class="create-request">
+								<table class="fields" style="margin: 0px auto;">
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="A string that describes why this request was made.">
+												Summary:
+											</div>
+										</td>
+										<td>
+											<input type=text data-param="_msg"></td>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="Send Capital: Will send 'value' capital from Trasury to 'target'. Fails if not enough capital, or target is not bankrollable.<br><br>Recall Capital: Will recall 'value' bankroll (or all available bankroll) from 'target' bankrollable contract.<br><br>Raise Capital: Will increase the Treasury's target capital by 'value', allowing Comptroller to sell Tokens.">
+												Type:
+											</div>
+										</td>
+										<td>
+											<select data-param="_typeId">
+												<option value=0 selected>Send Capital</option>
+												<option value=1>Recall Capital</option>
+												<option value=2>Raise Capital</option>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The target contract to send or recall capital from.">
+												Target:
+											</div>
+										</td>
+										<td>
+											<input type=text data-param="_target">
+											<div class="info">(target must inherit "Bankrollable")</div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The amount of capital to send, recall, or raise.">
+												Value:
+											</div>
+										</td>
+										<td>
+											<input type=text data-param="_value"> ETH
+										</td>
+									</tr>
+									<tr>
+										<td colspan=2>
+											<div style="text-align: center;">
+												<button class="btn-create">Create</button>
+											</div>
+										</td>
+									</tr>
+								</table>
+							</div>
+						</fieldset>
+					</div>
+				</div>
+			</div>
+			<div class="statusRow">
 				<div class="cell task-manager">
 					<div class="titleBar">
 						<span>

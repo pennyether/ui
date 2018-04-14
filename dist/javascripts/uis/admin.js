@@ -1,5 +1,6 @@
-Loader.require("tm", "dice", "vp", "pac")
-.then(function(tm, dice, vp, pac){
+Loader.require("tm", "dice", "vp", "pac", "tr")
+.then(function(tm, dice, vp, pac, tr){
+    _initGovernance();
     _initTaskManager();
     _initInstaDice();
     _initMonarchy();
@@ -27,6 +28,150 @@ Loader.require("tm", "dice", "vp", "pac")
             const $e = getTxStatusFn(obj);
             if ($e) $e.css("margin","5px").insertAfter($button);
         });
+    }
+
+    function _initGovernance(){
+        const $e = $(".cell.governance");
+
+        makeTxButton($e.find(".btn-create"), create);
+
+        function getPendingRequests() {
+            return tr.numPendingRequests().then(num => {
+                const promises = [];
+                for (var i=0; i<num; i++) {
+                    promises.push(tr.pendingRequestIds([i]));
+                }
+                return Promise.all(promises);
+            }).then(reqIds => {
+                return Promise.all(reqIds.map(rId => tr.getRequest([rId])));
+            }).then(reqs => {
+                return reqs.map(arr => {
+                    return {
+                        id: arr[0], typeId: arr[1], target: arr[2], value: arr[3],
+                        executedSuccessfully: arr[4],
+                        dateCreated: arr[5], dateCancelled: arr[6], dateExecuted: arr[7],
+                        createdMsg: arr[8], cancelledMsg: arr[9], executedMsg: arr[10]
+                    }
+                });
+            });
+        }
+
+        const $template = $e.find(".request.template").detach();
+        const $ctnr = $e.find(".requests-ctnr");
+        Promise.obj({
+            blocktime: ethUtil.getCurrentBlockTime(),
+            requests: getPendingRequests()
+        }).then(obj => {
+            const types = {0: "Send Capital", 1: "Recall Capital", 2: "Raise Capital"};
+            obj.requests.forEach(request => {
+                const $req = $template.clone().removeClass("template hide").appendTo($ctnr);
+                $req.data("request-id", request.id);
+                $req.find(".summary").text(request.createdMsg);
+                $req.find(".type").text(types[request.typeId]);
+                $req.find(".target").append(Loader.linkOf(request.target));
+                $req.find(".value").text(util.toEthStrFixed(request.value));
+                const timeExecutable = request.dateCreated.plus(24*60*60*7);
+                const timeleft = BigNumber.max(obj.blocktime.minus(timeExecutable), 0);
+                if (timeleft.gt(0)) {
+                    $req.find(".time-left").text(util.toTime(timeleft));
+                    // $req.find(".btn-execute").attr("disabled", "disabled");
+                } else {
+                    $req.find(".time-left").text("Executable now.");
+                }
+            });
+            $ctnr.find(".btn-execute").toArray().forEach(btn => {
+                makeTxButton($(btn), obj => execute(btn, obj));
+            });
+            $ctnr.find(".btn-cancel").toArray().forEach(btn => {
+                const $btn = $(btn);
+                makeTxButton($(btn), obj => cancel(btn, obj))
+            });
+            if (obj.requests.length == 0) {
+                $ctnr.append("<div style='text-align:center'>There are no pending requests.</div>");
+            }
+        });
+
+        function execute(btn, obj) {
+            const $button = $(btn);
+            const $request = $button.closest("request");
+            const params = {
+                _id: $button.closest(".request").data("request-id")
+            };
+
+            // append statusRow to this row.
+            const promise = tr.executeRequest(params, {gasPrice: obj.gasPrice});
+            $button.closest("td").find("button").attr("disabled", "disabled");
+            return util.$getTxStatus(promise, {
+                waitTimeMs: obj.waitTimeS * 1000,
+                onSuccess: (res, txStatus) => {
+                    const ev = res.events.find(ev => ev.name=="RequestExecuted");
+                    if (ev) {
+                        const id = ev.args.id;
+                        const successStr = ev.args.success ? "successfully" : "with failure";
+                        const msg = ev.args.msg;
+                        txStatus.addSuccessMsg(`Request #${id} executed ${successStr}: "${msg}"`);
+                    } else {
+                        txStatus.addFailureMsg(`No event found.`);
+                    }
+                },
+                onClear: () => {
+                    $button.closest("td").find("button").removeAttr("disabled");
+                }
+            });
+        }
+        function cancel(btn, obj) {
+            const $button = $(btn);
+            const $request = $button.closest("request");
+            const params = {
+                _id: $button.closest(".request").data("request-id"),
+                _msg: $button.closest("td").find(".cancel-msg").val()
+            };
+
+            // append statusRow to this row.
+            const promise = tr.cancelRequest(params, {gasPrice: obj.gasPrice, gas: 100000});
+            $button.closest("td").find("button").attr("disabled", "disabled");
+            return util.$getTxStatus(promise, {
+                waitTimeMs: obj.waitTimeS * 1000,
+                onSuccess: (res, txStatus) => {
+                    const ev = res.events.find(ev => ev.name=="RequestCancelled");
+                    if (ev) {
+                        const id = ev.args.id;
+                        txStatus.addSuccessMsg(`Request #${id} cancelled.`);
+                    } else {
+                        txStatus.addFailureMsg(`No event found.`);
+                    }
+                },
+                onClear: () => {
+                    $button.closest("td").find("button").removeAttr("disabled");
+                }
+            });
+        }
+        function create(obj) {
+            const inputs = $e.find(".create-request").find("input,select").toArray();
+            const params = {};
+            inputs.forEach(el => {
+                params[$(el).data("param")] = $(el).val();
+            });
+            params._value = (new BigNumber(params._value)).mul(1e18);
+
+            const promise = tr.createRequest(params, {gasPrice: obj.gasPrice});
+            $e.find(".btn-create").attr("disabled", "disabled");
+            return util.$getTxStatus(promise, {
+                waitTimeMs: obj.waitTimeS * 1000,
+                onSuccess: (res, txStatus) => {
+                    const ev = res.events.find(ev => ev.name=="RequestCreated");
+                    if (ev) {
+                        const id = ev.args.id;
+                        txStatus.addSuccessMsg(`Request #${id} created.`);
+                    } else {
+                        txStatus.addFailureMsg(`No event found.`);
+                    }
+                },
+                onClear: () => {
+                    $e.find(".btn-create").removeAttr("disabled");
+                }
+            });
+        }
     }
 
     function _initTaskManager(){
@@ -131,12 +276,18 @@ Loader.require("tm", "dice", "vp", "pac")
                     $row.append(getCell("_bidAddBlocks", game.bidAddBlocks, "Blocks"));
                     $row.append(getCell("_initialBlocks", game.initialBlocks, "Blocks"));
                     if (!game.isNew) {
-                        $row.append($("<td></td>").append("<button class='btn-save'>Save</button>"));
-                        $row.append($("<td></td>").append(
-                            $("<button></button>").text(game.isEnabled ? "disable" : "enable")
-                                .addClass("btn-enable")
-                                .data("enable-bool", !game.isEnabled)
-                        ));
+                        $row.append(
+                            $("<td style='text-align:center;'></td>")
+                                .append("<button class='btn-save'>Save</button>")
+                        );
+                        $row.append(
+                            $("<td style='text-align:center;'></td>")
+                                .append(
+                                    $("<button></button>").text(game.isEnabled ? "disable" : "enable")
+                                        .addClass("btn-enable")
+                                        .data("enable-bool", !game.isEnabled)
+                                )
+                            );
                     } else {
                         $row.append(
                             $("<td colspan=2 style='text-align:center;'></td>")
