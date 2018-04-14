@@ -1,7 +1,8 @@
-Loader.require("tm", "dice", "vp")
-.then(function(tm, dice, vp){
+Loader.require("tm", "dice", "vp", "pac")
+.then(function(tm, dice, vp, pac){
     _initTaskManager();
     _initInstaDice();
+    _initMonarchy();
     _initVideoPoker();
 
     ethUtil.onStateChanged(()=>{
@@ -23,7 +24,8 @@ Loader.require("tm", "dice", "vp")
 
     function makeTxButton($button, getTxStatusFn) {
         util.gasifyButton($button, (obj) => {
-            getTxStatusFn(obj).insertAfter($button).css("margin","5px");
+            const $e = getTxStatusFn(obj);
+            if ($e) $e.css("margin","5px").insertAfter($button);
         });
     }
 
@@ -92,6 +94,161 @@ Loader.require("tm", "dice", "vp")
     }
 
 
+    function _initMonarchy() {
+        const $e = $(".cell.monarchy");
+        refreshMonarchy();
+
+        // draw all items in the table as text inputs
+        function refreshMonarchy() {
+            const $tbody = $e.find(".table tbody").empty();
+            getDefinedGames().then(arr => {
+                arr.push({
+                    index: arr.length+1,
+                    isNew: true,
+                    summary: "",
+                    initialPrize: new BigNumber(0),
+                    bidPrice: new BigNumber(0),
+                    bidIncr: new BigNumber(0),
+                    bidAddBlocks: new BigNumber(0),
+                    initialBlocks: new BigNumber(0),
+                })
+                arr.forEach(game => {
+                    function getCell(paramName, val, units) {
+                        return $("<td></td>").append(
+                            $("<input type=text>")
+                                .val(val)
+                                .data("param-name", paramName)
+                        ).append(units).addClass(paramName);
+                    }
+
+                    const $row = $("<tr></tr>").data("index", game.index).appendTo($tbody);
+                    $row.append($("<td></td>").text(game.index));
+                    $row.append($("<td></td>").text(game.isNew ? "--" : game.isEnabled));
+                    $row.append(getCell("_summary", game.summary));
+                    $row.append(getCell("_initialPrize", game.initialPrize.div(1e18), "ETH"));
+                    $row.append(getCell("_bidPrice", game.bidPrice.div(1e18), "ETH"));
+                    $row.append(getCell("_bidIncr", game.bidIncr.div(1e18), "ETH"));
+                    $row.append(getCell("_bidAddBlocks", game.bidAddBlocks, "Blocks"));
+                    $row.append(getCell("_initialBlocks", game.initialBlocks, "Blocks"));
+                    if (!game.isNew) {
+                        $row.append($("<td></td>").append("<button class='btn-save'>Save</button>"));
+                        $row.append($("<td></td>").append(
+                            $("<button></button>").text(game.isEnabled ? "disable" : "enable")
+                                .addClass("btn-enable")
+                                .data("enable-bool", !game.isEnabled)
+                        ));
+                    } else {
+                        $row.append(
+                            $("<td colspan=2 style='text-align:center;'></td>")
+                                .append("<button class='btn-save'>Create</button>")
+                        );
+                    }
+                });
+
+
+                // todo: set up save buttons
+                $tbody.find(".btn-save").toArray().forEach(btn => {
+                    makeTxButton($(btn), (obj) => save(btn, obj));
+                });
+                $tbody.find(".btn-enable").toArray().forEach(btn => {
+                    makeTxButton($(btn), (obj) => enable(btn, obj));
+                })
+
+                function save(btn, obj) {
+                    const $button = $(btn);
+                    const $row = $button.closest("tr");
+                    const $inputs = $row.find("input")
+
+                    // construct params
+                    const params = {_index: $row.data("index")};
+                    $inputs.toArray().forEach(el => {
+                        params[$(el).data("param-name")] = $(el).val();
+                    });
+                    params._initialPrize = (new BigNumber(params._initialPrize)).mul(1e18);
+                    params._bidPrice = (new BigNumber(params._bidPrice)).mul(1e18);
+                    params._bidIncr = (new BigNumber(params._bidIncr)).mul(1e18);
+
+                    // append statusRow to this row.
+                    const $statusRow = $("<tr><td colspan=10></td></tr>").insertAfter($row);
+                    const promise = pac.editDefinedAuction(params, {gasPrice: obj.gasPrice});
+                    $inputs.attr("disabled", "disabled");
+                    $button.attr("disabled", "disabled");
+                    util.$getTxStatus(promise, {
+                        waitTimeMs: obj.waitTimeS * 1000,
+                        onSuccess: (res, txStatus) => {
+                            const ev = res.events.find(ev => ev.name=="DefinedAuctionEdited");
+                            if (ev) {
+                                txStatus.addSuccessMsg(`Defined auction #${ev.args.index} was edited.`);
+                            } else {
+                                txStatus.addFailureMsg(`No event found.`);
+                            }
+                        },
+                        onClear: () => {
+                            $statusRow.remove();
+                            $inputs.removeAttr("disabled");
+                            $button.removeAttr("disabled");
+                        }
+                    }).appendTo($statusRow.find("td"));
+                }
+
+                function enable(btn, obj) {
+                    const $button = $(btn);
+                    const $row = $button.closest("tr");
+
+                    // construct params
+                    const params = {
+                        _index: $row.data("index"),
+                        _bool: $button.data("enable-bool")
+                    };
+
+                    // append statusRow to this row.
+                    const $statusRow = $("<tr><td colspan=10></td></tr>").insertAfter($row);
+                    const promise = pac.enableDefinedAuction(params, {gasPrice: obj.gasPrice, gas: 50000});
+                    $button.attr("disabled", "disabled");
+                    util.$getTxStatus(promise, {
+                        waitTimeMs: obj.waitTimeS * 1000,
+                        onSuccess: (res, txStatus) => {
+                            const ev = res.events.find(ev => ev.name=="DefinedAuctionEnabled");
+                            if (ev) {
+                                const enabledStr = ev.args.isEnabled ? "enabled" : "disabled";
+                                txStatus.addSuccessMsg(`Defined auction #${ev.args.index} has been ${enabledStr}.`);
+                            } else {
+                                txStatus.addFailureMsg(`No event found.`);
+                            }
+                        },
+                        onClear: () => {
+                            $statusRow.remove();
+                            $button.removeAttr("disabled");
+                        }
+                    }).appendTo($statusRow.find("td"));
+                }
+            });
+        }
+
+        function getDefinedGames(){
+            return pac.numDefinedAuctions().then(num => {
+                const promises = [];
+                for (var i=1; i<=num; i++) {
+                    let index = i;
+                    promises.push(pac.definedAuctions([index]).then(arr => {
+                        return {
+                            index: index,
+                            isEnabled: arr[1],
+                            summary: arr[2],
+                            initialPrize: arr[3],
+                            bidPrice: arr[4],
+                            bidIncr: arr[5],
+                            bidAddBlocks: arr[6],
+                            initialBlocks: arr[7],
+                        };
+                    }));
+                }
+                return Promise.all(promises);
+            });
+        }
+    }
+
+
     function _initInstaDice(){
         const $e = $(".cell.insta-dice");
         const $houseFee = $e.find(".house-fee");
@@ -151,6 +308,9 @@ Loader.require("tm", "dice", "vp")
                 }
             });
         });
+
+        // makes a new pay-table from the input fields.
+        // this assumes the DOM order is the same as params order.
         makeTxButton($e.find(".btn-new"), (obj) => {
             const vals = $e.find(".pay-tables tbody input.payout")
                 .toArray().map(el => new BigNumber($(el).val()));
@@ -171,8 +331,6 @@ Loader.require("tm", "dice", "vp")
                 }
             });
         });
-
-        refreshPayTables().then(_refreshVideoPoker);
 
         function refreshPayTables() {
             function getPayTables() {
@@ -223,7 +381,7 @@ Loader.require("tm", "dice", "vp")
             });
         }
 
-        _refreshVideoPoker();
+        refreshPayTables().then(_refreshVideoPoker);
     }
     function _refreshVideoPoker(){
         const $e = $(".cell.video-poker");

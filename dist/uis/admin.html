@@ -15,7 +15,7 @@
 				text-align: center;
 			}
 			.statusRow {
-				width: 80%;
+				width: 90%;
 				margin-left: auto;
 				margin-right: auto;
 				margin-bottom: 30px;
@@ -64,6 +64,24 @@
 					text-align: right;
 					width: 50px;
 				}
+
+			.cell.monarchy .table input {
+				width: 40px;
+			}
+			.cell.monarchy .table ._summary input {
+				width: 100px;
+			}
+
+			.cell .header {
+				margin: 5px auto;
+				text-align: center;
+				color: gray;
+				font-weight: bold;
+				font-size: 80%;
+				padding: 2px 0px;
+				border-bottom: 1px dotted rgba(0,0,0,.2);
+				width: 80%;
+			}
 		</style>
 	</head>
 	<body><div id="Content">
@@ -84,8 +102,11 @@
 						<div class="not-admin bubble">
 							Values can only be changed by the Admin.
 						</div>
+						<div class="header">
+							Settings
+						</div>
 						<fieldset class="is-admin">
-							<table class="fields" width="100%">
+							<table class="fields" style="width: 90%; margin: 0px auto;">
 								<tr>
 									<td>
 										<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="When a dividend is issued, the caller gets a percentage of the dividend sent.">
@@ -157,18 +178,21 @@
 						<div class="not-admin bubble">
 							Values can only be changed by the Admin.
 						</div>
+						<div class="header">
+							Defined Auctions
+						</div>
 						<fieldset class="is-admin">
 							<table class="table" width=100% cellpadding="0" cellspacing="0">
 								<thead><tr>
 									<td class="tipLeft" data-tippy-trigger="mouseenter" title="The id of this defiend game."> Id</td>
-									<td class="tipLeft" data-tippy-trigger="mouseenter" title="The address of this game if it is started."> Game</td>
-									<td class="tipLeft" data-tippy-trigger="mouseenter" title="A summary of the defined game, used only for reference."> Summary</td>
 									<td class="tipLeft" data-tippy-trigger="mouseenter" title="Whether or not the game can be restarted after it is completed."> Enabled</td>
+									<td class="tipLeft" data-tippy-trigger="mouseenter" title="A summary of the defined game, used only for reference."> Summary</td>
 									<td class="tipLeft" data-tippy-trigger="mouseenter" title="The initial prize."> Prize</td>
 									<td class="tipLeft" data-tippy-trigger="mouseenter" title="The cost to become the Monarch."> Fee</td>
 									<td class="tipLeft" data-tippy-trigger="mouseenter" title="The amount the prize will go up or down on each new Monarch."> Incr</td>
 									<td class="tipLeft" data-tippy-trigger="mouseenter" title="The amount of blocks added to the game on each new Monarch."> +Blocks</td>
 									<td class="tipLeft" data-tippy-trigger="mouseenter" title="The amount of blocks the game starts with."> Blocks</td>
+									<td></td>
 									<td></td>
 								</tr></thead>
 								<tbody></tbody>
@@ -188,8 +212,11 @@
 						<div class="not-admin bubble">
 							Values can only be changed by the Admin.
 						</div>
+						<div class="header">
+							Defined Auctions
+						</div>
 						<fieldset class="is-admin">
-							<table class="fields" width="100%">
+							<table class="fields" style="width: 80%; margin: 0px auto;">
 								<tr>
 									<td>
 										<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The house fee, in basis points.">
@@ -265,7 +292,10 @@
 							Values can only be changed by the Admin.
 						</div>
 						<fieldset class="is-admin">
-							<table class="fields" width="100%">
+							<div class="header">
+								Settings
+							</div>
+							<table class="fields" style="width: 80%; margin: 0px auto;">
 								<tr>
 									<td>
 										<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The minimum bet allowed.">
@@ -302,10 +332,10 @@
 									</td>
 								</tr>
 							</table>
-							<div style="margin-top: 10px; color: gray; margin-bottom: 5px;">
+							<div class="header" style="margin-top: 20px;">
 								Pay Tables
 							</div>
-							<table class="pay-tables" cellspacing="0" cellpadding="0">
+							<table class="pay-tables" style="margin: 0px auto;">
 								<thead></thead>
 								<tbody></tbody>
 							</table>
