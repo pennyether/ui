@@ -148,6 +148,8 @@ Loader.require("reg", "comp", "tr", "token")
 		const $loading = $e.find(".loading").show();
 		const $error = $e.find(".error").hide();
 		const $doneLoading = $e.find(".done-loading").hide();
+		const $met = $e.find(".met").hide();
+		const $unmet = $e.find(".unmet").hide();
 
 		return Promise.obj({
 			capitalRaised: tr.capitalRaised(),

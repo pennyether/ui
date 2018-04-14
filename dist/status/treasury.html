@@ -86,10 +86,17 @@
 					border-radius: 4px;
 				}
 
-			.funding-status .met {
-				text-align: center;
-				color: green;
+			.funding-status .bubble.met,
+			.funding-status .bubble.unmet {
+				font-size: 80%;
+				margin-top: 10px;
+				margin-bottom: 0px;
 			}
+			.funding-status .bubble.met {
+				background: rgba(0, 128, 0, .2);
+			}
+
+			.funding-status .tiny-bar {}
 				.funding-status .tiny-bar .label {
 					display: inline-block;
 					font-size: 90%;
@@ -250,10 +257,10 @@
 										</div>
 									</div>
 								</div>
-								<div class="met">
+								<div class="bubble met">
 									Treasuy has raised all requested capital.
 								</div>
-								<div class="not-met">
+								<div class="bubble unmet">
 									Treasury has requested more capital than it has. You may send capital and receive Tokens in return.
 								</div>
 							</div>
