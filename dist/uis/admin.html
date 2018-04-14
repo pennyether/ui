@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/javascripts/lib/Loader.js"></script>
+		<script src="/javascripts/uis/admin.js"></script>
+		<script src="/javascripts/shared/PokerUtil.js"></script>
+		<link rel="stylesheet" type="text/css" href="/styles/status.css"/>
+		<style>
+			button.gasified-btn {
+				font-size: 120%;
+			}
+			.info {
+				font-size: 80%;
+				color: rgba(0,0,0,.5);
+				text-align: center;
+			}
+			.statusRow {
+				width: 80%;
+				margin-left: auto;
+				margin-right: auto;
+				margin-bottom: 30px;
+			}
+			input:disabled {
+				opacity: .7;
+			}
+			table.fields td:nth-child(2) {
+				padding-left: 20px;
+			}
+			table.fields td:nth-child(n + 3) {
+				text-align: center;
+			}
+			table.fields td:nth-child(2) {
+				white-space: nowrap;;
+			}
+			.bubble.not-admin {
+				width: 50%;
+				margin-left: auto;
+				margin-right: auto;
+			}
+
+			.cell.video-poker .pay-tables {
+				font-size: 80%;
+			}
+				.cell.video-poker .pay-tables thead td {
+					text-align: right;
+					font-weight: bold;
+				}
+				.cell.video-poker .pay-tables thead td:first-child {
+					color: gray;
+				}
+				.cell.video-poker .pay-tables tbody tr:nth-child(odd) {
+					background: rgba(0,0,0,.05);
+				}
+				.cell.video-poker .pay-tables tbody td:not(:first-child) {
+					text-align: right;
+				}
+				.cell.video-poker .pay-tables td {
+					padding: 5px;
+				}
+				.cell.video-poker .pay-tables td.selected {
+					background: rgba(0,128,0,.3);
+				}
+				.cell.video-poker input {
+					text-align: right;
+					width: 50px;
+				}
+		</style>
+	</head>
+	<body><div id="Content">
+		<div class="page-header">
+			<div class="title">
+				Admin UI
+			</div>
+		</div>
+		<div style="margin: 10px 0px;">
+			<div class="statusRow one">
+				<div class="cell task-manager">
+					<div class="titleBar">
+						<span>
+							Task Manager
+						</span>
+					</div>
+					<div class="body">
+						<div class="not-admin bubble">
+							Values can only be changed by the Admin.
+						</div>
+						<fieldset class="is-admin">
+							<table class="fields" width="100%">
+								<tr>
+									<td>
+										<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="When a dividend is issued, the caller gets a percentage of the dividend sent.">
+											Issue Dividend Reward:
+										</div>
+									</td>
+									<td>
+										<input type=text class="issue-bips"> Bips
+										<div class="info">(max: 10 = .1%)</div>
+									</td>
+									<td width="100%">
+										<button class="btn-div-reward">Update</button>
+									</td>
+								</tr>
+								<tr><td colspan="3"><hr></td></tr>
+								<tr>
+									<td>
+										<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="When profits are sent from a game controller to the Treasury, the caller gets a percentage of them.">
+											Send Profits Reward:
+										</div>
+									</td>
+									<td>
+										<input type=text class="send-profits-bips"> Bips
+										<div class="info">(max: 100 = 1%)</div>
+									</td>
+									<td>
+										<button class="btn-send-profits-reward">Update</button>
+									</td>
+								</tr>
+								<tr><td colspan="3"><hr></td></tr>
+								<tr>
+									<td>
+										<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="When a Monarchy game is started, the caller is rewarded a fixed amount.">
+											Start Monarchy Game:
+										</div>
+									</td>
+									<td>
+										<input type=text class="start-monarchy-game"> ETH
+										<div class="info">(max: 1 ETH)</div>
+									</td>
+									<td rowspan="2">
+										<button class="btn-pa-rewards">Update</button>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="When a Monarchy game is ended (winner paid, and moved to ended games array) the caller is rewarded a fixed amount.">
+											End Monarchy Game:
+										</div>
+									</td>
+									<td>
+										<input type=text class="end-monarchy-game"> ETH
+										<div class="info">(max: 1 ETH)</div>
+									</td>
+								</tr>
+							</table>
+						</fieldset>
+					</div>
+				</div>
+			</div>
+			<div class="statusRow">
+				<div class="cell monarchy">
+					<div class="titleBar">
+						<span>
+							Monarchy
+						</span>
+					</div>
+					<div class="body">
+						<div class="not-admin bubble">
+							Values can only be changed by the Admin.
+						</div>
+						<fieldset class="is-admin">
+							<table class="table" width=100% cellpadding="0" cellspacing="0">
+								<thead><tr>
+									<td class="tipLeft" data-tippy-trigger="mouseenter" title="The id of this defiend game."> Id</td>
+									<td class="tipLeft" data-tippy-trigger="mouseenter" title="The address of this game if it is started."> Game</td>
+									<td class="tipLeft" data-tippy-trigger="mouseenter" title="A summary of the defined game, used only for reference."> Summary</td>
+									<td class="tipLeft" data-tippy-trigger="mouseenter" title="Whether or not the game can be restarted after it is completed."> Enabled</td>
+									<td class="tipLeft" data-tippy-trigger="mouseenter" title="The initial prize."> Prize</td>
+									<td class="tipLeft" data-tippy-trigger="mouseenter" title="The cost to become the Monarch."> Fee</td>
+									<td class="tipLeft" data-tippy-trigger="mouseenter" title="The amount the prize will go up or down on each new Monarch."> Incr</td>
+									<td class="tipLeft" data-tippy-trigger="mouseenter" title="The amount of blocks added to the game on each new Monarch."> +Blocks</td>
+									<td class="tipLeft" data-tippy-trigger="mouseenter" title="The amount of blocks the game starts with."> Blocks</td>
+									<td></td>
+								</tr></thead>
+								<tbody></tbody>
+							</table>
+						</fieldset>
+					</div>
+				</div>
+			</div>
+			<div class="statusRow">
+				<div class="cell insta-dice">
+					<div class="titleBar">
+						<span>
+							InstaDice
+						</span>
+					</div>
+					<div class="body">
+						<div class="not-admin bubble">
+							Values can only be changed by the Admin.
+						</div>
+						<fieldset class="is-admin">
+							<table class="fields" width="100%">
+								<tr>
+									<td>
+										<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The house fee, in basis points.">
+											House Fee:
+										</div>
+									</td>
+									<td>
+										<input type=text class="house-fee"> Bips
+										<div class="info">(Max: 500 = 5%)</div>
+									</td>
+									<td width="100%" rowspan="5">
+										<button class="btn-update">Update</button>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The smallest bet allowed.">
+											Min Bet:
+										</div>
+									</td>
+									<td>
+										<input type=text class="min-bet"> ETH
+										<div class="info">(no minimum)</div>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The maximum bet allowed, provided there is sufficient bankroll.">
+											Max Bet:
+										</div>
+									</td>
+									<td>
+										<input type=text class="max-bet"> ETH
+										<div class="info">(max: .625 ETH)</div>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The minimum number allowed. Payout is 100/n (minus fee)">
+											Min Number:
+										</div>
+									</td>
+									<td>
+										<input type=text class="min-num">
+										<div class="info">(min: 1)</div>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The maximum number allowed. Payout is 100/n (minus fee)">
+											Max Number:
+										</div>
+									</td>
+									<td>
+										<input type=text class="max-num">
+										<div class="info">(max: 99)</div>
+									</td>
+								</tr>
+							</table>
+						</fieldset>
+					</div>
+				</div>
+			</div>
+			<div class="statusRow">
+				<div class="cell video-poker">
+					<div class="titleBar">
+						<span>
+							VideoPoker
+						</span>
+					</div>
+					<div class="body">
+						<div class="not-admin bubble">
+							Values can only be changed by the Admin.
+						</div>
+						<fieldset class="is-admin">
+							<table class="fields" width="100%">
+								<tr>
+									<td>
+										<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The minimum bet allowed.">
+											Min Bet:
+										</div>
+									</td>
+									<td>
+										<input type=text class="min-bet"> Bips
+										<div class="info">(no minimum)</div>
+									</td>
+									<td rowspan="3" width="100%">
+										<button class="btn-update">Update</button>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The maximum bet allowed, provided there is sufficient bankroll. This is limited due to RNG using the blockhash.">
+											Max Bet:
+										</div>
+									</td>
+									<td>
+										<input type=text class="max-bet"> ETH
+										<div class="info">(Max: .625 ETH)</div>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="Which paytable all new wagers should use.">
+											PayTable Id:
+										</div>
+									</td>
+									<td>
+										<input type=text class="pt-id">
+									</td>
+								</tr>
+							</table>
+							<div style="margin-top: 10px; color: gray; margin-bottom: 5px;">
+								Pay Tables
+							</div>
+							<table class="pay-tables" cellspacing="0" cellpadding="0">
+								<thead></thead>
+								<tbody></tbody>
+							</table>
+							<div style="text-align: center; width: 80%; margin: 10px auto;">
+								<button class="btn-new">Add New</button>
+							</div>
+						</fieldset>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div></body>
+</html>
