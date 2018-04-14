@@ -29,6 +29,10 @@ Loader.require("tm", "token")
         });
     }
 
+    function eth(val) {
+        return util.toEthStrFixed(val);
+    }
+
     function _refreshSettings(){
         const $e = $(".cell.settings");
         const $loading = $e.find(".loading").show();
@@ -39,6 +43,8 @@ Loader.require("tm", "token")
             balance: ethUtil.getBalance(tm),
             admin: tm.getAdmin(),
             pac: tm.getPennyAuctionController(),
+            limit: tm.getDailyLimit(),
+            limitRemaining: tm.getDailyLimitRemaining(),
             idRewardBips: tm.issueDividendRewardBips(),
             spRewardBips: tm.sendProfitsRewardBips(),
             paStartReward: tm.paStartReward(),
@@ -56,10 +62,11 @@ Loader.require("tm", "token")
             $e.find(".balance-info").empty().append(util.toEthStr(obj.balance));
             $e.find(".admin-info").empty().append(Loader.linkOf(obj.admin));
             $e.find(".pac-info").empty().append(Loader.linkOf(obj.pac));
+            $e.find(".limit-info").empty().append(`${eth(obj.limit)} (Remaining: ${eth(obj.limitRemaining)})`);
             $e.find(".issue-dividend-reward").text(`${obj.idRewardBips.div(100).toFixed(2)}% (max: .1%)`);
             $e.find(".send-profits-reward").text(`${obj.spRewardBips.div(100).toFixed(2)}% (max: 1%)`);
-            $e.find(".pa-start-reward").text(`${util.toEthStrFixed(obj.paStartReward)} (max: 1 ETH)`);
-            $e.find(".pa-end-reward").text(`${util.toEthStrFixed(obj.paEndReward)} (max: 1 ETH)`);
+            $e.find(".pa-start-reward").text(`${eth(obj.paStartReward)} (max: 1 ETH)`);
+            $e.find(".pa-end-reward").text(`${eth(obj.paEndReward)} (max: 1 ETH)`);
         }
     }
 
@@ -167,24 +174,34 @@ Loader.require("tm", "token")
                     <table width="100%">
                         <tr>
                             <td class="label tipLeft" title="The higher the Gas Price, the faster your transaction will be mined.
-                            This increases the chance that you will win the reward instead of somebody else.">Gas Price:</td>
+                            This increases the chance that you will win the reward instead of somebody else.">
+                                Gas Price:
+                            </td>
                             <td class="gps-ctnr" width=100%></td>
                         </tr>
                         <tr>
-                            <td class="label tipLeft" title="The reward you will be paid if the Task is executed.">Reward:</td>
+                            <td class="label tipLeft" title="The reward you will be paid if the Task is executed.">
+                                Reward:
+                            </td>
                             <td class="value reward"></td>
                         </tr>
                         <tr>
-                            <td class="label tipLeft" title="The estimated gas cost to execute this Task.">Estimated Tx Cost:</td>
+                            <td class="label tipLeft" title="The estimated gas cost to execute this Task.">
+                                Estimated Tx Cost:
+                            </td>
                             <td class="value tx-cost"></td>
                         </tr>
                         <tr>
-                            <td class="label tipLeft" title="Reward - Tx Cost">Possible Gain:</td>
+                            <td class="label tipLeft" title="Reward - Tx Cost">
+                                Possible Gain:
+                            </td>
                             <td class="value gain"></td>
                         </tr>
                         <tr>
                             <td class="label tipLeft" title="If the Task is no longer available by the time your transaction
-                            is mined, you may lose this amount.">Possible Loss:</td>
+                            is mined, you may lose this amount.">
+                                Possible Loss:
+                            </td>
                             <td class="value risk"></td>
                         </tr>
                         <tr>
@@ -239,13 +256,17 @@ Loader.require("tm", "token")
                     const cost = gasPrice.mul(obj.estGas);
                     const gain = obj.reward.minus(cost);
                     const risk = obj.riskGas.mul(gasPrice);
-                    _$reward.text(util.toEthStrFixed(obj.reward));
-                    _$txCost.text(`${util.toEthStrFixed(cost)} (${obj.estGas} gas)`);
-                    _$gain.text(`${util.toEthStrFixed(gain)}`);
-                    _$risk.text(`${util.toEthStrFixed(risk)}`);
+                    _$reward.text(eth(obj.reward));
+                    _$txCost.text(`${eth(cost)} (${obj.estGas} gas)`);
+                    _$gain.text(`${eth(gain)}`);
+                    _$risk.text(`${eth(risk)}`);
                     // rebind execute button
                     _$execute.unbind("click").bind("click", ()=>{
-                        _execute(obj.execute({gasPrice: gasPrice}, waitTimeMs));
+                        try {
+                            _execute(obj.execute({gasPrice: gasPrice}, waitTimeMs));
+                        } catch (e) {
+                            ethStatus.open();
+                        }
                     })
                 });
             }
@@ -264,7 +285,7 @@ Loader.require("tm", "token")
                         } else if (failure) {
                             txStatus.addFailureMsg(`The Task was completed, but TaskManager could not reward you: ${failure.args.msg}`);
                         } else {
-                            const ethStr = util.toEthStrFixed(success.args.reward);
+                            const ethStr = eth(success.args.reward);
                             txStatus.addSuccessMsg(`The Task was completed, and you were rewarded ${ethStr}.`);
                         }
                     },
@@ -314,24 +335,24 @@ Loader.require("tm", "token")
                 const profits = arr[1][1];
                 const $el = $e.find(arr[0]);
                 const profitStr = profits.gt(0)
-                    ? `${util.toEthStrFixed(profits)}`
+                    ? `${eth(profits)}`
                     : "Not Needed."
                 const rewardStr = profits.gt(0)
-                    ? ` (${util.toEthStrFixed(reward)} reward)`
+                    ? ` (${eth(reward)} reward)`
                     : "";
                 profits.gt(0) ? $el.addClass("available") : $el.removeClass("available");
                 $el.text(`${profitStr}${rewardStr}`)
             });
 
-            if (obj.startGame[0].gt(0)){
-                const rewardStr = `(${util.toEthStrFixed(obj.startGame[0])} reward)`;
+            if (obj.startGame[1].gt(0)){
+                const rewardStr = `(${eth(obj.startGame[0])} reward)`;
                 $e.find(".start-monarchy-game").text(`Game #${obj.startGame[1]} ${rewardStr}`).addClass("available");
             } else {
                 $e.find(".start-monarchy-game").text(`Not Needed.`).removeClass("available");
             }
 
-            if (obj.endGame[0].gt(0)) {
-                const rewardStr = `(${util.toEthStrFixed(obj.endGame[0])} reward)`;
+            if (obj.endGame[1].gt(0)) {
+                const rewardStr = `(${eth(obj.endGame[0])} reward)`;
                 $e.find(".end-monarchy-game").text(`${obj.endGame[1]} games ${rewardStr}`).addClass("available");
             } else {
                 $e.find(".end-monarchy-game").text(`Not Needed.`).removeClass("available");

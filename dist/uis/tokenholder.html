@@ -3,7 +3,6 @@
 	<head>
 		<script src="/javascripts/lib/Loader.js"></script>
 		<script src="/javascripts/uis/tokenholder.js"></script>
-		<script src="/javascripts/lib/EthGraph.js"></script>
 		<link rel="stylesheet" type="text/css" href="/styles/status.css"/>
 		<style>
 			button.gasified-btn {
@@ -24,7 +23,7 @@
 			input:disabled {
 				opacity: .7;
 			}
-			table.fields td:nth-child(n + 1) {
+			table.fields td:nth-child(n + 2) {
 				text-align: right;
 			}
 		</style>
@@ -143,8 +142,8 @@
 					</div></td>
 					<td width="33%"><div class="cell approve">
 						<div class="titleBar">
-							<span class="tipLeft" data-tippy-trigger="mouseenter" title="This allows another account to spend PENNY tokens on your behalf. This is essentially the same thing as Transferring. If you approve an amount it can be deducted at any time by the account. You can also reset an approval amount to 0.">
-								Approve
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="An Approval allows another account to spend PENNY tokens on your behalf. This is essentially the same thing as transferring: If you approve an amount it can be deducted at any time by the account.">
+								Approvals
 							</span>
 						</div>
 						<div class="body">
@@ -167,7 +166,7 @@
 										</tr>
 										<tr>
 											<td>
-												<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The amount of PENNY the account will be able to transfer">
+												<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="The amount of PENNY the account will be able to transfer. If you are changing an existing approval, it is recommended to first set this to 0, verify it was not spent, then set it to a new value.">
 													Amount:
 												</div>
 											</td>

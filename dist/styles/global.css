@@ -168,6 +168,7 @@ fieldset {
 		#Top .menuItem .subItem {
 			display: block;
 			white-space: nowrap;
+			letter-spacing: .07em;
 			padding: 8px 15px 8px 20px;
 			color: rgba(255,255,255,.8);
 			text-shadow: 1px 1px 1px rgba(0,0,0,.3);
@@ -294,6 +295,7 @@ fieldset {
 	font-size: 80%;
 	font-style: italic;
 	letter-spacing: initial;
+	text-shadow: none;
 	color: white;
 	background: rgba(0,0,0,.1);
 	border-radius: .3em;

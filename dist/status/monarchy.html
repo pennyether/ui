@@ -8,6 +8,7 @@
 		<link rel="stylesheet" type="text/css" href="/styles/status.css"/>
 		<style>
 		.cell.games .legend {
+			position: relative;
 			text-align: right;
 			padding: 5px 0px;
 		}
@@ -27,6 +28,12 @@
 					display: inline-block;
 					vertical-align: middle;
 				}
+			.cell.games .legend .daily-limit {
+				position: absolute;
+				left: 3px;
+				top: 5px;
+				opacity: .3;
+			}
 			.cell.games tr.startable,
 			.cell.games .legend .startable .box {
 				background: rgba(0,0,255,.2);
@@ -132,6 +139,7 @@
 										<tbody></tbody>
 									</table>
 									<div class="legend">
+										<div class="daily-limit"></div>
 										<div class="item not-startable">
 											<div class="box"></div>
 											<div class="label">Not Startable</div>
@@ -146,7 +154,7 @@
 										</div>
 										<div class="item endable">
 											<div class="box"></div>
-											<div class="label">Ended</div>
+											<div class="label">Endable</div>
 										</div>
 									</div>
 								</div>

@@ -6,6 +6,10 @@ Loader.require("pac")
         _refreshAll();
     });
 
+    function eth(val) {
+        return util.toEthStrFixed(val);
+    }
+
     function _refreshAll(){
         Promise.all([
             _refreshHealth(),
@@ -59,7 +63,7 @@ Loader.require("pac")
         function getDefinedGames(){
             return pac.numDefinedAuctions().then(num => {
                 const promises = [];
-                for (var i=0; i<num; i++) {
+                for (var i=1; i<=num; i++) {
                     let id = i;
                     promises.push(pac.definedAuctions([id]).then(arr => {
                         const instance = new BigNumber(arr[0])==0 ? null : PennyAuction.at(arr[0]);
@@ -112,7 +116,9 @@ Loader.require("pac")
             numActive: pac.numActiveAuctions(),
             numEnded: pac.numEndedAuctions(),
             definedGames: getDefinedGames(),
-            endedGames: getEndedGames()
+            endedGames: getEndedGames(),
+            limit: pac.getDailyLimit(),
+            limitRemaining: pac.getDailyLimitRemaining(),
         }).then(doRefresh).then(()=>{
             $loading.hide();
             $doneLoading.show();
@@ -127,6 +133,7 @@ Loader.require("pac")
             $e.find(".num-active").text(obj.numActive);
             $e.find(".num-ended").text(obj.numEnded);
             $e.find(".num-defined").text(obj.definedGames.length);
+            $e.find(".daily-limit").text(`Daily Limit: ${eth(obj.limit)} (Remaining: ${eth(obj.limitRemaining)})`);
 
             // Display defined games.
             (function(){
@@ -144,9 +151,9 @@ Loader.require("pac")
                         $row.append($("<td></td>").append($link));
                         $row.append($("<td></td>").text(game.summary));
                         $row.append($("<td></td>").text(game.isEnabled));
-                        $row.append($("<td></td>").text(util.toEthStrFixed(game.initialPrize)));
-                        $row.append($("<td></td>").text(util.toEthStrFixed(game.bidPrice)));
-                        $row.append($("<td></td>").text(util.toEthStrFixed(game.bidIncr)));
+                        $row.append($("<td></td>").text(eth(game.initialPrize)));
+                        $row.append($("<td></td>").text(eth(game.bidPrice)));
+                        $row.append($("<td></td>").text(eth(game.bidIncr)));
                         $row.append($("<td></td>").text(game.bidAddBlocks));
                         $row.append($("<td></td>").text(game.initialBlocks));
                         $row.appendTo($tbody);
@@ -164,7 +171,7 @@ Loader.require("pac")
                         if (game.instance == null) return;
                         const $row = $("<tr></tr>");
                         $row.append($("<td></td>").text(game.id));
-                        $row.append($("<td></td>").text(util.toEthStrFixed(game.prize)));
+                        $row.append($("<td></td>").text(eth(game.prize)));
                         $row.append($("<td></td>").append(Loader.linkOf(game.currentWinner)));
                         $row.append($("<td></td>").text(game.numBids));
                         $row.append($("<td></td>").text(game.blocksLeft));

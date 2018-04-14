@@ -435,6 +435,9 @@ function Sequence() {
             ? _getExactValues(low, high, _maxPoints)
             : _getQuantizedValues(low, high, _maxPoints);
 
+        _xs[0] = low;
+        _xs[_xs.length-1] = high;
+
         _xs.forEach(x => {
             // get or create point. if y is set, don't load.
             if (!_points[x]) _points[x] = {x: x};
@@ -558,8 +561,8 @@ function Sequence() {
             return [];
         }
 
-        low = new BigNumber(low);
-        high = new BigNumber(high);
+        low = new BigNumber(low.toFixed(15));
+        high = new BigNumber(high.toFixed(15));
         if (high.minus(low).equals(0)) {
             return [high];
         }

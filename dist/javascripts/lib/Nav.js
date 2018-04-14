@@ -125,6 +125,9 @@
                 name: "UIs",
                 url: "/status/system.html",
                 children: [{
+                    name: "Account UI",
+                    url: "/uis/account.html"
+                },{
                     name: "Token Holder UI",
                     url: "/uis/tokenholder.html"
                 },{

@@ -743,8 +743,8 @@
             _onChangeCb = fn;
         };
         this.getValue = function(defaultValue){
-            if (!_value) return new BigNumber(_defaultGWei || 0);
-            return (new BigNumber(_value)).mul(1e9);
+            const gWei = new BigNumber(_value || _defaultGWei || 0);
+            return gWei.mul(1e9);
         };
         this.getWaitTimeS = function(){
             return _waitTimeS;
@@ -881,7 +881,7 @@
         button.isGasified = true;
         // create tip with gps in it.
         const $tip = $("<div></div>");
-        const gps = new GasPriceSlider(5e9, true);
+        const gps = new GasPriceSlider(5, true);
         gps.$e.appendTo($tip);
         
         // bind the tip.
