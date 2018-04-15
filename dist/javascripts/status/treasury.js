@@ -412,7 +412,6 @@ Loader.require("reg", "comp", "tr", "token")
         // append to events using labels
         const labels = {
             "Capital": [true, ["CapitalAdded", "CapitalRemoved", "CapitalRaised"]],
-            "Reserve": [true, ["ReserveAdded", "ReserveRemoved"]],
             "Profits": [true, ["ProfitsReceived"]],
             "Dividends": [true, ["DividendSuccess", "DividendFailure"]],
             "Governance": [false, ["ExecutedSendCapital", "ExecutedRecallCapital", "ExecutedRaiseCapital"]]

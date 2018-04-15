@@ -78,7 +78,6 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
     })
 
     // Treasury
-    util.bindToElement(tr.reserve().then(util.toEthStr), $(".tr-reserve"));
     util.bindToElement(tr.capital().then(util.toEthStr), $(".tr-cap-available"));
     util.bindToElement(tr.capitalNeeded().then(util.toEthStr), $(".tr-cap-needed"));
     util.bindToElement(tr.profits().then(util.toEthStr), $(".tr-profits"));
