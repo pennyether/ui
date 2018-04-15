@@ -279,7 +279,7 @@ fieldset {
 	}
 
 /* Anything with a tooltip gets a little i next to it */
-.tip-left::before {
+.tip::before {
 	display: inline-block;
 	margin: 0px;
 	margin-bottom: .2em;
@@ -300,10 +300,10 @@ fieldset {
 
 	transition: background-color .4s;
 }
-.tip-left:hover::before {
+.tip:hover::before {
 	background: rgba(100,100,100,.5);
 }
-.tip-left {
+.tip {
 	cursor: pointer;
 }
 

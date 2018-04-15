@@ -9,21 +9,21 @@
 				<div class="Health">
 					<div class="blob-ctnr" style="text-align: center;">
 						<div class="blob">
-							<div class="label tipLeft" title="The amount of Ether sent to this contract to be used to generate revenue.">
+							<div class="label tip" title="The amount of Ether sent to this contract to be used to generate revenue.">
 								Bankrolled
 							</div>
 							<div class="value total-bankrolled"></div>
 							<div class="eth">ETH</div>
 						</div>
 						<div class="blob">
-							<div class="label tipLeft" title="The amount of Bankroll that is currently usable.">
+							<div class="label tip" title="The amount of Bankroll that is currently usable.">
 								Available
 							</div>
 							<div class="value bankroll-available"></div>
 							<div class="eth">ETH</div>
 						</div>
 						<div class="blob">
-							<div class="label tipLeft" title="Any profits can be immediately be sent to the Treasury.
+							<div class="label tip" title="Any profits can be immediately be sent to the Treasury.
 							A small negative value is typical.">
 								Profits
 							</div>
@@ -34,7 +34,7 @@
 					<table width=100%>
 						<tr class="collateral hide">
 							<td class="label">
-								<div class="tipLeft" title="The amount of Ether that cannot be used as bankroll.
+								<div class="tip-left" title="The amount of Ether that cannot be used as bankroll.
 								For example, this amount may be owed to players as credits.">
 									Collateral:
 								</div>
@@ -44,7 +44,7 @@
 						</tr>
 						<tr class="bankroll">
 							<td class="label">
-								<div class="tipLeft" title="The amount of Ether sent to this contract to be used to
+								<div class="tip-left" title="The amount of Ether sent to this contract to be used to
 								generate revenue.">
 									Bankrolled:
 								</div>
@@ -54,7 +54,7 @@
 						</tr>
 						<tr class="balance">
 							<td class="label">
-								<div class="tipLeft" title="The total amount of Ether this contract has.">
+								<div class="tip-left" title="The total amount of Ether this contract has.">
 									Balance:
 								</div>
 							</td>
@@ -63,7 +63,7 @@
 						</tr>
 						<tr class="profit">
 							<td class="label">
-								<div class="tipLeft" title="Balance - (collateral + bankrolled). Any positive
+								<div class="tip-left" title="Balance - (collateral + bankrolled). Any positive
 								value can be sent to Treasury.">
 									Profit:
 								</div>
@@ -158,8 +158,8 @@
 				}
 
 				// draw the bars
-				tippy($table.find(".label div").toArray(), {trigger: "mouseenter", placement: "left"});
-				tippy($e.find(".blob .tipLeft").toArray(), {trigger: "mouseenter", placement: "top"});
+				tippy($e.find(".tip").toArray());
+				tippy($e.find(".tip-left").addClass("tip").toArray(), {placement: "left"});
 				const max = BigNumber.max(balance, collateral.plus(bankroll));
 				function toPct(v, offsetLeft){
 					const thisMax = offsetLeft ? max.minus(offsetLeft) : max;

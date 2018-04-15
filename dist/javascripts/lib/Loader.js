@@ -192,14 +192,14 @@
             $("#Content").prepend(nav.$e);
 
             // Attach Tippies
-            $(".label").attr("data-tippy-placement", "left");
+            $(".tip-left").attr("data-tippy-placement", "left");
             tippy.defaults.trigger = "mouseenter";
             tippy.defaults.interactive = true;
             tippy.defaults.sticky = true;
             tippy.defaults.arrow = true;
             tippy.defaults.placement = "top";
-            $('[title]').addClass("tip-left");
-            tippy('.tip-left');
+            $('[title]').addClass("tip");
+            tippy('.tip');
 
             // Add class for initial transitions
             $("body").addClass("loaded");
