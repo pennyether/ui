@@ -1,5 +1,5 @@
-Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
-.then(function(comp, tr, token, tm, pac, dice, vp){
+Loader.require("comp", "tr", "token", "tm", "monarchy", "dice", "vp")
+.then(function(comp, tr, token, tm, monarchy, dice, vp){
     // arrows ///////////////////////////////////////////////////
     util.bindToElement(tr.capitalRaised().then(util.toEthStr), $(".tr-capital-raised"));
     util.bindToElement(tr.profitsSent().then(util.toEthStr), $(".tr-dividends"));
@@ -9,20 +9,20 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
 
     // bankrolled amounts
     tr.capitalLedger().then(ledgerAddr => {
-        util.bindToElement(tr.capitalAllocatedTo([pac.address]).then(util.toEthStr), $(".pac-bankrolled"));
+        util.bindToElement(tr.capitalAllocatedTo([monarchy.address]).then(util.toEthStr), $(".monarchy-bankrolled"));
         util.bindToElement(tr.capitalAllocatedTo([dice.address]).then(util.toEthStr), $(".dice-bankrolled"));
         util.bindToElement(tr.capitalAllocatedTo([vp.address]).then(util.toEthStr), $(".vp-bankrolled"));
         util.bindToElement(tr.capitalAllocatedTo([tm.address]).then(util.toEthStr), $(".tm-bankrolled"));
     });
 
     // profits of each game
-    util.bindToElement(pac.profitsSent().then(util.toEthStr), $(".pac-profits"));
+    util.bindToElement(monarchy.profitsSent().then(util.toEthStr), $(".monarchy-profits"));
     util.bindToElement(dice.profitsSent().then(util.toEthStr), $(".dice-profits"));
     util.bindToElement(vp.profitsSent().then(util.toEthStr), $(".vp-profits"));
 
     // task manager arrows
     [
-        [pac.address, $(".pac-send-profits")],
+        [monarchy.address, $(".monarchy-send-profits")],
         [dice.address, $(".dice-send-profits")],
         [vp.address, $(".vp-send-profits")]
     ].forEach(obj => {
@@ -40,8 +40,8 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
     });
 
     [
-        ["startPennyAuctionReward", ".pac-start-game"],
-        ["refreshPennyAuctionsReward", ".pac-end-game"],
+        ["startMonarchyGameReward", ".monarchy-start-game"],
+        ["refreshMonarchyGamesReward", ".monarchy-end-game"],
         ["issueDividendReward", ".tr-issue-dividend"]
     ].forEach(arr => {
         tm[arr[0]]().then(res => {
@@ -90,11 +90,11 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
     util.bindToElement(token.dividendsCollected().then(util.toEthStr), $(".token-divs-collected"));
     
 
-    // PAC
-    util.bindToElement(pac.numActiveAuctions(), $(".pac-active-games"));
-    util.bindToElement(pac.numEndedAuctions(), $(".pac-ended-games"));
-    util.bindToElement(pac.numDefinedAuctions(), $(".pac-defined-games"));
-    util.bindToElement(pac.profits().then(util.toEthStr), $(".pac-cur-profits"));
+    // MONARCHY
+    util.bindToElement(monarchy.numActiveGames(), $(".monarchy-active-games"));
+    util.bindToElement(monarchy.numEndedGames(), $(".monarchy-ended-games"));
+    util.bindToElement(monarchy.numDefinedGames(), $(".monarchy-defined-games"));
+    util.bindToElement(monarchy.profits().then(util.toEthStr), $(".monarchy-cur-profits"));
 
     // ID
     util.bindToElement(dice.curId(), $(".dice-num-rolls"));
@@ -128,8 +128,8 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
     util.bindToElement(tm.sendProfitsRewardBips().then(val => {
         return `${val.div(10000).toFixed(3)}%`;
     }), $(".tm-send-profits-reward"));
-    util.bindToElement(tm.paStartReward().then(util.toEthStr), $(".tm-pa-start-reward"));
-    util.bindToElement(tm.paEndReward().then(util.toEthStr), $(".tm-pa-end-reward"));
+    util.bindToElement(tm.monarchyStartReward().then(util.toEthStr), $(".tm-pa-start-reward"));
+    util.bindToElement(tm.monarchyEndReward().then(util.toEthStr), $(".tm-pa-end-reward"));
     ///////////////////////////////////////////////////////////////
 });
 

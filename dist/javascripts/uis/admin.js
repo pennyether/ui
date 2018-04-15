@@ -1,5 +1,5 @@
-Loader.require("tm", "dice", "vp", "pac", "tr")
-.then(function(tm, dice, vp, pac, tr){
+Loader.require("tm", "dice", "vp", "monarchy", "tr")
+.then(function(tm, dice, vp, monarchy, tr){
     _initGovernance();
     _initTaskManager();
     _initInstaDice();
@@ -216,10 +216,10 @@ Loader.require("tm", "dice", "vp", "pac", "tr")
             return util.$getTxStatus(promise, {
                 waitTimeMs: obj.waitTimeS * 1000,
                 onSuccess: (res, txStatus) => {
-                    const ev = res.events.find(ev => ev.name=="PennyAuctionRewardsChanged");
+                    const ev = res.events.find(ev => ev.name=="MonarchyRewardsChanged");
                     if (ev) {
-                        const startStr = util.toEthStrFixed(ev.args.paStartReward);
-                        const endStr = util.toEthStrFixed(ev.args.paEndReward);
+                        const startStr = util.toEthStrFixed(ev.args.startReward);
+                        const endStr = util.toEthStrFixed(ev.args.endReward);
                         txStatus.addSuccessMsg(`Values changed. Start reward: ${startStr}, End Reward: ${endStr}`);
                     } else {
                         txStatus.addFailureMsg(`No event found.`);
@@ -234,8 +234,8 @@ Loader.require("tm", "dice", "vp", "pac", "tr")
         const $e = $(".cell.task-manager");
         util.bindToInput(tm.issueDividendRewardBips(), $e.find(".issue-bips"));
         util.bindToInput(tm.sendProfitsRewardBips(), $e.find(".send-profits-bips"));
-        util.bindToInput(tm.paStartReward().then(val => val.div(1e18)), $e.find(".start-monarchy-game"));
-        util.bindToInput(tm.paEndReward().then(val => val.div(1e18)), $e.find(".end-monarchy-game"));
+        util.bindToInput(tm.monarchyStartReward().then(val => val.div(1e18)), $e.find(".start-monarchy-game"));
+        util.bindToInput(tm.monarchyEndReward().then(val => val.div(1e18)), $e.find(".end-monarchy-game"));
     }
 
 
@@ -252,9 +252,9 @@ Loader.require("tm", "dice", "vp", "pac", "tr")
                     isNew: true,
                     summary: "",
                     initialPrize: new BigNumber(0),
-                    bidPrice: new BigNumber(0),
-                    bidIncr: new BigNumber(0),
-                    bidAddBlocks: new BigNumber(0),
+                    fee: new BigNumber(0),
+                    prizeIncr: new BigNumber(0),
+                    reignBlocks: new BigNumber(0),
                     initialBlocks: new BigNumber(0),
                 })
                 arr.forEach(game => {
@@ -271,9 +271,9 @@ Loader.require("tm", "dice", "vp", "pac", "tr")
                     $row.append($("<td></td>").text(game.isNew ? "--" : game.isEnabled));
                     $row.append(getCell("_summary", game.summary));
                     $row.append(getCell("_initialPrize", game.initialPrize.div(1e18), "ETH"));
-                    $row.append(getCell("_bidPrice", game.bidPrice.div(1e18), "ETH"));
-                    $row.append(getCell("_bidIncr", game.bidIncr.div(1e18), "ETH"));
-                    $row.append(getCell("_bidAddBlocks", game.bidAddBlocks, "Blocks"));
+                    $row.append(getCell("_fee", game.fee.div(1e18), "ETH"));
+                    $row.append(getCell("_prizeIncr", game.prizeIncr.div(1e18), "ETH"));
+                    $row.append(getCell("_reignBlocks", game.reignBlocks, "Blocks"));
                     $row.append(getCell("_initialBlocks", game.initialBlocks, "Blocks"));
                     if (!game.isNew) {
                         $row.append(
@@ -316,20 +316,20 @@ Loader.require("tm", "dice", "vp", "pac", "tr")
                         params[$(el).data("param-name")] = $(el).val();
                     });
                     params._initialPrize = (new BigNumber(params._initialPrize)).mul(1e18);
-                    params._bidPrice = (new BigNumber(params._bidPrice)).mul(1e18);
-                    params._bidIncr = (new BigNumber(params._bidIncr)).mul(1e18);
+                    params._fee = (new BigNumber(params._fee)).mul(1e18);
+                    params._prizeIncr = (new BigNumber(params._prizeIncr)).mul(1e18);
 
                     // append statusRow to this row.
                     const $statusRow = $("<tr><td colspan=10></td></tr>").insertAfter($row);
-                    const promise = pac.editDefinedAuction(params, {gasPrice: obj.gasPrice});
+                    const promise = monarchy.editDefinedGame(params, {gasPrice: obj.gasPrice});
                     $inputs.attr("disabled", "disabled");
                     $button.attr("disabled", "disabled");
                     util.$getTxStatus(promise, {
                         waitTimeMs: obj.waitTimeS * 1000,
                         onSuccess: (res, txStatus) => {
-                            const ev = res.events.find(ev => ev.name=="DefinedAuctionEdited");
+                            const ev = res.events.find(ev => ev.name=="DefinedGameEdited");
                             if (ev) {
-                                txStatus.addSuccessMsg(`Defined auction #${ev.args.index} was edited.`);
+                                txStatus.addSuccessMsg(`Defined game #${ev.args.index} was edited.`);
                             } else {
                                 txStatus.addFailureMsg(`No event found.`);
                             }
@@ -354,15 +354,15 @@ Loader.require("tm", "dice", "vp", "pac", "tr")
 
                     // append statusRow to this row.
                     const $statusRow = $("<tr><td colspan=10></td></tr>").insertAfter($row);
-                    const promise = pac.enableDefinedAuction(params, {gasPrice: obj.gasPrice, gas: 50000});
+                    const promise = monarchy.enableDefinedGame(params, {gasPrice: obj.gasPrice, gas: 50000});
                     $button.attr("disabled", "disabled");
                     util.$getTxStatus(promise, {
                         waitTimeMs: obj.waitTimeS * 1000,
                         onSuccess: (res, txStatus) => {
-                            const ev = res.events.find(ev => ev.name=="DefinedAuctionEnabled");
+                            const ev = res.events.find(ev => ev.name=="DefinedGameEnabled");
                             if (ev) {
                                 const enabledStr = ev.args.isEnabled ? "enabled" : "disabled";
-                                txStatus.addSuccessMsg(`Defined auction #${ev.args.index} has been ${enabledStr}.`);
+                                txStatus.addSuccessMsg(`Defined game #${ev.args.index} has been ${enabledStr}.`);
                             } else {
                                 txStatus.addFailureMsg(`No event found.`);
                             }
@@ -377,19 +377,19 @@ Loader.require("tm", "dice", "vp", "pac", "tr")
         }
 
         function getDefinedGames(){
-            return pac.numDefinedAuctions().then(num => {
+            return monarchy.numDefinedGames().then(num => {
                 const promises = [];
                 for (var i=1; i<=num; i++) {
                     let index = i;
-                    promises.push(pac.definedAuctions([index]).then(arr => {
+                    promises.push(monarchy.definedGames([index]).then(arr => {
                         return {
                             index: index,
                             isEnabled: arr[1],
                             summary: arr[2],
                             initialPrize: arr[3],
-                            bidPrice: arr[4],
-                            bidIncr: arr[5],
-                            bidAddBlocks: arr[6],
+                            fee: arr[4],
+                            prizeIncr: arr[5],
+                            reignBlocks: arr[6],
                             initialBlocks: arr[7],
                         };
                     }));

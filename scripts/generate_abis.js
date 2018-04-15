@@ -31,10 +31,10 @@ the auction to the endedAuctions array. Rewards the caller with a percentage \
 of the fees collected, as well as a fixed amount per auction ended.`,
     },
 
-    PennyAuction: {
-        fallback: `Places a bid on a Penny Auction. Refunds the bid if for any reason sender \
-is not set to the currentWinner.`,
-        sendPrize: `Sends the prize money to the winner of the auction.`
+    MonarchyGame: {
+        fallback: `Overthrows the current Monarch. Refunds if for any reason sender \
+does not become the new Monarch.`,
+        sendPrize: `Sends the prize money to the winner of the game.`
     },
 
     InstaDice: {
@@ -61,9 +61,9 @@ var filenames = [
     "DividendToken.json",
     "DividendTokenLocker.json",
     "InstaDice.json",
-    "PennyAuction.json",
-    "PennyAuctionController.json",
-    "PennyAuctionFactory.json",
+    "MonarchyGame.json",
+    "MonarchyController.json",
+    "MonarchyFactory.json",
     "Registry.json",
     "TaskManager.json",
     "Treasury.json",

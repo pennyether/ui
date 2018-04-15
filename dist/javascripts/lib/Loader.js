@@ -222,7 +222,7 @@
                     "token": [DividendToken, "PENNY_TOKEN"],
                     "tr": [Treasury, "TREASURY"],
                     "tm": [TaskManager, "TASK_MANAGER"],
-                    "pac": [PennyAuctionController, "PENNY_AUCTION_CONTROLLER"],
+                    "monarchy": [MonarchyController, "MONARCHY_CONTROLLER"],
                     "dice": [InstaDice, "INSTA_DICE"],
                     "vp": [VideoPoker, "VIDEO_POKER"]
                 };

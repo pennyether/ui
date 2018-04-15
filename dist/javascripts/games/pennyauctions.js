@@ -161,7 +161,7 @@ Loader.require("pac")
 			});
 
 		const _$alertsTip = _$e.find(".alertsTip");
-		const _$alertsIcon = _$e.find(".alertsIcon").hide();
+		const _$alertsIcon = _$e.find(".alertsIcon");
 		function _initAlertsTip(){
 			_loadAlerts();
 
@@ -418,7 +418,12 @@ Loader.require("pac")
 			})
 		}
 
-		// Loads newest data about this game, and updates if anything changed.
+		// Loads newest data about this game, detects deltas, and does things accordingly.
+		// General workflow:
+		//  - detect things that changed
+		//  - update local values
+		//	- update static DOM things (timeleft, prize, currentWinner)
+		//  - 
 		this.refresh = function() {
 			function flashClass(className) {
 				_$e.removeClass(className);
@@ -466,6 +471,10 @@ Loader.require("pac")
 				if (amWinner) $curWinner.text("You");
 				_$currentWinner.empty().append($curWinner);
 				_$prize.text(`${ethUtil.toEth(prize)}`);
+
+				// trigger any alerts
+				_triggerAlerts(blocksLeft, amNowLoser, isNewWinner);
+				if (isNewEnded) _clearAlerts();
 				
 				// update everything else
 				// button, blocksleft, flashing classes
@@ -474,64 +483,63 @@ Loader.require("pac")
 					_$btn.attr("disabled", "disabled");
 					_$blocksLeft.text("Ended");
 					_$currentWinnerCell.find(".label").text("Winner");
+					_$alertsIcon.hide();
 					_self.updateEndedStatus();
-				} else {
-					_$alertsIcon.show();
-					_$blocksLeft.text(blocksLeft);
-					if (amNowLoser){
-						_$status.empty()
-							.append("You are no longer the current winner. ")
-							.append($curWinner.clone())
-							.append(" bid after you.");
-						_$e.removeClass("now-winner");
-						_$e.removeClass("new-winner");
-						flashClass("now-loser");
-
-						_$currentWinnerCell.attr("title", "You are no longer the current winner!");
-						const t = tippy(_$currentWinnerCell[0], {
-							placement: "top",
-							trigger: "manual",
-							animation: "fade",
-							onHidden: function(){ t.destroy(); }
-						}).tooltips[0];
-						t.show();
-						setTimeout(function(){ t.hide(); }, 3000);
-					} else if (amNowWinner) {
-						_$status.text("You are the current winner!");
-						_$e.removeClass("now-loser");
-						_$e.removeClass("new-winner");
-						flashClass("now-winner");
-
-						_$currentWinnerCell.attr("title", "You are the current winner!");
-						const t = tippy(_$currentWinnerCell[0], {
-							placement: "top",
-							trigger: "manual",
-							animation: "fade",
-							onHidden: function(){ t.destroy(); }
-						}).tooltips[0];
-						t.show();
-						setTimeout(function(){ t.hide(); }, 3000);
-					} else if (isNewWinner) {
-						_$status.empty()
-							.append($curWinner.clone())
-							.append(" is now the current winner.");
-						_$e.removeClass("now-winner");
-						_$e.removeClass("now-loser");
-						flashClass("new-winner");
-					} else {
-						if (amWinner) {
-							_$status.text("You are the current winner!");
-						} else {
-							_$status.empty()
-								.append($curWinner.clone())
-								.append(" is the current winner.");
-						}
-					}
-					if (isNewBlock) flashClass("new-block");
-					if (isNewPrize) flashClass("new-prize");
+					return;
 				}
-				_triggerAlerts(blocksLeft, amNowLoser, isNewWinner);
-				if (isNewEnded) _clearAlerts();
+
+				_$blocksLeft.text(blocksLeft);
+				if (amNowLoser){
+					_$status.empty()
+						.append("You are no longer the current winner. ")
+						.append($curWinner.clone())
+						.append(" bid after you.");
+					_$e.removeClass("now-winner");
+					_$e.removeClass("new-winner");
+					flashClass("now-loser");
+
+					_$currentWinnerCell.attr("title", "You are no longer the current winner!");
+					const t = tippy(_$currentWinnerCell[0], {
+						placement: "top",
+						trigger: "manual",
+						animation: "fade",
+						onHidden: function(){ t.destroy(); }
+					}).tooltips[0];
+					t.show();
+					setTimeout(function(){ t.hide(); }, 3000);
+				} else if (amNowWinner) {
+					_$status.text("You are the current winner!");
+					_$e.removeClass("now-loser");
+					_$e.removeClass("new-winner");
+					flashClass("now-winner");
+
+					_$currentWinnerCell.attr("title", "You are the current winner!");
+					const t = tippy(_$currentWinnerCell[0], {
+						placement: "top",
+						trigger: "manual",
+						animation: "fade",
+						onHidden: function(){ t.destroy(); }
+					}).tooltips[0];
+					t.show();
+					setTimeout(function(){ t.hide(); }, 3000);
+				} else if (isNewWinner) {
+					_$status.empty()
+						.append($curWinner.clone())
+						.append(" is now the current winner.");
+					_$e.removeClass("now-winner");
+					_$e.removeClass("now-loser");
+					flashClass("new-winner");
+				} else {
+					if (amWinner) {
+						_$status.text("You are the current winner!");
+					} else {
+						_$status.empty()
+							.append($curWinner.clone())
+							.append(" is the current winner.");
+					}
+				}
+				if (isNewBlock) flashClass("new-block");
+				if (isNewPrize) flashClass("new-prize");
 			});
 		}
 

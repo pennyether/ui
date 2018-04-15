@@ -1,5 +1,5 @@
-Loader.require("pac")
-.then(function(pac){
+Loader.require("monarchy")
+.then(function(monarchy){
     if (!BankrollableUtil) throw new Error("This requires BankrollableUtil to be loaded.");
 
     ethUtil.getCurrentState().then(() => {
@@ -17,7 +17,7 @@ Loader.require("pac")
             _refreshActivity(),
         ]).then(()=>{
             _initProfits();
-            pac.getEvents("Created").then(arr => {
+            monarchy.getEvents("Created").then(arr => {
                 return arr[0].blockNumber;
             }).then(creationBlockNum => {
                 _initEventLog(creationBlockNum);
@@ -38,7 +38,7 @@ Loader.require("pac")
         const $doneLoading = $e.find(".done-loading").hide();
 
         return Promise.obj({
-            $health: BankrollableUtil.$getHealth(pac)
+            $health: BankrollableUtil.$getHealth(monarchy)
         }).then(doRefresh).then(()=>{
             $loading.hide();
             $doneLoading.show();
@@ -61,17 +61,17 @@ Loader.require("pac")
         const $doneLoading = $e.find(".done-loading").hide();
 
         function getDefinedGames(){
-            return pac.numDefinedAuctions().then(num => {
+            return monarchy.numDefinedGames().then(num => {
                 const promises = [];
                 for (var i=1; i<=num; i++) {
                     let id = i;
-                    promises.push(pac.definedAuctions([id]).then(arr => {
-                        const instance = new BigNumber(arr[0])==0 ? null : PennyAuction.at(arr[0]);
+                    promises.push(monarchy.definedGames([id]).then(arr => {
+                        const instance = new BigNumber(arr[0])==0 ? null : MonarchyGame.at(arr[0]);
                         return Promise.obj({
-                            isStartable: pac.getIsStartable([id]),
-                            currentWinner: instance ? instance.currentWinner() : Promise.resolve(null),
+                            isStartable: monarchy.getIsStartable([id]),
+                            monarch: instance ? instance.monarch() : Promise.resolve(null),
                             prize: instance ? instance.prize() : Promise.resolve(null),
-                            numBids: instance ? instance.numBids() : Promise.resolve(null),
+                            numOverthrows: instance ? instance.numOverthrows() : Promise.resolve(null),
                             blocksLeft: instance ? instance.getBlocksRemaining() : Promise.resolve(null)
                         }).then(obj => {
                             return {
@@ -80,15 +80,15 @@ Loader.require("pac")
                                 isEnabled: arr[1],
                                 summary: arr[2],
                                 initialPrize: arr[3],
-                                bidPrice: arr[4],
-                                bidIncr: arr[5],
-                                bidAddBlocks: arr[6],
+                                fee: arr[4],
+                                prizeIncr: arr[5],
+                                reignBlocks: arr[6],
                                 initialBlocks: arr[7],
                                 isStartable: obj.isStartable,
                                 isEnded: obj.isEnded,
-                                currentWinner: obj.currentWinner,
+                                monarch: obj.monarch,
                                 prize: obj.prize,
-                                numBids: obj.numBids,
+                                numOverthrows: obj.numOverthrows,
                                 blocksLeft: obj.blocksLeft
                             };
                         });
@@ -98,14 +98,14 @@ Loader.require("pac")
             });
         }
         function getEndedGames(){
-            return pac.recentlyEndedAuctions([5]).then(arr => {
+            return monarchy.recentlyEndedGames([5]).then(arr => {
                 return arr.map(addr => {
-                    const instance = PennyAuction.at(addr);
+                    const instance = MonarchyGame.at(addr);
                     return Promise.obj({
                         id: "n/a",
-                        currentWinner: instance.currentWinner(),
+                        monarch: instance.monarch(),
                         prize: instance.prize(),
-                        numBids: instance.numBids(),
+                        numOverthrows: instance.numOverthrows(),
                         blocksLeft: instance.getBlocksRemaining()
                     });
                 });
@@ -113,12 +113,12 @@ Loader.require("pac")
         }
 
         return Promise.obj({
-            numActive: pac.numActiveAuctions(),
-            numEnded: pac.numEndedAuctions(),
+            numActive: monarchy.numActiveGames(),
+            numEnded: monarchy.numEndedGames(),
             definedGames: getDefinedGames(),
             endedGames: getEndedGames(),
-            limit: pac.getDailyLimit(),
-            limitRemaining: pac.getDailyLimitRemaining(),
+            limit: monarchy.getDailyLimit(),
+            limitRemaining: monarchy.getDailyLimitRemaining(),
         }).then(doRefresh).then(()=>{
             $loading.hide();
             $doneLoading.show();
@@ -152,9 +152,9 @@ Loader.require("pac")
                         $row.append($("<td></td>").text(game.summary));
                         $row.append($("<td></td>").text(game.isEnabled));
                         $row.append($("<td></td>").text(eth(game.initialPrize)));
-                        $row.append($("<td></td>").text(eth(game.bidPrice)));
-                        $row.append($("<td></td>").text(eth(game.bidIncr)));
-                        $row.append($("<td></td>").text(game.bidAddBlocks));
+                        $row.append($("<td></td>").text(eth(game.fee)));
+                        $row.append($("<td></td>").text(eth(game.prizeIncr)));
+                        $row.append($("<td></td>").text(game.reignBlocks));
                         $row.append($("<td></td>").text(game.initialBlocks));
                         $row.appendTo($tbody);
                     });
@@ -172,8 +172,8 @@ Loader.require("pac")
                         const $row = $("<tr></tr>");
                         $row.append($("<td></td>").text(game.id));
                         $row.append($("<td></td>").text(eth(game.prize)));
-                        $row.append($("<td></td>").append(Loader.linkOf(game.currentWinner)));
-                        $row.append($("<td></td>").text(game.numBids));
+                        $row.append($("<td></td>").append(Loader.linkOf(game.monarch)));
+                        $row.append($("<td></td>").text(game.numOverthrows));
                         $row.append($("<td></td>").text(game.blocksLeft));
                         $row.appendTo($tbody);
                     });
@@ -191,13 +191,13 @@ Loader.require("pac")
         $e.find(".graph-ctnr").append(graph.$e);
 
         const getNumEnded = (block) => {
-            return pac.numEndedAuctions([], {defaultBlock: Math.round(block)});
+            return monarchy.numEndedGames([], {defaultBlock: Math.round(block)});
         };
         const getTotalPrizes = (block) => {
-            return pac.totalPrizes([], {defaultBlock: Math.round(block)});
+            return monarchy.totalPrizes([], {defaultBlock: Math.round(block)});
         };
         const getTotalOverthrows = (block) => {
-            return pac.totalBids([], {defaultBlock: Math.round(block)});
+            return monarchy.totalOverthrows([], {defaultBlock: Math.round(block)});
         };
         graph.init({
             sequences: [{
@@ -246,9 +246,9 @@ Loader.require("pac")
         const $doneLoading = $e.find(".done-loading").hide();
 
         return Promise.obj({
-            ended: pac.numEndedAuctions(),
-            prizes: pac.totalPrizes(),
-            overthrows: pac.totalBids()
+            ended: monarchy.numEndedGames(),
+            prizes: monarchy.totalPrizes(),
+            overthrows: monarchy.totalOverthrows()
         }).then(doRefresh).then(()=>{
             $loading.hide();
             $doneLoading.show();
@@ -268,16 +268,16 @@ Loader.require("pac")
 
     function _initProfits() {
         const $e = $(".cell.profits");
-        $e.find(".profits-ctnr").append(BankrollableUtil.$getProfitsInfo(pac));
+        $e.find(".profits-ctnr").append(BankrollableUtil.$getProfitsInfo(monarchy));
     }
 
     function _initEventLog(creationBlockNum) {
         // event Created(uint time);
         // event Error(uint time, string msg);
-        // event DefinedAuctionEdited(uint time, uint index);
-        // event DefinedAuctionInvalid(uint time, uint index);
-        // event AuctionStarted(uint time, uint indexed index, address indexed addr, uint initialPrize);
-        // event AuctionEnded(uint time, uint indexed index, address indexed winner, address indexed addr);
+        // event DefinedGameEdited(uint time, uint index);
+        // event DefinedGameInvalid(uint time, uint index);
+        // event GameStarted(uint time, uint indexed index, address indexed addr, uint initialPrize);
+        // event GameEnded(uint time, uint indexed index, address indexed winner, address indexed addr);
         // event FeesCollected(uint time, uint amount);
 
         // event ProfitsSent(uint time, address indexed treasury, uint amount);
@@ -299,14 +299,14 @@ Loader.require("pac")
         
         // Create "events" array
         const events = [{
-            instance: pac,
+            instance: monarchy,
             name: "Created"
         }];
         // define legends, build events from this.
         const labels = {
-            "Games": [true, ["AuctionStarted", "AuctionEnded"]],
-            "Settings": [false, ["DefinedAuctionEdited"]],
-            "Errors": [false, ["DefinedAuctionInvalid", "Error"]],
+            "Games": [true, ["GameStarted", "GameEnded"]],
+            "Settings": [false, ["DefinedGameEdited"]],
+            "Errors": [false, ["DefinedGameInvalid", "Error"]],
             "Finances": [false, ["BankrollAdded", "BankrollRemoved", "ProfitsSent", "FeesCollected"]]
         }
         Object.keys(labels).forEach(groupName => {
@@ -314,7 +314,7 @@ Loader.require("pac")
             const eventNames = labels[groupName][1];
             eventNames.forEach(eventName => {
                 events.push({
-                    instance: pac,
+                    instance: monarchy,
                     name: eventName,
                     formatters: formatters,
                     label: groupName,
