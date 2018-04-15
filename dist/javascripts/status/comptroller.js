@@ -257,8 +257,7 @@ Loader.require("comp", "tr")
 		// define legends, build events from this.
 		const labels = {
 			"CrowdSale": [true, ["SaleInitalized", "SaleStarted", "SaleSuccessful", "SaleFailed"]],
-			"Tokens Bought": [false, ["BuyTokensSuccess", "BuyTokensFailure", "UserRefunded"]],
-			"Tokens Burnt": [false, ["BurnTokensSuccess", "BurnTokensFailure"]],
+			"Tokens Bought": [false, ["BuyTokensSuccess", "BuyTokensFailure", "UserRefunded"]]
 		}
 		Object.keys(labels).forEach(groupName => {
 			const selected = labels[groupName][0];

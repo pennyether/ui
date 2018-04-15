@@ -39,22 +39,12 @@
 								Error loading reserve details: <span class="error-msg"></span>
 							</div>
 							<div class="done-loading hide">
-								<div class="blob-ctnr" style="text-align: center;">
-									<div class="blob">
-										<div class="label">Total Supply</div>
-										<div class="value total-supply"></div>
-										<div class="eth">PENNY</div>
-									</div>
-									<div class="blob">
-										<div class="label">Total Burned</div>
-										<div class="value total-burned"></div>
-										<div class="eth">PENNY</div>
-									</div>
-								</div>
 								<table class="fields" width="100%">
 									<tr>
 										<td>
-											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="Only the Comptroller (hard-coded) can tell the Token contract to Mint and Burn tokens. Minting occurs during the CrowdSale, and when raising more Capital (via Governance). Burning can occur any time after the CrowdSale.">Comptroller:</div>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="Only the Comptroller (hard-coded) can tell the Token contract to Mint tokens. Minting occurs during the CrowdSale, and when raising more Capital (via Governance).">
+												Comptroller:
+											</div>
 										</td>
 										<td>
 											<div class="value comptroller-info"></div>
@@ -62,7 +52,9 @@
 									</tr>
 									<tr>
 										<td>
-											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="Tokens cannot be transferred until after the CrowdSale. Once unfrozen, they can never be frozen again.">Frozen:</div>
+											<div class="label tipLeft" data-tippy-trigger="mouseenter" data-tippy-placement="left" title="Tokens cannot be transferred until after the CrowdSale. Once unfrozen, they can never be frozen again.">
+												Frozen:
+											</div>
 										</td>
 										<td>
 											<div class="value is-frozen"></div>
@@ -72,7 +64,36 @@
 							</div>
 						</div>
 					</div></td>
-					<td width="66%"><div class="cell dividends">
+					<td width="66%"><div class="cell supply">
+						<div class="titleBar">
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="The supply of PENNY only changes during the CrowdSale, or after the CrowdSale if users burn tokens. Additional PENNY can be sold to fund the Treasury, should it need Capital (see: Comptroller).">
+								Supply
+							</span>
+						</div>
+						<div class="body">
+							<div class="loading">
+								Loading...
+							</div>
+							<div class="error hide">
+								Error loading profits: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								<div class="blob-ctnr" style="text-align: center;">
+									<div class="blob">
+										<div class="label">Total Supply</div>
+										<div class="value total-supply"></div>
+										<div class="eth">PENNY</div>
+									</div>
+								</div>
+								<div class="graph-ctnr" style="margin-top: 5px;"></div>
+							</div>
+						</div>
+					</div></td>
+				</tr></table>
+			</div>
+			<div class="statusRow two">
+				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+					<td width="100%"><div class="cell dividends">
 						<div class="titleBar">
 							<span class="tipLeft" data-tippy-trigger="mouseenter" title="Any Ether sent to the Token Contract is considered a Dividend. Typically, dividends originate from the Treasury.">
 								Dividends
@@ -101,40 +122,6 @@
 										<div class="label">Total Uncollected</div>
 										<div class="value total-uncollected"></div>
 										<div class="eth">ETH</div>
-									</div>
-								</div>
-								<div class="graph-ctnr" style="margin-top: 5px;"></div>
-							</div>
-						</div>
-					</div></td>
-				</tr></table>
-			</div>
-			<div class="statusRow two">
-				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
-					<td width="100%"><div class="cell supply">
-						<div class="titleBar">
-							<span class="tipLeft" data-tippy-trigger="mouseenter" title="The supply of PENNY only changes during the CrowdSale, or after the CrowdSale if users burn tokens. Additional PENNY can be sold to fund the Treasury, should it need Capital (see: Comptroller).">
-								Supply
-							</span>
-						</div>
-						<div class="body">
-							<div class="loading">
-								Loading...
-							</div>
-							<div class="error hide">
-								Error loading profits: <span class="error-msg"></span>
-							</div>
-							<div class="done-loading hide">
-								<div class="blob-ctnr" style="text-align: center;">
-									<div class="blob">
-										<div class="label">Total Supply</div>
-										<div class="value total-supply"></div>
-										<div class="eth">PENNY</div>
-									</div>
-									<div class="blob">
-										<div class="label">Total Burned</div>
-										<div class="value total-burned"></div>
-										<div class="eth">PENNY</div>
 									</div>
 								</div>
 								<div class="graph-ctnr" style="margin-top: 5px;"></div>

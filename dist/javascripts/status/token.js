@@ -43,8 +43,6 @@ Loader.require("token")
 		return Promise.obj({
 			comptroller: token.comptroller(),
 			isFrozen: token.isFrozen(),
-			supply: token.totalSupply(),
-			burned: token.totalBurned(),
 		}).then(doRefresh).then(()=>{
 			$loading.hide();
 			$doneLoading.show();
@@ -55,9 +53,6 @@ Loader.require("token")
 		});
 
 		function doRefresh(obj) {
-			$e.find(".total-supply").text(util.toEthStrFixed(obj.supply, 4, ""));
-			$e.find(".total-burned").text(util.toEthStrFixed(obj.burned, 4, ""));
-
 			const $eComptroller = $e.find(".comptroller-info");
 			$(`<a href="/status/comptroller.html" target="_blank">status</a>`).appendTo($eComptroller);
 			util.$getAddrLink("etherscan", obj.comptroller).appendTo($eComptroller.append(" "));
@@ -148,9 +143,6 @@ Loader.require("token")
 		const getTotalSupply = (block) => {
 			return token.totalSupply([], {defaultBlock: Math.round(block)});
 		};
-		const getTotalBurned = (block) => {
-			return token.totalBurned([], {defaultBlock: Math.round(block)});
-		};
 		graph.init({
 			sequences: [{
 				name: "totalSupply",
@@ -159,15 +151,6 @@ Loader.require("token")
 				maxPoints: 20,
 				color: "blue",
 				yScaleHeader: "TotalSupply",
-				yTickCount: 3,
-				yFormatFn: (y) => util.toEthStr(y, "PENNY"),
-			},{
-				name: "dividends",
-				valFn: getTotalBurned,
-				showInPreview: true,
-				maxPoints: 20,
-				color: "red",
-				yScaleHeader: "TotalBurned",
 				yTickCount: 3,
 				yFormatFn: (y) => util.toEthStr(y, "PENNY"),
 			}],
@@ -189,8 +172,7 @@ Loader.require("token")
 		const $doneLoading = $e.find(".done-loading").hide();
 
 		return Promise.obj({
-			supply: token.totalSupply(),
-			burned: token.totalBurned()
+			supply: token.totalSupply()
 		}).then(doRefresh).then(()=>{
 			$loading.hide();
 			$doneLoading.show();
@@ -202,14 +184,12 @@ Loader.require("token")
 
 		function doRefresh(obj) {
 			$e.find(".total-supply").text(util.toEthStrFixed(obj.supply, 4, ""));
-			$e.find(".total-burned").text(util.toEthStrFixed(obj.burned, 4, ""));
 		}
 	}
 
 	function _initEventLog(creationBlockNum) {
 		// event Transfer(address indexed from, address indexed to, uint amount);
 		// event TokensMinted(uint time, address indexed account, uint amount, uint newTotalSupply);
-		// event TokensBurned(uint time, address indexed account, uint amount, uint newTotalSupply);
 		// event CollectedDividends(uint time, address indexed account, uint amount);
 		// event DividendReceived(uint time, address indexed sender, uint amount);
 		const formatters = {
@@ -231,7 +211,6 @@ Loader.require("token")
 			"Dividend Received": [true, ["DividendReceived"]],
 			"Dividend Collected": [false, ["CollectedDividends"]],
 			"Minted": [false, ["TokensMinted"]],
-			"Burned": [false, ["TokensBurned"]],
 			"Transferred": [false, ["Transfer"]],
 		}
 		Object.keys(labels).forEach(groupName => {

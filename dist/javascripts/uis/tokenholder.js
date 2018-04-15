@@ -309,7 +309,6 @@ Loader.require("token")
             // event Approval(address indexed owner, address indexed spender, uint amount);
             // event AllowanceUsed(address indexed owner, address indexed spender, uint amount);
             // event TokensMinted(uint time, address indexed account, uint amount, uint newTotalSupply);
-            // event TokensBurned(uint time, address indexed account, uint amount, uint newTotalSupply);
             // event CollectedDividends(uint time, address indexed account, uint amount);
             const formatters = {
                 from: (val) => Loader.linkOf(val),
@@ -326,10 +325,9 @@ Loader.require("token")
                 toString: function(){ return account; }
             };
             const labels = {
-                "Sent": [true, [ ["Transfer", {from: _account}] ]],
-                "Received": [true, [ ["Transfer", {to: _account}] ]],
+                "Transfer Out": [true, [ ["Transfer", {from: _account}] ]],
+                "Transfer In": [true, [ ["Transfer", {to: _account}] ]],
                 "Minted Tokens": [true, [ ["TokensMinted", {account: _account}] ]],
-                "Burned Tokens": [true, [ ["TokensBurned", {account: _account}] ]],
                 "Gave Approval": [true, [ ["Approval", {owner: _account}], ["AllowanceUsed", {owner: _account}] ]],
                 "Received Approval": [true, [ ["Approval", {spender: _account}], ["AllowanceUsed", {spender: _account}] ]],
                 "Collected Dividends": [true, [ ["CollectedDividends", {account: _account}] ]]
