@@ -4,7 +4,6 @@ Loader.require("comp", "tr", "token", "tm", "pac", "dice", "vp")
     util.bindToElement(tr.capitalRaised().then(util.toEthStr), $(".tr-capital-raised"));
     util.bindToElement(tr.profitsSent().then(util.toEthStr), $(".tr-dividends"));
     util.bindToElement(token.totalSupply().then(val => util.toEthStr(val, "PENNY")), $(".token-total-supply"));
-    util.bindToElement(token.totalBurned().then(val => util.toEthStr(val, "PENNY")), $(".token-total-burned"));
     util.bindToElement(token.dividendsCollected().then(util.toEthStr), $(".token-total-collected"));
     util.bindToElement(tm.totalRewarded().then(util.toEthStr), $(".tm-rewards-paid"))
 

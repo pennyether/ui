@@ -16,35 +16,6 @@
 				margin: 0px;
 			}
 
-			.reserve .not-applicable {
-				text-align: center;
-				color: green;
-			}
-				.reserve .bar {
-					position: relative;
-					border-radius: 3px;
-					background: #CCC;
-					width: 100%;
-					height: 20px;
-					border: 1px solid gray;
-				}
-				.reserve .bar > .amt {
-					position: relative;
-					height: 100%;
-					border-radius: 2px;
-					background: green;
-					box-shadow: 0px 0px 10px 1px lime;
-					transition: width .5s;
-				}
-				.reserve .bar > .txt {
-					position: absolute;
-					width: 100%;
-					top: 2px;
-					font-size: 90%;
-					text-align: center;
-					color: white;
-				}
-
 			.governance .requests {
 				max-height: 300px;
 				overflow: auto;
@@ -96,7 +67,9 @@
 				background: rgba(0, 128, 0, .2);
 			}
 
-			.funding-status .tiny-bar {}
+			.funding-status .tiny-bar {
+				margin-bottom: 7px;
+			}
 				.funding-status .tiny-bar .label {
 					display: inline-block;
 					font-size: 90%;
@@ -108,6 +81,7 @@
 					font-weight: bold;
 				}
 				.funding-status .tiny-bar .bar {
+					box-sizing: border-box;
 					position: relative;
 					background: #CCC;
 					width: 100%;
@@ -136,40 +110,10 @@
 		<div style="margin: 10px 0px;">
 			<div class="statusRow one">
 				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
-					<td width="33%"><div class="reserve cell">
-						<div class="titleBar">
-							<span class="tipLeft" data-tippy-trigger="mouseenter" title="The Treasury holds Ether in reserve to guarantee that all PENNY Tokens can be burned for .5 Ether each.">
-								Reserve
-							<span>
-						</div>
-						<div class="body">
-							<div class="loading">
-								Loading...
-							</div>
-							<div class="error hide">
-								Error loading reserve details: <span class="error-msg"></span>
-							</div>
-							<div class="done-loading hide">
-								<div class="not-applicable">
-									No PENNY tokens have been minted, so there is no reserve.
-								</div>
-								<div class="bar">
-									<div class="txt">0 ETH</div>
-									<div class="amt" style="width: 0%"></div>
-								</div>
-								<div class="met">
-									All <span class="total-supply"></span> Tokens are backed by .5 ETH each.
-								</div>
-								<div class="unmet">
-									Something is wrong. Not enough reserve!
-								</div>
-							</div>
-						</div>
-					</div></td>
-					<td width="33%"><div class="cell allocation">
+					<td width="50%"><div class="cell allocation">
 						<div class="titleBar">
 							<span class="tipLeft" data-tippy-trigger="mouseenter" title="The Treasury uses its Capital to fund 'Bankrollable' contracts. The Treasury can recall some of its allocated capital at any time. The allocation of Capital is controlled via Governance.">
-								Capital Allocation
+								Capital
 							</span>
 						</div>
 						<div class="body">
@@ -184,29 +128,45 @@
 									<table cellpadding="0" cellspacing="5" width="100%"><tr>
 										<td width=25%>
 											<div class="blob">
-												<div class="label">Available</div>
+												<div class="label" style="font-weight: bold">
+													<span class="tipLeft" data-tippy-trigger="mouseenter" title="The amount of Capital available, plus the amount recallable.">
+														Total
+													</span>
+												</div>
+												<div class="value cap-total"></div>
+												<div class="eth">ETH</div>
+											</div>
+										</td>
+										<td width=25%>
+											<div class="blob">
+												<div class="label">
+													<span class="tipLeft" data-tippy-trigger="mouseenter" title="The amount of Capital available to be allocated.">
+														Available
+													</span>
+												</div>
 												<div class="value cap-available"></div>
 												<div class="eth">ETH</div>
 											</div>
 										</td>
 										<td width=25%>
 											<div class="blob">
-												<div class="label">Allocated</div>
+												<div class="label">
+													<span class="tipLeft" data-tippy-trigger="mouseenter" title="The amount of Capital currently allocated to various Game Controllers.">
+														Allocated
+													</span>
+												</div>
 												<div class="value cap-allocated"></div>
 												<div class="eth">ETH</div>
 											</div>
 										</td>
 										<td width=25%>
 											<div class="blob">
-												<div class="label">Recallable</div>
+												<div class="label">
+													<span class="tipLeft" data-tippy-trigger="mouseenter" title="Of the amount of Capital allocated, a certain amount can be recalled.">
+														Recallable
+													</span>
+												</div>
 												<div class="value cap-recallable"></div>
-												<div class="eth">ETH</div>
-											</div>
-										</td>
-										<td width=25%>
-											<div class="blob">
-												<div class="label" style="font-weight: bold">Total</div>
-												<div class="value cap-total"></div>
 												<div class="eth">ETH</div>
 											</div>
 										</td>
@@ -216,7 +176,7 @@
 									<table width="100%" class="table">
 										<thead>
 											<tr>
-												<td>Contract</td>
+												<td>Game Controller</td>
 												<td>Allocated</td>
 												<td>Recallable</td>
 											</tr>
@@ -227,7 +187,7 @@
 							</div>
 						</div>
 					</div></td>
-					<td width="33%"><div class="cell funding-status">
+					<td width="50%"><div class="cell funding-status">
 						<div class="titleBar">
 							<span class="tipLeft" data-tippy-trigger="mouseenter" title="If more Capital is desired, the 'Capital Target' value can be increased via Governance. When this happens, the Comptroller will raise Capital by selling PENNY Tokens.">
 								Funding Status
@@ -243,14 +203,33 @@
 							<div class="done-loading hide">
 								<div>
 									<div class="tiny-bar target">
-										<div class="label">Capital Target:</div>
+										<div class="label">
+											<span class="tipLeft" data-tippy-trigger="mouseenter" title="The target amount of Capital that Treasury would like to have raised.">
+												Capital Target:
+											</span>
+										</div>
 										<div class="txt"></div>
 										<div class="bar">
 											<div class="amt" style="width: 0%"></div>
 										</div>
 									</div>
 									<div class="tiny-bar raised">
-										<div class="label">Capital Raised:</div>
+										<div class="label">
+											<span class="tipLeft" data-tippy-trigger="mouseenter" title="The amount of Capital raised via the sale of tokens, either through the CrowdSale or by selling Tokens.">
+												Capital Raised:
+											</span>
+										</div>
+										<div class="txt"></div>
+										<div class="bar">
+											<div class="amt" style="width: 0%"></div>
+										</div>
+									</div>
+									<div class="tiny-bar needed">
+										<div class="label">
+											<span class="tipLeft" data-tippy-trigger="mouseenter" title="The amount of Capital that can be raised by the Comptroller.">
+												Capital Needed:
+											</span>
+										</div>
 										<div class="txt"></div>
 										<div class="bar">
 											<div class="amt" style="width: 0%"></div>
@@ -272,8 +251,8 @@
 				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
 					<td width="33%"><div class="cell profits">
 						<div class="titleBar">
-							<span class="tipLeft" data-tippy-trigger="mouseenter" title="All profits generated by bankrolled contracts are sent to the Treasury. These profits can then be distributed to PENNY Token holders at any time, by anyone.">
-								Profit Breakdown
+							<span class="tipLeft" data-tippy-trigger="mouseenter" title="All profits generated by Games Controllers are sent to the Treasury. These profits can then be distributed to PENNY Token holders at any time, by anyone.">
+								Game Controllers
 							</span>
 						</div>
 						<div class="body">

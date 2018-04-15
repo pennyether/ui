@@ -34,7 +34,8 @@
 					<table width=100%>
 						<tr class="collateral hide">
 							<td class="label">
-								<div class="tipLeft" title="The amount of Ether that cannot be used as bankroll.">
+								<div class="tipLeft" title="The amount of Ether that cannot be used as bankroll.
+								For example, this amount may be owed to players as credits.">
 									Collateral:
 								</div>
 							</td>
