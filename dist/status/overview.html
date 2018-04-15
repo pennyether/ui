@@ -5,10 +5,10 @@
 		<script src="/javascripts/status/overview.js"></script>
 		<style>
 		#Content {
-			width: 1130px;
+			width: 1140px;
 		}
 		#Content #Nav {
-			width: 1150px;
+			width: 1160px;
 		}
 		.topology {
 			position: relative;
@@ -123,11 +123,12 @@
 		.arrow.action:after { border-color: black; }
 		.arrow.ether:before { background: blue; }
 		.arrow.ether:after { border-color: blue; }
-		.arrow.token:before { background: purple; }
-		.arrow.token:after { border-color: purple; }
+		.arrow.token:before { background: teal; }
+		.arrow.token:after { border-color: teal; }
 
 		.tasks {
 			font-weight: bold;
+			color: #888;
 		}
 		.value {
 			text-shadow: 1px 1px 1px rgba(255,255,255,.7);
@@ -274,7 +275,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="contract" style="left: 290px; width: 795px; height: 120px;">
+				<div class="contract" style="left: 290px; width: 805px; height: 120px;">
 					<div class="title">
 						<a href="/status/treasury.html" class="label tipLeft" title="The Treasury holds all capital to bankroll various games. It also receives all profits and issues dividends to the PENNY Token" data-tippy-trigger="mouseenter">
 							Treasury
@@ -317,12 +318,16 @@
 									<div class="value token-total-supply"></div>
 								</div>
 								<div class="field">
-									<div class="label">Total Dividends:</div>
-									<div class="value token-total-dividends"></div>
-								</div>
-								<div class="field">
 									<div class="label">Frozen:</div>
 									<div class="value token-is-frozen"></div>
+								</div>
+								<div class="field">
+									<div class="label">Dividends Received:</div>
+									<div class="value token-divs-received"></div>
+								</div>
+								<div class="field">
+									<div class="label">Dividends Collected:</div>
+									<div class="value token-divs-collected"></div>
 								</div>
 							</div>
 						</div>
@@ -426,36 +431,89 @@
 						</div>
 					</div>
 				</div>
-				<div class="contract" style="left: 290px; top: 360px; width: 795px; height: 120px;">
+				<div class="contract" style="left: 290px; top: 360px; width: 805px; height: 120px;">
 					<div class="title">
 						<a href="/status/taskmanager.html" class="label tipLeft" title="The Task Manager executes functions that keep Penny Ether autonomous - such as sending game profits to the Treasury and dividends to the PENNY Token. Users are rewarded for calling these functions." data-tippy-trigger="mouseenter">
 							Task Manager
 						</a>
 					</div>
 					<div class="body-ctnr">
-						<div class="body">
-							<div class="fields">
-								<div class="field">
+						<div class="body" style="text-align: left;">
+							<style>
+								.reward-group {
+									display: inline-block;
+									width: 190px;
+									vertical-align: top;
+									text-align: center;
+									white-space: nowrap;
+								}
+								.reward-group .header {
+									font-size: 80%;
+									color: gray;
+									padding-bottom: 2px;
+								}
+							</style>
+							<div class="reward-group" style="margin-left: 100px;">
+								<div class="header">
+									Monarchy Rewards
+								</div>
+								<div class="fields">
+									<div class="field">
+										<div class="label">Send Profits:</div>
+										<div class="value tm-send-profits-reward"></div>
+									</div>
+									<div class="field">
+										<div class="label">Start Game:</div>
+										<div class="value tm-pa-start-reward"></div>
+									</div>
+									<div class="field">
+										<div class="label">End Game:</div>
+										<div class="value tm-pa-end-reward"></div>
+									</div>
+								</div>
+							</div>
+							<div class="reward-group">
+								<div class="header">
+									InstaDice Rewards
+								</div>
+								<div class="fields">
+									<div class="field">
+										<div class="label">Send Profits:</div>
+										<div class="value tm-send-profits-reward"></div>
+									</div>
+								</div>
+							</div>
+							<div class="reward-group">
+								<div class="header">
+									VideoPoker Rewards
+								</div>
+								<div class="fields">
+									<div class="field">
+										<div class="label">Send Profits:</div>
+										<div class="value tm-send-profits-reward"></div>
+									</div>
+								</div>
+							</div>
+							<div class="reward-group" style="width: 105px;">
+								<div class="header">
+									Tr Rewards
+								</div>
+								<div class="fields">
+									<div class="field">
+										<div class="label">Issue Div:</div>
+										<div class="value tm-issue-dividend-reward"></div>
+									</div>
+								</div>
+							</div>
+								
+								<!-- <div class="field">
 									<div class="label">Balance Remaning:</div>
 									<div class="value tm-balance"></div>
 								</div>
 								<div class="field rewards-paid">
 									<div class="label">Issue Dividend Reward:</div>
 									<div class="value tm-issue-dividend-reward"></div>
-								</div>
-								<div class="field rewards-paid">
-									<div class="label">Send Profits Reward:</div>
-									<div class="value tm-send-profits-reward"></div>
-								</div>
-								<div class="field rewards-paid">
-									<div class="label">Start Game Reward:</div>
-									<div class="value tm-pa-start-reward"></div>
-								</div>
-								<div class="field rewards-paid">
-									<div class="label">End Game Reward:</div>
-									<div class="value tm-pa-end-reward"></div>
-								</div>
-							</div>
+								</div> -->
 						</div>
 					</div>
 				</div>
