@@ -229,7 +229,7 @@ Loader.require("tm", "token")
             _gps.$head.hide();
             _gps.$e.appendTo(_$e.find(".gps-ctnr"));
             _gps.onChange(_refreshDebounced);
-            tippy(_$e.find(".label").toArray(), {trigger: "mouseenter", placement: "left"});
+            tippy(_$e.find(".label").toArray(), {placement: "left"});
 
             this.$e = _$e;
             this.setDetailsFn = (detailsFn) => {

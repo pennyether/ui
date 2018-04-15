@@ -142,16 +142,16 @@ Loader.require("comp", "tr")
 		});
 
 		function doRefresh(obj) {
-			const softCap = obj.softCap;
-			const hardCap = obj.hardCap;
-			const bonusCap = obj.bonusCap;
-			const capitalPct = obj.capitalPct;
-			// softCap = new BigNumber(20000e18);
-			// hardCap = new BigNumber(77500e18);
-			// bonusCap = new BigNumber(10000e18);
-			// capitalPct = new BigNumber(.10);
+			// const softCap = obj.softCap;
+			// const hardCap = obj.hardCap;
+			// const bonusCap = obj.bonusCap;
+			// const capitalPct = obj.capitalPct;
+			const softCap = new BigNumber(10000e18);
+			const hardCap = new BigNumber(37500e18);
+			const bonusCap = new BigNumber(10000e18);
+			const capitalPct = new BigNumber(.20);
 
-			if (hardCap.equals(0)) {
+			if (hardCap.equals(0) && false) {
 				$e.find(".na").show();
 				return;
 			} else {
@@ -172,13 +172,10 @@ Loader.require("comp", "tr")
 				const numSoldTokens = bonusCap.mul(1.25).plus(val.minus(bonusCap));
 				const numDevTokens = numSoldTokens.div(4);
 				const totalTokens = numSoldTokens.plus(numDevTokens);
-				const reserve = totalTokens.div(2);
 				const capital = val.mul(capitalPct);
-				const cash = val.minus(reserve.plus(capital));
-				$e.find(".outcome-total").text(util.toEthStr(reserve.plus(capital).plus(cash)));
-				$e.find(".outcome-total-pct").text(toPct(reserve.plus(capital).plus(cash).div(val)));
-				$e.find(".outcome-reserve").text(util.toEthStr(reserve));
-				$e.find(".outcome-reserve-pct").text(toPct(reserve.div(val)));
+				const cash = val.minus(capital);
+				$e.find(".outcome-total").text(util.toEthStr(capital.plus(cash)));
+				$e.find(".outcome-total-pct").text(toPct(capital.plus(cash).div(val)));
 				$e.find(".outcome-capital").text(util.toEthStr(capital));
 				$e.find(".outcome-capital-pct").text(toPct(capital.div(val)));
 				$e.find(".outcome-cash").text(util.toEthStr(cash));

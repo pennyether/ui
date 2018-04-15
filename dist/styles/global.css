@@ -221,9 +221,9 @@ fieldset {
 	padding: 20px 0px;
 }
 	.page-header .title {
-		font-size: 170%;
-		letter-spacing: .2em;
-		text-shadow: 3px 3px 3px rgba(0,0,0,.15);
+		font-size: 180%;
+		letter-spacing: .1em;
+		text-shadow: 2px 2px 1px rgba(0,0,0,.2);
 	}
 	.page-header .links {
 		color: gray;
@@ -279,9 +279,7 @@ fieldset {
 	}
 
 /* Anything with a tooltip gets a little i next to it */
-.tipRight::after,
-.tipLeft::before,
-.infoLeft::before {
+.tip-left::before {
 	display: inline-block;
 	margin: 0px;
 	margin-bottom: .2em;
@@ -302,11 +300,10 @@ fieldset {
 
 	transition: background-color .4s;
 }
-.tipRight:hover::after,
-.tipLeft:hover::before {
+.tip-left:hover::before {
 	background: rgba(100,100,100,.5);
 }
-.tipLeft, .tipRight {
+.tip-left {
 	cursor: pointer;
 }
 
