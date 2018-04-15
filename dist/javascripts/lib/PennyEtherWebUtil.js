@@ -267,13 +267,7 @@
         const timeStr = util.toTime(Math.round(timeMs / 1000));
         if (!hideTip) {
             _$e.attr("title", `This is an estimate of time (~${timeStr}), based on the chosen gas price.`);
-            if (tippy) {
-                tippy(_$e[0], {
-                    trigger: "mouseenter",
-                    placement: "top",
-                    animation: "fade"
-                });
-            }
+            if (tippy) { tippy(_$e[0]); }
         }
 
         function _update() {
@@ -801,8 +795,9 @@
             const miningMsg = _opts.miningMsg || "Your transaction is being mined...";
             const successMsg = _opts.successMsg || "Your transaction was mined!";
             const waitTimeMs = _opts.waitTimeMs || 30000;
-            const onSuccess = _opts.onSuccess || function(res, self){};
-            const onFailure = _opts.onFailure || function(self){};
+            const onSuccess = _opts.onSuccess || ((res, self)=>{});
+            const onFailure = _opts.onFailure || ((self)=>{});
+            const onTxId = _opts.onTxId || ((txId)=>{});
             var txId;
             var loadingBar;
 
@@ -814,6 +809,7 @@
                     _$status.empty()
                         .append(_util.$getTxLink(miningMsg, txId))
                         .append(loadingBar.$e);
+                    onTxId(txId);
                 });
             }
 
@@ -851,7 +847,10 @@
         }
 
         function _addCustomMsg($e, cls) {
-            $(`<div class="custom-msg success">`).append($e).appendTo(_$status);
+            $(`<div class="custom-msg"></div>`)
+                .addClass(cls)
+                .append($e)
+                .appendTo(_$status);
         }
 
         this.setTxPromise = (p, opts) => { _setTxPromise(p, opts); };
@@ -860,7 +859,11 @@
         this.addSuccessMsg = $e => _addCustomMsg($e, "success");
         this.addFailureMsg = $e => _addCustomMsg($e, "failure");
         this.addWarningMsg = $e => _addCustomMsg($e, "warning");
-        this.fail = (str) => { _$clear.show(); _$status.text(str); };
+        this.fail = (str) => {
+            _$e.addClass("error");
+            _$clear.show();
+            _$status.text(str);
+        };
         this.$e = _$e;
         this.$status = _$status;
         this.$clear = _$clear;
@@ -890,9 +893,7 @@
                 // arrow: false,
                 theme: "light",
                 animation: "fade",
-                placement: "top",
                 html: $tip[0],
-                trigger: "mouseenter",
                 onShow: function(){ gps.refresh(); },
                 onHidden: function(){
                     // fixes a firefox bug where the tip won't be displayed again.

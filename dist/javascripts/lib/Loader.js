@@ -198,8 +198,8 @@
             tippy.defaults.sticky = true;
             tippy.defaults.arrow = true;
             tippy.defaults.placement = "top";
-            $('[title]').addClass("tip");
-            tippy('.tip');
+            $('[title]:not(.no-tip-style)').addClass("tip");
+            tippy('[title]:not(.tip-manually)');
 
             // Add class for initial transitions
             $("body").addClass("loaded");
@@ -351,7 +351,7 @@ Array.prototype.stableSort = function(cmp) {
 
 Promise.obj = function(obj) {
     const promises = Object.keys(obj).map(name => {
-        if (!obj[name].then) return null;
+        if (!obj[name] || !obj[name].then) return null;
         else return obj[name].then(val => obj[name] = val);
     });
     return Promise.all(promises).then(() => obj);

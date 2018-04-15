@@ -142,7 +142,6 @@ Loader.require("pac")
 		// initialize dom elements
 		const _$status = _$e.find(".status");
 		const _$txStatus = _$e.find(".txStatus");
-		const _$clearTxStatus = _$e.find(".clearTxStatus").click(()=>_self.clearTxStatus());
 		const _$statusCell = _$e.find(".statusCell");
 		const _$currentWinnerCell = _$e.find(".currentWinnerCell");
 		const _$bottomCell = _$e.find(".bottomCell");
@@ -152,11 +151,7 @@ Loader.require("pac")
 		const _$timeLeft = _$e.find(".timeLeft");
 		const _$bidPrice = _$e.find(".bidPrice");
 		const _$currentWinner = _$e.find(".currentWinner .value");
-		const _$btn = _$e.find(".bid button")
-			.click(function(){
-				this._tippy.hide(0);
-				_self.bid();
-			});		
+		const _$btn = _$e.find(".bid button");
 		const _$sendPrizeTip = _$e.find(".sendPrizeTip");
 		const _$sendPrizeIcon = _$sendPrizeTip.find(".sendPrizeIcon");
 		const _$sendPrizeBtn = _$sendPrizeTip.find(".sendPrizeBtn")
@@ -183,7 +178,7 @@ Loader.require("pac")
 
 			// hook up "Enabled Notification" button
 			const $alertBtn = _$alertsTip.find("button").click(function(){
-				Notification.requestPermission(_self.refreshAlertsTip);
+				Notification.requestPermission(() => _self.refreshAlertsTip(true));
 			});
 			// hook up all the checkboxes and dropdowns
 			_$alertsTip.find("input").change(function(){
@@ -288,7 +283,7 @@ Loader.require("pac")
 		}
 
 		// shows alertsTip in state depending on window.Notification.permission
-		this.refreshAlertsTip = function(){
+		this.refreshAlertsTip = function(fromUserClick){
 			_$alertsTip.removeClass("disabled");
 			if (!window.Notification) {
 				_$alertsTip.addClass("disabled");
@@ -297,6 +292,9 @@ Loader.require("pac")
 			}
 			if (Notification.permission !== "granted") {
 				_$alertsTip.addClass("disabled");
+				if (fromUserClick) {
+					_$alertsTip.find(".request").text("Notification permission was denied.");
+				}
 				return;
 			}
 		}
@@ -334,13 +332,6 @@ Loader.require("pac")
 				}
 			});
 			_$moreTip.empty().append($lv);
-		}
-
-		this.clearTxStatus = function(){
-			_$clearTxStatus.hide();
-			_$txStatus.empty().hide();
-			_$status.show();
-			_$statusCell.removeClass().addClass("statusCell");
 		}
 
 		this.setBlocktime = function(blocktime) {
@@ -427,23 +418,24 @@ Loader.require("pac")
 			})
 		}
 
+		// Loads newest data about this game, and updates if anything changed.
 		this.refresh = function() {
 			function flashClass(className) {
 				_$e.removeClass(className);
 				setTimeout(()=>_$e.addClass(className), 30);
 			}
 
-			return Promise.all([
-				_initialized,
-				_isEnded && !_isPaid ? _auction.isPaid() : null,
-				_isEnded ? _curPrize : _auction.prize(),
-				_isEnded ? _curCurrentWinner : _auction.currentWinner(),
-				_isEnded ? new BigNumber(_curBlockEnded) : _auction.blockEnded()
-			]).then(arr => {
-				const isPaid = arr[1];
-				const prize = arr[2];
-				const currentWinner = arr[3];
-				const blockEnded = arr[4].toNumber();
+			return Promise.obj({
+				initialized: _initialized,
+				isPaid: _isEnded && !_isPaid ? _auction.isPaid() : null,
+				prize: _isEnded ? _curPrize : _auction.prize(),
+				currentWinner: _isEnded ? _curCurrentWinner : _auction.currentWinner(),
+				blockEnded: _isEnded ? new BigNumber(_curBlockEnded) : _auction.blockEnded()
+			}).then(obj => {
+				const isPaid = obj.isPaid;
+				const prize = obj.prize;
+				const currentWinner = obj.currentWinner;
+				const blockEnded = obj.blockEnded;
 
 				// update most recent estimate of time left
 				const blocksLeft = blockEnded - ethUtil.getCurrentBlockHeight();
@@ -479,7 +471,7 @@ Loader.require("pac")
 				// button, blocksleft, flashing classes
 				if (isEnded) {
 					_$e.addClass("ended");
-					_$btn.attr("disabled", "disabled").addClass("disabled");
+					_$btn.attr("disabled", "disabled");
 					_$blocksLeft.text("Ended");
 					_$currentWinnerCell.find(".label").text("Winner");
 					_self.updateEndedStatus();
@@ -603,115 +595,62 @@ Loader.require("pac")
 			});
 		}
 
-		this.bid = function(){
+		function _bid(obj){
+			const setClass = (cls) => {
+				_$statusCell.removeClass("prepending pending refunded error current-winner");
+				_$statusCell.addClass(cls);
+			}
+			
+			// create txStatus object, append it.
+			setClass("prepending");
 			_$txStatus.show();
 			_$status.hide();
+			_$btn.attr("disabled", "disabled");
+			const txStatus = util.getTxStatus({
+				waitTimeMs: (obj.waitTimeS || _blocktime*3) * 1000,
+				onSuccess: (res, txStatus) => {
+					const success = res.events.find(e => e.name=="BidOccurred");
+					const refundSuccess = res.events.find(e => e.name=="BidRefundSuccess");
+					const refundFailure = res.events.find(e => e.name=="BidRefundFailure");
+					if (refundSuccess) {
+						setClass("refunded");
+						txStatus.addWarningMsg(`Your overthrow was refunded: "${refundSuccess.args.msg}"`);
+					} else if (refundFailure) {
+						setClass("error");
+						txStatus.addFailureMsg(`Your overthrow failed, and you were not able to be refunded.`);
+					} else if (success) {
+						setClass("current-winner");
+						txStatus.addSuccessMsg(`Your overthow succeeded! You should become the Monarch shortly...`);
+						setTimeout(_self.refresh, 1000);
+						setTimeout(_self.refresh, 5000);
+					} else {
+						setClass("error");
+						txStatus.addFailureMsg(`No events found. Please refresh the page.`);
+					}
+				},
+				onFailure: (res, txStatus) => setClass("error"),
+				onTxId: (txId) => setClass("pending"),
+				onClear: () => {
+					setClass("");
+					_$txStatus.empty().hide();
+					_$status.show();
+					_$btn.removeAttr("disabled");
+				}
+			});
+			txStatus.$e.appendTo(_$txStatus);
 
-			var p;
-			const gasPrice = _GAS_PRICE_SLIDER.getValue();
-			const waitTimeMs = (_GAS_PRICE_SLIDER.getWaitTimeS() || _blocktime*3) * 1000;
+			// create promise, or fail the TxStatus
 			try {
-				p = _auction.sendTransaction({gas: 59000, value: _bidPrice, gasPrice: gasPrice});
+				txStatus.setTxPromise(_auction.sendTransaction({
+					gas: 59000,
+					value: _bidPrice,
+					gasPrice: obj.gasPrice
+				}));
 			} catch (e) {
+				setClass("error");
+				txStatus.fail(`Error: ${e.message.split("\n")[0]}`);
 				ethStatus.open();
-				_$clearTxStatus.show();
-				_$statusCell.addClass("error");
-				_$txStatus.text(`Error: ${e.message.split("\n")[0]}`);
-				return;
 			}
-			var bidTxId;
-
-			_$statusCell
-				.removeClass("prepending pending refunded error current-winner")
-				.addClass("prepending");
-			_$txStatus.text("Waiting for signature...");
-
-			// update status to prepending
-			var loadingBar;
-			p.getTxHash.then(function(txId){
-				bidTxId = txId;
-				const $txLink = util.$getTxLink("Your Bid is being mined.", bidTxId);
-				_$statusCell.removeClass("prepending").addClass("pending");
-				loadingBar = util.getLoadingBar(waitTimeMs);
-				_$txStatus.empty().append($txLink).append(loadingBar.$e);
-			});
-
-			p.then(function(res){
-				return loadingBar.finish(500).then(()=>res);
-			}).then(function(res){
-				_$clearTxStatus.show();
-				_$statusCell.removeClass("pending");
-				// see if they got refunded, or if bid occurred
-				const block = res.receipt.blockNumber;
-				const bidOccurred = res.events.find(e=>e.name=="BidOccurred");
-				const bidRefunded = res.events.find(e=>e.name=="BidRefundSuccess");
-				if (!bidRefunded && !bidOccurred){
-					_$statusCell.addClass("error");
-					_$txStatus.append(`<br>WARNING: Your transaction did not produce any logs. Please try refreshing the page.`);
-					return;
-				}
-				if (bidRefunded) {
-					_$statusCell.addClass("refunded");
-					const $txLink = util.$getTxLink("Your Bid was refunded.", bidTxId);
-					_$txStatus.empty().append($txLink).append(`<br>${bidRefunded.args.msg}`);
-					return;
-				}
-				// Their bid was accepted and not immediately refunded.
-				const $txLink = util.$getTxLink("Your bid succeeded!", bidTxId);
-				_$txStatus.empty().append($txLink);
-				// Get all events related to the user for this block, and update
-				//  status based on the most recent event.
-				Promise.all([
-					_auction.getEvents("BidOccurred", {bidder: ethUtil.getCurrentAccount()}, block, block),
-					_auction.getEvents("BidRefundSuccess", {bidder: ethUtil.getCurrentAccount()}, block, block),
-					_auction.getEvents("BidRefundFailure", {bidder: ethUtil.getCurrentAccount()}, block, block)
-				]).then(events=>{
-					events = events[0].concat(events[1]).concat(events[2]);
-					events.sort((a,b)=>a.logIndex > b.logIndex ? -1 : 1);
-					const finalEvent = events[0];
-					if (!finalEvent) {
-						// weird case where we cant get events.
-						// a refresh should settle all of this.
-						_$txStatus.empty().append(`<br>Please wait a moment.`);
-						setTimeout(_self.refresh, 1000);
-						setTimeout(_self.refresh, 5000);
-						return
-					}
-					if (finalEvent.name=="BidOccurred") {
-						_$statusCell.addClass("current-winner");
-						_$txStatus.append(`<br>Your bid made you the current winner.`);
-						// sometimes providers take a little bit to catch up.
-						setTimeout(_self.refresh, 1000);
-						setTimeout(_self.refresh, 5000);
-						return;
-					}
-					if (finalEvent.name=="BidRefundSuccess") {
-						_$statusCell.addClass("refunded");
-						const $refundLink = util.$getTxLink("Your Bid was refunded.", bidTxId);
-						_$txStatus.empty()
-							.append($refundLink)
-							.append(`<br>Your bid was refunded: ${e[0].args.msg}`);
-						return;
-					}
-					if (finalEvent.name=="BidRefundFailure") {
-						_$statusCell.addClass("error");
-						const $refundLink = util.$getTxLink("Your Bid was not refunded.", bidTxId);
-						_$txStatus.empty()
-							.append($refundLink)
-							.append(`<br>Your bid could not be refunded: ${e[0].args.msg}`);
-						return;
-					}
-				});
-			}, function(e){
-				_$clearTxStatus.show();
-				_$statusCell.removeClass("prepending pending").addClass("error");
-				if (bidTxId) {
-					const $txLink = util.$getTxLink("Your Bid failed.", bidTxId);
-					_$txStatus.empty().append($txLink).append(`<br>${e.message.split("\n")[0]}`);
-				} else {
-					_$txStatus.text(`Error: ${e.message.split("\n")[0]}`);	
-				}
-			});
 		}
 
 		this.$e = _$e;
@@ -723,15 +662,15 @@ Loader.require("pac")
 		// initialize this auction
 		_$e.addClass("initializing");
 		_$blocksLeft.text("Loading");
-		_initialized = Promise.all([
-			_auction.bidPrice(),
-			_auction.bidIncr(),
-			_auction.bidAddBlocks()
-		]).then(arr=>{
+		_initialized = Promise.obj({
+			bidPrice: _auction.bidPrice(),
+			bidIncr: _auction.bidIncr(),
+			bidAddBlocks: _auction.bidAddBlocks()
+		}).then(obj => {
 			_$e.removeClass("initializing");
-			_bidPrice = arr[0];
-			_bidIncr = arr[1];
-			_bidAddBlocks = arr[2];
+			_bidPrice = obj.bidPrice;
+			_bidIncr = obj.bidIncr;
+			_bidAddBlocks = obj.bidAddBlocks;
 
 			// update DOM
 			_$bidPrice.text(`${ethUtil.toEth(_bidPrice)}`);
@@ -742,18 +681,16 @@ Loader.require("pac")
 			_$e.find(".blocksLeftCell .label").attr("title", blocksLeftTip);
 
 			// initialize tips
-			tippy(_$e.find("[title]").toArray(), {
-				placement: "top",
-				trigger: "mouseenter",
+			tippy(_$e.find(".label").toArray(), {
 				dynamicTitle: true
 			});
 
 			// moreTip
 			tippy(_$e.find(".infoIcon")[0], {
+				trigger: "click",
 				animation: "fade",
 				placement: "right",
 				html: _$moreTip.show()[0],
-				trigger: "click",
 				onShow: function(){
 					_self.refreshMoreTip();
 				},
@@ -786,38 +723,42 @@ Loader.require("pac")
 			}());
 
 			// init bidTip
-			(function initBidTip(){
+			(function initBidButton(){
 				const $bidTip = _$e.find(".bidTip");
 				const $bidPrice = $bidTip.find(".bidPrice");
 				const $prize = $bidTip.find(".prize");
 				const $prizeIncr = $bidTip.find(".prizeIncr");
 				const $addBlocks = $bidTip.find(".addBlocks");
-				const $gasPrice = $bidTip.find(".gasPrice")
 
-				const bidIncrEthStr = ethUtil.toEthStr(_bidIncr.abs());
-				const bidIncrStr = _bidIncr.equals(0)
+				const gps = util.getGasPriceSlider(20);
+				gps.refresh();
+				gps.$e.appendTo($bidTip.find(".gasPrice"))
+
+				// set priceIncr string
+				const ethStr = util.toEthStrFixed(_bidIncr.abs());
+				const prizeIncrStr = _bidIncr.equals(0)
 					? ""
 					: _bidIncr.gt(0)
-						? `The prize will go up by ${bidIncrEthStr}`
-						: `The prize will go down by ${bidIncrEthStr}`;
+						? `The prize will go up by ${ethStr}`
+						: `The prize will go down by ${ethStr}`;
+				$prizeIncr.text(prizeIncrStr);
+
+				// set "addBlocks" string and tip
 				const addBlocksStr = `${_bidAddBlocks} blocks`;
 				const addBlocksTime = util.toTime(_blocktime.mul(_bidAddBlocks));
-
-				$prizeIncr.text(bidIncrStr);
 				$addBlocks.text(addBlocksStr).attr("title", `~${addBlocksTime}`);
+				tippy($addBlocks[0]);
+
 				(function attachTip(){
 					tippy(_$btn[0], {
 						// arrow: false,
 						theme: "light",
 						animation: "fade",
-						placement: "top",
-						trigger: "mouseenter",
 						html: $bidTip.show()[0],
 						onShow: function(){
-							_GAS_PRICE_SLIDER.refresh();
-							$gasPrice.append(_GAS_PRICE_SLIDER.$e);
-							$bidPrice.text(ethUtil.toEthStr(_bidPrice));
-							$prize.text(ethUtil.toEthStr(_curPrize));
+							gps.refresh();
+							$bidPrice.text(util.toEthStrFixed(_bidPrice));
+							$prize.text(util.toEthStrFixed(_curPrize));
 						},
 						onHidden: function(){
 							// fix firefox bug where tip wont reshow
@@ -826,6 +767,12 @@ Loader.require("pac")
 						}
 					});
 				}());
+
+				
+				_$btn.click(function(){
+					this._tippy.hide(0);
+					_bid({gasPrice: gps.getValue(), waitTimeS: gps.getWaitTimeS()});
+				});
 			}());
 		});
 	}

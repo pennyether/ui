@@ -79,9 +79,6 @@
 					font-weight: bold;
 
 				}
-				.featureBox .tipLeft::before {
-					background: rgba(0,0,0,.1)
-				}
 
 
 			.instructions {
@@ -197,13 +194,13 @@
 					<div class="left">
 						<div class="block">
 							<div class="title">Fast</div>
-							<div class="feature tipLeft" title="No need to deposit Ether or fill out any forms.">
+							<div class="feature tip-left" title="No need to deposit Ether or fill out any forms.">
 								No deposit, no sign-up.
 							</div><br>
-							<div class="feature tipLeft" title="It's easy. Place a bid and if nobody bids after you, you'll win the whole prize.">
+							<div class="feature tip-left" title="It's easy. Place a bid and if nobody bids after you, you'll win the whole prize.">
 								Bid a little, win a lot!
 							</div><br>
-							<div class="feature tipLeft" title="Our UI shows you what's happening every step of the way.">
+							<div class="feature tip-left" title="Our UI shows you what's happening every step of the way.">
 								Responsive UI.
 							</div>
 						</div>
@@ -211,13 +208,13 @@
 					<div class="middle">
 						<div class="block">
 							<div class="title">Fair</div>
-							<div class="feature tipLeft" title="Insider bidding is impossible. Each bid gets distributed to all PennyEther token holders.">
+							<div class="feature tip-left" title="Insider bidding is impossible. Each bid gets distributed to all PennyEther token holders.">
 								Shill bidding is impossible.
 							</div><br>
-							<div class="feature tipLeft" title="If a bid doesn't result in you becoming the current winner, it is refunded.">
+							<div class="feature tip-left" title="If a bid doesn't result in you becoming the current winner, it is refunded.">
 								Some bids are refunded.
 							</div><br>
-							<div class="feature tipLeft" title="The prize is held in a smart contract, and will only ever leave to pay the winner.">
+							<div class="feature tip-left" title="The prize is held in a smart contract, and will only ever leave to pay the winner.">
 								Prize is already staked.
 							</div>
 						</div>
@@ -225,13 +222,13 @@
 					<div class="right">
 						<div class="block">
 							<div class="title">Exciting</div>
-							<div class="feature tipLeft" title="We always have Penny Auctions running. Catch them at the right time and win!">
+							<div class="feature tip-left" title="We always have Penny Auctions running. Catch them at the right time and win!">
 								Always running.
 							</div><br>
-							<div class="feature tipLeft" title="For some auctions, each bid increases the prize.">
+							<div class="feature tip-left" title="For some auctions, each bid increases the prize.">
 								Growing prizes.
 							</div><br>
-							<div class="feature tipLeft" title="Watch as bids are updated live.">
+							<div class="feature tip-left" title="Watch as bids are updated live.">
 								Bids are updated live.
 							</div><br>
 						</div>
@@ -242,7 +239,7 @@
 					<div class="oneTwoThree">
 						<div class="oneCell">
 							<div class="inline">
-								<div class="one dontTip tipTop" title="" data-tippy-html="#BidTip" data-tippy-animation="scale">
+								<div class="one no-tip-style" title="" data-tippy-html="#BidTip" data-tippy-animation="scale" data-tippy-trigger="click">
 									<div class="left">
 										<img class="icon" src="/images/ethereum.png"/>
 									</div>
@@ -255,7 +252,7 @@
 						</div>
 						<div class="twoCell">
 							<div class="inline">
-								<div class="two dontTip tipTop" data-tippy-html="#WaitTip" data-tippy-animation="scale">
+								<div class="two no-tip-style" title="" data-tippy-html="#WaitTip" data-tippy-animation="scale" data-tippy-trigger="click">
 									<div class="left">⌛</div>
 									<div class="right">
 										<div class="title">Wait <span class="question">i</span></div>
@@ -266,7 +263,7 @@
 						</div>
 						<div class="threeCell">
 							<div class="inline">
-								<div class="three dontTip tipTop" data-tippy-html="#WinTip" data-tippy-animation="scale">
+								<div class="three no-tip-style" title="" data-tippy-html="#WinTip" data-tippy-animation="scale" data-tippy-trigger="click">
 									<div class="left">💸</div>
 									<div class="right">
 										<div class="title">Win! <span class="question">i</span></div>
@@ -354,12 +351,6 @@
 				</div>
 			</div>
 		</div>
-		<script>
-			// attach tips for html feature stuff
-			Loader.promise.then(function(){
-				tippy(".tipTop");
-			});
-		</script>
 
 
 		<style>
@@ -400,14 +391,13 @@
 			position: absolute;
 			top: 0px;
 			left: 0px;
-			background: #BBB;
+			background: rgba(0,0,0,.25);
 			font-size: 60%;
-			padding: 1px 4px 1px 0px;
+			padding: 1px 4px 1px 2px;
 			color: white;
 			letter-spacing: .10em;
 			cursor: pointer;
 			border-bottom-right-radius: 4px;
-			box-shadow: 1px 1px 3px #AAA;
 			text-transform: uppercase;
 		}
 		.auction .label.infoLeft:before {
@@ -496,7 +486,7 @@
 			animation: buttonGlow 2s 0s infinite ease-in-out alternate;
 			box-shadow: 3px 3px 4px 0px rgba(0,0,0,.3);
 		}
-		.auction .bid button.disabled {
+		.auction .bid button:disabled {
 			background: gray;
 			animation: none;
 			cursor: not-allowed;
@@ -539,17 +529,10 @@
 			.auction .statusCell.current-winner {
 				background: rgba(0, 255, 128, .2);
 			}
-		.auction .statusCell .clearTxStatus {
-			position: absolute;
-			top: 2px;
-			right: 2px;
-			opacity: .5;
-			cursor: pointer;
-			border-radius: 20px;
-			padding: 1px 3px;
-			font-size: 70%;
-			color: blue;
-		}
+			.auction .statusCell .TxStatus {
+				background: none;
+				border: none;
+			}
 		.auction .statusCell .viewLink {
 			position: absolute;
 			padding: 0px 3px;
@@ -724,7 +707,7 @@
 					<div class="info">Bid just <span class='bidPrice'></span> and you could win <span class='prize'>.1000 ETH</span>!</div>
 					<div class="bulletTitle">When you bid:</div>
 					<div class="bullet prizeIncr"></div>
-					<div class="bullet">The auction will be extended by <span class="addBlocks dontTip" title=" "></span></div>
+					<div class="bullet">The auction will be extended by <span class="addBlocks"></span></div>
 					<div class="bullet">You'll become the current winner!</div>
 				</div>
 				<div class="gasPrice"></div>
@@ -819,14 +802,18 @@
 			<table width="100%" cellpadding="0" cellspacing="0">
 				<tr class="top">
 					<td class="prizeCell">
-						<div class="label prizeLabel dontTip infoLeft" title="The prize that the winner will receive.">Auction Prize</div>
+						<div class="label prizeLabel tip-manually" title="The prize that the winner will receive.">
+							Auction Prize
+						</div>
 						<div class="field prize">
 							<div class="value"></div>
 							<div class="eth">eth</div>
 						</div>
 					</td>
 					<td colspan=2 width="100%" class="blocksLeftCell">
-						<div class="label dontTip infoLeft" title=" ">Blocks Remaining</div>
+						<div class="label tip-manually" title=" ">
+							Blocks Remaining
+						</div>
 						<div class="alertsIcon">🔔</div>
 						<div class="field">
 							<div class="blocksLeft"></div><br>
@@ -836,14 +823,18 @@
 				</tr>
 				<tr class="middle">
 					<td class="bidPriceCell">
-						<div class="label dontTip infoLeft" title="The amount it costs to become the current winner.">Bid Price</div>
+						<div class="label tip-manually" title="The amount it costs to become the current winner." >
+							Bid Price
+						</div>
 						<div class="field">
 							<div class="bidPrice"></div>
 							<div class="eth">eth</div>
 						</div>
 					</td>
 					<td class="currentWinnerCell">
-						<div class="label dontTip infoLeft" title="The winner that will receive the prize if the auction ends.">Current Winner</div>
+						<div class="label tip-manually" title="The winner that will receive the prize if the auction ends.">
+							Current Winner
+						</div>
 						<div class="field currentWinner">
 							<div class="value"></div>
 						</div>
@@ -859,7 +850,9 @@
 						</div>
 					</td>
 					<td colspan=2 class="statusCell">
-						<div class="label dontTip infoLeft" title="This displays the auction status.">Status</div>
+						<div class="label tip-manually" title="This displays the auction status.">
+							Status
+						</div>
 						<div class="viewLink"><a target="_blank">🔎</a></div>
 						<div class="clearTxStatus" style="display: none;">clear</div>
 						<div class="status"></div>

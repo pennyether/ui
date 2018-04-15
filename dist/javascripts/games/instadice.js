@@ -207,7 +207,7 @@ Loader.require("dice")
                             <div class="manual">
                                 <button class="btn-claim">Claim Winnings Now</button>
                                 <div class="claim-status"></div>
-                                <div class="time-warning tipLeft" title="Results are based off of the blockhash,
+                                <div class="time-warning tip" title="Results are based off of the blockhash,
                                 and InstaDice cannot look back farther than 256 blocks. This is a limitation of Ethereum.">
                                     Note: If not enough rolls occur, you must claim within <div class="finalize-blocks-left"></div> blocks.
                                 </div>
@@ -368,7 +368,7 @@ Loader.require("dice")
             if (_initClaimStuff.done) return;
             _initClaimStuff.done = true;
 
-            tippy(_$e.find(".time-warning")[0]);
+            tippy(_$e.find(".tip").toArray());
 
             const gps = util.getGasPriceSlider(5);
             const $claimTip = $("<div></div>").append(gps.$e);
@@ -377,9 +377,7 @@ Loader.require("dice")
                     // arrow: false,
                     theme: "light",
                     animation: "fade",
-                    placement: "top",
                     html: $claimTip.show()[0],
-                    trigger: "mouseenter",
                     onShow: function(){ gps.refresh(); },
                     onHidden: function(){
                         // fixes a firefox bug where the tip won't be displayed again.
@@ -540,9 +538,7 @@ Loader.require("dice")
                     // arrow: false,
                     theme: "light",
                     animation: "fade",
-                    placement: "top",
                     html: $rollTip.show()[0],
-                    trigger: "mouseenter",
                     onShow: function(){ gps.refresh(); },
                     onHidden: function(){
                         // fixes a firefox bug where the tip won't be displayed again.

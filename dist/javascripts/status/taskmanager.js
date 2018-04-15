@@ -173,32 +173,32 @@ Loader.require("tm", "token")
                 <div class="Tasker">
                     <table width="100%">
                         <tr>
-                            <td class="label tipLeft" title="The higher the Gas Price, the faster your transaction will be mined.
+                            <td class="label tip-left" title="The higher the Gas Price, the faster your transaction will be mined.
                             This increases the chance that you will win the reward instead of somebody else.">
                                 Gas Price:
                             </td>
                             <td class="gps-ctnr" width=100%></td>
                         </tr>
                         <tr>
-                            <td class="label tipLeft" title="The reward you will be paid if the Task is executed.">
+                            <td class="label tip-left" title="The reward you will be paid if the Task is executed.">
                                 Reward:
                             </td>
                             <td class="value reward"></td>
                         </tr>
                         <tr>
-                            <td class="label tipLeft" title="The estimated gas cost to execute this Task.">
+                            <td class="label tip-left" title="The estimated gas cost to execute this Task.">
                                 Estimated Tx Cost:
                             </td>
                             <td class="value tx-cost"></td>
                         </tr>
                         <tr>
-                            <td class="label tipLeft" title="Reward - Tx Cost">
+                            <td class="label tip-left" title="Reward - Tx Cost">
                                 Possible Gain:
                             </td>
                             <td class="value gain"></td>
                         </tr>
                         <tr>
-                            <td class="label tipLeft" title="If the Task is no longer available by the time your transaction
+                            <td class="label tip-left" title="If the Task is no longer available by the time your transaction
                             is mined, you may lose this amount.">
                                 Possible Loss:
                             </td>
@@ -229,7 +229,7 @@ Loader.require("tm", "token")
             _gps.$head.hide();
             _gps.$e.appendTo(_$e.find(".gps-ctnr"));
             _gps.onChange(_refreshDebounced);
-            tippy(_$e.find(".label").toArray(), {placement: "left"});
+            tippy(_$e.find(".tip-left").addClass("tip").toArray(), {placement: "left"});
 
             this.$e = _$e;
             this.setDetailsFn = (detailsFn) => {
