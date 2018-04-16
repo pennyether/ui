@@ -383,27 +383,89 @@
 			text-align: center;
 			padding: 10px 5px 5px 5px;
 		}
-		.auction td.prizeCell,
-		.auction td.bidPriceCell {
+			.auction td > .label {
+				position: absolute;
+				top: 0px;
+				left: 0px;
+				background: rgba(0,0,0,.25);
+				font-size: 60%;
+				padding: 1px 4px 1px 2px;
+				color: white;
+				letter-spacing: .10em;
+				cursor: pointer;
+				border-bottom-right-radius: 4px;
+				text-transform: uppercase;
+			}
+			.auction td .field {
+				padding: 4px;
+			}
+
+		.auction td.prize,
+		.auction td.fee {
 			white-space: nowrap;
 		}
-		.auction td .label {
-			position: absolute;
-			top: 0px;
-			left: 0px;
-			background: rgba(0,0,0,.25);
-			font-size: 60%;
-			padding: 1px 4px 1px 2px;
-			color: white;
-			letter-spacing: .10em;
+
+		.auction td.prize > .label {
+			border-top-left-radius: 10px;
+			background: linear-gradient(to top, rgba(0,128,0,.8) 0%, rgba(0,128,0,.5) 100%);
+			font-size: 80%;
+		}
+		.auction td.prize .field {
+			min-width: 120px;
+		}
+		.auction td.prize .value {
+			display: inline-block;
+			font-size: 300%;
+			letter-spacing: -.08em;
+		}
+		.auction td.prize .incr {
+			margin-top: -5px;
+			font-size: 70%;
+			color: gray;
+		}
+
+		.auction td.fee .value {
+			display: inline-block;
+			font-size: 200%;
+			letter-spacing: -.08em;
+		}
+
+		.auction td.blocks-left .value {
+			display: inline-block;
+			font-size: 300%;
+			letter-spacing: -.08em;
+			vertical-align: baseline;
+		}
+		.auction td.blocks-left .reign-blocks {
+			display: inline-block;
+			color: gray;
+			vertical-align: baseline;
+			border-bottom: 1px dotted rgba(0,0,0,.3);
 			cursor: pointer;
-			border-bottom-right-radius: 4px;
-			text-transform: uppercase;
 		}
-		.auction .label.infoLeft:before {
-			text-transform: none;
-			background: #AAA;
+		.auction.new-block td.blocks-left {
+			border-top-right-radius: 10px;
+			animation: flashGrayBackground 5s 0s 1 ease-out;
 		}
+
+		.auction td.current-winner .field {
+			min-width: 120px;
+		}
+		.auction.winner td.current-winner {
+			background: rgba(0,255,128,.2);
+			box-shadow: 0px 0px 8px 0px rgba(0,128,0,.7);
+		}
+		.auction.new-winner td.current-winner {
+			animation: flashGrayBackground 5s 0s 1 ease-out;
+		}
+		.auction.now-winner td.current-winner {
+			animation: flashGreenBackground 5s 0s 1 ease-out;	
+		}
+		.auction.now-loser td.current-winner {
+			animation: flashRedBackground 5s 0s 1 ease-out;		
+		}
+		
+
 		.auction .alertsIcon {
 			position: absolute;
 			top: 2px;
@@ -414,33 +476,6 @@
 		}
 		.auction .alertsIcon.on {
 			filter: saturate(100%);
-		}
-		.auction td .prizeLabel {
-			border-top-left-radius: 10px;
-		}
-		.auction .field {
-			padding: 4px;
-		}
-		.auction .prize {
-			min-width: 120px;
-		}
-		.auction .currentWinner {
-			min-width: 120px;
-		}
-		.auction.winner .currentWinnerCell {
-			background: rgba(0,255,128,.2);
-			box-shadow: 0px 0px 8px 0px rgba(0,128,0,.7);
-		}
-		.auction .prize .value {
-			display: inline-block;
-			font-size: 300%;
-			letter-spacing: -.08em;
-		}
-		.auction .blocksLeft {
-			display: inline-block;
-			font-size: 300%;
-			letter-spacing: -.08em;
-			vertical-align: middle;
 		}
 		.auction .timeLeft {
 			display: inline-block;
@@ -466,11 +501,6 @@
 		.auction.five-minutes .timeLeft {
 			font-weight: bold;
 			color: red;
-		}
-		.auction .bidPrice {
-			display: inline-block;
-			font-size: 200%;
-			letter-spacing: -.08em;
 		}
 		.auction .bid {
 			display: inline-block;
@@ -544,23 +574,11 @@
 			text-decoration: none;
 		}
 
-		.auction.new-prize .prizeCell {
+		.auction.new-prize td.prize {
 			border-top-left-radius: 10px;
 			animation: flashGrayBackground 5s 0s 1 ease-out;
 		}
-		.auction.new-block .blocksLeftCell {
-			border-top-right-radius: 10px;
-			animation: flashGrayBackground 5s 0s 1 ease-out;
-		}
-		.auction.new-winner .currentWinnerCell {
-			animation: flashGrayBackground 5s 0s 1 ease-out;
-		}
-		.auction.now-winner .currentWinnerCell {
-			animation: flashGreenBackground 5s 0s 1 ease-out;	
-		}
-		.auction.now-loser .currentWinnerCell {
-			animation: flashRedBackground 5s 0s 1 ease-out;		
-		}
+	
 
 		/* Auction Tips */
 		.moreTip {
@@ -801,41 +819,44 @@
 			</div>
 			<table width="100%" cellpadding="0" cellspacing="0">
 				<tr class="top">
-					<td class="prizeCell">
-						<div class="label prizeLabel tip-manually" title="The prize that the winner will receive.">
-							Auction Prize
+					<td class="prize">
+						<div class="label tip-manually" title="The prize that the winning Monarch will receive." data-tippy-trigger="click">
+							PRIZE
 						</div>
-						<div class="field prize">
+						<div class="field">
 							<div class="value"></div>
 							<div class="eth">eth</div>
 						</div>
+						<div class="incr"></div>
 					</td>
-					<td colspan=2 width="100%" class="blocksLeftCell">
-						<div class="label tip-manually" title=" ">
+					<td colspan=2 width="100%" class="blocks-left">
+						<div class="label tip-manually" title=" " data-tippy-trigger="click">
 							Blocks Remaining
 						</div>
 						<div class="alertsIcon">🔔</div>
 						<div class="field">
-							<div class="blocksLeft"></div><br>
+							<div class="value"></div>
+							<div class="reign-blocks tip-manually no-tip-style" title="The number of blocks the Monarch must reign in order to win." data-tippy-trigger="click"></div>
+							<br>
 							<div class="timeLeft"></div>
 						</div>
 					</td>
 				</tr>
 				<tr class="middle">
-					<td class="bidPriceCell">
-						<div class="label tip-manually" title="The amount it costs to become the current winner." >
-							Bid Price
+					<td class="fee">
+						<div class="label tip-manually" title="The fee to become the current Monarch." data-tippy-trigger="click">
+							Overthrow Fee
 						</div>
 						<div class="field">
-							<div class="bidPrice"></div>
+							<div class="value"></div>
 							<div class="eth">eth</div>
 						</div>
 					</td>
-					<td class="currentWinnerCell">
-						<div class="label tip-manually" title="The winner that will receive the prize if the auction ends.">
-							Current Winner
+					<td class="current-winner">
+						<div class="label tip-manually" title="This player will win the prize unless they are overthrown." data-tippy-trigger="click">
+							Current Monarch
 						</div>
-						<div class="field currentWinner">
+						<div class="field">
 							<div class="value"></div>
 						</div>
 					</td>
@@ -850,7 +871,7 @@
 						</div>
 					</td>
 					<td colspan=2 class="statusCell">
-						<div class="label tip-manually" title="This displays the auction status.">
+						<div class="label tip-manually" title="This displays the auction status." data-tippy-trigger="click">
 							Status
 						</div>
 						<div class="viewLink"><a target="_blank">🔎</a></div>
