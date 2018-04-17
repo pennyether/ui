@@ -330,14 +330,13 @@
             allAtOnce: false,
             maxBlock: <currentBlock>,
             minBlock: <maxBlock - 500,000>,
+            blocksPerSearch: <50000>,
             // formatting fns
             dateFn: (event, prevEvent, nextEvent)=>{str}
             valueFn: (event)=>{str}
         }
     */
     function LogViewer(opts) {
-        const _BLOCKS_PER_SEARCH = 50000;
-
         const _$e = $(`
             <div class='LogViewer'>
                 <fieldset>
@@ -369,13 +368,14 @@
         const _events = opts.events || [];
         const _order = opts.order || "newest";
         const _allAtOnce = opts.allAtOnce || false;
-        const _maxBlock = opts.maxBlock || ethUtil.getCurrentBlockHeight().toNumber();
-        const _minBlock = opts.minBlock || _maxBlock - _BLOCKS_PER_SEARCH*10;
         const _dateFn = opts.dateFn || _defaultDateFn;
         const _valueFn = opts.valueFn || _defaultValueFn;
+        const _blocksPerSearch = opts.blocksPerSearch || 50000;
 
         var _isResetPending;       // whether or not a reset is pending
         var _isDone;               // if least/greatest block passes the _min/_max bounds
+        var _maxBlock = null;      // max block to search until
+        var _minBlock = null;      // minimum block to search until
         var _loadingPromise;       // if loading is in progress
         var _prevFromBlock;        // prevFromBlock loaded
         var _prevToBlock;          // prevToBlock loaded
@@ -432,6 +432,8 @@
             Promise.resolve(_loadingPromise).then(() => {
                 _isResetPending = false;
                 _isDone = false;
+                _maxBlock = opts.maxBlock || ethUtil.getCurrentBlockHeight().toNumber();
+                _minBlock = opts.minBlock || _maxBlock - _blocksPerSearch*10;
                 _prevFromBlock = _order=='newest' ? _maxBlock+1 : null;
                 _prevToBlock = _order=='oldest' ? _minBlock-1 : null;
                 _prevEvent = null;
@@ -497,11 +499,11 @@
                 if (_order == 'newest'){
                     // search to where the last chunk started
                     toBlock = _prevFromBlock - 1;
-                    fromBlock = Math.max(_prevToBlock - _BLOCKS_PER_SEARCH, _minBlock);
+                    fromBlock = Math.max(_prevToBlock - _blocksPerSearch, _minBlock);
                 } else {
                     // search from where the last chunk ended
                     fromBlock = _prevToBlock + 1;
-                    toBlock = Math.min(fromBlock + _BLOCKS_PER_SEARCH, _maxBlock);
+                    toBlock = Math.min(fromBlock + _blocksPerSearch, _maxBlock);
                 }
             }
             _isDone = fromBlock <= _minBlock || toBlock >= _maxBlock;

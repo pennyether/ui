@@ -190,11 +190,9 @@ Loader.require("monarchy")
 			_$status.empty();
 			_$e.find(".reign-blocks").hide();
 			// display who won.
-			const $winnerLink = util.$getShortAddrLink(_curMonarch);
-			if (_curAmWinner) $winnerLink.text("You");
-			const $winnerInfo = $("<div></div>").append($winnerLink).append(_curAmWinner ? " won!" : " won.");
+			const $monarch = _$monarch.find(".monarch-value").clone();
+			const $winnerInfo = $("<div></div>").append($monarch).append(_curAmWinner ? " won!" : " won.");
 			_$status.append($winnerInfo);
-
 
 			Promise.resolve().then(()=>{
 				// maybe load isPaid
@@ -360,7 +358,7 @@ Loader.require("monarchy")
 				if (amNowLoser){
 					_$status.empty()
 						.append("You've been overthrown by ")
-						.append(_$monarch.clone());
+						.append(_$monarch.find(".monarch-value").clone());
 					_$e.removeClass("now-winner");
 					_$e.removeClass("new-winner");
 					flashClass("now-loser");
@@ -392,7 +390,7 @@ Loader.require("monarchy")
 					setTimeout(function(){ t.hide(); }, 3000);
 				} else if (isNewWinner) {
 					_$status.empty()
-						.append(_$monarch.clone())
+						.append(_$monarch.find(".monarch-value").clone())
 						.append(" is now the Monarch.");
 					_$e.removeClass("now-winner");
 					_$e.removeClass("now-loser");
@@ -403,8 +401,8 @@ Loader.require("monarchy")
 						You'll win in ${blocksLeft} blocks unless you are overthrown.`);
 					} else {
 						_$status.empty()
-							.append(_$monarch.clone())
-							.append(` is the Monarch, and will win in ${blocksLeft} blocks unless they are overthrown.`);
+							.append(_$monarch.find(".monarch-value").clone())
+							.append(` will win in ${blocksLeft} blocks unless they are overthrown.`);
 					}
 				}
 				if (isNewBlock) flashClass("new-block");
@@ -612,7 +610,6 @@ Loader.require("monarchy")
 
 			// update other more involved tips
 			_initAlerts();
-			_initHistoryTip();
 			_initSendPrizeTip();
 
 			_$e.addClass("initializing");
@@ -638,6 +635,7 @@ Loader.require("monarchy")
 					_$e.find("td.prize .incr").hide();
 				}
 				_initOverthrowTip();
+				_initHistoryTip();
 			});
 		};
 
@@ -768,6 +766,7 @@ Loader.require("monarchy")
 						}],
 						order: "newest",
 						minBlock: startBlock,
+						blocksPerSearch: _reignBlocks * 10,
 						dateFn: (event, prevEvent, nextEvent) => {
 							if (!prevEvent || event.name=="GameStart"){
 								const dateStr = util.toDateStr(event.args.time, {second: false});
@@ -786,7 +785,7 @@ Loader.require("monarchy")
 								const $newMonarch = _$getMonarch(event.args.newMonarch);
 								const $oldMonarch = _$getMonarch(event.args.prevMonarch);
 								const decree = _getDecreeStr(event.args.decree);
-								const $decree = $("<span></span>").text(`"${decree}"`);
+								const $decree = $("<span class='decree'></span>").text(`"${decree}"`);
 								const $el = $("<div></div>").append($newMonarch)
 									.append(" ovethrew ")
 									.append($oldMonarch);
