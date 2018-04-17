@@ -34,6 +34,8 @@ of the fees collected, as well as a fixed amount per auction ended.`,
     MonarchyGame: {
         fallback: `Overthrows the current Monarch. Refunds if for any reason sender \
 does not become the new Monarch.`,
+        overthrow: `Overthrows the current Monarch, and announces a decree. Refunds if for any reason sender \
+does not become the new Monarch.`,
         sendPrize: `Sends the prize money to the winner of the game.`
     },
 

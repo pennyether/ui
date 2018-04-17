@@ -41,7 +41,8 @@
 			.featureBox {
 				display: table;
 				box-sizing: border-box;
-				width: 100%;
+				margin: 0px auto;
+				width: 95%;
 			}
 				.featureBox > .left {
 					display: table-cell;
@@ -59,8 +60,8 @@
 					width: 33%;
 				}
 				.featureBox .block {
-					display: inline-block;
-					margin: 0px 40px;
+					display: table;
+					margin: 0px auto;
 					text-shadow: 1px 1px 1px rgba(255,255,255,.4);
 				}
 				.featureBox .title {
@@ -73,11 +74,10 @@
 					text-shadow: 0px 0px 5px cyan;
 				}
 				.featureBox .feature {
-					display: inline-block;
+					display: block;
 					font-size: 90%;
 					margin: 4px 0px;
 					font-weight: bold;
-
 				}
 
 
@@ -193,44 +193,44 @@
 				<div class="featureBox">
 					<div class="left">
 						<div class="block">
-							<div class="title">Fast</div>
-							<div class="feature tip-left" title="No need to deposit Ether or fill out any forms.">
+							<div class="title">Fast & Fun</div>
+							<div class="feature tip-left" title="Just use Ether! No need for tokens, deposits, or creating an account.">
 								No deposit, no sign-up.
-							</div><br>
-							<div class="feature tip-left" title="It's easy. Place a bid and if nobody bids after you, you'll win the whole prize.">
-								Bid a little, win a lot!
-							</div><br>
+							</div>
 							<div class="feature tip-left" title="Our UI shows you what's happening every step of the way.">
 								Responsive UI.
+							</div>
+							<div class="feature tip-left" title="Overthrowing the Monarch is cheap, and the transaction itself is pennies (50,000 gas).<br>Leave a 'decree' for added effect!">
+								Leave your mark, for cheap.
 							</div>
 						</div>
 					</div>
 					<div class="middle">
 						<div class="block">
 							<div class="title">Fair</div>
-							<div class="feature tip-left" title="Insider bidding is impossible. Each bid gets distributed to all PennyEther token holders.">
-								Shill bidding is impossible.
-							</div><br>
-							<div class="feature tip-left" title="If a bid doesn't result in you becoming the current winner, it is refunded.">
-								Some bids are refunded.
-							</div><br>
-							<div class="feature tip-left" title="The prize is held in a smart contract, and will only ever leave to pay the winner.">
+							<div class="feature tip-left" title="Overthrow fees get distributed to all PENNY Token Holders, so there's no way for an 'owner' to rig the game.">
+								Cheating is impossible.
+							</div>
+							<div class="feature tip-left" title="The prize is held in a smart contract, and will only ever leave to pay the winner. Short of Ethereum going down, this behavior is immutable.">
 								Prize is already staked.
+							</div>
+							<div class="feature tip-left" title="Anytime you overthrow, you'll either become the Monarch or get refunded. If somebody overthrows you in the same block, you'll be refunded.">
+								Overthrow guaranteed.
 							</div>
 						</div>
 					</div>
 					<div class="right">
 						<div class="block">
 							<div class="title">Exciting</div>
-							<div class="feature tip-left" title="We always have Penny Auctions running. Catch them at the right time and win!">
+							<div class="feature tip-left" title="We always have games running. Catch them at the right time and win!">
 								Always running.
-							</div><br>
-							<div class="feature tip-left" title="For some auctions, each bid increases the prize.">
+							</div>
+							<div class="feature tip-left" title="For some games, each overthrow increases the prize.">
 								Growing prizes.
-							</div><br>
-							<div class="feature tip-left" title="Watch as bids are updated live.">
-								Bids are updated live.
-							</div><br>
+							</div>
+							<div class="feature tip-left" title="Watch the struggle as overthrows are updated live!">
+								Updated in Realtime.
+							</div>
 						</div>
 					</div>
 				</div>
@@ -244,8 +244,8 @@
 										<img class="icon" src="/images/ethereum.png"/>
 									</div>
 									<div class="right">
-										<div class="title">Bid <span class="question">i</span></div>
-										<div class="info">Send a small bid</div>
+										<div class="title">Overthrow <span class="question">i</span></div>
+										<div class="info">Decree your empire</div>
 									</div>
 								</div>
 							</div>
@@ -255,8 +255,8 @@
 								<div class="two no-tip-style" title="" data-tippy-html="#WaitTip" data-tippy-animation="scale" data-tippy-trigger="click">
 									<div class="left">⌛</div>
 									<div class="right">
-										<div class="title">Wait <span class="question">i</span></div>
-										<div class="info">If nobody else bids...</div>
+										<div class="title">Reign <span class="question">i</span></div>
+										<div class="info">Defend your empire</div>
 									</div>
 								</div>
 							</div>
@@ -326,21 +326,26 @@
 		</style>
 		<div id="BidTip" style="display:none;">
 			<div class="htBidTip">
-				<div class="title">Bid with confidence.</div>
-				<div class="info">It only costs a little bit to play! Send the bid fee to the auction, and become the current winner.
-				<br><br>
-				You'll get refunded, and some gas back, if for any reason you don't become the current winner:</div>
-				<div class="item">• The auction has already ended.</div>
-				<div class="item">• Someone bids after you in the same block.</div>
-				<div class="item">• You are already the current winner.</div>
-				<div class="item">• You bid the wrong amount.</div>
+				<div class="title">Overthrow with confidence.</div>
+				<div class="info">
+					It only costs a little bit to play! Pay a small fee, and you'll become the Monarch.<br>
+					Include a decree for all to see.
+				<br>
+				<br>
+					You'll get refunded instantly if:
+				</div>
+				<div class="item">• The game has already ended.</div>
+				<div class="item">• Someone overthrows you in the same block.</div>
+				<div class="item">• You are already the Monarch.</div>
+				<div class="item">• You send the wrong amount.</div>
 			</div>
 		</div>
 		<div id="WaitTip" style="display: none;">
 			<div class="waitTip">
-				<div class="title">Wait for the auction to end.</div>
-				<div class="item">• Each bid adds a few blocks to the auction time.</div>
-				<div class="item">• If nobody else bids, you win!</div>
+				<div class="title">Reign</div>
+				<div class="item">• If you are overthrown, your reign is over.</div>
+				<div class="item">• But, reign for enough blocks, and you win!</div>
+				<div class="item">• Overthrow any challengers and they might quit.</div>
 			</div>
 		</div>
 		<div id="WinTip" style="display:none;">
@@ -356,12 +361,24 @@
 		<style>
 		.auction {
 			display: inline-block;
-			width: 400px; 
+			width: 420px; 
 			background: linear-gradient(to top, #BBB 0%, #EEE 100%);
 			border-radius: 10px;
 			box-shadow: 3px 3px 10px 0px rgba(0,0,0,.2);
-			margin: 10px 25px;
+			margin: 10px 10px;
+			overflow: hidden;
+			transition: box-shadow .5s;
 		}
+		.auction.half-minute {
+			box-shadow: 0px 0px 10px 2px rgba(255, 0, 0, .7);
+		}
+		.auction.one-minute {
+			box-shadow: 0px 0px 5px 1px rgba(255, 0, 0, .4);
+		}
+		.auction.two-minutes {
+			box-shadow: 0px 0px 5px 0px rgba(255, 0, 0, .1);
+		}
+
 		.auction.ended,
 		.auction.initializing {
 			opacity: .70;
@@ -381,7 +398,7 @@
 		}
 		.auction td {
 			text-align: center;
-			padding: 10px 5px 5px 5px;
+			padding: 15px 10px 10px 10px;
 		}
 			.auction td > .label {
 				position: absolute;
@@ -406,7 +423,6 @@
 		}
 
 		.auction td.prize > .label {
-			border-top-left-radius: 10px;
 			background: linear-gradient(to top, rgba(0,128,0,.8) 0%, rgba(0,128,0,.5) 100%);
 			font-size: 80%;
 		}
@@ -420,16 +436,26 @@
 		}
 		.auction td.prize .incr {
 			margin-top: -5px;
-			font-size: 70%;
+			font-size: 80%;
+			cursor: pointer;
 			color: gray;
+			text-decoration-line: underline;
+			text-decoration-style: dotted;
+			text-decoration-color: gray;
 		}
 
 		.auction td.fee .value {
 			display: inline-block;
 			font-size: 200%;
 			letter-spacing: -.08em;
+			padding-top: 5px;
 		}
 
+		/* blocks / time left */
+		.auction.new-block td.blocks-left {
+			border-top-right-radius: 10px;
+			animation: flashGrayBackground 5s 0s 1 ease-out;
+		}
 		.auction td.blocks-left .value {
 			display: inline-block;
 			font-size: 300%;
@@ -440,29 +466,92 @@
 			display: inline-block;
 			color: gray;
 			vertical-align: baseline;
-			border-bottom: 1px dotted rgba(0,0,0,.3);
+			text-decoration-line: underline;
+			text-decoration-style: dotted;
+			text-decoration-color: gray;
 			cursor: pointer;
 		}
-		.auction.new-block td.blocks-left {
-			border-top-right-radius: 10px;
-			animation: flashGrayBackground 5s 0s 1 ease-out;
+		.auction td.blocks-left .time-left {
+			display: inline-block;
+			font-size: 100%;
+			margin-top: -5px;
+			vertical-align: middle;
+			padding: 1px 4px;
+			border-radius: 3px;
+		}
+		.auction.half-minute td.blocks-left .time-left {
+			font-weight: bold;
+			animation: halfMinute 1s 0s infinite ease-in-out alternate;
+		}
+		.auction.one-minute td.blocks-left .time-left {
+			font-weight: bold;
+			animation: halfMinute 2s 0s infinite ease-in-out alternate;
+		}
+		.auction.two-minutes td.blocks-left .time-left {
+			font-weight: bold;
+			color: white;
+			background: red;
+		}
+		.auction.five-minutes td.blocks-left .time-left {
+			font-weight: bold;
+			color: red;
+		}
+		.auction.ten-minutes td.blocks-left .time-left {
+			font-weight: bold;
+			color: orange;
 		}
 
-		.auction td.current-winner .field {
+
+		/* Current Winner */
+		.auction td.current-monarch .field {
 			min-width: 120px;
 		}
-		.auction.winner td.current-winner {
+		.auction td.current-monarch .decree {
+			color: #555;
+			font-size: 70%;
+			font-style: italic;
+			display: inline-block;
+			background: rgba(0,0,0,.1);
+			padding: 2px 5px;
+			border-radius: 2px;
+			margin-top: 3px;
+			cursor: pointer;
+		}
+		.auction.winner td.current-monarch {
 			background: rgba(0,255,128,.2);
 			box-shadow: 0px 0px 8px 0px rgba(0,128,0,.7);
 		}
-		.auction.new-winner td.current-winner {
+		.auction.new-winner td.current-monarch {
 			animation: flashGrayBackground 5s 0s 1 ease-out;
 		}
-		.auction.now-winner td.current-winner {
+		.auction.now-winner td.current-monarch {
 			animation: flashGreenBackground 5s 0s 1 ease-out;	
 		}
-		.auction.now-loser td.current-winner {
+		.auction.now-loser td.current-monarch {
 			animation: flashRedBackground 5s 0s 1 ease-out;		
+		}
+
+		/* overthrow cell */
+		.auction td.overthrow {
+			padding-top: 10px;
+		}
+		.auction td.overthrow button {
+			font-size: 150%;
+			padding: 5px 10px;
+			cursor: pointer;
+			color: white;
+			border: none;
+			border-radius: 5px;
+			animation: buttonGlow 2s 0s infinite ease-in-out alternate;
+			box-shadow: 3px 3px 4px 0px rgba(0,0,0,.3);
+		}
+		.auction td.overthrow button:disabled {
+			background: gray;
+			animation: none;
+			cursor: not-allowed;
+		}
+		.auction td.overthrow button:focus {
+			outline: none;
 		}
 		
 
@@ -476,53 +565,6 @@
 		}
 		.auction .alertsIcon.on {
 			filter: saturate(100%);
-		}
-		.auction .timeLeft {
-			display: inline-block;
-			font-size: 100%;
-			margin-top: -5px;
-			vertical-align: middle;
-			padding: 1px 4px;
-			border-radius: 3px;
-		}
-		.auction.half-minute .timeLeft {
-			font-weight: bold;
-			animation: halfMinute 1s 0s infinite ease-in-out alternate;
-		}
-		.auction.one-minute .timeLeft {
-			font-weight: bold;
-			animation: halfMinute 2s 0s infinite ease-in-out alternate;
-		}
-		.auction.two-minutes .timeLeft {
-			font-weight: bold;
-			color: white;
-			background: red;
-		}
-		.auction.five-minutes .timeLeft {
-			font-weight: bold;
-			color: red;
-		}
-		.auction .bid {
-			display: inline-block;
-		}
-		.auction .bid button {
-			font-size: 200%;
-			padding: 5px 40px;
-			margin-bottom: 8px;
-			cursor: pointer;
-			color: white;
-			border: none;
-			border-radius: 5px;
-			animation: buttonGlow 2s 0s infinite ease-in-out alternate;
-			box-shadow: 3px 3px 4px 0px rgba(0,0,0,.3);
-		}
-		.auction .bid button:disabled {
-			background: gray;
-			animation: none;
-			cursor: not-allowed;
-		}
-		.auction .bid button:focus {
-			outline: none;
 		}
 		.auction .eth {
 			display: inline-block;
@@ -553,10 +595,10 @@
 			.auction .statusCell.refunded {
 				background: rgba(255, 255, 0, .2);
 			}
-			.auction .statusCell.error {
+			.auction .statusCell.failure {
 				background: rgba(255, 0, 0, .2);
 			}
-			.auction .statusCell.current-winner {
+			.auction .statusCell.success {
 				background: rgba(0, 255, 128, .2);
 			}
 			.auction .statusCell .TxStatus {
@@ -591,8 +633,8 @@
 			margin-top: -8px;
 		}
 
-		.bidTip,
-		.sendPrizeTip {
+		.overthrow-tip,
+		.send-prize-tip {
 			font-size: 90%;
 			color: black;
 			width: 390px;
@@ -600,68 +642,79 @@
 			padding: 10px;
 			text-align: left;
 		}
-		.bidTip .content .info,
-		.sendPrizeTip .content .info {
-			margin-top: 5px;
-			padding: 2px 4px;
-			background: rgba(0,128,0,.2);
-			border: 1px solid green;
-			border-radius: 5px;
-			box-shadow: 2px 2px 2px 0px rgba(0,0,0,.1);
-			text-align: center;
-			margin-bottom: 15px;
-		}
-		.bidTip .content .bidPrice,
-		.bidTip .content .prize {
-			color: green;
-			font-weight: bold;
-		}
-		.bidTip .content .bulletTitle {
-		}
-		.bidTip .content .bullet {
-			margin-left: 20px;
-			margin-top: 4px;
-			margin-bottom: 5px;
-		}
-		.bidTip .content .bullet:before{
-			content: "• ";
-		}
-		.bidTip .content .addBlocks {
-			border-bottom: 1px dotted #AAA;
-		}
-		.bidTip > .gasPrice {
-			background: #DDD;
-			margin-top: 15px;
-			margin-bottom: 4px;
-			border: 1px dotted #AAA;
-			border-radius: 5px;
-			padding-top: 5px;
-			padding-bottom: 5px;
-			text-align: center;
-		}
+			.overthrow-tip .content .info,
+			.send-prize-tip .content .info {
+				margin-top: 5px;
+				padding: 2px 4px;
+				background: rgba(0,128,0,.2);
+				border: 1px solid green;
+				border-radius: 5px;
+				box-shadow: 2px 2px 2px 0px rgba(0,0,0,.1);
+				text-align: center;
+				margin-bottom: 15px;
+			}
+			.overthrow-tip .content .bid-price,
+			.overthrow-tip .content .prize {
+				color: green;
+				font-weight: bold;
+			}
+			.overthrow-tip .content .bullet-ctnr {
+				display: table;
+				margin: 0px auto;
+			}
+				.overthrow-tip .content .bullet {
+					margin: 3px 0px;
+				}
+				.overthrow-tip .content .bullet:before{
+					content: "• ";
+				}
+			.overthrow-tip .content .addBlocks {
+				border-bottom: 1px dotted #AAA;
+			}
+			.overthrow-tip .refund {
+				text-decoration-line: underline;
+				text-decoration-style: dotted;
+				text-decoration-color: gray;
+			}
+			.overthrow-tip .params-ctnr {
+				display: table;
+				margin: auto;
+				background: #DDD;
+				padding: 5px;
+				margin-top: 5px;
+				margin-bottom: 5px;
+				border: 1px dotted #AAA;
+				border-radius: 5px;
+			}
+				.overthrow-tip .params-ctnr td > .label {
+					font-weight: bold;
+					text-decoration-line: underline;
+					text-decoration-style: dotted;
+					text-decoration-color: gray;
+				}
 
-		.sendPrizeTip {
+		.send-prize-tip {
 			text-align: center;
 		}
-		.sendPrizeTip .msg {
+		.send-prize-tip .msg {
 			margin-top: -5px;
 			padding: 8px 0px;
 		}
-		.sendPrizeTip .manual {
+		.send-prize-tip .manual {
 			margin-top: 10px;
 			padding: 5px;
 			border: 1px dotted #AAA;
 			background: #DDD;
 			border-radius: 5px;
 		}
-		.sendPrizeTip .sendPrizeBtn {
+		.send-prize-tip button {
 			margin: 5px 0px;
 			background: green;
 			color: white;
 			font-size: 120%;
 			cursor: pointer;
 		}
-		.auction .sendPrizeIcon {
+		.auction .send-prize-icon {
 			margin: 4px;
 			display: inline-block;
 			color: green;
@@ -720,30 +773,66 @@
 		<div class="auction template" style="display: none;">
 			<div class="moreTip" style="display: none;">
 			</div>
-			<div class="bidTip" style="display: none;">
+			<div class="overthrow-tip" style="display: none;">
 				<div class="content">
-					<div class="info">Bid just <span class='bidPrice'></span> and you could win <span class='prize'>.1000 ETH</span>!</div>
-					<div class="bulletTitle">When you bid:</div>
-					<div class="bullet prizeIncr"></div>
-					<div class="bullet">The auction will be extended by <span class="addBlocks"></span></div>
-					<div class="bullet">You'll become the current winner!</div>
+					<div class="info">Overthrow the current Monarch for just <span class='bid-price'></span>!</div>
+					<div class="bullet-ctnr">
+						<div class="bullet">
+							You'll become the Monarch, <span class="refund tip-manually no-tip-style" title="You'll receive a refund if:<br>- You are overthrown in the same block.<br>- You are already the Monarch.<br>- The wrong fee is sent.">or get refunded</span>
+						</div>
+						<div class="bullet">
+							Everyone will see your decree.
+						</div>
+						<div class="bullet">
+							If you reign for <span class="reign-blocks"></span>, you'll win <span class="prize"></span>!
+						</div>
+						<div class="bullet prize-incr"></div>
+					</div>
 				</div>
-				<div class="gasPrice"></div>
+				<div class="params-ctnr" style="margin-top: 10px;">
+					<table cellpadding="5" cellspacing="0" style="margin: 0px auto;">
+						<tr>
+							<td align="left" valign="top">
+								<div class="label tip-manually no-tip-style" title="Your decree will be displayed to all users.<br>It costs nothing, and is optional.<br>(Limit: 23 bytes)">
+									Decree:
+								</div>
+								<div style="color: gray; font-size: 80%; font-style: italic;">optional</div>
+							</td>
+							<td align="middle" valign="top">
+								<input type=text class="txt-decree" style="width: 250px;">
+								<div class="error" style="font-size: 80%; color: red;">
+									Too long, or invalid. This will be displayed:<br>
+									<span class="decree-display" style="color: gray; font-style: italic;"></span>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td align="left" valign="top">
+								<div class="label tip-manually no-tip-style" title="Your transaction gas price.<br>The higher the value, the faster your transaction will be mined.">
+									Gas Price:
+								</div>
+							</td>
+							<td align="middle" valign="top">
+								<div class="gas-price-ctnr" style="margin-top: -5px"></div>
+							</td>
+						</tr>
+					</table>
+				</div>
 			</div>
-			<div class="sendPrizeTip" style="display: none;">
+			<div class="send-prize-tip" style="display: none;">
 				<div class="content">
 					<div class="info">Congratulations! You won <span class='prize'></span>!</div>
 					<div class="msg">
-						<b>You will be sent the prize automatically when another auction is started via the <a href="/games/tasks.html" target="_blank">Tasks</a> page.</b>
+						<b>You will be sent the prize automatically when another auction is started via the <a href="/status/taskmanager.html" target="_blank">Tasks</a> page.</b>
 						<br>
 						Or, you can claim the prize now by clicking below.
 					</div>
 					<div class="manual">
-						<div class="gasPrice"></div>
-						<button class="sendPrizeBtn">Claim Prize</button>
+						<div class="gas-price-ctnr"></div>
+						<button>Claim Prize</button>
 					</div>
 				</div>
-				<div class="sendPrizeIcon">Now what?</div>
+				<div class="send-prize-icon">Now what?</div>
 			</div>
 			<style>
 				.alertsTip .title {
@@ -820,14 +909,14 @@
 			<table width="100%" cellpadding="0" cellspacing="0">
 				<tr class="top">
 					<td class="prize">
-						<div class="label tip-manually" title="The prize that the winning Monarch will receive." data-tippy-trigger="click">
+						<div class="label tip-manually" title="The prize that the winning Monarch will receive if nobody overthrows them." data-tippy-trigger="click">
 							PRIZE
 						</div>
 						<div class="field">
 							<div class="value"></div>
 							<div class="eth">eth</div>
 						</div>
-						<div class="incr"></div>
+						<div class="incr tip-manually no-tip-style" title="The amount the prize changes each time the Monarch is overthrown.<br>This value does not change." data-tippy-trigger="click"></div>
 					</td>
 					<td colspan=2 width="100%" class="blocks-left">
 						<div class="label tip-manually" title=" " data-tippy-trigger="click">
@@ -836,15 +925,15 @@
 						<div class="alertsIcon">🔔</div>
 						<div class="field">
 							<div class="value"></div>
-							<div class="reign-blocks tip-manually no-tip-style" title="The number of blocks the Monarch must reign in order to win." data-tippy-trigger="click"></div>
+							<div class="reign-blocks tip-manually no-tip-style" title="The number of blocks the Monarch must reign (not get overthrown) in order to win.<br>This value does not change." data-tippy-trigger="click"></div>
 							<br>
-							<div class="timeLeft"></div>
+							<div class="time-left"></div>
 						</div>
 					</td>
 				</tr>
 				<tr class="middle">
 					<td class="fee">
-						<div class="label tip-manually" title="The fee to become the current Monarch." data-tippy-trigger="click">
+						<div class="label tip-manually" title="The fee to become the current Monarch.<br>This value does not change." data-tippy-trigger="click">
 							Overthrow Fee
 						</div>
 						<div class="field">
@@ -852,12 +941,13 @@
 							<div class="eth">eth</div>
 						</div>
 					</td>
-					<td class="current-winner">
-						<div class="label tip-manually" title="This player will win the prize unless they are overthrown." data-tippy-trigger="click">
+					<td class="current-monarch">
+						<div class="label tip-manually" title="The Monarch will win unless overthrown.<br>They may have included a decree." data-tippy-trigger="click">
 							Current Monarch
 						</div>
 						<div class="field">
 							<div class="value"></div>
+							<div class="decree tip-manually no-tip-style" data-tippy-trigger="click" title="This Monarch included a decree"></div>
 						</div>
 					</td>
 					<td>
@@ -865,10 +955,8 @@
 					</td>
 				</tr>
 				<tr class="bottom">
-					<td>
-						<div class="bid">
-							<button>Bid</button>
-						</div>
+					<td class="overthrow">
+						<button>Overthrow!</button>
 					</td>
 					<td colspan=2 class="statusCell">
 						<div class="label tip-manually" title="This displays the auction status." data-tippy-trigger="click">

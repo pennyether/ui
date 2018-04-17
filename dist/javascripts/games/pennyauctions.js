@@ -81,30 +81,22 @@ Loader.require("monarchy")
 
 	function refreshAllGames(){
 		$("body").addClass("refreshing");
-		var blocktime;
-		Promise.resolve().then(()=>{
-			// first refresh all active games.
-			return getActiveGames().then(activeGames => {
-				return getOrCreateGameObjs(_activeGameObjs, activeGames, _$activeAuctions)
-					.map(a=> a.refresh());
-			});
-		}).then(()=>{
-			// next update the blocktime on active games
-			return ethUtil.getAverageBlockTime().then(b=>{
-				blocktime = b;
-				Object.values(_activeGameObjs)
-					.forEach(gameObj => gameObj.setBlocktime(blocktime));
-			});
-		}).then(()=>{
-			// lastly, refresh all ended games.
+		var avgBlocktime;
+		Promise.obj({
+			activeGames: getActiveGames(),
+			avgBlocktime: ethUtil.getAverageBlockTime()
+		}).then(obj => {
+			// create and refresh active games
+			avgBlocktime = obj.avgBlocktime;
+			const activeGameObjs = getOrCreateGameObjs(_activeGameObjs, obj.activeGames, _$activeAuctions);
+			return Promise.all(activeGameObjs.map(gameObj => gameObj.refresh(avgBlocktime)));
+		}).then(() => {
+			// load, create, refresh ended games
 			return getEndedGames().then(endedGames => {
-				return getOrCreateGameObjs(_endedGameObjs, endedGames, _$endedAuctions)
-					.map(a => {
-						a.setBlocktime(blocktime);
-						return a.refresh();
-					});
+				const endedGameObjs = getOrCreateGameObjs(_endedGameObjs, endedGames, _$endedAuctions);
+				return Promise.all(endedGameObjs.map(gameObj => gameObj.refresh(avgBlocktime)));
 			});
-		}).then(()=>{
+		}).then(endedGames => {
 			$("body").removeClass("refreshing");
 		});
 	}
@@ -129,7 +121,7 @@ Loader.require("monarchy")
 		var _isPaid;
 		var _paymentEvent;
 
-		var _blocktime = new BigNumber(15);
+		var _blocktime;
 		var _fee;
 		var _prizeIncr;
 		var _reignBlocks;
@@ -138,7 +130,8 @@ Loader.require("monarchy")
 		var _curBlocksLeft = null;
 		var _curAmWinner = null;
 		var _curPrize = null;
-		var _curCurrentWinner = null;
+		var _curMonarch = null;
+		var _curDecree = "";
 		var _curBlockEnded = null;
 		var _alerts = {};
 
@@ -146,28 +139,19 @@ Loader.require("monarchy")
 		const _$status = _$e.find(".status");
 		const _$txStatus = _$e.find(".txStatus");
 		const _$statusCell = _$e.find(".statusCell");
-		const _$currentWinnerCell = _$e.find("td.current-winner");
-		const _$currentWinner = _$currentWinnerCell.find(".value");
+		const _$currentMonarchCell = _$e.find("td.current-monarch");
+		const _$monarch = _$currentMonarchCell.find(".value");
+		const _$decree = _$e.find("td.current-monarch .decree");
 		const _$prize = _$e.find(".prize .value");
 		const _$blocksLeft = _$e.find("td.blocks-left .value");
-		const _$timeLeft = _$e.find(".timeLeft");
+		const _$timeLeft = _$e.find("td.blocks-left .time-left");
 		const _$bidPrice = _$e.find("td.fee .value");
-		const _$btn = _$e.find(".bid button");
-		const _$sendPrizeTip = _$e.find(".sendPrizeTip");
-		const _$sendPrizeIcon = _$sendPrizeTip.find(".sendPrizeIcon");
-		const _$sendPrizeBtn = _$sendPrizeTip.find(".sendPrizeBtn")
-			.click(function(){
-				_$sendPrizeIcon[0]._tippy.hide(0);
-				_self.sendPrize();
-			});
+		const _$btn = _$e.find("td.overthrow button");
 		const _$alertsIcon = _$e.find(".alertsIcon");
+		const _$sendPrizeIcon = _$e.find(".send-prize-icon").detach();
 
 
 		this.$e = _$e;
-
-		this.setBlocktime = function(blocktime) {
-			_blocktime = blocktime;
-		};
 
 		// updates the _$timeLeft string according to how
 		// much time has elapsed since the last estimate was recorded.
@@ -184,7 +168,7 @@ Loader.require("monarchy")
 				_$timeLeft.text(newTimeLeftStr);
 			}
 
-			_$e.removeClass("half-minute one-minute two-minutes five-minutes");
+			_$e.removeClass("half-minute one-minute two-minutes five-minutes ten-minutes");
 			if (_curBlocksLeft <= 0) return;
 
 			if (newTimeLeft <= 30){
@@ -195,6 +179,8 @@ Loader.require("monarchy")
 				_$e.addClass("two-minutes");
 			} else if (newTimeLeft <= 300){
 				_$e.addClass("five-minutes");
+			} else if (newTimeLeft <= 600){
+				_$e.addClass("ten-minutes");
 			}
 		};
 
@@ -204,10 +190,10 @@ Loader.require("monarchy")
 			_$status.empty();
 			_$e.find(".reign-blocks").hide();
 			// display who won.
-			const $winnerLink = util.$getShortAddrLink(_curCurrentWinner);
+			const $winnerLink = util.$getShortAddrLink(_curMonarch);
 			if (_curAmWinner) $winnerLink.text("You");
-			const $curWinner = $("<div></div>").append($winnerLink).append(_curAmWinner ? " won!" : " won.");
-			_$status.append($curWinner);
+			const $winnerInfo = $("<div></div>").append($winnerLink).append(_curAmWinner ? " won!" : " won.");
+			_$status.append($winnerInfo);
 
 
 			Promise.resolve().then(()=>{
@@ -217,13 +203,13 @@ Loader.require("monarchy")
 			}).then(()=>{
 				// maybe load paymentEvent
 				if (!_isPaid || _paymentEvent) return;
-				return _game.getEvents("SendPrizeSuccess").then(evs=>{
+				return _game.getEvents("SendPrizeSuccess").then(evs => {
 					if (evs.length!==1) return;
 					_paymentEvent = evs[0];
 				});
 			}).then(()=>{
 				// clear status again, since .updateEndedStatus() may be backlogged.
-				_$status.empty().append($curWinner);
+				_$status.empty().append($winnerInfo);
 				// display whether or not they've been paid
 				if (_curAmWinner) {
 					if (_isPaid){
@@ -257,55 +243,77 @@ Loader.require("monarchy")
 		// General workflow:
 		//  - detect things that changed
 		//  - update local values
-		//	- update static DOM things (timeleft, prize, currentWinner)
-		//  - 
-		this.refresh = function() {
+		//	- update static DOM things (timeleft, prize, monarch)
+		//  - trigger alerts
+		//  - trigger delta things (flash dom elements, etc)
+		this.refresh = function(avgBlocktime) {
+			if (avgBlocktime) _blocktime = avgBlocktime;
+
 			function flashClass(className) {
 				_$e.removeClass(className);
 				setTimeout(()=>_$e.addClass(className), 30);
 			}
 
+			const account = ethUtil.getCurrentAccount();
+			const block = ethUtil.getCurrentBlockHeight();
 			return Promise.obj({
 				initialized: _initialized,
 				isPaid: _isEnded && !_isPaid ? _game.isPaid() : null,
 				prize: _isEnded ? _curPrize : _game.prize(),
-				currentWinner: _isEnded ? _curCurrentWinner : _game.monarch(),
-				blockEnded: _isEnded ? new BigNumber(_curBlockEnded) : _game.blockEnded()
+				monarch: _isEnded ? _curMonarch : _game.monarch(),
+				blockEnded: _isEnded ? new BigNumber(_curBlockEnded) : _game.blockEnded(),
+				decree: _isEnded ? _curDecree : _game.decree(),
+				refundSuccess: account ? _game.getEvents("OverthrowRefundSuccess", {recipient: account}, block, block) : null,
+				refundFailure: account ? _game.getEvents("OverthrowRefundFailure", {recipient: account}, block, block) : null,
 			}).then(obj => {
 				const isPaid = obj.isPaid;
 				const prize = obj.prize;
-				const currentWinner = obj.currentWinner;
+				const monarch = obj.monarch;
 				const blockEnded = obj.blockEnded;
-
-				// update most recent estimate of time left
-				const blocksLeft = blockEnded - ethUtil.getCurrentBlockHeight();
-				_estTimeLeft = _blocktime.mul(blocksLeft).toNumber();
-				_estTimeLeftAt = (+new Date()/1000);
-				_self.updateTimeLeft();
+				const blocksLeft = blockEnded - block;
+				const decree = (function(){
+					try { return web3.toUtf8(obj.decree); }
+					catch (e) { return "<invalid decree>"; }
+				}());
+				const refundSuccess = obj.refundSuccess ? obj.refundSuccess[0] : null;
+				const refundFailure = obj.refundFailure ? obj.refundFailure[0] : null;
 
 				// compute useful things, store state
-				const amWinner = currentWinner === ethUtil.getCurrentAccount();
+				const amWinner = monarch === account;
 				const amNowWinner = !_curAmWinner && amWinner;
 				const amNowLoser = _curAmWinner && !amWinner;
-				const isNewWinner = _curCurrentWinner && currentWinner != _curCurrentWinner;
+				const isNewWinner = _curMonarch && monarch != _curMonarch;
 				const isEnded = blocksLeft < 1;
 				const isNewEnded = isEnded && !_isEnded;
-				const isNewBlock = _curBlocksLeft && blocksLeft != _curBlocksLeft;
+				const isNewBlock = !_curBlocksLeft && blocksLeft != _curBlocksLeft;
 				const isNewPrize = _curPrize && !_curPrize.equals(prize);
 				_isEnded = isEnded;
 				_curPrize = prize;
 				_curAmWinner = amWinner;
 				_curBlocksLeft = blocksLeft;
-				_curCurrentWinner = currentWinner;
+				_curMonarch = monarch;
 				_curBlockEnded = blockEnded;
+				_curDecree = decree;
 
-				// update DOM, currentWinner, and prize
+				// update DOM: monarch, decree, prize
 				_$e.removeClass("winner");
 				if (amWinner) _$e.addClass("winner");
-				const $curWinner = util.$getShortAddrLink(currentWinner);
-				if (amWinner) $curWinner.text("You");
-				_$currentWinner.empty().append($curWinner);
+				const $monarchLink = util.$getShortAddrLink(monarch);
+				if (amWinner) $monarchLink.text("You");
+				_$monarch.empty().append($monarchLink);
+				if (decree.length) _$decree.text(decree).show();
+				else _$decree.hide();
 				_$prize.text(`${ethUtil.toEth(prize)}`);
+
+				// update stuff that uses _blocktime
+				if (isNewBlock) {
+					const blocksLeftTip = `The number of blocks remaining until the current Monarch wins the prize.<br>
+					(Current average blocktime: ${_blocktime.round()} seconds)`;
+					_$e.find("td.blocks-left .label").attr("title", blocksLeftTip);
+					_estTimeLeft = _blocktime.mul(blocksLeft).toNumber();
+					_estTimeLeftAt = (+new Date()/1000);
+					_self.updateTimeLeft();
+				}
 
 				// trigger any alerts
 				_triggerAlerts(blocksLeft, amNowLoser, isNewWinner);
@@ -317,23 +325,53 @@ Loader.require("monarchy")
 					_$e.addClass("ended");
 					_$btn.attr("disabled", "disabled");
 					_$blocksLeft.text("Ended");
-					_$currentWinnerCell.find(".label").text("Winner");
+					_$currentMonarchCell.find(".label").text("Winner");
 					_$alertsIcon.hide();
 					_self.updateEndedStatus();
 					return;
 				}
 
+				// Show status update if there was a refundsucces/failure on this block.
+				if (refundSuccess || refundFailure) {
+					const cls = refundSuccess ? "refunded" : "failure";
+					const $link = refundSuccess
+						? util.$getTxLink("Your last overthrow was refunded.", refundSuccess.transactionHash)
+						: util.$getTxLink("Your last overthrow could not be refunded.", refundFailure.transactionHash);
+					const msg = refundSuccess
+						? `You were refunded because: "${refundSuccess.args.msg}"`
+						: `You were unable to be refunded because: "${refundFailure.args.msg}"`;
+
+					// show status cell with proper class.
+					_$statusCell.removeClass("prepending pending refunded success failure").addClass(cls);
+					_$txStatus.show();
+					_$status.hide();
+
+					// append a txStatus into it, and on clear reset it back to normal.
+					const txStatus = util.getTxStatus({
+						onClear: () => {
+							setClass("");
+							_$txStatus.empty().hide();
+							_$status.show();
+						}
+					});
+					txStatus.$e.appendTo(_$txStatus);
+					txStatus.complete($link);
+					if (refundSuccess) txStatus.addWarningMsg(msg);
+					else txStatus.addFailureMsg(msg);
+				}
+
+				// trigger things based on deltas
 				_$blocksLeft.text(blocksLeft);
 				if (amNowLoser){
 					_$status.empty()
 						.append("You've been overthrown by ")
-						.append($curWinner.clone());
+						.append(_$monarch.find("a").clone());
 					_$e.removeClass("now-winner");
 					_$e.removeClass("new-winner");
 					flashClass("now-loser");
 
-					_$currentWinnerCell.attr("title", "You've been overthrown!");
-					const t = tippy(_$currentWinnerCell[0], {
+					_$currentMonarchCell.attr("title", "You've been overthrown!");
+					const t = tippy(_$currentMonarchCell[0], {
 						placement: "top",
 						trigger: "manual",
 						animation: "fade",
@@ -342,13 +380,14 @@ Loader.require("monarchy")
 					t.show();
 					setTimeout(function(){ t.hide(); }, 3000);
 				} else if (amNowWinner) {
-					_$status.text("You are the current Monarch. You'll win unless you get overthrown.");
+					_$status.empty().append(`You are the now current Monarch!<br>
+						You'll win in ${blocksLeft} blocks unless you are overthrown.`);
 					_$e.removeClass("now-loser");
 					_$e.removeClass("new-winner");
 					flashClass("now-winner");
 
-					_$currentWinnerCell.attr("title", "You are the current Monarch!");
-					const t = tippy(_$currentWinnerCell[0], {
+					_$currentMonarchCell.attr("title", "You are the current Monarch!");
+					const t = tippy(_$currentMonarchCell[0], {
 						placement: "top",
 						trigger: "manual",
 						animation: "fade",
@@ -358,18 +397,19 @@ Loader.require("monarchy")
 					setTimeout(function(){ t.hide(); }, 3000);
 				} else if (isNewWinner) {
 					_$status.empty()
-						.append($curWinner.clone())
-						.append(" is now the current winner.");
+						.append(_$monarch.find("a").clone())
+						.append(" is now the Monarch.");
 					_$e.removeClass("now-winner");
 					_$e.removeClass("now-loser");
 					flashClass("new-winner");
 				} else {
 					if (amWinner) {
-						_$status.text("You are the current winner!");
+						_$status.empty().append(`You are the current Monarch!<br>
+						You'll win in ${blocksLeft} blocks unless you are overthrown.`);
 					} else {
 						_$status.empty()
-							.append($curWinner.clone())
-							.append(" is the current winner.");
+							.append(_$monarch.find("a").clone())
+							.append(` is the Monarch, and will win in ${blocksLeft} blocks unless they are overthrown.`);
 					}
 				}
 				if (isNewBlock) flashClass("new-block");
@@ -377,74 +417,12 @@ Loader.require("monarchy")
 			});
 		};
 
-		this.sendPrize = function(){
-			alert("Not yet implemented");
-			return;
-			_$txStatus.show();
-			_$status.hide();
-			
-			var p;
-			const gasPrice = _GAS_PRICE_SLIDER.getValue();
-			const waitTimeMs = (_GAS_PRICE_SLIDER.getWaitTimeS() || _blocktime*3) * 1000;
-			try {
-				p = _game.sendPrize([0], {gas: 40000, gasPrice: gasPrice});
-			} catch (e) {
-				ethStatus.open();
-				_$clearTxStatus.show();
-				_$statusCell.addClass("error");
-				_$txStatus.text(`Error: ${e.message}`);
-				return;
-			}
-			var txId;
-
-			_$statusCell
-				.removeClass("prepending pending refunded error current-winner")
-				.addClass("prepending");
-			_$txStatus.text("Waiting for signature...");
-
-			var loadingBar;
-			p.getTxHash.then(function(tId){
-				txId = tId;
-				const $txLink = util.$getTxLink("Your prize is being sent...", txId);
-				_$statusCell.removeClass("prepending").addClass("pending");
-				loadingBar = util.getLoadingBar(waitTimeMs);
-				_$txStatus.empty().append($txLink).append(loadingBar.$e);
-			});
-			p.then(function(res){
-				_$clearTxStatus.show();
-				loadingBar.finish(500).then(()=>res);
-				if (res.events.length!=1){
-					throw new Error("Did not get back expected events. Please check your balance to see if you got paid.");
-				}
-				const ev = res.events[0];
-				if (!ev.name)
-					throw new Error("We received an unknown event. You may or may not have been paid.");
-				if (ev.name == "SendPrizeError")
-					throw new Error(`SendPrizeError: ${ev.args.msg}`);
-				if (ev.name == "SendPrizeFailure")
-					throw new Error(`Sending prize failed. You may need to use more gas.`);
-				if (ev.name != "SendPrizeSuccess") 
-					throw new Error(`Unexpected Event (${ev.name}): You may or may not have been paid.`);
-				const $link = util.$getTxLink("Your prize was successfully sent!", txId);
-				_$txStatus.empty().append($link)
-			}).catch((e)=>{
-				_$clearTxStatus.show();
-				_$statusCell.removeClass("prepending pending").addClass("error");
-				if (txId) {
-					const $txLink = util.$getTxLink("Your tx failed.", txId);
-					_$txStatus.empty().append($txLink).append(`<br>${e.message.split("\n")[0]}`);
-				} else {
-					_$txStatus.text(`Error: ${e.message.split("\n")[0]}`);	
-				}
-			});
-		};
-
 		function _triggerAlerts(blocksLeft, amNowLoser, newWinner){
 			if (Object.keys(_alerts).length==0) return;
 			const timeStr = util.getLocalTime();
-			const newWinnerStr = _curCurrentWinner == ethUtil.getCurrentAccount()
+			const newWinnerStr = _curMonarch == ethUtil.getCurrentAccount()
 				? "You"
-				: _curCurrentWinner.slice(0, 10) + "...";
+				: _curMonarch.slice(0, 10) + "...";
 			const title = `Auction @ ${_game.address.slice(0,10)}...`;
 
 			// alert one or none of: Not Winner, New Winner
@@ -497,10 +475,12 @@ Loader.require("monarchy")
 			_$alertsIcon.remove();
 		}
 
-
-		function _bid(obj){
+		function _overthrow(obj){
+			const gasPrice = obj.gasPrice;
+			const waitTimeMs = (obj.waitTimeS || _blocktime*3) * 1000;
+			const decree = obj.decree;
 			const setClass = (cls) => {
-				_$statusCell.removeClass("prepending pending refunded error current-winner");
+				_$statusCell.removeClass("prepending pending refunded success failure");
 				_$statusCell.addClass(cls);
 			}
 			
@@ -510,7 +490,7 @@ Loader.require("monarchy")
 			_$status.hide();
 			_$btn.attr("disabled", "disabled");
 			const txStatus = util.getTxStatus({
-				waitTimeMs: (obj.waitTimeS || _blocktime*3) * 1000,
+				waitTimeMs: waitTimeMs,
 				onSuccess: (res, txStatus) => {
 					const success = res.events.find(e => e.name=="OverthrowOccurred");
 					const refundSuccess = res.events.find(e => e.name=="OverthrowRefundSuccess");
@@ -518,16 +498,16 @@ Loader.require("monarchy")
 						setClass("refunded");
 						txStatus.addWarningMsg(`Your overthrow was refunded: "${refundSuccess.args.msg}"`);
 					} else if (success) {
-						setClass("current-winner");
-						txStatus.addSuccessMsg(`Your overthow succeeded! You should become the Monarch shortly, or you'll be refunded.`);
+						setClass("success");
+						txStatus.addSuccessMsg(`Your overthow succeeded! Waiting for provider to sync...`);
 						setTimeout(_self.refresh, 1000);
 						setTimeout(_self.refresh, 5000);
 					} else {
-						setClass("error");
+						setClass("failure");
 						txStatus.addFailureMsg(`No events found. Please refresh the page.`);
 					}
 				},
-				onFailure: (res, txStatus) => setClass("error"),
+				onFailure: (res, txStatus) => setClass("failure"),
 				onTxId: (txId) => setClass("pending"),
 				onClear: () => {
 					setClass("");
@@ -540,11 +520,69 @@ Loader.require("monarchy")
 
 			// create promise, or fail the TxStatus
 			try {
-				txStatus.setTxPromise(_game.sendTransaction({
-					gas: 59000,
-					value: _fee,
-					gasPrice: obj.gasPrice
-				}));
+				txStatus.setTxPromise(
+					_game.overthrow({
+						_decree: web3.fromUtf8(decree)
+					},{
+						gas: 50000,
+						value: _fee,
+						gasPrice: gasPrice
+					})
+				);
+			} catch (e) {
+				setClass("error");
+				txStatus.fail(`Error: ${e.message.split("\n")[0]}`);
+				ethStatus.open();
+			}
+		}
+
+		function _sendPrize(obj) {
+			const waitTimeS = obj.waitTimeS;
+			const gasPrice = obj.gasPrice;
+			const setClass = (cls) => {
+				_$statusCell.removeClass("prepending pending refunded success failure");
+				_$statusCell.addClass(cls);
+			}
+			
+			// create txStatus object, append it.
+			setClass("prepending");
+			_$txStatus.show();
+			_$status.hide();
+			const txStatus = util.getTxStatus({
+				waitTimeMs: (obj.waitTimeS || _blocktime*3) * 1000,
+				onSuccess: (res, txStatus) => {
+					// event SendPrizeError(uint time, string msg);
+    				// event SendPrizeSuccess(uint time, address indexed redeemer, address indexed recipient, uint amount, uint gasLimit);
+    				// event SendPrizeFailure(uint time, address indexed redeemer, address indexed recipient, uint amount, uint gasLimit);
+					const success = res.events.find(e => e.name=="SendPrizeSuccess");
+					const error = res.events.find(e => e.name=="SendPrizeError")
+					const failure = res.events.find(e => e.name=="SendPrizeFailure");
+					if (success) {
+						setClass("success");
+						const ethStr = util.toEthStrFixed(success.args.amount);
+						txStatus.addSuccessMsg(`You were successfully sent ${ethStr}.`);
+					} else if (failure) {
+						setClass("failure");
+						txStatus.addFailureMsg(`Address's fallback function throw an error.`);
+					} else if (error) {
+						setClass("refunded");
+						const msg = error.args.msg;
+						txStatus.addWarningMsg(`Did not send prize: ${msg}.`);
+					}
+				},
+				onFailure: (res, txStatus) => setClass("failure"),
+				onTxId: (txId) => setClass("pending"),
+				onClear: () => {
+					setClass("");
+					_$txStatus.empty().hide();
+					_$status.show();
+				}
+			});
+			txStatus.$e.appendTo(_$txStatus);
+
+			// create promise, or fail the TxStatus
+			try {
+				txStatus.setTxPromise(_game.sendPrize({_gasLimit: 0}, {gas: 100000, gasPrice: gasPrice}));
 			} catch (e) {
 				setClass("error");
 				txStatus.fail(`Error: ${e.message.split("\n")[0]}`);
@@ -561,11 +599,6 @@ Loader.require("monarchy")
 			tippy(_$e.find(".tip-manually").toArray(), {
 				dynamicTitle: true
 			});
-
-			// update tip. todo: move this to setBlocktime
-			const blocksLeftTip = `The number of blocks remaining until the current Monarch wins. \
-			Time is estimated using the current average blocktime of ${_blocktime.round()} seconds.`;
-			_$e.find("td.blocks-left .label").attr("title", blocksLeftTip);
 
 			// update other more involved tips
 			_initAlerts();
@@ -594,7 +627,7 @@ Loader.require("monarchy")
 				} else {
 					_$e.find("td.prize .incr").hide();
 				}
-				_initBidTip();
+				_initOverthrowTip();
 			});
 		};
 
@@ -731,38 +764,53 @@ Loader.require("monarchy")
 		}
 
 		function _initSendPrizeTip(){
-			const $gasPrice = _$sendPrizeTip.find(".gasPrice");
-			const $prize = _$sendPrizeTip.find(".prize");
-			tippy(_$sendPrizeIcon[0], {
-				theme: "light",
-				animation: "scale",
-				placement: "top",
-				trigger: "mouseenter",
-				html: _$sendPrizeTip.show()[0],
-				onShow: function(){
-					_GAS_PRICE_SLIDER.refresh();
-					$gasPrice.append(_GAS_PRICE_SLIDER.$e);
-					$prize.text(ethUtil.toEthStr(_curPrize));
-				},
-				onHidden: function(){
-					// fix firefox bug where tip won't reshow
-					_$sendPrizeIcon[0]._tippy.destroy();
-					initSendPrizeTip();
-				}
-			})
-		};
-
-		// init bidTip
-		function _initBidTip(){
-			const $bidTip = _$e.find(".bidTip");
-			const $bidPrice = $bidTip.find(".bidPrice");
-			const $prize = $bidTip.find(".prize");
-			const $prizeIncr = $bidTip.find(".prizeIncr");
-			const $addBlocks = $bidTip.find(".addBlocks");
+			const $tip = _$e.find(".send-prize-tip");
+			const $prize = $tip.find(".prize");
+			const $btn = $tip.find("button");
 
 			const gps = util.getGasPriceSlider(20);
 			gps.refresh();
-			gps.$e.appendTo($bidTip.find(".gasPrice"))
+			gps.$head.hide();
+			gps.$e.appendTo($tip.find(".gas-price-ctnr"));
+
+			(function attachTip(){
+				tippy(_$sendPrizeIcon[0], {
+					theme: "light",
+					animation: "scale",
+					placement: "top",
+					trigger: "mouseenter",
+					html: $tip.show()[0],
+					onShow: function(){
+						gps.refresh();
+						$prize.text(ethUtil.toEthStr(_curPrize));
+					},
+					onHidden: function(){
+						// fix firefox bug where tip won't reshow
+						_$sendPrizeIcon[0]._tippy.destroy();
+						attachTip();
+					}
+				});
+			}());
+
+			$btn.click(function(){
+				_$sendPrizeIcon[0]._tippy.hide(0);
+				_sendPrize({gasPrice: gps.getValue(), waitTimeS: gps.getWaitTimeS()});
+			});
+		};
+
+		// init overthrow tip
+		function _initOverthrowTip(){
+			const $tip = _$e.find(".overthrow-tip");
+			const $bidPrice = $tip.find(".bid-price");
+			const $prize = $tip.find(".prize");
+			const $prizeIncr = $tip.find(".prize-incr");
+			const $reignBlocks = $tip.find(".reign-blocks");
+			const $txtDecree = $tip.find(".txt-decree");
+
+			const gps = util.getGasPriceSlider(20);
+			gps.refresh();
+			gps.$head.hide();
+			gps.$e.appendTo($tip.find(".gas-price-ctnr"));
 
 			// set priceIncr string
 			const ethStr = util.toEthStrFixed(_prizeIncr.abs());
@@ -772,23 +820,40 @@ Loader.require("monarchy")
 					? `The prize will go up by ${ethStr}`
 					: `The prize will go down by ${ethStr}`;
 			$prizeIncr.text(prizeIncrStr);
+			$reignBlocks.text(`${_reignBlocks} blocks`);
 
-			// set "addBlocks" string and tip
-			const addBlocksStr = `${_reignBlocks} blocks`;
-			const addBlocksTime = util.toTime(_blocktime.mul(_reignBlocks));
-			$addBlocks.text(addBlocksStr).attr("title", `~${addBlocksTime}`);
-			tippy($addBlocks[0]);
+			// set up decree
+			var decree = "";
+			$txtDecree.val("").on("input", updateDecree);
+			updateDecree();
+			function updateDecree() {
+				const $err = $tip.find(".error").hide();
+				const $display = $tip.find(".decree-display");
+
+				const input = $txtDecree.val();
+				const bytes23 = web3.fromUtf8(input).slice(0,48);
+				decree = (function(){
+					try { return web3.toUtf8(bytes23); }
+					catch(e) { return "<invalid decree>"; }
+				}());
+
+				if (decree !== input) {
+					$err.show();
+					$display.text(decree);
+				}
+			}
 
 			(function attachTip(){
 				tippy(_$btn[0], {
 					// arrow: false,
 					theme: "light",
 					animation: "fade",
-					html: $bidTip.show()[0],
+					html: $tip.show()[0],
 					onShow: function(){
 						gps.refresh();
 						$bidPrice.text(util.toEthStrFixed(_fee));
 						$prize.text(util.toEthStrFixed(_curPrize));
+						setTimeout(()=>$txtDecree.focus(), 500);
 					},
 					onHidden: function(){
 						// fix firefox bug where tip wont reshow
@@ -797,11 +862,10 @@ Loader.require("monarchy")
 					}
 				});
 			}());
-
 			
 			_$btn.click(function(){
 				this._tippy.hide(0);
-				_bid({gasPrice: gps.getValue(), waitTimeS: gps.getWaitTimeS()});
+				_overthrow({decree: decree, gasPrice: gps.getValue(), waitTimeS: gps.getWaitTimeS()});
 			});
 		};
 

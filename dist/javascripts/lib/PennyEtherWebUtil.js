@@ -864,6 +864,10 @@
             _$clear.show();
             _$status.text(str);
         };
+        this.complete = ($el) => {
+            _$clear.show();
+            _$status.empty().append($el);
+        };
         this.$e = _$e;
         this.$status = _$status;
         this.$clear = _$clear;
