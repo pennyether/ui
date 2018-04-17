@@ -416,7 +416,16 @@
 			.auction td .field {
 				padding: 4px;
 			}
+			.auction td .field .eth {
+				display: inline-block;
+				font-size: 80%;
+				font-weight: bold;
+				color: gray;
+				margin-left: -3px;
+				text-transform: uppercase;
+			}
 
+		/* prize */
 		.auction td.prize,
 		.auction td.fee {
 			white-space: nowrap;
@@ -443,7 +452,12 @@
 			text-decoration-style: dotted;
 			text-decoration-color: gray;
 		}
+		.auction.new-prize td.prize {
+			border-top-left-radius: 10px;
+			animation: flashGrayBackground 5s 0s 1 ease-out;
+		}
 
+		/* fee */
 		.auction td.fee .value {
 			display: inline-block;
 			font-size: 200%;
@@ -452,10 +466,6 @@
 		}
 
 		/* blocks / time left */
-		.auction.new-block td.blocks-left {
-			border-top-right-radius: 10px;
-			animation: flashGrayBackground 5s 0s 1 ease-out;
-		}
 		.auction td.blocks-left .value {
 			display: inline-block;
 			font-size: 300%;
@@ -499,6 +509,10 @@
 		.auction.ten-minutes td.blocks-left .time-left {
 			font-weight: bold;
 			color: orange;
+		}
+		.auction.new-block td.blocks-left {
+			border-top-right-radius: 10px;
+			animation: flashGrayBackground 5s 0s 1 ease-out;
 		}
 
 
@@ -553,86 +567,101 @@
 		.auction td.overthrow button:focus {
 			outline: none;
 		}
-		
 
-		.auction .alertsIcon {
-			position: absolute;
-			top: 2px;
-			right: 5px;
-			font-size: 150%;
-			filter: saturate(0%);
-			cursor: pointer;
-		}
-		.auction .alertsIcon.on {
-			filter: saturate(100%);
-		}
-		.auction .eth {
-			display: inline-block;
-			font-size: 80%;
-			font-weight: bold;
-			color: gray;
-			margin-left: -3px;
-			text-transform: uppercase;
-		}
-		.auction .infoIcon {
-			font-size: 200%;
-			margin-top: -10px;
-			padding: 0px 5px;
-			color: blue;
-			cursor: pointer;
-		}
-
-		.auction .statusCell {
+		/* status cell */
+		.auction td.status {
 			font-size: 80%;
 			border-bottom-right-radius: 10px;
 		}
-			.auction .statusCell.prepending {
+			.auction td.status.prepending {
 				animation: statusPrepending 1s 0s infinite ease-in-out alternate;
 			}
-			.auction .statusCell.pending {
+			.auction td.status.pending {
 				animation: statusPending 1s 0s infinite ease-in-out alternate;
 			}
-			.auction .statusCell.refunded {
+			.auction td.status.refunded {
 				background: rgba(255, 255, 0, .2);
 			}
-			.auction .statusCell.failure {
+			.auction td.status.failure {
 				background: rgba(255, 0, 0, .2);
 			}
-			.auction .statusCell.success {
+			.auction td.status.success {
 				background: rgba(0, 255, 128, .2);
 			}
-			.auction .statusCell .TxStatus {
+			.auction td.status .TxStatus {
 				background: none;
 				border: none;
 			}
-		.auction .statusCell .viewLink {
+		.auction td.status .view-link {
 			position: absolute;
 			padding: 0px 3px;
 			bottom: 0px;
 			right: 0px;
 			opacity: .5;
 		}
-		.auction .statusCell .viewLink a {
+		.auction td.status .view-link a {
 			text-decoration: none;
 		}
+		
+		/* reused class containers */
+		.monarch-value {
+			display: inline-block;
+		}
+			.monarch-value img {
+				height: 1em;
+				margin-right: .5em;
+				vertical-align: text-bottom;
+			}
+			.monarch-value a {
+				color: green;
+			}
 
-		.auction.new-prize td.prize {
-			border-top-left-radius: 10px;
-			animation: flashGrayBackground 5s 0s 1 ease-out;
+		/* tip icons */
+		.auction .alerts-icon {
+			position: absolute;
+			top: 2px;
+			right: 5px;
+			font-size: 150%;
+			filter: saturate(0%);
+			cursor: pointer;
+			transition: filter .3s;
+		}
+			.auction .alerts-icon.on {
+				filter: saturate(100%);
+			}
+
+		.auction .send-prize-icon {
+			margin: 4px;
+			display: inline-block;
+			color: green;
+			font-weight: bold;
+			border-bottom: 1px dotted green;
+		}
+
+		.auction .history-icon {
+			font-size: 200%;
+			margin-top: -10px;
+			padding: 0px 5px;
+			color: blue;
+			cursor: pointer;
 		}
 	
 
-		/* Auction Tips */
-		.moreTip {
-			width: 350px;
+		/* Tips */
+		.history-tip {
+			width: 420px;
 		}
-		.moreTip .LogViewer .status {
+		.history-tip .LogViewer .status {
 			display: none;
 		}
-		.moreTip .LogViewer {
+		.history-tip .LogViewer {
 			margin-top: -8px;
 		}
+		.history-tip .LogViewer a {
+			color: blue;
+		}
 
+		/* overthrow, sendprize tips */
 		.overthrow-tip,
 		.send-prize-tip {
 			font-size: 90%;
@@ -693,33 +722,56 @@
 					text-decoration-color: gray;
 				}
 
-		.send-prize-tip {
+			.send-prize-tip {
+				text-align: center;
+			}
+			.send-prize-tip .msg {
+				margin-top: -5px;
+				padding: 8px 0px;
+			}
+			.send-prize-tip .manual {
+				margin-top: 10px;
+				padding: 5px;
+				border: 1px dotted #AAA;
+				background: #DDD;
+				border-radius: 5px;
+			}
+			.send-prize-tip button {
+				margin: 5px 0px;
+				background: green;
+				color: white;
+				font-size: 120%;
+				cursor: pointer;
+			}
+
+		.alerts-tip .title {
+			font-weight: bold;
 			text-align: center;
+			border-bottom: 1px solid #CCC;
+			padding: 0px 0px 2px 0px;
+			margin-bottom: 5px;
 		}
-		.send-prize-tip .msg {
-			margin-top: -5px;
-			padding: 8px 0px;
-		}
-		.send-prize-tip .manual {
-			margin-top: 10px;
-			padding: 5px;
-			border: 1px dotted #AAA;
-			background: #DDD;
-			border-radius: 5px;
-		}
-		.send-prize-tip button {
-			margin: 5px 0px;
-			background: green;
-			color: white;
-			font-size: 120%;
+		.alerts-tip .option {
+			font-size: 90%;
+			padding: 3px 0px;
+			margin: 2px 0px;
 			cursor: pointer;
 		}
-		.auction .send-prize-icon {
-			margin: 4px;
-			display: inline-block;
-			color: green;
-			font-weight: bold;
-			border-bottom: 1px dotted green;
+		.alerts-tip .request {
+			display: none;
+			margin: 5px 0px;
+			border: 1px solid #CCC;
+			background: #DDD;
+			padding: 2px 4px;
+			border-radius: 4px;
+			font-size: 90%;
+		}
+		.alerts-tip.disabled .request {
+			display: block;
+		}
+		.alerts-tip.disabled .options {
+			pointer-events: none;
+			opacity: .5;
 		}
 
 
@@ -771,7 +823,7 @@
 		</style>
 
 		<div class="auction template" style="display: none;">
-			<div class="moreTip" style="display: none;">
+			<div class="history-tip" style="display: none;">
 			</div>
 			<div class="overthrow-tip" style="display: none;">
 				<div class="content">
@@ -834,38 +886,7 @@
 				</div>
 				<div class="send-prize-icon">Now what?</div>
 			</div>
-			<style>
-				.alertsTip .title {
-					font-weight: bold;
-					text-align: center;
-					border-bottom: 1px solid #CCC;
-					padding: 0px 0px 2px 0px;
-					margin-bottom: 5px;
-				}
-				.alertsTip .option {
-					font-size: 90%;
-					padding: 3px 0px;
-					margin: 2px 0px;
-					cursor: pointer;
-				}
-				.alertsTip .request {
-					display: none;
-					margin: 5px 0px;
-					border: 1px solid #CCC;
-					background: #DDD;
-					padding: 2px 4px;
-					border-radius: 4px;
-					font-size: 90%;
-				}
-				.alertsTip.disabled .request {
-					display: block;
-				}
-				.alertsTip.disabled .options {
-					pointer-events: none;
-					opacity: .5;
-				}
-			</style>
-			<div class="alertsTip disabled" style="display: none;">
+			<div class="alerts-tip disabled" style="display: none;">
 				<div class="title">Alerts</div>
 				<div class="request">
 					Browser Notifications are not enabled.<br>
@@ -922,7 +943,7 @@
 						<div class="label tip-manually" title=" " data-tippy-trigger="click">
 							Blocks Remaining
 						</div>
-						<div class="alertsIcon">🔔</div>
+						<div class="alerts-icon">🔔</div>
 						<div class="field">
 							<div class="value"></div>
 							<div class="reign-blocks tip-manually no-tip-style" title="The number of blocks the Monarch must reign (not get overthrown) in order to win.<br>This value does not change." data-tippy-trigger="click"></div>
@@ -946,26 +967,27 @@
 							Current Monarch
 						</div>
 						<div class="field">
-							<div class="value"></div>
+							<div class="value">
+								<img/><a></a>
+							</div>
 							<div class="decree tip-manually no-tip-style" data-tippy-trigger="click" title="This Monarch included a decree"></div>
 						</div>
 					</td>
 					<td>
-						<div class="infoIcon">☰</div>
+						<div class="history-icon">☰</div>
 					</td>
 				</tr>
 				<tr class="bottom">
 					<td class="overthrow">
 						<button>Overthrow!</button>
 					</td>
-					<td colspan=2 class="statusCell">
+					<td colspan=2 class="status">
 						<div class="label tip-manually" title="This displays the auction status." data-tippy-trigger="click">
 							Status
 						</div>
-						<div class="viewLink"><a target="_blank">🔎</a></div>
-						<div class="clearTxStatus" style="display: none;">clear</div>
+						<div class="view-link"><a target="_blank">🔎</a></div>
 						<div class="status"></div>
-						<div class="txStatus" style="display: none;"></div>
+						<div class="tx-status" style="display: none;"></div>
 					</td>
 				</tr>
 			</table>	

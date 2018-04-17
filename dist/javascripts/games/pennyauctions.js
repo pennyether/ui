@@ -136,9 +136,9 @@ Loader.require("monarchy")
 		var _alerts = {};
 
 		// initialize dom elements
-		const _$status = _$e.find(".status");
-		const _$txStatus = _$e.find(".txStatus");
-		const _$statusCell = _$e.find(".statusCell");
+		const _$statusCell = _$e.find("td.status");
+		const _$status = _$statusCell.find(".status");
+		const _$txStatus = _$statusCell.find(".tx-status");
 		const _$currentMonarchCell = _$e.find("td.current-monarch");
 		const _$monarch = _$currentMonarchCell.find(".value");
 		const _$decree = _$e.find("td.current-monarch .decree");
@@ -147,7 +147,7 @@ Loader.require("monarchy")
 		const _$timeLeft = _$e.find("td.blocks-left .time-left");
 		const _$bidPrice = _$e.find("td.fee .value");
 		const _$btn = _$e.find("td.overthrow button");
-		const _$alertsIcon = _$e.find(".alertsIcon");
+		const _$alertsIcon = _$e.find(".alerts-icon");
 		const _$sendPrizeIcon = _$e.find(".send-prize-icon").detach();
 
 
@@ -271,10 +271,7 @@ Loader.require("monarchy")
 				const monarch = obj.monarch;
 				const blockEnded = obj.blockEnded;
 				const blocksLeft = blockEnded - block;
-				const decree = (function(){
-					try { return web3.toUtf8(obj.decree); }
-					catch (e) { return "<invalid decree>"; }
-				}());
+				const decree = _getDecreeStr(obj.decree);
 				const refundSuccess = obj.refundSuccess ? obj.refundSuccess[0] : null;
 				const refundFailure = obj.refundFailure ? obj.refundFailure[0] : null;
 
@@ -285,7 +282,7 @@ Loader.require("monarchy")
 				const isNewWinner = _curMonarch && monarch != _curMonarch;
 				const isEnded = blocksLeft < 1;
 				const isNewEnded = isEnded && !_isEnded;
-				const isNewBlock = !_curBlocksLeft && blocksLeft != _curBlocksLeft;
+				const isNewBlock = blocksLeft != _curBlocksLeft;
 				const isNewPrize = _curPrize && !_curPrize.equals(prize);
 				_isEnded = isEnded;
 				_curPrize = prize;
@@ -298,10 +295,8 @@ Loader.require("monarchy")
 				// update DOM: monarch, decree, prize
 				_$e.removeClass("winner");
 				if (amWinner) _$e.addClass("winner");
-				const $monarchLink = util.$getShortAddrLink(monarch);
-				if (amWinner) $monarchLink.text("You");
-				_$monarch.empty().append($monarchLink);
-				if (decree.length) _$decree.text(decree).show();
+				_$monarch.empty().append(_$getMonarch(monarch));
+				if (decree.length) _$decree.text(`"${decree}"`).show();
 				else _$decree.hide();
 				_$prize.text(`${ethUtil.toEth(prize)}`);
 
@@ -365,7 +360,7 @@ Loader.require("monarchy")
 				if (amNowLoser){
 					_$status.empty()
 						.append("You've been overthrown by ")
-						.append(_$monarch.find("a").clone());
+						.append(_$monarch.clone());
 					_$e.removeClass("now-winner");
 					_$e.removeClass("new-winner");
 					flashClass("now-loser");
@@ -397,7 +392,7 @@ Loader.require("monarchy")
 					setTimeout(function(){ t.hide(); }, 3000);
 				} else if (isNewWinner) {
 					_$status.empty()
-						.append(_$monarch.find("a").clone())
+						.append(_$monarch.clone())
 						.append(" is now the Monarch.");
 					_$e.removeClass("now-winner");
 					_$e.removeClass("now-loser");
@@ -408,7 +403,7 @@ Loader.require("monarchy")
 						You'll win in ${blocksLeft} blocks unless you are overthrown.`);
 					} else {
 						_$status.empty()
-							.append(_$monarch.find("a").clone())
+							.append(_$monarch.clone())
 							.append(` is the Monarch, and will win in ${blocksLeft} blocks unless they are overthrown.`);
 					}
 				}
@@ -416,6 +411,21 @@ Loader.require("monarchy")
 				if (isNewPrize) flashClass("new-prize");
 			});
 		};
+
+		function _$getMonarch(monarch){
+			const $el = $("<div class='monarch-value'></div>");
+			// get monarch link
+			const $monarchLink = util.$getShortAddrLink(monarch);
+			if (ethUtil.getCurrentAccount() === monarch) $monarchLink.text("You");
+			// get gravatar
+			const gravatarId = monarch.slice(2, 34);
+			const $monarchImg = $("<img></img>").attr(`src`, `https://www.gravatar.com/avatar/${gravatarId}?d=retro`)
+			return $el.append($monarchImg).append($monarchLink);
+		};
+		function _getDecreeStr(bytes23){
+			try { return web3.toUtf8(bytes23); }
+			catch (e) { return "<invalid decree>"; }
+		}
 
 		function _triggerAlerts(blocksLeft, amNowLoser, newWinner){
 			if (Object.keys(_alerts).length==0) return;
@@ -530,7 +540,7 @@ Loader.require("monarchy")
 					})
 				);
 			} catch (e) {
-				setClass("error");
+				setClass("failure");
 				txStatus.fail(`Error: ${e.message.split("\n")[0]}`);
 				ethStatus.open();
 			}
@@ -584,7 +594,7 @@ Loader.require("monarchy")
 			try {
 				txStatus.setTxPromise(_game.sendPrize({_gasLimit: 0}, {gas: 100000, gasPrice: gasPrice}));
 			} catch (e) {
-				setClass("error");
+				setClass("failure");
 				txStatus.fail(`Error: ${e.message.split("\n")[0]}`);
 				ethStatus.open();
 			}
@@ -592,7 +602,7 @@ Loader.require("monarchy")
 
 		function _init() {
 			// initialize this auction
-			_$e.find(".viewLink a")
+			_$e.find(".view-link a")
 				.attr("href", `/games/viewpennyauction.html#${_game.address}`);
 			
 			// init tippies
@@ -712,54 +722,113 @@ Loader.require("monarchy")
 		}
 
 		function _initHistoryTip() {
-			const $moreTip = _$e.find(".moreTip");
-			const $icon = _$e.find(".infoIcon");
+			const $tip = _$e.find(".history-tip");
+			const $icon = _$e.find(".history-icon");
+			var logViewer = null;
+			var logViewerPromise = null;
 
 			tippy($icon[0], {
 				trigger: "click",
 				animation: "fade",
 				placement: "right",
-				html: $moreTip.show()[0],
+				html: $tip.show()[0],
 				onShow: function(){
-					refreshMoreTip();
-				},
-				onHidden: function() {
-					$moreTip.empty();
+					refreshHistory();
 				}
 			});
 
-			function refreshMoreTip(){
-				const $lv = util.$getLogViewer({
-					$head: "Monarch History",
-					events: [{
-						instance: _game,
-						name: "OverthrowOccurred",
-					},{
-						instance: _game,
-						name: "Started"
-					}],
-					order: "newest",
-					startBlock: Math.min(_curBlockEnded, ethUtil.getCurrentBlockHeight()),
-					stopFn: (event)=>event.name=="Started",
-					dateFn: (event, prevEvent, nextEvent) => {
-						if (!prevEvent){
-							return util.toDateStr(event.args.time);
-						} else {
-							const timeDiff = event.args.time.minus(prevEvent.args.time);
-							return `${util.toTime(timeDiff)} later`;
+			function refreshHistory(){
+				if (logViewerPromise) return;
+				if (logViewer == null) {
+					$tip.text("Loading...");
+					logViewerPromise = _game.getEvents("Started").then(evs => {
+						if (evs.length == 0) throw new Error(`Could not find start event.`);
+						return evs[0].blockNumber;
+					}).then(startBlock => {
+						logViewer = createLogViewer(startBlock)
+						$tip.empty().append(logViewer.$e);
+					}).catch(e => {
+						$tip.text(`Failed to load: ${e.message}`);
+					}).finally(()=>{
+						logViewerPromise = null;
+					});
+				} else {
+					logViewer.reset(true);
+				}
+				
+				function createLogViewer(startBlock){
+					return util.getLogViewer({
+						$head: "Monarch History",
+						events: [{
+							instance: _game,
+							name: "OverthrowOccurred",
+						},{
+							instance: _game,
+							name: "Started"
+						}],
+						order: "newest",
+						minBlock: startBlock,
+						dateFn: (event, prevEvent, nextEvent) => {
+							if (!prevEvent || event.name=="GameStart"){
+								const dateStr = util.toDateStr(event.args.time, {second: false});
+								return $("<span></span>").text(dateStr).css("font-size", "80%");
+							} else {
+								const blockDiff = event.blockNumber - prevEvent.blockNumber;
+								const blockStr = blockDiff == 1 ? "block" : "blocks";
+								const timeDiff = event.args.time.minus(prevEvent.args.time);
+								return $("<div></div>")
+									.append(`${blockDiff} ${blockStr} later`)
+									.attr("title", `${util.toTime(timeDiff)}`)
+							}
+						},
+						valueFn: (event) => {
+							if (event.name=="OverthrowOccurred"){
+								const $newMonarch = _$getMonarch(event.args.newMonarch);
+								const $oldMonarch = _$getMonarch(event.args.prevMonarch);
+								const decree = _getDecreeStr(event.args.decree);
+								const $decree = $("<span></span>").text(`"${decree}"`);
+								const $el = $("<div></div>").append($newMonarch)
+									.append(" ovethrew ")
+									.append($oldMonarch);
+								if (decree.length) $el.append("<br>Decree: ").append($decree);
+								return $el;
+							} else if (event.name=="Started"){
+								return "<b>Auction Started</b>";
+							}
 						}
-					},
-					valueFn: (event)=>{
-						if (event.name=="BidOccurred"){
-							const $txLink = util.$getTxLink("Bid", event.transactionHash);
-							const $bidderLink = util.$getShortAddrLink(event.args.bidder);
-							return $("<div></div>").append($txLink).append(" by: ").append($bidderLink);
-						} else if (event.name=="Started"){
-							return "<b>Auction Started</b>";
-						}
-					}
-				});
-				$moreTip.empty().append($lv);
+					});
+				}
+				// const $lv = util.$getLogViewer({
+				// 	$head: "Monarch History",
+				// 	events: [{
+				// 		instance: _game,
+				// 		name: "OverthrowOccurred",
+				// 	},{
+				// 		instance: _game,
+				// 		name: "Started"
+				// 	}],
+				// 	order: "newest",
+				// 	startBlock: Math.min(_curBlockEnded, ethUtil.getCurrentBlockHeight()),
+				// 	stopFn: (event)=>event.name=="Started",
+				// 	dateFn: (event, prevEvent, nextEvent) => {
+				// 		if (!prevEvent){
+				// 			return util.toDateStr(event.args.time);
+				// 		} else {
+				// 			const timeDiff = event.args.time.minus(prevEvent.args.time);
+				// 			return `${util.toTime(timeDiff)} later`;
+				// 		}
+				// 	},
+				// 	valueFn: (event)=>{
+				// 		if (event.name=="OverthrowOccurred"){
+				// 			const $txLink = util.$getTxLink("Bid", event.transactionHash);
+				// 			const $bidderLink = util.$getShortAddrLink(event.args.bidder);
+				// 			return $("<div></div>").append($txLink).append(" by: ").append($bidderLink);
+				// 		} else if (event.name=="Started"){
+				// 			return "<b>Auction Started</b>";
+				// 		}
+				// 	}
+				// });
+				// $moreTip.empty().append($lv);
 			};
 		}
 

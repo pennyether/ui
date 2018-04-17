@@ -289,7 +289,7 @@
             Object.keys(opts).forEach((name)=>{
                 const $e = $("<div></div>");
                 if (name=="value")
-                    $e.text(`${name}: ${ethUtil.toEthStr(new BigNumber(opts[name]))}`);
+                    $e.text(`${name}: ${util.toEthStr(new BigNumber(opts[name]))}`);
                 if (name=="gas")
                     $e.text(`${name}: ${new BigNumber(opts[name]||0)}`);
                 if (name=="gasPrice")
