@@ -144,6 +144,7 @@ Loader.require("monarchy")
 		const _$decree = _$e.find("td.current-monarch .decree");
 		const _$prize = _$e.find(".prize .value");
 		const _$blocksLeft = _$e.find("td.blocks-left .value");
+		const _$reignBlocks = _$e.find("td.blocks-left .reign-blocks");
 		const _$timeLeft = _$e.find("td.blocks-left .time-left");
 		const _$bidPrice = _$e.find("td.fee .value");
 		const _$btn = _$e.find("td.overthrow button");
@@ -188,7 +189,7 @@ Loader.require("monarchy")
 		// This updates the status cell to show the payout progress.
 		this.updateEndedStatus = function(){
 			_$status.empty();
-			_$e.find(".reign-blocks").hide();
+			_$reignBlocks.hide();
 			// display who won.
 			const $monarch = _$monarch.find(".monarch-value").clone();
 			const $winnerInfo = $("<div></div>").append($monarch).append(_curAmWinner ? " won!" : " won.");
@@ -297,6 +298,8 @@ Loader.require("monarchy")
 				if (decree.length) _$decree.text(`"${decree}"`).show();
 				else _$decree.hide();
 				_$prize.text(`${ethUtil.toEth(prize)}`);
+				if (_curBlocksLeft > _reignBlocks) _$reignBlocks.hide();
+				else _$reignBlocks.show();
 
 				// update stuff that uses _blocktime
 				if (isNewBlock) {
@@ -626,7 +629,11 @@ Loader.require("monarchy")
 
 				// update static DOM elements
 				_$bidPrice.text(`${ethUtil.toEth(_fee)}`);
-				_$e.find("td.blocks-left .reign-blocks").text(`of ${_reignBlocks}`);
+				_$reignBlocks
+					.text(`of ${_reignBlocks}`)
+					.attr("title", `The Monarch will win if they reign for ${_reignBlocks} blocks without getting overthrown.
+						<br>This value does not change.`);
+				
 				if (_prizeIncr.gt(0)){
 					_$e.find("td.prize .incr").text(`+${util.toEthStrFixed(_prizeIncr, 5, "")} per overthrow`);
 				} else if (_prizeIncr.lt(0)) {
@@ -753,82 +760,51 @@ Loader.require("monarchy")
 				} else {
 					logViewer.reset(true);
 				}
-				
-				function createLogViewer(startBlock){
-					return util.getLogViewer({
-						$head: "Monarch History",
-						events: [{
-							instance: _game,
-							name: "OverthrowOccurred",
-						},{
-							instance: _game,
-							name: "Started"
-						}],
-						order: "newest",
-						minBlock: startBlock,
-						blocksPerSearch: _reignBlocks * 10,
-						dateFn: (event, prevEvent, nextEvent) => {
-							if (!prevEvent || event.name=="GameStart"){
-								const dateStr = util.toDateStr(event.args.time, {second: false});
-								return $("<span></span>").text(dateStr).css("font-size", "80%");
-							} else {
-								const blockDiff = event.blockNumber - prevEvent.blockNumber;
-								const blockStr = blockDiff == 1 ? "block" : "blocks";
-								const timeDiff = event.args.time.minus(prevEvent.args.time);
-								return $("<div></div>")
-									.append(`${blockDiff} ${blockStr} later`)
-									.attr("title", `${util.toTime(timeDiff)}`)
-							}
-						},
-						valueFn: (event) => {
-							if (event.name=="OverthrowOccurred"){
-								const $newMonarch = _$getMonarch(event.args.newMonarch);
-								const $oldMonarch = _$getMonarch(event.args.prevMonarch);
-								const decree = _getDecreeStr(event.args.decree);
-								const $decree = $("<span class='decree'></span>").text(`"${decree}"`);
-								const $el = $("<div></div>").append($newMonarch)
-									.append(" ovethrew ")
-									.append($oldMonarch);
-								if (decree.length) $el.append("<br>Decree: ").append($decree);
-								return $el;
-							} else if (event.name=="Started"){
-								return "<b>Auction Started</b>";
-							}
-						}
-					});
-				}
-				// const $lv = util.$getLogViewer({
-				// 	$head: "Monarch History",
-				// 	events: [{
-				// 		instance: _game,
-				// 		name: "OverthrowOccurred",
-				// 	},{
-				// 		instance: _game,
-				// 		name: "Started"
-				// 	}],
-				// 	order: "newest",
-				// 	startBlock: Math.min(_curBlockEnded, ethUtil.getCurrentBlockHeight()),
-				// 	stopFn: (event)=>event.name=="Started",
-				// 	dateFn: (event, prevEvent, nextEvent) => {
-				// 		if (!prevEvent){
-				// 			return util.toDateStr(event.args.time);
-				// 		} else {
-				// 			const timeDiff = event.args.time.minus(prevEvent.args.time);
-				// 			return `${util.toTime(timeDiff)} later`;
-				// 		}
-				// 	},
-				// 	valueFn: (event)=>{
-				// 		if (event.name=="OverthrowOccurred"){
-				// 			const $txLink = util.$getTxLink("Bid", event.transactionHash);
-				// 			const $bidderLink = util.$getShortAddrLink(event.args.bidder);
-				// 			return $("<div></div>").append($txLink).append(" by: ").append($bidderLink);
-				// 		} else if (event.name=="Started"){
-				// 			return "<b>Auction Started</b>";
-				// 		}
-				// 	}
-				// });
-				// $moreTip.empty().append($lv);
 			};
+
+			function createLogViewer(startBlock){
+				return util.getLogViewer({
+					$head: "Monarch History",
+					events: [{
+						instance: _game,
+						name: "OverthrowOccurred",
+					},{
+						instance: _game,
+						name: "Started"
+					}],
+					order: "newest",
+					minBlock: startBlock,
+					blocksPerSearch: _reignBlocks * 10,
+					dateFn: (event, prevEvent, nextEvent) => {
+						if (!prevEvent || event.name=="GameStart"){
+							const dateStr = util.toDateStr(event.args.time, {second: false});
+							return $("<span></span>").text(dateStr).css("font-size", "80%");
+						} else {
+							const blockDiff = event.blockNumber - prevEvent.blockNumber;
+							const blockStr = blockDiff == 1 ? "block" : "blocks";
+							const timeDiff = event.args.time.minus(prevEvent.args.time);
+							return $("<div></div>")
+								.append(`${blockDiff} ${blockStr} later`)
+								.attr("title", `${util.toTime(timeDiff)}`)
+						}
+					},
+					valueFn: (event) => {
+						if (event.name=="OverthrowOccurred"){
+							const $newMonarch = _$getMonarch(event.args.newMonarch);
+							const $oldMonarch = _$getMonarch(event.args.prevMonarch);
+							const decree = _getDecreeStr(event.args.decree);
+							const $decree = $("<span class='decree'></span>").text(`"${decree}"`);
+							const $el = $("<div></div>").append($newMonarch)
+								.append(" ovethrew ")
+								.append($oldMonarch);
+							if (decree.length) $el.append("<br>Decree: ").append($decree);
+							return $el;
+						} else if (event.name=="Started"){
+							return "<b>Auction Started</b>";
+						}
+					}
+				});
+			}
 		}
 
 		function _initSendPrizeTip(){
@@ -882,12 +858,11 @@ Loader.require("monarchy")
 
 			// set priceIncr string
 			const ethStr = util.toEthStrFixed(_prizeIncr.abs());
-			const prizeIncrStr = _prizeIncr.equals(0)
-				? ""
-				: _prizeIncr.gt(0)
-					? `The prize will go up by ${ethStr}`
-					: `The prize will go down by ${ethStr}`;
+			const prizeIncrStr =  _prizeIncr.gt(0)
+				? `The prize will go up by ${ethStr}`
+				: `The prize will go down by ${ethStr}`;
 			$prizeIncr.text(prizeIncrStr);
+			if (_prizeIncr.equals(0)) $prizeIncr.hide();
 			$reignBlocks.text(`${_reignBlocks} blocks`);
 
 			// set up decree
