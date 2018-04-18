@@ -123,10 +123,10 @@ Loader.require("comp", "tr", "token", "tm", "monarchy", "dice", "vp")
     // Task Manager
     util.bindToElement(ethUtil.getBalance(tm).then(util.toEthStr), $(".tm-balance"))
     util.bindToElement(tm.issueDividendRewardBips().then(val => {
-        return `${val.div(10000).toFixed(3)}%`
+        return `${val.div(100).toFixed(2)}%`
     }), $(".tm-issue-dividend-reward"))
     util.bindToElement(tm.sendProfitsRewardBips().then(val => {
-        return `${val.div(10000).toFixed(3)}%`;
+        return `${val.div(100).toFixed(2)}%`;
     }), $(".tm-send-profits-reward"));
     util.bindToElement(tm.monarchyStartReward().then(util.toEthStr), $(".tm-pa-start-reward"));
     util.bindToElement(tm.monarchyEndReward().then(util.toEthStr), $(".tm-pa-end-reward"));

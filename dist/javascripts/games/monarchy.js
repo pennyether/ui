@@ -323,7 +323,7 @@ Loader.require("monarchy")
 					_$e.addClass("ended");
 					_$btn.attr("disabled", "disabled");
 					_$blocksLeft.text("Ended");
-					_$currentMonarchCell.find(".label").text("Winner");
+					_$currentMonarchCell.find(".label").text(" Winner");
 					_$alertsIcon.hide();
 					_self.updateEndedStatus();
 					return;

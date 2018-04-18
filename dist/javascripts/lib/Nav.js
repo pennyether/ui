@@ -31,28 +31,28 @@
                 name: "Win Ether!",
                 url: "/games/pennyauctions.html",
                 children: [{
-                    name: "Penny Auctions",
-                    url: "/games/pennyauctions.html",
+                    name: "👑 Monarchy",
+                    url: "/games/monarchy.html",
                     linkInBreadcrumb: true,
                     children: [{
                         name: "View Game",
-                        url: "/games/monarchy-game.html"
+                        url: "/games/view-monarchy-game.html"
                     }]
                 },{
-                    name: "InstaDice",
+                    name: "🎲 InstaDice",
                     url: "/games/instadice.html",
                     linkInBreadcrumb: true,
                     children: [{
                         name: "View Roll",
-                        url: "/games/instadice-roll.html"
+                        url: "/games/view-instadice-roll.html"
                     }]
                 },{
-                    name: "Video Poker",
+                    name: "🃏 Video Poker",
                     url: "/games/videopoker.html",
                     linkInBreadcrumb: true,
                     children: [{
                         name: "View Game",
-                        url: "/games/videopoker-game.html"
+                        url: "/games/view-videopoker-game.html"
                     }]
                 }]
             }, {
@@ -232,7 +232,7 @@
                 : `#${rollId}`;
             return $("<a class='game-link'></a>")
                 .text(str)
-                .attr("href", `/games/view-roll.html#${rollId}`);
+                .attr("href", `/games/view-instadice-roll.html#${rollId}`);
         };
         this.$getMonarchyGameLink = function(addr) {
             return $("<a></a>")
@@ -242,7 +242,7 @@
         this.$getVpGameLink = function(id) {
             return $("<a></a>")
                 .text(`Game #${id}`)
-                .attr("href", `/games/view-poker-game.html#${id}`);
+                .attr("href", `/games/view-videopoker-game.html#${id}`);
         };
         this.$getPlayerLink = function(addr) {
             const $el = $("<div class='player-link'></div>");
