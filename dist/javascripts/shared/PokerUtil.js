@@ -453,9 +453,10 @@
                 if (gs.isWinner) $game.addClass("is-winner");
 
                 function $getTx(ev, str) {
-                    const $e = $(`<div class="tx"></div>`).attr("title", util.toDateStr(ev.args.time));
-                    $e.append(util.$getTxLink(str, ev.transactionHash));
-                    return $e;
+                    const $link = util.$getTxLink(str, ev.transactionHash)
+                        .attr("title", util.toDateStr(ev.args.time));
+                    tippy($link[0], {placement: "left"});
+                    return $(`<div class="tx"></div>`).append($link);
                 }
 
                 // mark initial cards as timedout, held, or neither.
