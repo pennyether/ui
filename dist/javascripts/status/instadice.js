@@ -17,6 +17,7 @@ Loader.require("dice")
                 return arr[0].blockNumber;
             }).then(creationBlockNum => {
                 _initEventLog(creationBlockNum);
+                _initRolls(creationBlockNum);
                 Promise.all([
                     ethUtil.getBlock(creationBlockNum),
                     _niceWeb3.ethUtil.getAverageBlockTime(),
@@ -207,27 +208,59 @@ Loader.require("dice")
         }
     }
 
+    function _initRolls(startBlock) {
+        if (!DiceUtil) throw new Error(`DiceUtil is required.`);
+
+        const $e = $(".cell.rolls")
+        const $ctnr = $e.find(".log-viewer");
+
+        const events = [{
+            instance: dice,
+            name: "RollWagered",
+            label: "Roll",
+            selected: true
+        },{
+            instance: dice,
+            name: "RollRefunded",
+            label: "Roll Refunded",
+            selected: false 
+        },{
+            instance: dice,
+            name: "RollFinalized",
+            label: "Roll Finalized",
+            selected: false 
+        },{
+            instance: dice,
+            name: "PayoutSuccess",
+            label: "Payed",
+            selected: false
+        },{
+            instance: dice,
+            name: "PayoutFailure",
+            label: "Payed",
+            selected: false
+        }];
+
+        var lv = util.getLogViewer({
+            events: events,
+            order: "newest",
+            minBlock: startBlock,
+            blocksPerSearch: Math.round(60*60*3 / 15),  // load ~3 hours at a time
+            valueFn: (event) => {
+                return DiceUtil.$getEventSummary(event, true);
+            }
+        });
+        lv.$e.appendTo($ctnr);
+    }
+
     function _initEventLog(creationBlockNum) {
         // event Created(uint time);
         // event SettingsChanged(uint time, address indexed sender);
-
-        // event RollWagered(uint time, uint32 indexed id, address indexed user, uint bet, uint8 number, uint payout);
-        // event RollRefunded(uint time, address indexed user, string msg, uint bet, uint8 number);
-        // event RollFinalized(uint time, uint32 indexed id, address indexed user, uint8 result, uint payout);
-        // event PayoutSuccess(uint time, uint32 indexed id, address indexed user, uint payout);
-        // event PayoutFailure(uint time, uint32 indexed id, address indexed user, uint payout);
-
         // event ProfitsSent(uint time, address indexed treasury, uint amount);
         // event BankrollAdded(uint time, address indexed bankroller, uint amount, uint bankroll);
         // event BankrollRemoved(uint time, address indexed bankroller, uint amount, uint bankroll);
         const formatters = {
-            user: (val) => Loader.linkOf(val),
-            id: (val) => {
-                return $("<a target='_blank'></a>").text(`Roll #${val}`)
-                    .attr("href", `/games/instadice-roll.html#${val}`);
-            },
-            bet: (val) => util.toEthStrFixed(val, 3),
-            payout: (val) => util.toEthStrFixed(val, 3),
+            admin: (val) => Loader.linkOf(val),
             // Bankrollable
             treasury: (val) => Loader.linkOf(val),
             bankroller: (val) => Loader.linkOf(val),
@@ -243,11 +276,7 @@ Loader.require("dice")
         // define legends, build events from this.
         const labels = {
             "Settings": [true, ["SettingsChanged"]],
-            "Roll Wagered": [false, ["RollWagered"]],
-            "Roll Refunded": [false, ["RollRefunded"]],
-            "Roll Finalized": [false, ["RollFinalized"]],
-            "Payouts": [false, ["PayoutSuccess", "PayoutFailure"]],
-            "Finances": [false, ["BankrollAdded", "BankrollRemoved", "ProfitsSent"]]
+            "Finances": [true, ["BankrollAdded", "BankrollRemoved", "ProfitsSent"]]
         }
         Object.keys(labels).forEach(groupName => {
             const selected = labels[groupName][0];
@@ -267,7 +296,8 @@ Loader.require("dice")
         var $lv = util.$getLogViewer({
             events: events,
             order: "newest",
-            minBlock: creationBlockNum
+            minBlock: creationBlockNum,
+            blocksPerSearch: 60*60*24*7 / 15 // load 1 week at a time
         });
         $(".cell.events .log-viewer").empty().append($lv);
     }

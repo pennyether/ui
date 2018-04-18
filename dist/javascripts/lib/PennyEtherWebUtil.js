@@ -330,7 +330,7 @@
             allAtOnce: false,
             maxBlock: <currentBlock>,
             minBlock: <maxBlock - 500,000>,
-            blocksPerSearch: <50000>,
+            blocksPerSearch: <5760>,  // ~ 1 day
             // formatting fns
             dateFn: (event, prevEvent, nextEvent)=>{str}
             valueFn: (event)=>{str}
@@ -370,7 +370,7 @@
         const _allAtOnce = opts.allAtOnce || false;
         const _dateFn = opts.dateFn || _defaultDateFn;
         const _valueFn = opts.valueFn || _defaultValueFn;
-        const _blocksPerSearch = opts.blocksPerSearch || 50000;
+        const _blocksPerSearch = Math.round(opts.blocksPerSearch || 5760); //~1 day
 
         var _isResetPending;       // whether or not a reset is pending
         var _isDone;               // if least/greatest block passes the _min/_max bounds

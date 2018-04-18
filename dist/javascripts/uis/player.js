@@ -11,12 +11,23 @@ Loader.require("monarchy", "dice", "vp")
     });
     $addressInput.appendTo($(".top .address-ctnr"));
 
+    // initialize the values based on hash
+    (function(){
+        const hash = (window.location.hash || "#").slice(1);
+        if (hash.length) {
+            $addressInput.setValue(hash);
+            _resetAll();
+        }
+    }());
+
+
     // do this just once
     ethUtil.getCurrentState().then(() => {
-        // load current account
-        const account = ethUtil.getCurrentAccount();
-        if (account) $addressInput.setValue(account);
-        _resetAll();
+        // use current account if none provided
+        if (!$addressInput.getValue()) {
+            $addressInput.setValue(ethUtil.getCurrentAccount());
+            _resetAll();
+        }
 
         // get start blocks for controllers, init event viewers, and reset them.
         Promise.obj({
@@ -33,14 +44,15 @@ Loader.require("monarchy", "dice", "vp")
     function _resetAll() {
         // disable all things if no account
         _curAccount = $addressInput.getValue();
-
         const $fieldsets = $("fieldset.account-chosen");
         const $whichAccounts = $(".bubble.which-account").hide();
         const $noAccounts = $(".bubble.no-account").hide();
         if (_curAccount) {
+            window.location.hash = `#${_curAccount}`;
             $fieldsets.removeAttr("disabled");
             $whichAccounts.show().find(".player").text(_curAccount);
         } else {
+            window.location.hash = ``;
             $fieldsets.attr("disabled", "disabled");
             $noAccounts.show();
         }
@@ -63,7 +75,7 @@ Loader.require("monarchy", "dice", "vp")
             order: "newest",
             minBlock: startBlock,
             valueFn: (event) => {
-                return MonarchyUtil.$getEventSummary(event);
+                return MonarchyUtil.$getEventSummary(event, true, true);
             }
         });
         lv.$e.appendTo($ctnr);

@@ -211,6 +211,20 @@ fieldset {
 		top: 0px;
 	}
 
+/***********************************************/
+/** Nav generated links ************************/
+/***********************************************/
+.player-link {
+    display: inline-block;
+}
+	.player-link img {
+	    height: 1em;
+	    margin-right: .5em;
+	    vertical-align: text-bottom;
+	}
+    .player-link a {
+        color: blue;
+    }
 
 /***********************************************/
 /** GLOBAL STYLES ******************************/

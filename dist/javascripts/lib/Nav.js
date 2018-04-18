@@ -225,7 +225,32 @@
         this.$e = _$e;
         this.setEthStatusElement = function($e) {
             _$status.empty().append($e);
+        };
+        this.$getRollLink = function(rollId) {
+            const str = rollId.length > 10
+                ? "@" + rollId.slice(0,4) + "..." + rollId.slice(-4)
+                : `#${rollId}`;
+            return $("<a class='game-link'></a>")
+                .text(str)
+                .attr("href", `/games/view-roll.html#${rollId}`);
+        };
+        this.$getMonarchyGameLink = function(addr) {
+            return $("<a></a>")
+                .text(addr.slice(0, 6) + "..." + addr.slice(-4))
+                .attr("href", `/games/view-monarchy-game.html#${addr}`);
         }
+        this.$getPlayerLink = function(addr) {
+            const $el = $("<div class='player-link'></div>");
+            // get link to player history
+            const $link = $("<a></a>")
+                .attr("href", `/uis/player.html#${addr}`)
+                .text(addr.slice(0,6) + "..." + addr.slice(-4));
+            if (ethUtil.getCurrentAccount() === addr) $link.text("You");
+            // get gravatar
+            const gravatarId = addr.slice(2, 34);
+            const $gravatar = $("<img></img>").attr(`src`, `https://www.gravatar.com/avatar/${gravatarId}?d=retro`)
+            return $el.append($gravatar).append($link);
+        };
     }
     window.Nav = Nav;
 }())

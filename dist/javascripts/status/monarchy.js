@@ -145,7 +145,7 @@ Loader.require("monarchy")
                         const status = game.instance == null
                             ? game.isStartable ? "startable" : "not-startable"
                             : game.blocksLeft.equals(0) ? "endable" : "active";
-                        const $link = game.instance == null ? "None" : Loader.linkOf(game.instance.address);
+                        const $link = game.instance == null ? "None" : nav.$getMonarchyGameLink(game.instance.address);
                         const $row = $("<tr></tr>").addClass(status);
                         $row.append($("<td></td>").text(game.id));
                         $row.append($("<td></td>").append($link));
@@ -172,7 +172,7 @@ Loader.require("monarchy")
                         const $row = $("<tr></tr>");
                         $row.append($("<td></td>").text(game.id));
                         $row.append($("<td></td>").text(eth(game.prize)));
-                        $row.append($("<td></td>").append(Loader.linkOf(game.monarch)));
+                        $row.append($("<td></td>").append(nav.$getPlayerLink(game.monarch)));
                         $row.append($("<td></td>").text(game.numOverthrows));
                         $row.append($("<td></td>").text(game.blocksLeft));
                         $row.appendTo($tbody);
@@ -290,7 +290,7 @@ Loader.require("monarchy")
                     .attr("href", `/games/viewmonarchy.html#${val}`);
             },
             initialPrize: (val) => util.toEthStr(val),
-            winner: (val) => Loader.linkOf(val),
+            winner: (val) => nav.$getPlayerLink(val),
             treasury: (val) => Loader.linkOf(val),
             bankroller: (val) => Loader.linkOf(val),
             amount: (val) => util.toEthStr(val),

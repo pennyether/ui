@@ -208,15 +208,6 @@
         });
     }
 
-    function $getRollLink(rollId) {
-        const str = rollId.length > 10
-            ? "@" + rollId.slice(0,4) + "..." + rollId.slice(-4)
-            : `#${rollId}`;
-        return $("<a class='view-roll'></a>")
-            .text(str)
-            .attr("href", `/games/view-roll.html#${rollId}`);
-    }
-
     function $getEventSummary(event, showUser) {
         if (event.name == "RollWagered") {
             // event RollWagered(uint time, uint32 indexed id, address indexed user, uint bet, uint8 number, uint payout);
@@ -249,8 +240,8 @@
             const payoutEth = util.toEthStrFixed(event.args.payout);
             const payoutMult = event.args.payout.div(event.args.bet).toFixed(2);
             const payout = `${payoutEth} (${payoutMult}x)`
-            $e.find(".roll .value").append($getRollLink(event.args.id));
-            $e.find(".user .value").append(Loader.linkOf(event.args.user));
+            $e.find(".roll .value").append(nav.$getRollLink(event.args.id));
+            $e.find(".user .value").append(nav.$getPlayerLink(event.args.user));
             $e.find(".bet .value").text(util.toEthStrFixed(event.args.bet));
             $e.find(".number").text(event.args.number);
             $e.find(".result").text(result);
@@ -264,7 +255,7 @@
                 $e.find(".outcome").text(" Did not win: ");
                 $e.addClass("lost");
             }
-            if (!showUser) $(".user").hide();
+            if (!showUser) $e.find(".user").hide();
             return $e;
         } else if (event.name == "RollRefunded") {
             // event RollRefunded(uint time, address indexed user, string msg, uint bet, uint8 number);
@@ -293,7 +284,7 @@
                 </div>
             `);
             $e.find(".roll .value").append($getRollLink(event.transactionHash));
-            $e.find(".user .value").append(Loader.linkOf(event.args.user));
+            $e.find(".user .value").append($getUserLink(event.args.user));
             $e.find(".bet .value").text(util.toEthStrFixed(event.args.bet));
             $e.find(".number .value").text(event.args.number);
             $e.find(".msg").text(event.args.msg);
@@ -319,8 +310,8 @@
             const isWinner = event.args.payout.gt(0);
             const resultStr = isWinner ? "Won: " : "Lost.";
             $e.addClass(isWinner ? "won" : "lost");
-            $e.find(".roll .value").append($getRollLink(event.args.id));
-            $e.find(".user .value").append(Loader.linkOf(event.args.user));
+            $e.find(".roll .value").append(nav.$getRollLink(event.args.id));
+            $e.find(".user .value").append(nav.$getPlayerLink(event.args.user));
             $e.find(".result").text(event.args.result);
             $e.find(".result-str").text(resultStr);
             $e.find(".payout").text(util.toEthStrFixed(event.args.payout));
@@ -350,8 +341,8 @@
                 : "Failed to pay user ";
             const cls = event.name == "PayoutSuccess" ? "success" : "failure"
             $e.addClass(cls);
-            $e.find(".roll .value").append($getRollLink(event.args.id));
-            $e.find(".user .value").append(Loader.linkOf(event.args.user));
+            $e.find(".roll .value").append(nav.$getRollLink(event.args.id));
+            $e.find(".user .value").append(nav.$getPlayerLink(event.args.user));
             $e.find(".success-str").text(successStr);
             $e.find(".payout").text(util.toEthStrFixed(event.args.payout));
             return $e;

@@ -416,7 +416,7 @@ Loader.require("monarchy")
 		};
 
 		function _$getMonarch(monarch){
-			return MonarchyUtil.$getMonarch(monarch);
+			return nav.$getPlayerLink(monarch);
 		};
 		function _getDecreeStr(bytes23){
 			return MonarchyUtil.getDecreeStr(bytes23);
@@ -784,7 +784,7 @@ Loader.require("monarchy")
 					},
 					valueFn: (event) => {
 						if (event.name=="OverthrowOccurred"){
-							return MonarchyUtil.$getOverthrowSummary(event);
+							return MonarchyUtil.$getOverthrowSummary(event, false);
 						} else if (event.name=="Started"){
 							return "<b>Auction Started</b>";
 						}

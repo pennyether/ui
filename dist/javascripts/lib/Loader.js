@@ -190,6 +190,7 @@
             const nav = new Nav();
             nav.setEthStatusElement(ethStatus.$e)
             $("#Content").prepend(nav.$e);
+            window["nav"] = nav;
 
             // Attach Tippies
             $(".tip-left").attr("data-tippy-placement", "left");
