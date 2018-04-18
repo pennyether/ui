@@ -52,6 +52,8 @@ Loader.require("monarchy", "dice", "vp")
     }
 
     function _initMonarchy(startBlock) {
+        if (!MonarchyUtil) throw new Error(`MonarchyUtil is required.`);
+
         const $e = $(".cell.monarchy")
         const $ctnr = $e.find(".log-viewer-ctnr");
 
@@ -107,122 +109,66 @@ Loader.require("monarchy", "dice", "vp")
         }
     }
 
-    function _initDice() {
+    function _initDice(startBlock) {
+        if (!DiceUtil) throw new Error(`DiceUtil is required.`);
 
-    }
-
-    function _initVp() {
-
-    }
-    
-    // sets it up so clicking the radio button toggles between an account and yourself
-    function _initEventLog(creationBlockNum) {
-        // <div style="text-align: center;">
-        //     <label>
-        //         <input class="mine" type="radio" name="which-account" selected> My account
-        //     </label>
-        //     <label>
-        //         <input class="other" type="radio" name="which-account">
-        //         <div class="other-value" style="display: inline-block;">
-        //     </label>
-        // </div>
-        // <div class="event-ctnr"></div>
-        const $e = $(".cell.events");
-        const $mine = $e.find(".mine").change(onChange); 
-        const $other = $e.find(".other").change(onChange);
-        const $addrInput = util.$getAddressInput(onChange);
-        $addrInput
-            .appendTo($e.find(".address-ctnr"))
-            .find("input").focus(() => {
-                // for some reason clicking input causes label to not select radio.
-                // ok, whatever.
-                $other.prop("checked",true)
-                onChange();
-            });
-        const $logViewer = $e.find(".log-viewer");
-
-        var account;
-        function onChange() {
-            account = $mine.is(":checked")
-                ? ethUtil.getCurrentAccount()
-                : $addrInput.getValue();
-            lv.reset(false);
-            lv.enable(!!account);
-        }
+        const $e = $(".cell.instadice")
+        const $ctnr = $e.find(".log-viewer-ctnr");
 
         const events = buildEvents();   // event filters reference "account"
         var lv = util.getLogViewer({
             events: events,
             order: "newest",
-            minBlock: creationBlockNum
+            minBlock: startBlock,
+            valueFn: (event) => {
+                return DiceUtil.$getEventSummary(event);
+            }
         });
-        lv.$e.appendTo($logViewer);
+        lv.$e.appendTo($ctnr);
 
+        _resetCallbacks.push(() => lv.reset(false));
 
-        // This builds events, setting the filter to "account" variable.
-        //  Since logViewer doesnt do a deep copy, this will update things.
+        // get all overthrow, refund, and sendprize events for _curAccount
         function buildEvents() {
-            // event Created(uint time);
-            // event Transfer(address indexed from, address indexed to, uint amount);
-            // event Approval(address indexed owner, address indexed spender, uint amount);
-            // event AllowanceUsed(address indexed owner, address indexed spender, uint amount);
-            // event TokensMinted(uint time, address indexed account, uint amount, uint newTotalSupply);
-            // event CollectedDividends(uint time, address indexed account, uint amount);
-            const formatters = {
-                from: (val) => Loader.linkOf(val),
-                to: (val) => Loader.linkOf(val),
-                owner: (val) => Loader.linkOf(val),
-                spender: (val) => Loader.linkOf(val),
-                account: (val) => Loader.linkOf(val),
-                amount: (val) => util.toEthStr(val, "PENNY"),
-                newTotalSupply: (val) => util.toEthStr(val, "PENNY"),
-            };
-
             // This hack relies on LogViewer calling .toString() on all filters.
-            const _account = {
-                toString: function(){ return account; }
-            };
-            const labels = {
-                "Transfer Out": [true, [ ["Transfer", {from: _account}] ]],
-                "Transfer In": [true, [ ["Transfer", {to: _account}] ]],
-                "Minted Tokens": [true, [ ["TokensMinted", {account: _account}] ]],
-                "Gave Approval": [true, [ ["Approval", {owner: _account}], ["AllowanceUsed", {owner: _account}] ]],
-                "Received Approval": [true, [ ["Approval", {spender: _account}], ["AllowanceUsed", {spender: _account}] ]],
-                "Collected Dividends": [true, [ ["CollectedDividends", {account: _account}] ]]
+            const account = {
+                toString: function(){ return _curAccount; }
             };
 
-            const events = [];
-            Object.keys(labels).forEach(groupName => {
-                const selected = labels[groupName][0];
-                const eventDefs = labels[groupName][1];
-                eventDefs.forEach(eventDef => {
-                    const name = eventDef[0];
-                    const filter = eventDef[1];
-                    events.push({
-                        instance: token,
-                        name: name,
-                        filter: filter,
-                        formatters: formatters,
-                        label: groupName,
-                        selected: selected
-                    });
-                })
+            return [{
+                name: "RollWagered",
+                filter: {user: account},
+                label: "Rolled",
+                selected: true
+            },{
+                name: "RollRefunded",
+                filter: {user: account},
+                label: "Roll Refunded",
+                selected: false 
+            },{
+                name: "RollFinalized",
+                filter: {user: account},
+                label: "Roll Finalized",
+                selected: false 
+            },{
+                name: "PayoutSuccess",
+                filter: {user: account},
+                label: "Payed",
+                selected: false
+            },{
+                name: "PayoutFailure",
+                filter: {user: account},
+                label: "Payed",
+                selected: false
+            }].map(obj => {
+                obj.instance = InstaDice;
+                return obj;
             });
-            return events;
         }
     }
 
-    function _refreshEventLog() {
-        const $e = $(".cell.events");
-        const $mine = $e.find(".mine"); 
-        const $other = $e.find(".other");
-        const account = ethUtil.getCurrentAccount();
-        if (!account) {
-            $mine.attr("disabled", "disabled");
-            $other.click();
-        } else {
-            $mine.removeAttr("disabled");
-        }
+    function _initVp() {
+
     }
     
 });

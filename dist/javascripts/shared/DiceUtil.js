@@ -1,4 +1,12 @@
 (function(){
+    (function(){
+        var style = document.createElement('style');
+        style.type = 'text/css';
+        style.innerHTML = `
+            
+        `;
+        document.getElementsByTagName('head')[0].appendChild(style);
+    }());
 
     /*
         Manages events by loading a bunch from events, parses them all,
@@ -200,10 +208,163 @@
         });
     }
 
+    function $getRollLink(rollId) {
+        const str = rollId.length > 10
+            ? "@" + rollId.slice(0,4) + "..." + rollId.slice(-4)
+            : `#${rollId}`;
+        return $("<a class='view-roll'></a>")
+            .text(str)
+            .attr("href", `/games/view-roll.html#${rollId}`);
+    }
+
+    function $getEventSummary(event, showUser) {
+        if (event.name == "RollWagered") {
+            // event RollWagered(uint time, uint32 indexed id, address indexed user, uint bet, uint8 number, uint payout);
+            const $e = $(`
+                <div class='dice-roll-wagered'>
+                    <div class='top'>
+                        <span class='roll'>
+                            <span class='label'>Roll:</span>
+                            <span class='value'></span>
+                        </span>
+                        <span class='user'>
+                            <span class='label'>User:</span>
+                            <span class='value'></span>
+                        </span>
+                        <span class='bet'>
+                            <span class='label'>Bet:</span>
+                            <span class='value'></span>
+                        </span>
+                    </div>
+                    <div class='bottom'>
+                        <span class='result'></span>
+                        <span class='sign'></span>
+                        <span class='number'></span>
+                        <span class='outcome'></span>
+                        <span class='payout'></span>
+                    </div>
+                </div>
+            `);
+            const result = computeResult(event.blockHash, event.args.id);
+            const payoutEth = util.toEthStrFixed(event.args.payout);
+            const payoutMult = event.args.payout.div(event.args.bet).toFixed(2);
+            const payout = `${payoutEth} (${payoutMult}x)`
+            $e.find(".roll .value").append($getRollLink(event.args.id));
+            $e.find(".user .value").append(Loader.linkOf(event.args.user));
+            $e.find(".bet .value").text(util.toEthStrFixed(event.args.bet));
+            $e.find(".number").text(event.args.number);
+            $e.find(".result").text(result);
+            $e.find(".payout").text(payout);
+            if (result.lte(event.args.number)) {
+                $e.find(".sign").text("≤");
+                $e.find(".outcome").text(" Won: ");
+                $e.addClass("won");
+            } else {
+                $e.find(".sign").text(">");
+                $e.find(".outcome").text(" Did not win: ");
+                $e.addClass("lost");
+            }
+            if (!showUser) $(".user").hide();
+            return $e;
+        } else if (event.name == "RollRefunded") {
+            // event RollRefunded(uint time, address indexed user, string msg, uint bet, uint8 number);
+            const $e = $(`
+                <div class="dice-roll-refunded">
+                    <div class='top'>
+                        <span class="roll">
+                            <span class="label">Roll:</span>
+                            <span class="value"></span>
+                        </span>
+                        <span class="user">
+                            <span class="label">User:</span>
+                            <span class="value"></span>
+                        </span>
+                        <span class="bet">
+                            <span class="label">Bet:</span>
+                            <span class="value"></span>
+                        </span>
+                        <span class="number">
+                            <span class="label">On:</span>
+                            <span class="value"></span>
+                            <span class="label">or under.</span>
+                        </span>
+                    </div>
+                    Bet was refunded: "<span class='msg'></span>"
+                </div>
+            `);
+            $e.find(".roll .value").append($getRollLink(event.transactionHash));
+            $e.find(".user .value").append(Loader.linkOf(event.args.user));
+            $e.find(".bet .value").text(util.toEthStrFixed(event.args.bet));
+            $e.find(".number .value").text(event.args.number);
+            $e.find(".msg").text(event.args.msg);
+            return $e;
+        } else if (event.name == "RollFinalized") {
+            // event RollFinalized(uint time, uint32 indexed id, address indexed user, uint8 result, uint payout);
+            const $e = $(`
+                <div class="dice-roll-finalized">
+                    <div class='top'>
+                        <span class="roll">
+                            <span class="label">Roll:</span>
+                            <span class="value"></span>
+                        </span>
+                        <span class="user">
+                            <span class="label">User:</span>
+                            <span class="value"></span>
+                        </span>
+                    </div>
+                    Finalized result to <span class="result"></span>. 
+                    <span class="result-str"></span><span class="payout"></span>
+                </div>
+            `);
+            const isWinner = event.args.payout.gt(0);
+            const resultStr = isWinner ? "Won: " : "Lost.";
+            $e.addClass(isWinner ? "won" : "lost");
+            $e.find(".roll .value").append($getRollLink(event.args.id));
+            $e.find(".user .value").append(Loader.linkOf(event.args.user));
+            $e.find(".result").text(event.args.result);
+            $e.find(".result-str").text(resultStr);
+            $e.find(".payout").text(util.toEthStrFixed(event.args.payout));
+            if (!isWinner) $e.find(".payout").hide();
+            return $e;
+        } else if (event.name == "PayoutSuccess" || event.name == "PayoutFailure") {
+            // event PayoutSuccess(uint time, uint32 indexed id, address indexed user, uint payout);
+            // event PayoutFailure(uint time, uint32 indexed id, address indexed user, uint payout);
+            const $e = $(`
+                <div class="dice-roll-payout">
+                    <div class='top'>
+                        <span class="roll">
+                            <span class="label">Roll:</span>
+                            <span class="value"></span>
+                        </span>
+                        <span class="user">
+                            <span class="label">User:</span>
+                            <span class="value"></span>
+                        </span>
+                    </div>
+                    <span class="success-str"></span>
+                    <span class="payout"></span>
+                </div>
+            `);
+            const successStr = event.name == "PayoutSuccess"
+                ? "Successful paid user "
+                : "Failed to pay user ";
+            const cls = event.name == "PayoutSuccess" ? "success" : "failure"
+            $e.addClass(cls);
+            $e.find(".roll .value").append($getRollLink(event.args.id));
+            $e.find(".user .value").append(Loader.linkOf(event.args.user));
+            $e.find(".success-str").text(successStr);
+            $e.find(".payout").text(util.toEthStrFixed(event.args.payout));
+            return $e;
+        } else {
+            return `Unsupported: ${event.name}`;
+        }
+    }
+
     window.DiceUtil = {
         DiceController: DiceController,
         computeResult: computeResult,
         computePayout: computePayout,
-        getRoll: getRoll
+        getRoll: getRoll,
+        $getEventSummary: $getEventSummary
     };
 }())

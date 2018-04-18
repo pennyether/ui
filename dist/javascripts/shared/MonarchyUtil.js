@@ -15,10 +15,10 @@
                     color: blue;
                 }
 
-            .overthrow-summary .monarch-value a {
+            .monarch-overthrow-occurred .monarch-value a {
                 color: blue;
             }
-            .overthrow-summary .decree .value {
+            .monarch-overthrow-occurred .decree .value {
                 color: gray;
                 font-style: italic;
             }
@@ -64,7 +64,7 @@
         const $oldMonarch = $getMonarch(event.args.prevMonarch);
         const decree = getDecreeStr(event.args.decree);
         const $el = $(`
-            <div class='overthrow-summary'>
+            <div class='monarch-overthrow-occurred'>
                 <div class='top' style="display: none;">
                     <span class='game'>
                         <span class='label'>Game: </span>

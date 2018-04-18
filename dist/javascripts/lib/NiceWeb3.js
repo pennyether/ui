@@ -120,6 +120,7 @@
         this.contract = _web3.eth.contract(abi);
         this.contractName = contractName;
         this.abi = abi;
+        this._getName = ()=>`${contractName}Factory`;
 
         this.getEvents = function(name, filter, fromBlock, toBlock) {
             return niceWeb3.getEvents(_self, name, filter, fromBlock, toBlock);
@@ -165,8 +166,7 @@
             const instance = _contractFactory.at.call(_contractFactory, address);
             // add on useful things
             instance.type = _self;
-            instance._getName = () => _self.contractName;
-            instance._getFullName = () => `${_self.contractName}@${instance.address}`;
+            instance._getName = () => `${_self.contractName}@${instance.address}`;
             instance._getNiceWeb3 = () => niceWeb3;
             // attach a bunch of useful functions...
             // you know, that return actual promises and useful results.
