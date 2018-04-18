@@ -238,7 +238,12 @@
             return $("<a></a>")
                 .text(addr.slice(0, 6) + "..." + addr.slice(-4))
                 .attr("href", `/games/view-monarchy-game.html#${addr}`);
-        }
+        };
+        this.$getVpGameLink = function(id) {
+            return $("<a></a>")
+                .text(`Game #${id}`)
+                .attr("href", `/games/view-poker-game.html#${id}`);
+        };
         this.$getPlayerLink = function(addr) {
             const $el = $("<div class='player-link'></div>");
             // get link to player history

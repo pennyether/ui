@@ -179,8 +179,12 @@ Loader.require("monarchy", "dice", "vp")
         }
     }
 
-    function _initVp() {
-
+    function _initVp(startBlock) {
+        const ghv = new PokerUtil.GameHistoryViewer(vp, 5760);
+        ghv.setUser(_curAccount);
+        ghv.setMinBlock(startBlock);
+        ghv.$e.appendTo($(".cell.videopoker .log-viewer-ctnr"));
+        _resetCallbacks.push(() => ghv.setUser(_curAccount));
     }
     
 });

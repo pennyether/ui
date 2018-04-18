@@ -402,78 +402,8 @@
 				</div>
 				<div class="game-ctnr" style="background: black;"></div>
 			</div>
-			<style>
-				#History {}
-				#History .GameTable {
-					width: 100%;
-					border-collapse: collapse;
-				}
-				#History .GameTable thead td {
-					cursor: pointer;
-				}
-				#History .GameTable thead td.sort-asc,
-				#History .GameTable thead td.sort-desc {
-					font-weight: bold;
-				}
-				#History .GameTable thead td.sort-asc:after {
-					padding-left: 5px;
-					content: "▲";
-				}
-				#History .GameTable thead td.sort-desc:after {
-					padding-left: 5px;
-					content: "▼";
-				}
-
-				#History .GameTable td {
-					border: 1px solid rgba(0,0,0,.1);
-					padding: 5px;
-					vertical-align: top;
-				}
-				#History .GameTable td.hand,
-				#History .GameTable td.txs {
-					width: 1px;
-					white-space: nowrap;
-				}
-				#History tr:nth-child(even) {
-					background: rgba(200,200,200,.2);
-				}
-				#History tr.is-winner td {
-					background: rgba(0,128,0,.1);
-				}
-				#History tr.is-winner td.rank,
-				#History tr.is-winner td.payout {
-					font-weight: bold;
-					color: green;
-				}
-				#History .Card {
-					font-size: 11px;
-					height: 28px;
-					width: 20px;
-					display: inline-block;
-					margin: 0px 2px;
-					border: 1px solid black;
-					border-radius: 3px;
-				}
-				#History .dHand, #History .fHand { margin-top: 2px; }
-				#History .dHand.no-draws {
-					box-sizing: border-box;
-					padding-top: 5px;
-					height: 34px;
-					text-align: center;
-					color: gray; 
-				}
-				#History .txs .tx {
-					height: 34px;
-				}
-				#History .Card.held { background: rgba(0,128,128,.2); }
-				#History .Card.timedout { background: rgba(0,0,0,.15); }
-				#History .Card.winning { background: rgba(0,128,0,.3); }
-				#History .rank, #History .payout {
-					padding-top: 68px;
-				}
-			</style>
 			<div id="History">
-				<div>My Hand History <span class="refresh">refresh</span></div>
+				<div>My Hand History</div>
 				<div class="history-ctnr"></div>
 			</div>
 		</div>
@@ -641,6 +571,9 @@
 				}
 				.Game .actionArea .statusArea .TxStatus {
 					font-size: 80%;
+					color: rgba(255, 255, 255, .8);
+				}
+				.Game .actionArea .statusArea .TxStatus a {
 					color: rgba(255, 255, 255, .8);
 				}
 				.Game .actionArea .actionBtn {

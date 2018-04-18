@@ -23,7 +23,7 @@
 
         "EthGraph": true,
         "DiceUtil": true,
-        "PUtil": true,
+        "PokerUtil": true,
 
         "Loader": true,
             "Registry": true,

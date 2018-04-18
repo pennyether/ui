@@ -4,22 +4,29 @@ Loader.require("vp")
 
     ethUtil.onStateChanged((state)=>{
         if (!state.isConnected) return;
-        const user = ethUtil.getCurrentStateSync().account;
-        controller.setSettings(user, 11520);  // 48 hours
+        const curUser = ethUtil.getCurrentStateSync().account;
+        controller.setUser(curUser);
+        ghv.setUser(curUser);
         syncGames().then(syncUserCredits);
     });
 
-    const ghv = new PokerUtil.GameHistoryViewer();
-    const controller = new PokerUtil.VpController(vp, ethUtil);
+    // do this just once.
+    ethUtil.getCurrentState().then(()=>{
+        vp.getEvents("Created").then(evs => evs[0].blockNumber)
+            .then(minBlock => {
+                ghv.setMinBlock(minBlock);
+            });
+    });
+
+    const controller = new PokerUtil.VpController(vp);
+    const ghv = new PokerUtil.GameHistoryViewer(vp, 5760);
+    
     const tabber = new Tabber();
     tabber.$e.appendTo($("#Machine .tabber-ctnr"));
     ghv.$e.appendTo("#History .history-ctnr");
 
     const $gameCtnr = $("#Machine .game-ctnr");
     const $credits = $("#Machine .credits-ctnr");
-    $("#History .refresh").click(()=>{
-        ghv.setGameStates(controller.getGameStates());
-    });
     
     // Tabber events.
     tabber.onNewGame(()=>{
@@ -35,8 +42,10 @@ Loader.require("vp")
 
     // Get all fresh gameStates, and update our games.
     function syncGames() {
+        const toBlock = ethUtil.getCurrentBlockHeight();
+        const fromBlock = toBlock - 11520;
         return Promise.all([
-            controller.getLatestGameStates(),
+            controller.refreshGameStates(fromBlock, toBlock),
             getVpSettings(true)
         ]).then(arr => {
             createAndUpdateGames(arr[0], arr[1]);
