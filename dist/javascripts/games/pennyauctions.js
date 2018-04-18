@@ -193,7 +193,7 @@ Loader.require("monarchy")
 			_$status.empty();
 			_$reignBlocks.hide();
 			// display who won.
-			const $monarch = _$monarch.find(".monarch-value").clone();
+			const $monarch = nav.$getPlayerLink(_curMonarch);
 			const $winnerInfo = $("<div></div>").append($monarch).append(_curAmWinner ? " won!" : " won.");
 			_$status.append($winnerInfo);
 
@@ -363,7 +363,7 @@ Loader.require("monarchy")
 				if (amNowLoser){
 					_$status.empty()
 						.append("You've been overthrown by ")
-						.append(_$monarch.find(".monarch-value").clone());
+						.append(nav.$getPlayerLink(_curMonarch));
 					_$e.removeClass("now-winner");
 					_$e.removeClass("new-winner");
 					flashClass("now-loser");
@@ -395,7 +395,7 @@ Loader.require("monarchy")
 					setTimeout(function(){ t.hide(); }, 3000);
 				} else if (isNewWinner) {
 					_$status.empty()
-						.append(_$monarch.find(".monarch-value").clone())
+						.append(nav.$getPlayerLink(_curMonarch))
 						.append(" is now the Monarch.");
 					_$e.removeClass("now-winner");
 					_$e.removeClass("now-loser");
@@ -406,7 +406,7 @@ Loader.require("monarchy")
 						You'll win in ${blocksLeft} blocks unless you are overthrown.`);
 					} else {
 						_$status.empty()
-							.append(_$monarch.find(".monarch-value").clone())
+							.append(nav.$getPlayerLink(_curMonarch))
 							.append(` will win in ${blocksLeft} blocks unless they are overthrown.`);
 					}
 				}
@@ -504,7 +504,7 @@ Loader.require("monarchy")
 						txStatus.addWarningMsg(`Your overthrow was refunded: "${refundSuccess.args.msg}"`);
 					} else if (success) {
 						setClass("success");
-						txStatus.addSuccessMsg(`Your overthow succeeded! Waiting for provider to sync...`);
+						txStatus.addSuccessMsg(`Your overthow succeeded!<br>Please wait for provider to sync...`);
 						setTimeout(_self.refresh, 1000);
 						setTimeout(_self.refresh, 5000);
 					} else {

@@ -673,7 +673,6 @@
             _$loading.show().text(`Loading gas data...`);
             _$content.hide();
             return ethUtil.getGasPrices(fresh).then(data => {
-                console.log("gas data", data);
                 // create a sorted list of gasPrices
                 // !!! NOTE: all prices are all x 10 (10 = 1 Gwei) !!!
                 const gasPrices = Object.keys(data)
