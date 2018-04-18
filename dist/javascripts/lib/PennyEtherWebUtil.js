@@ -673,25 +673,27 @@
             _$loading.show().text(`Loading gas data...`);
             _$content.hide();
             return ethUtil.getGasPrices(fresh).then(data => {
+                console.log("gas data", data);
                 // create a sorted list of gasPrices
                 // !!! NOTE: all prices are all x 10 (10 = 1 Gwei) !!!
                 const gasPrices = Object.keys(data)
                     .map(n => Number(n))
                     .sort((a,b) => a - b);
+
                 // find min, max, auto
                 // first price <=2 hours, first price <=2 blocks, first price <=60 seconds
                 var min = null; var max = null; var auto = null;
                 gasPrices.forEach(n => {
-                    if (min==null && data[n].waitTimeS<=2*60*60) min = n;
-                    if (max==null && data[n].waitBlocks<=2) max = n;
-                    if (auto==null && data[n].waitTimeS<=AUTO_WAIT_TIME_S) auto = n;
+                    if (min==null && data[n].waitTimeS <= 2*60*60) min = n;
+                    if (max==null && data[n].waitBlocks <= 2) max = n;
+                    if (auto==null && data[n].waitTimeS <= AUTO_WAIT_TIME_S) auto = n;
                 });
-                // shift min down one if it's the same as max
-                // this lets the user see that anything lower is pointless (2 hours+)
-                if (min == max) {
-                    min = gasPrices[gasPrices.indexOf(min)-1] || min;
-                }
-                // populate _gasData between min/max, using gWei value
+                // expand range to show user more options. if no auto, use max.
+                min = gasPrices[gasPrices.indexOf(min)-1] || min;
+                max = gasPrices[gasPrices.indexOf(max)+1] || max;
+                auto = auto || max;
+
+                // populate _gasData in terms of gWei
                 _gasData = {};
                 gasPrices.forEach(n => {
                     if (n < min || n > max) return;
@@ -700,7 +702,8 @@
 
                 // convert min,max,auto to gWei, and set slider
                 min = min / 10; max = max / 10; auto = auto / 10;
-                _$slider.attr("min", min).attr("max", max).attr("step", min < 1 ? "0.1" : "1");
+                _$slider.attr("min", min).attr("max", max).attr("step", "0.1");
+
                 // autochoose if we need to, otherwise compress _$slider.val()
                 if (_autoChoose && _value == null) {
                     _$slider.val(auto);
@@ -708,6 +711,7 @@
                     if (_$slider.val() > max) _$slider.val(max);
                     if (_$slider.val() < min) _$slider.val(min);    
                 }
+
                 // ok, update text below slider and stuff
                 _$loading.hide();
                 _$content.show();
