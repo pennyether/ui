@@ -42,7 +42,7 @@
 			.featureBox {
 				display: table;
 				box-sizing: border-box;
-				margin: 0px auto;
+				margin: 0px auto 20px auto;
 				width: 95%;
 			}
 				.featureBox > .left {
@@ -67,12 +67,13 @@
 				}
 				.featureBox .title {
 					text-align: center;
-					font-weight: bold;
+					/*font-weight: bold;*/
 					font-size: 180%;
 					color: #FAFAFA;
-					letter-spacing: .1em;
+					letter-spacing: .25em;
 					padding-bottom: 4px;
 					text-shadow: 0px 0px 5px cyan;
+					font-variant: small-caps;
 				}
 				.featureBox .feature {
 					display: block;
@@ -83,7 +84,7 @@
 
 
 			.instructions {
-				margin: 30px auto 15px auto;
+				margin: 15px auto 30px auto;
 				width: 700px;
 				border-radius: 10px;
 				box-shadow: 0px 0px 10px 3px #68D;
@@ -187,62 +188,10 @@
 	<div id="Content">
 		<div id="Summary">
 			<div id="Title">
-				<div class="sup">Penny Auctions</div>
-				<div class="sub">the world's fairest penny auctions</div>
+				<div class="sup">Monarchy!</div>
+				<div class="sub">the world's first truly-fair king of the hill game</div>
 			</div>
 			<div class="topCtnr">
-				<div class="featureBox">
-					<div class="left">
-						<div class="block">
-							<div class="title">Fast & Fun</div>
-							<div class="feature tip-left" title="Just use Ether! No need for tokens, deposits, or creating an account.">
-								No deposit, no sign-up.
-							</div>
-							<div class="feature tip-left" title="Our UI shows you what's happening every step of the way.">
-								Responsive UI.
-							</div>
-							<div class="feature tip-left" title="Overthrowing the Monarch is cheap, and the transaction itself is pennies (50,000 gas).<br>Leave a 'decree' for added effect!">
-								Leave your mark, for cheap.
-							</div>
-							<div class="feature tip-left" title="We've set up our games so that overthrowing the Monarch is cheap relative to the prize.">
-								Pay a little, win a lot!
-							</div>
-						</div>
-					</div>
-					<div class="middle">
-						<div class="block">
-							<div class="title">Fair & Secure</div>
-						</div>
-						<div class="block">
-							<div class="feature tip-left" title="Overthrow fees get distributed to all PENNY Token Holders, so there's no way for an 'owner' to rig the game.">
-								Cheating is impossible.
-							</div>
-							<div class="feature tip-left" title="The prize is held in a smart contract, and will only ever leave to pay the winner. Short of Ethereum going down, this behavior is immutable.">
-								Prize is already staked.
-							</div>
-							<div class="feature tip-left" title="Everything about our games is decentralized. Our games run purely on the blockchain, and our UI is open-sourced and can be run locally.">
-								Truly Decentralized.
-							</div>
-							<div class="feature tip-left" title="Anytime you overthrow, you'll either become the Monarch or get refunded. If somebody overthrows you in the same block, you'll be refunded.">
-								Fair Play.
-							</div>
-						</div>
-					</div>
-					<div class="right">
-						<div class="block">
-							<div class="title">Exciting</div>
-							<div class="feature tip-left" title="We always have games running. Catch them at the right time and win!">
-								Always running.
-							</div>
-							<div class="feature tip-left" title="For some games, each overthrow increases the prize.">
-								Growing prizes.
-							</div>
-							<div class="feature tip-left" title="Watch the struggle as overthrows are updated live!">
-								Updated in Realtime.
-							</div>
-						</div>
-					</div>
-				</div>
 				<div class="instructions">
 					<div class="howTo">How to play</div>
 					<div class="oneTwoThree">
@@ -279,6 +228,58 @@
 										<div class="info">Claim the prize</div>
 									</div>
 								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="featureBox">
+					<div class="left">
+						<div class="block">
+							<div class="title">Fast & Fun</div>
+							<div class="feature tip-left" title="Just use Ether! No need for tokens, deposits, or creating an account.">
+								No deposit, no sign-up.
+							</div>
+							<div class="feature tip-left" title="Our UI shows you what's happening every step of the way.">
+								Responsive UI.
+							</div>
+							<div class="feature tip-left" title="Overthrowing the Monarch is cheap, and the transaction itself is pennies (50,000 gas).<br>Leave a 'decree' for added effect!">
+								Leave your mark, for cheap.
+							</div>
+							<div class="feature tip-left" title="We've set up our games so that overthrowing the Monarch is cheap relative to the prize.">
+								Pay a little, win a lot!
+							</div>
+						</div>
+					</div>
+					<div class="middle">
+						<div class="block">
+							<div class="title">Fair & Secure</div>
+						</div>
+						<div class="block">
+							<div class="feature tip-left" title="'Shilling' is impossible: When an overthrow occurs, the Ether is distributed to all PENNY Token Holders. Thus, it is impossible for anyone to overthrow for free.">
+								Cheating is impossible.
+							</div>
+							<div class="feature tip-left" title="The prize is held in a smart contract, and will only ever leave to pay the winner. Short of Ethereum going down, this behavior is immutable.">
+								Prize is already staked.
+							</div>
+							<div class="feature tip-left" title="Monarchy runs purely on the blockchain, and our UI is open-sourced and can be run locally. There are no oracles, random numbers, or dependancies on a website.">
+								Truly Decentralized.
+							</div>
+							<div class="feature tip-left" title="Anytime you overthrow, you'll either become the Monarch or get refunded. If somebody overthrows you in the same block, for example, you'll be refunded.">
+								Fair Gameplay.
+							</div>
+						</div>
+					</div>
+					<div class="right">
+						<div class="block">
+							<div class="title">Exciting</div>
+							<div class="feature tip-left" title="We always have games running. Catch them at the right time and win!">
+								Always running.
+							</div>
+							<div class="feature tip-left" title="For some games, each overthrow increases the prize.">
+								Growing prizes.
+							</div>
+							<div class="feature tip-left" title="Watch the struggle as overthrows are updated live!">
+								Updated in Realtime.
 							</div>
 						</div>
 					</div>
@@ -352,9 +353,8 @@
 		<div id="WaitTip" style="display: none;">
 			<div class="waitTip">
 				<div class="title">Reign</div>
-				<div class="item">• If you are overthrown, your reign is over.</div>
-				<div class="item">• But, reign for enough blocks, and you win!</div>
-				<div class="item">• Overthrow any challengers and they might quit.</div>
+				<div class="item"><b>• Reign for enough blocks, and you win!</b></div>
+				<div class="item">• But, if you are overthrown, your reign is over.</div>
 			</div>
 		</div>
 		<div id="WinTip" style="display:none;">
@@ -1012,7 +1012,7 @@
 		<div style="margin: 0px 20px">
 			<div class="subsection activeAuctions">
 				<div class="head">
-					Live Auctions
+					Live Games
 					<div class="refreshNotice">Refreshing</div>
 				</div>
 				<div class="body">
@@ -1024,7 +1024,7 @@
 			</div>
 			<div class="subsection endedAuctions">
 				<div class="head">
-					Ended Auctions
+					Ended Games
 					<div class="refreshNotice">Refreshing</div>
 				</div>
 				<div class="body">

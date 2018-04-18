@@ -641,7 +641,7 @@ Loader.require("monarchy")
 		};
 
 		function _initAlerts(){
-			const $alertsTip = _$e.find(".alertsTip");
+			const $alertsTip = _$e.find(".alerts-tip");
 			loadAlerts();
 
 			// attach tippy
