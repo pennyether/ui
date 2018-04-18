@@ -8,98 +8,74 @@
 			/*********************************************/
 			/******** TITLE AND FEATURES *****************/
 			/*********************************************/
+			.topCtnr {
+				margin-top: 40px;
+				position: relative;
+				overflow: hidden;
+			}
+				.topCtnr .background {
+					position: absolute;
+					z-index: 1;
+					top: -2px;
+					left: -2px;
+					width: 101%;
+					height: 101%;
+					background: url(/images/castle.jpg);
+					background-size: cover;
+					filter: blur(1px);
+				}
+				.topCtnr .foreground {
+					position: relative;
+					z-index: 2;
+				}
+			.dark .topCtnr {
+				filter: brightness(70%);
+			}
+
 			#Title {
-				padding: 20px 0px 20px 0px;
+				padding-top: 30px;
 				text-align: center;
 			}
 				#Title .sup {
-					font-size: 180%;
-					text-shadow: 0px 0px 10px cyan;
+					color: white;
+					font-weight: bold;
+					font-size: 250%;
+					text-shadow: 0px 0px 15px cyan;
 				}
 				body.loaded #Title .sup {
 					letter-spacing: .25em;
-					text-shadow: 0px 0px 4px #68D;
+					text-shadow: 0px 0px 10px #68D;
 					transition: letter-spacing 3s ease-out, text-shadow 3s ease-out;
 				}
 				#Title .sub {
 					font-size: 90%;
+					text-shadow: 0px 0px 4px rgba(255,255,255,1);
 				}
 				body.loaded #Title .sub {
 					letter-spacing: .2em;
 					transition: letter-spacing 3s ease-out;
 				}
 
-			.topCtnr {
-				margin: 0px;
-				padding: 15px 0px;
-				background: linear-gradient(to bottom, #BBC 0%, #68D 100%);
-				transition: filter 1s;
+			.instructions-ctnr {
+				margin-top: 20px;
+				border-top: 1px solid rgba(0,0,0,.1);
+				box-shadow: 0px 4px 4px 0px rgba(0,0,0,.1);
+				background: linear-gradient(180deg, rgba(192, 208, 224, .95) 0%, rgba(224, 240, 250, .95) 100%);
 			}
-			.dark .topCtnr {
-				filter: brightness(70%);
-			}
-
-			.featureBox {
-				display: table;
-				box-sizing: border-box;
-				margin: 0px auto 20px auto;
-				width: 95%;
-			}
-				.featureBox > .left {
-					display: table-cell;
-					vertical-align: top;
-					width: 33%;
-				}
-				.featureBox > .middle {
-					display: table-cell;
-					vertical-align: top;
-					width: 33%;
-				}
-				.featureBox > .right {
-					display: table-cell;
-					vertical-align: top;
-					width: 33%;
-				}
-				.featureBox .block {
-					display: table;
-					margin: 0px auto;
-					text-shadow: 1px 1px 1px rgba(255,255,255,.4);
-				}
-				.featureBox .title {
-					text-align: center;
-					/*font-weight: bold;*/
-					font-size: 180%;
-					color: #FAFAFA;
-					letter-spacing: .25em;
-					padding-bottom: 4px;
-					text-shadow: 0px 0px 5px cyan;
-					font-variant: small-caps;
-				}
-				.featureBox .feature {
-					display: block;
-					font-size: 90%;
-					margin: 4px 0px;
-					font-weight: bold;
-				}
-
-
 			.instructions {
-				margin: 15px auto 30px auto;
+				margin: 0px auto;
 				width: 700px;
-				border-radius: 10px;
-				box-shadow: 0px 0px 10px 3px #68D;
-				background: linear-gradient(180deg, #C0D0E0 0%, #E0F0FA 100%);
 			}
 				.howTo {
 					padding: 5px 0px 3px 0px;
-					margin: 0px 20px;
+					margin: 0px 25px;
 					text-align: center;
 					text-transform: uppercase;
 					font-size: 90%;
-					text-shadow: 1px 1px 1px white;
+					color: #444;
+					text-shadow: 1px 1px 1px rgba(255, 255, 255, .8);
 					font-weight: bold;
-					color: #68D;
-					border-bottom: 2px ridge rgba(255,255,255,.3);
+					border-bottom: 2px ridge rgba(255, 255, 255, .5);
 					letter-spacing: .3em;
 				}
 				.oneTwoThree {
@@ -182,50 +158,100 @@
 					border-radius: 13px;
 					font-family: serif;
 				}
+
+			.featureBox {
+				display: table;
+				box-sizing: border-box;
+				margin: 50px auto;
+				width: 88%;
+				padding: 10px 10px 15px 10px;
+				background: linear-gradient(0deg, rgba(57, 115, 173, 0.95) 0%, rgba(112, 180, 222, .9) 100%);
+				border-radius: 5px;
+				box-shadow: 0px 0px 15px 2px rgba(0,0,0,.4);
+			}
+				.featureBox > .left {
+					display: table-cell;
+					vertical-align: top;
+					width: 33%;
+				}
+				.featureBox > .middle {
+					display: table-cell;
+					vertical-align: top;
+					width: 33%;
+				}
+				.featureBox > .right {
+					display: table-cell;
+					vertical-align: top;
+					width: 33%;
+				}
+				.featureBox .block {
+					display: table;
+					margin: 0px auto;
+					text-shadow: 1px 1px 1px rgba(255,255,255,.4);
+				}
+				.featureBox .title {
+					text-align: center;
+					font-size: 180%;
+					color: #FAFAFA;
+					letter-spacing: .25em;
+					padding-bottom: 4px;
+					text-shadow: 2px 2px 2px rgba(0,0,0,.5);
+					font-variant: small-caps;
+					padding-bottom: 7px;
+				}
+				.featureBox .feature {
+					display: block;
+					font-size: 90%;
+					margin: 4px 0px;
+					font-weight: bold;
+				}
 		</style>
 	</head>
 	<body>
 	<div id="Content">
-		<div id="Summary">
-			<div id="Title">
-				<div class="sup">Monarchy!</div>
-				<div class="sub">the world's first truly-fair king of the hill game</div>
-			</div>
-			<div class="topCtnr">
-				<div class="instructions">
-					<div class="howTo">How to play</div>
-					<div class="oneTwoThree">
-						<div class="oneCell">
-							<div class="inline">
-								<div class="one no-tip-style" title="" data-tippy-html="#BidTip" data-tippy-animation="scale" data-tippy-trigger="click">
-									<div class="left">
-										<img class="icon" src="/images/ethereum.png"/>
-									</div>
-									<div class="right">
-										<div class="title">Overthrow <span class="question">i</span></div>
-										<div class="info">Become the Monarch</div>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="twoCell">
-							<div class="inline">
-								<div class="two no-tip-style" title="" data-tippy-html="#WaitTip" data-tippy-animation="scale" data-tippy-trigger="click">
-									<div class="left">👑</div>
-									<div class="right">
-										<div class="title">Reign <span class="question">i</span></div>
-										<div class="info">Defend your empire</div>
+		<div class="topCtnr">
+			<div class="background"></div>
+			<div class="foreground">
+				<div id="Title">
+					<div class="sup">Monarchy!</div>
+					<div class="sub">the world's first truly-fair king-of-the-hill game</div>
+				</div>
+				<div class="instructions-ctnr">
+					<div class="instructions">
+						<div class="howTo">How to play</div>
+						<div class="oneTwoThree">
+							<div class="oneCell">
+								<div class="inline">
+									<div class="one no-tip-style" title="" data-tippy-html="#BidTip" data-tippy-animation="scale" data-tippy-trigger="click">
+										<div class="left">
+											<img class="icon" src="/images/ethereum.png"/>
+										</div>
+										<div class="right">
+											<div class="title">Overthrow <span class="question">i</span></div>
+											<div class="info">Become the Monarch</div>
+										</div>
 									</div>
 								</div>
 							</div>
-						</div>
-						<div class="threeCell">
-							<div class="inline">
-								<div class="three no-tip-style" title="" data-tippy-html="#WinTip" data-tippy-animation="scale" data-tippy-trigger="click">
-									<div class="left">💸</div>
-									<div class="right">
-										<div class="title">Win! <span class="question">i</span></div>
-										<div class="info">Claim the prize</div>
+							<div class="twoCell">
+								<div class="inline">
+									<div class="two no-tip-style" title="" data-tippy-html="#WaitTip" data-tippy-animation="scale" data-tippy-trigger="click">
+										<div class="left">👑</div>
+										<div class="right">
+											<div class="title">Reign <span class="question">i</span></div>
+											<div class="info">Defend your empire</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="threeCell">
+								<div class="inline">
+									<div class="three no-tip-style" title="" data-tippy-html="#WinTip" data-tippy-animation="scale" data-tippy-trigger="click">
+										<div class="left">💸</div>
+										<div class="right">
+											<div class="title">Win! <span class="question">i</span></div>
+											<div class="info">Claim the prize</div>
+										</div>
 									</div>
 								</div>
 							</div>
@@ -394,21 +420,17 @@
 			opacity: .70;
 		}
 
-		.auction tr td {
+		.auction td {
 			position: relative;
-			border-bottom: 1px solid gray;
-			z-index: 2;
-		}
-		.auction .bottom td {
-			border-bottom: none;
 			z-index: 1;
 		}
 		.auction td:not(:first-child) {
 			border-left: 1px solid #999;
 		}
-		.auction td {
+		.auction tr:not(:last-child) td {
 			text-align: center;
 			padding: 15px 10px 10px 10px;
+			border-bottom: 1px solid gray;
 		}
 			.auction td > .label {
 				position: absolute;
@@ -527,6 +549,9 @@
 
 
 		/* Current Winner */
+		.auction td.current-monarch {
+			z-index: 2;
+		}
 		.auction td.current-monarch .field {
 			min-width: 120px;
 		}
@@ -581,7 +606,6 @@
 		/* status cell */
 		.auction td.status {
 			font-size: 80%;
-			border-bottom-right-radius: 10px;
 		}
 			.auction td.status.prepending {
 				animation: statusPrepending 1s 0s infinite ease-in-out alternate;
@@ -611,6 +635,14 @@
 		}
 		.auction td.status .view-link a {
 			text-decoration: none;
+		}
+
+		/* settings */
+		.auction td.settings {
+			padding: 3px 10px;
+			font-size: 80%;
+			color: rgba(255,255,255,.7);
+			background: linear-gradient(to bottom, rgba(0,0,0,.1) 0%, rgba(0,0,0,.2) 100%);
 		}
 
 		/* tip icons */
@@ -925,7 +957,7 @@
 				</div>
 			</div>
 			<table width="100%" cellpadding="0" cellspacing="0">
-				<tr class="top">
+				<tr>
 					<td class="prize">
 						<div class="label tip-manually" title="The prize that the winning Monarch will receive if nobody overthrows them." data-tippy-trigger="click">
 							PRIZE
@@ -949,7 +981,7 @@
 						</div>
 					</td>
 				</tr>
-				<tr class="middle">
+				<tr>
 					<td class="fee">
 						<div class="label tip-manually" title="The fee to become the current Monarch.<br>This value does not change." data-tippy-trigger="click">
 							Overthrow Fee
@@ -974,7 +1006,7 @@
 						<div class="history-icon">☰</div>
 					</td>
 				</tr>
-				<tr class="bottom">
+				<tr>
 					<td class="overthrow">
 						<button>Overthrow!</button>
 					</td>
@@ -982,10 +1014,12 @@
 						<div class="label tip-manually" title="This displays the auction status." data-tippy-trigger="click">
 							Status
 						</div>
-						<div class="view-link"><a target="_blank">🔎</a></div>
 						<div class="status"></div>
 						<div class="tx-status" style="display: none;"></div>
 					</td>
+				</tr>
+				<tr>
+					<td colspan="3" class="settings"></td>
 				</tr>
 			</table>	
 		</div>

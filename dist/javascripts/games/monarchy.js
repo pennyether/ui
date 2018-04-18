@@ -596,10 +596,6 @@ Loader.require("monarchy")
 		}
 
 		function _init() {
-			// initialize this auction
-			_$e.find(".view-link a")
-				.attr("href", `/games/viewpennyauction.html#${_game.address}`);
-			
 			// init tippies
 			tippy(_$e.find(".tip-manually").toArray(), {
 				dynamicTitle: true
@@ -621,13 +617,12 @@ Loader.require("monarchy")
 				_prizeIncr = obj.prizeIncr;
 				_reignBlocks = obj.reignBlocks;
 
-				// update static DOM elements
+				// update static DOM elements (bid price, reign blocks, prizeIncr)
 				_$bidPrice.text(`${ethUtil.toEth(_fee)}`);
 				_$reignBlocks
 					.text(`of ${_reignBlocks}`)
 					.attr("title", `The Monarch will win if they reign for ${_reignBlocks} blocks without getting overthrown.
 						<br>This value does not change.`);
-				
 				if (_prizeIncr.gt(0)){
 					_$e.find("td.prize .incr").text(`+${util.toEthStrFixed(_prizeIncr, 5, "")} per overthrow`);
 				} else if (_prizeIncr.lt(0)) {
@@ -635,6 +630,10 @@ Loader.require("monarchy")
 				} else {
 					_$e.find("td.prize .incr").hide();
 				}
+
+				// initialize the settings container
+				_$e.find("td.settings").text("Hi.");
+
 				_initOverthrowTip();
 				_initHistoryTip();
 			});
