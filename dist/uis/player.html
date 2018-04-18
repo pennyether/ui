@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/javascripts/lib/Loader.js"></script>
+		<script src="/javascripts/uis/player.js"></script>
+		<script src="/javascripts/shared/MonarchyUtil.js"></script>
+		<link rel="stylesheet" type="text/css" href="/styles/status.css"/>
+		<style>
+			.cell {
+				width: 70%;
+				margin: 0px auto;
+			}
+			#Content > .top {
+				box-sizing: border-box;
+				padding: 10px;
+				background: rgba(0,0,255,.1);
+				border-radius: 4px;
+				width: 70%;
+				margin: 0px auto;
+				text-align: center;
+			}
+				.top input,
+				.top button {
+					font-size: 130%;
+				}
+				.top input {
+					width: 70%;
+				}
+		</style>
+	</head>
+	<body><div id="Content">
+		<div class="page-header">
+			<div class="title">
+				Player History
+			</div>
+		</div>
+		<div class="top">
+			<table style="margin: 0px auto; width: 85%"><tr>
+				<td class="address-ctnr" valign="top" width="100%"></td>
+				<td valign="top">
+					<button>Load</button>
+				</td>
+			</tr></table>
+		</div>
+		<div style="margin: 10px 0px;">
+			<div class="statusRow">
+				<div class="cell monarchy">
+					<div class="titleBar">Monarchy</div>
+					<div class="body">
+						<div class="bubble which-account hide">
+							Showing history for player:
+							<div class="player"></div>
+						</div>
+						<div class="bubble no-account">
+							Please enter an address at the top of this page.
+						</div>
+						<fieldset class="account-chosen" disabled="disabled">
+							<div class="log-viewer-ctnr"></div>
+						</fieldset>
+					</div>
+				</div>
+			</div>
+			<div class="statusRow">
+				<div class="cell instadice">
+					<div class="titleBar">InstaDice</div>
+					<div class="body">
+						<div class="bubble which-account hide">
+							Showing history for player:
+							<div class="player"></div>
+						</div>
+						<div class="bubble no-account">
+							Please enter an address at the top of this page.
+						</div>
+						<fieldset class="account-chosen" disabled="disabled">
+							<div class="log-viewer-ctnr"></div>
+						</fieldset>
+					</div>
+				</div>
+			</div>
+			<div class="statusRow">
+				<div class="cell videopoker">
+					<div class="titleBar">Video Poker</div>
+					<div class="body">
+						<div class="bubble which-account hide">
+							Showing history for player:
+							<div class="player"></div>
+						</div>
+						<div class="bubble no-account">
+							Please enter an address at the top of this page.
+						</div>
+						<fieldset class="account-chosen" disabled="disabled">
+							<div class="log-viewer-ctnr"></div>
+						</fieldset>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div></body>
+</html>

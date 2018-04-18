@@ -40,7 +40,7 @@ Loader.require("dice")
 		}
 		_$status.empty().text("Finding roll from transaction...");
 		ethUtil.getTxReceipt(txHash, false).then(res=>{
-			const events = dice._getNiceWeb3().decodeKnownEvents(res.logs);
+			const events = dice._getNiceWeb3().decodeEvents(res.logs, dice.abi);
 			const event = events.find((e)=>e.name=="RollWagered" || e.name=="RollRefunded");
 			if (!event) {
 				_$status.empty().text(`No roll was wagered or refunded in this transaction.`);

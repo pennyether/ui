@@ -15,18 +15,13 @@
         const _ethUtil = new EthUtil(web3, ethAbi);
         var _callHook = null;
 
-        this._knownInstances = {};
         this.web3 = web3;
         this.ethUtil = _ethUtil;
 
         this.createContractFactory = function(contractName, abi, unlinked_binary){
             return new NiceWeb3ContractFactory(_self, contractName, abi, unlinked_binary);
         };
-        this.addKnownInstance = function(instance, name) {
-            if (!instance.address) throw new Error(`Provided instance must have an address.`);
-            if (!name) name = `${instance.contractName}@${instance.address}`;
-            _self._knownInstances[instance.address.toLowerCase()] = instance;
-        };
+
         // gets all events in a way shitamask and infura can live with
         this.getAllEvents = function(instance, fromBlock, toBlock) {
             return _ethUtil.sendAsync("eth_getLogs", [{
@@ -34,14 +29,14 @@
                 fromBlock: web3.toHex(fromBlock) || web3.toHex(1),
                 toBlock: web3.toHex(toBlock) || "latest"
             }]).then((events)=>{
-                return _self.decodeKnownEvents(events);
+                return _self.decodeEvents(events, instance.abi);
             });
         };
         // gets all events given a name and filter (filters are ANDed)
         // eg: {topic1Name: value, topic2Name: value}
         this.getEvents = function(instance, name, filter, fromBlock, toBlock) {
             filter = filter || {};
-            if (fromBlock < 0) fromBlock = 0;
+            if (fromBlock < 0) fromBlock = 1;
             const def = instance.abi.find((def)=>def.type=="event" && def.name==name);
             if (!def) throw new Error(`${instance._getName()} has no "${name}" event.`);
             // first topic is the signature of the event
@@ -60,17 +55,19 @@
                 topics.push(topicValue);
             });
             
-            // do it.
-            const fromHex = fromBlock ? web3.toHex(fromBlock) : web3.toHex(1);
-            const toHex = toBlock ? web3.toHex(toBlock) : "latest";
-            return _ethUtil.sendAsync("eth_getLogs", [{
+            // build params for eth_getLogs. delete address if instace is a factory
+            const params = {
                 address: instance.address,
-                fromBlock: fromHex,
-                toBlock: toHex,
+                fromBlock: fromBlock ? web3.toHex(fromBlock) : web3.toHex(1),
+                toBlock: toBlock ? web3.toHex(toBlock) : "latest",
                 topics: topics
-            }]).then((events)=>{
+            };
+            if (!instance.address) delete params["address"];
+
+            return _ethUtil.sendAsync("eth_getLogs", [params]).then((events)=>{
                 // decode each event, then order .args by the ABI definition
-                return _self.decodeKnownEvents(events).map(ev => {
+                // yes, args is an object, but most browsers support ordered keys.
+                return _self.decodeEvents(events, instance.abi).map(ev => {
                     if (!ev.args) return;
                     const args = {};
                     def.inputs.forEach(input => args[input.name] = ev.args[input.name]);
@@ -81,14 +78,11 @@
         }
         // will decode events where the address matches a known instance
         // and that instance has the topic in its ABI
-        this.decodeKnownEvents = function(events) {
+        this.decodeEvents = function(events, abi) {
             return events.map((event)=>{
-                // return if its not known
                 event.decoded = false;
-                const instance = _self._knownInstances[event.address];
-                if (!instance) { return event; }
-                // decode it
-                const decodedEvent = _ethUtil.decodeEvent(event, instance.abi);
+                // try to decode it
+                const decodedEvent = _ethUtil.decodeEvent(event, abi);
                 // convert any BigNumbers into our BigNumber
                 if (decodedEvent) {
                     Object.keys(decodedEvent.args).forEach((key)=>{
@@ -125,6 +119,11 @@
         this.niceWeb3 = niceWeb3
         this.contract = _web3.eth.contract(abi);
         this.contractName = contractName;
+        this.abi = abi;
+
+        this.getEvents = function(name, filter, fromBlock, toBlock) {
+            return niceWeb3.getEvents(_self, name, filter, fromBlock, toBlock);
+        };
 
         // Returns a promise resolved with the NiceContract instance.
         // You can also do return.getTxHash().then()
@@ -206,7 +205,6 @@
                 return niceWeb3.getEvents(instance, name, filter, fromBlock, toBlock);
             }
             // add instance to known instances (so can parse events)
-            niceWeb3.addKnownInstance(instance);
             return instance;
         };
 
@@ -325,7 +323,7 @@
                         if (receipt.contractAddress){
                             result.instance = _self.at(receipt.contractAddress)
                         }
-                        result.events = niceWeb3.decodeKnownEvents(receipt.logs);
+                        result.events = niceWeb3.decodeEvents(receipt.logs, metadata.instance.abi);
                         result.receipt = receipt;
                         result.transaction = tx;
                         result.metadata = metadata;

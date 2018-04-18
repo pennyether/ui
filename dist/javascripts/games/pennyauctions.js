@@ -1,5 +1,7 @@
 Loader.require("monarchy")
 .then(function(monarchy){
+	if (!MonarchyUtil) throw new Error(`This requires MonarchyUtil to be loaded.`);
+
 	$("#Title").addClass("loaded");
 	ethUtil.onStateChanged((state)=>{
 		if (!state.isConnected) return;
@@ -414,18 +416,10 @@ Loader.require("monarchy")
 		};
 
 		function _$getMonarch(monarch){
-			const $el = $("<div class='monarch-value'></div>");
-			// get monarch link
-			const $monarchLink = util.$getShortAddrLink(monarch);
-			if (ethUtil.getCurrentAccount() === monarch) $monarchLink.text("You");
-			// get gravatar
-			const gravatarId = monarch.slice(2, 34);
-			const $monarchImg = $("<img></img>").attr(`src`, `https://www.gravatar.com/avatar/${gravatarId}?d=retro`)
-			return $el.append($monarchImg).append($monarchLink);
+			return MonarchyUtil.$getMonarch(monarch);
 		};
 		function _getDecreeStr(bytes23){
-			try { return web3.toUtf8(bytes23); }
-			catch (e) { return "<invalid decree>"; }
+			return MonarchyUtil.getDecreeStr(bytes23);
 		}
 
 		function _triggerAlerts(blocksLeft, amNowLoser, newWinner){
@@ -790,15 +784,7 @@ Loader.require("monarchy")
 					},
 					valueFn: (event) => {
 						if (event.name=="OverthrowOccurred"){
-							const $newMonarch = _$getMonarch(event.args.newMonarch);
-							const $oldMonarch = _$getMonarch(event.args.prevMonarch);
-							const decree = _getDecreeStr(event.args.decree);
-							const $decree = $("<span class='decree'></span>").text(`"${decree}"`);
-							const $el = $("<div></div>").append($newMonarch)
-								.append(" ovethrew ")
-								.append($oldMonarch);
-							if (decree.length) $el.append("<br>Decree: ").append($decree);
-							return $el;
+							return MonarchyUtil.$getOverthrowSummary(event);
 						} else if (event.name=="Started"){
 							return "<b>Auction Started</b>";
 						}

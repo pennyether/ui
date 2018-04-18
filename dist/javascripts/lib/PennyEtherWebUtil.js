@@ -374,6 +374,7 @@
 
         var _isResetPending;       // whether or not a reset is pending
         var _isDone;               // if least/greatest block passes the _min/_max bounds
+        var _missCount;            // how many searches have been performed with 0 results
         var _maxBlock = null;      // max block to search until
         var _minBlock = null;      // minimum block to search until
         var _loadingPromise;       // if loading is in progress
@@ -432,8 +433,9 @@
             Promise.resolve(_loadingPromise).then(() => {
                 _isResetPending = false;
                 _isDone = false;
+                _missCount = 0;
                 _maxBlock = opts.maxBlock || ethUtil.getCurrentBlockHeight().toNumber();
-                _minBlock = opts.minBlock || _maxBlock - _blocksPerSearch*10;
+                _minBlock = opts.minBlock || 1;
                 _prevFromBlock = _order=='newest' ? _maxBlock+1 : null;
                 _prevToBlock = _order=='oldest' ? _minBlock-1 : null;
                 _prevEvent = null;
@@ -541,9 +543,14 @@
                 _$status.text(`Scanned blocks: ${_leastBlockLoaded} - ${_greatestBlockLoaded}.`);
 
                 // If there were no events, try to load more
-                return allEvents.length > 0
-                    ? allEvents
-                    : _loadMoreEvents();
+                // Otherwise, reset _missCount and return.
+                if (allEvents.length == 0) {
+                    if (++_missCount >= 20) _isDone = true;
+                    return _loadMoreEvents();
+                } else {
+                    _missCount = 0;
+                    return allEvents;
+                }
             });
         }
 
@@ -918,6 +925,8 @@
     }
 
     function AddressInput(onChangeFn) {
+        if (!onChangeFn) onChangeFn = (val)=>{};
+        
         const _$e = $(`
             <div class="AddressInput">
                 <input class="input" type="text" placeholder="Address" style="box-sizing: border-box; display: block; width: 100%;">
@@ -930,6 +939,7 @@
         this.$e = _$e;
         _$e.isValid = () => _isValid();
         _$e.getValue = () => _getValue();
+        _$e.setValue = (val) => { _$input.val(val); _onChange(); };
 
         function _getValue() {
             return _isValid() ? _$input.val() : null;
@@ -960,7 +970,7 @@
             else {
                 _$error.show().text(validation);
             }
-            onChangeFn();
+            onChangeFn(_getValue());
         }
 
         setTimeout(_onChange, 0);

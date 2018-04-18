@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<script src="../javascripts/lib/Loader.js"></script>
+		<script src="../javascripts/shared/MonarchyUtil.js"></script>
 		<script src="../javascripts/games/pennyauctions.js"></script>
 		<style>
 			/*********************************************/
@@ -253,7 +254,7 @@
 									</div>
 									<div class="right">
 										<div class="title">Overthrow <span class="question">i</span></div>
-										<div class="info">Decree your empire</div>
+										<div class="info">Become the Monarch</div>
 									</div>
 								</div>
 							</div>
@@ -358,9 +359,10 @@
 		</div>
 		<div id="WinTip" style="display:none;">
 			<div class="winTip">
-				<div class="title">Claim your prize immediately.</div>
+				<div class="title">If you win, claim the prize!</div>
 				<div class="wait">
 					Or, you can wait and the prize will automatically be sent to you by PennyEther, free of charge.
+					<br><br>There's no rush -- the prize will be held for the winner until they claim it.
 				</div>
 			</div>
 		</div>
@@ -610,19 +612,6 @@
 		.auction td.status .view-link a {
 			text-decoration: none;
 		}
-		
-		/* reused class containers */
-		.monarch-value {
-			display: inline-block;
-		}
-			.monarch-value img {
-				height: 1em;
-				margin-right: .5em;
-				vertical-align: text-bottom;
-			}
-			.monarch-value a {
-				color: blue;
-			}
 
 		/* tip icons */
 		.auction .alerts-icon {
@@ -657,20 +646,13 @@
 
 		/* Tips */
 		.history-tip {
-			width: 420px;
+			width: 430px;
 		}
 		.history-tip .LogViewer .status {
 			display: none;
 		}
 		.history-tip .LogViewer {
 			margin-top: -8px;
-		}
-		.history-tip .LogViewer a {
-			color: blue;
-		}
-		.history-tip .LogViewer .decree {
-			color: gray;
-			font-style: italic;
 		}
 
 		/* overthrow, sendprize tips */
