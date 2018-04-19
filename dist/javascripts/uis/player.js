@@ -95,7 +95,7 @@ Loader.require("monarchy", "dice", "vp")
                 label: "Overthrow",
                 selected: true
             },{
-                name: "OverthrowRefundFailure",
+                name: "OverthrowRefundSuccess",
                 filter: {recipient: account},
                 label: "Overthrow Refunded",
                 selected: true

@@ -591,9 +591,9 @@
         function _defaultFormatter(val, name) {
             const $e = $("<span></span>");
             if (val.toNumber && val.gt(1000000000)){
-                $e.append(util.toEthStr(val));  
+                $e.append(util.toEthStrFixed(val));  
             } else if (!val.toNumber && val.toString().length==42) {
-                $e.append(util.$getShortAddrLink(val));
+                $e.append(Loader.linkOf(val));
             } else if (!val.toNumber && val.toString().length==66) {
                 // bytes32
                 $e.append(_niceWeb3.web3.toAscii(val));

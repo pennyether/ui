@@ -134,7 +134,6 @@ Loader.require("monarchy")
 		var _curPrize = null;
 		var _curMonarch = null;
 		var _curDecree = "";
-		var _curBlockEnded = null;
 		var _alerts = {};
 
 		// initialize dom elements
@@ -264,7 +263,7 @@ Loader.require("monarchy")
 				isPaid: _isEnded && !_isPaid ? _game.isPaid() : null,
 				prize: _isEnded ? _curPrize : _game.prize(),
 				monarch: _isEnded ? _curMonarch : _game.monarch(),
-				blockEnded: _isEnded ? new BigNumber(_curBlockEnded) : _game.blockEnded(),
+				blocksLeft: _isEnded ? new BigNumber(0) : _game.getBlocksRemaining(),
 				decree: _isEnded ? _curDecree : _game.decree(),
 				otSuccesses: account ? _game.getEvents("OverthrowOccurred", {newMonarch: account}, block, block) : [],
 				otRefundSuccess: account ? _game.getEvents("OverthrowRefundSuccess", {recipient: account}, block, block) : [],
@@ -273,8 +272,7 @@ Loader.require("monarchy")
 				const isPaid = obj.isPaid;
 				const prize = obj.prize;
 				const monarch = obj.monarch;
-				const blockEnded = obj.blockEnded;
-				const blocksLeft = blockEnded - block;
+				const blocksLeft = obj.blocksLeft.toNumber();
 				const blocksReigned = _reignBlocks - blocksLeft;
 				const decree = _getDecreeStr(obj.decree);
 
@@ -283,7 +281,7 @@ Loader.require("monarchy")
 				const amNowWinner = !_curAmWinner && amWinner;
 				const amNowLoser = _curAmWinner && !amWinner;
 				const isNewWinner = _curMonarch && monarch != _curMonarch;
-				const isEnded = blocksLeft < 1;
+				const isEnded = blocksLeft <= 0;
 				const isNewEnded = isEnded && !_isEnded;
 				const isNewBlock = blocksLeft != _curBlocksLeft;
 				const isNewPrize = _curPrize && !_curPrize.equals(prize);
@@ -292,7 +290,6 @@ Loader.require("monarchy")
 				_curAmWinner = amWinner;
 				_curBlocksLeft = blocksLeft;
 				_curMonarch = monarch;
-				_curBlockEnded = blockEnded;
 				_curDecree = decree;
 
 				// update DOM: monarch, decree, prize
@@ -302,7 +299,8 @@ Loader.require("monarchy")
 				if (decree.length) _$decree.text(`"${decree}"`).show();
 				else _$decree.hide();
 				_$prize.text(`${ethUtil.toEth(prize)}`);
-				if (_curBlocksLeft > _reignBlocks) _$reignBlocks.hide();
+				// edge case for initial monarch where reignBlocks is large
+				if (blocksReigned < 0) _$reignBlocks.hide();
 				else _$reignBlocks.show();
 
 				// update stuff that uses _blocktime
@@ -319,8 +317,7 @@ Loader.require("monarchy")
 				_triggerAlerts(blocksLeft, amNowLoser, isNewWinner);
 				if (isNewEnded) _clearAlerts();
 				
-				// update everything else
-				// button, blocksleft, flashing classes
+				// if it's done, update everything.
 				if (isEnded) {
 					_$e.addClass("ended");
 					_$btn.attr("disabled", "disabled");
@@ -427,10 +424,17 @@ Loader.require("monarchy")
 						You've reigned for <b>${blocksReigned} blocks</b> and will win
 						in <b>${blocksLeft} blocks</b> unless you are overthrown.`);
 					} else {
-						_$status.empty()
-							.append(nav.$getPlayerLink(_curMonarch))
-							.append(` has reigned for <b>${blocksReigned} blocks</b> and
-							will win in <b>${blocksLeft} blocks</b> unless they are overthrown.`);
+						if (blocksReigned < 0) {
+							_$status.empty()
+								.append(nav.$getPlayerLink(_curMonarch))
+								.append(` will win in <b>${blocksLeft} blocks</b> unless they are overthrown.`);
+						} else {
+							_$status.empty()
+								.append(nav.$getPlayerLink(_curMonarch))
+								.append(` has reigned for <b>${blocksReigned} blocks</b> and
+								will win in <b>${blocksLeft} blocks</b> unless they are overthrown.`);
+						}
+
 					}
 				}
 				if (isNewBlock) flashClass("new-block");
@@ -551,7 +555,7 @@ Loader.require("monarchy")
 					_game.overthrow({
 						_decree: web3.fromUtf8(decree)
 					},{
-						gas: 50000,
+						gas: 51000,
 						value: _fee,
 						gasPrice: gasPrice
 					})

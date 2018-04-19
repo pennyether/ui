@@ -224,6 +224,7 @@
                     "tr": [Treasury, "TREASURY"],
                     "tm": [TaskManager, "TASK_MANAGER"],
                     "monarchy": [MonarchyController, "MONARCHY_CONTROLLER"],
+                    "monarchy-factory": [MonarchyFactory, "MONARCHY_FACTORY"],
                     "dice": [InstaDice, "INSTA_DICE"],
                     "vp": [VideoPoker, "VIDEO_POKER"]
                 };
