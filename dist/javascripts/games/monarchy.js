@@ -152,6 +152,7 @@ Loader.require("monarchy")
 		const _$btn = _$e.find("td.overthrow button");
 		const _$alertsIcon = _$e.find(".alerts-icon");
 		const _$sendPrizeIcon = _$e.find(".send-prize-icon").detach();
+		_$e.find("td.settings .refresh").click(() => _self.refresh());
 
 
 		this.$e = _$e;
@@ -255,6 +256,7 @@ Loader.require("monarchy")
 				setTimeout(()=>_$e.addClass(className), 30);
 			}
 
+			_$status.text("Refreshing...");
 			const account = ethUtil.getCurrentAccount();
 			const block = ethUtil.getCurrentBlockHeight();
 			return Promise.obj({
@@ -264,8 +266,9 @@ Loader.require("monarchy")
 				monarch: _isEnded ? _curMonarch : _game.monarch(),
 				blockEnded: _isEnded ? new BigNumber(_curBlockEnded) : _game.blockEnded(),
 				decree: _isEnded ? _curDecree : _game.decree(),
-				refundSuccess: account ? _game.getEvents("OverthrowRefundSuccess", {recipient: account}, block, block) : null,
-				refundFailure: account ? _game.getEvents("OverthrowRefundFailure", {recipient: account}, block, block) : null,
+				otSuccesses: account ? _game.getEvents("OverthrowOccurred", {newMonarch: account}, block, block) : [],
+				otRefundSuccess: account ? _game.getEvents("OverthrowRefundSuccess", {recipient: account}, block, block) : [],
+				otRefundFailures: account ? _game.getEvents("OverthrowRefundFailure", {recipient: account}, block, block) : [],
 			}).then(obj => {
 				const isPaid = obj.isPaid;
 				const prize = obj.prize;
@@ -273,8 +276,6 @@ Loader.require("monarchy")
 				const blockEnded = obj.blockEnded;
 				const blocksLeft = blockEnded - block;
 				const decree = _getDecreeStr(obj.decree);
-				const refundSuccess = obj.refundSuccess ? obj.refundSuccess[0] : null;
-				const refundFailure = obj.refundFailure ? obj.refundFailure[0] : null;
 
 				// compute useful things, store state
 				const amWinner = monarch === account;
@@ -329,33 +330,51 @@ Loader.require("monarchy")
 					return;
 				}
 
-				// Show status update if there was a refundsucces/failure on this block.
-				if (refundSuccess || refundFailure) {
-					const cls = refundSuccess ? "refunded" : "failure";
-					const $link = refundSuccess
-						? util.$getTxLink("Your last overthrow was refunded.", refundSuccess.transactionHash)
-						: util.$getTxLink("Your last overthrow could not be refunded.", refundFailure.transactionHash);
-					const msg = refundSuccess
-						? `You were refunded because: "${refundSuccess.args.msg}"`
-						: `You were unable to be refunded because: "${refundFailure.args.msg}"`;
-
-					// show status cell with proper class.
-					_$statusCell.removeClass("prepending pending refunded success failure").addClass(cls);
-					_$txStatus.show();
+				// Show confirmation if user did overthrow/refundsuccess/failure on this block.
+				const events = obj.otSuccesses.concat(obj.otRefundSuccess).concat(obj.otRefundFailures)
+					.sort((a, b) => a.logIndex - b.logIndex);
+				if (events.length) {
+					// show status cell
+					_$txStatus.empty().show();
 					_$status.hide();
 
-					// append a txStatus into it, and on clear reset it back to normal.
-					const txStatus = util.getTxStatus({
-						onClear: () => {
-							setClass("");
-							_$txStatus.empty().hide();
-							_$status.show();
+					const setClass = (cls) => {
+						_$statusCell.removeClass("prepending pending refunded success failure");
+						_$statusCell.addClass(cls);
+					}
+					setClass("");
+
+					// each time they clear a TxStatus, check to see if its now empty.
+					const onClear = ()=>{
+						if (_$txStatus.find(".TxStatus").length != 0) return;
+						setClass("");
+						_$txStatus.empty().hide();
+						_$status.show();
+					}
+
+					events.forEach(ev => {
+						const txStatus = util.getTxStatus({onClear: onClear});
+						const $link = util.$getTxLink("", ev.transactionHash)
+						txStatus.$e.appendTo(_$txStatus);
+						txStatus.complete($link);
+						if (ev.name == "OverthrowRefundSuccess") {
+							$link.text("Your overthrow attempt was refunded.");
+							txStatus.addWarningMsg(`You were refunded because:<br>"${ev.args.msg}"`);
+							if (events.length==1) setClass("refunded");
+						} else if (ev.name == "OverthrowRefundFailure") {
+							$link.text("Your overthrow could not be refunded.");
+							txStatus.addFailureMsg(`You were unable to be refunded because:<br>"${ev.args.msg}"`);
+							if (events.length==1) setClass("failure");
+						} else if (ev.name == "OverthrowOccurred") {
+							$link.text("Your overthrow succeeded!");
+							const $msg = $("<div></div>")
+								.append("You overthrew ")
+								.append(nav.$getPlayerLink(ev.args.prevMonarch))
+								.append(" and are now the Monarch.");
+							txStatus.addSuccessMsg($msg);
+							if (events.length==1) setClass("success");
 						}
 					});
-					txStatus.$e.appendTo(_$txStatus);
-					txStatus.complete($link);
-					if (refundSuccess) txStatus.addWarningMsg(msg);
-					else txStatus.addFailureMsg(msg);
 				}
 
 				// trigger things based on deltas
@@ -378,8 +397,8 @@ Loader.require("monarchy")
 					t.show();
 					setTimeout(function(){ t.hide(); }, 3000);
 				} else if (amNowWinner) {
-					_$status.empty().append(`You are the now current Monarch!<br>
-						You'll win in ${blocksLeft} blocks unless you are overthrown.`);
+					_$status.empty().append(`You are the current Monarch!<br>
+						You'll win in <b>${blocksLeft} blocks</b> unless you are overthrown.`);
 					_$e.removeClass("now-loser");
 					_$e.removeClass("new-winner");
 					flashClass("now-winner");
@@ -403,15 +422,18 @@ Loader.require("monarchy")
 				} else {
 					if (amWinner) {
 						_$status.empty().append(`You are the current Monarch!<br>
-						You'll win in ${blocksLeft} blocks unless you are overthrown.`);
+						You'll win in <b>${blocksLeft} blocks</b> unless you are overthrown.`);
 					} else {
 						_$status.empty()
 							.append(nav.$getPlayerLink(_curMonarch))
-							.append(` will win in ${blocksLeft} blocks unless they are overthrown.`);
+							.append(` will win in <b>${blocksLeft} blocks</b> unless they are overthrown.`);
 					}
 				}
 				if (isNewBlock) flashClass("new-block");
 				if (isNewPrize) flashClass("new-prize");
+			}).catch(e => {
+				_$status.empty().append(`Error refreshing:<br>`)
+					.append($("<span></span>").text(e.message));
 			});
 		};
 
@@ -493,7 +515,6 @@ Loader.require("monarchy")
 			setClass("prepending");
 			_$txStatus.show();
 			_$status.hide();
-			_$btn.attr("disabled", "disabled");
 			const txStatus = util.getTxStatus({
 				waitTimeMs: waitTimeMs,
 				onSuccess: (res, txStatus) => {
@@ -501,12 +522,10 @@ Loader.require("monarchy")
 					const refundSuccess = res.events.find(e => e.name=="OverthrowRefundSuccess");
 					if (refundSuccess) {
 						setClass("refunded");
-						txStatus.addWarningMsg(`Your overthrow was refunded: "${refundSuccess.args.msg}"`);
+						txStatus.addWarningMsg(`Your overthrow was refunded.<br>Please wait for provider to sync...`);
 					} else if (success) {
 						setClass("success");
-						txStatus.addSuccessMsg(`Your overthow succeeded!<br>Please wait for provider to sync...`);
-						setTimeout(_self.refresh, 1000);
-						setTimeout(_self.refresh, 5000);
+						txStatus.addSuccessMsg(`Your overthow succeeded.<br>Please wait for provider to sync...`);
 					} else {
 						setClass("failure");
 						txStatus.addFailureMsg(`No events found. Please refresh the page.`);
@@ -518,7 +537,6 @@ Loader.require("monarchy")
 					setClass("");
 					_$txStatus.empty().hide();
 					_$status.show();
-					_$btn.removeAttr("disabled");
 				}
 			});
 			txStatus.$e.appendTo(_$txStatus);
@@ -604,13 +622,16 @@ Loader.require("monarchy")
 			// update other more involved tips
 			_initAlerts();
 			_initSendPrizeTip();
+			_initHistoryTip();
 
 			_$e.addClass("initializing");
 			_$blocksLeft.text("Loading");
 			_initialized = Promise.obj({
 				fee: _game.fee(),
 				prizeIncr: _game.prizeIncr(),
-				reignBlocks: _game.reignBlocks()
+				reignBlocks: _game.reignBlocks(),
+				initialPrize: _game.initialPrize(),
+				startEvent: _game.getEvents("Started").then(evs => evs[0]).catch(e => null)
 			}).then(obj => {
 				_$e.removeClass("initializing");
 				_fee = obj.fee;
@@ -632,10 +653,18 @@ Loader.require("monarchy")
 				}
 
 				// initialize the settings container
-				_$e.find("td.settings").text("Hi.");
+				const $settings = _$e.find("td.settings");
+				if (obj.startEvent) {
+					const timeStr = util.toDateStr(obj.startEvent.args.time);
+					const $link = nav.$getMonarchyGameLink(obj.startEvent.address).text(timeStr);
+					$settings.find(".setting.started .tx").append($link);
+				} else {
+					$settings.find(".setting.started .tx").text("<unknown>");
+				}
+				$settings.find(".setting.started .start-prize").text(util.toEthStrFixed(obj.initialPrize));
+				$settings.find(".setting.game-id .value").append(nav.$getMonarchyGameLink(_game.address));
 
-				_initOverthrowTip();
-				_initHistoryTip();
+				_initOverthrowTip(obj.prizeIncr);
 			});
 		};
 
@@ -828,7 +857,7 @@ Loader.require("monarchy")
 		};
 
 		// init overthrow tip
-		function _initOverthrowTip(){
+		function _initOverthrowTip(prizeIncr){
 			const $tip = _$e.find(".overthrow-tip");
 			const $bidPrice = $tip.find(".bid-price");
 			const $prize = $tip.find(".prize");
@@ -842,12 +871,12 @@ Loader.require("monarchy")
 			gps.$e.appendTo($tip.find(".gas-price-ctnr"));
 
 			// set priceIncr string
-			const ethStr = util.toEthStrFixed(_prizeIncr.abs());
-			const prizeIncrStr =  _prizeIncr.gt(0)
+			const ethStr = util.toEthStrFixed(prizeIncr.abs());
+			const prizeIncrStr =  prizeIncr.gt(0)
 				? `The prize will go up by ${ethStr}`
 				: `The prize will go down by ${ethStr}`;
 			$prizeIncr.text(prizeIncrStr);
-			if (_prizeIncr.equals(0)) $prizeIncr.hide();
+			if (prizeIncr.equals(0)) $prizeIncr.hide();
 			$reignBlocks.text(`${_reignBlocks} blocks`);
 
 			// set up decree

@@ -623,8 +623,8 @@
 				background: rgba(0, 255, 128, .2);
 			}
 			.auction td.status .TxStatus {
-				background: none;
-				border: none;
+				/*background: none;*/
+				/*border: none;*/
 			}
 		.auction td.status .view-link {
 			position: absolute;
@@ -639,11 +639,34 @@
 
 		/* settings */
 		.auction td.settings {
-			padding: 3px 10px;
-			font-size: 80%;
-			color: rgba(255,255,255,.7);
+			position: relative;
+			text-align: center;
+			color: rgba(0,0,0,.5);
+			padding: 5px 0px 7px 0px;
+			font-size: 70%;
 			background: linear-gradient(to bottom, rgba(0,0,0,.1) 0%, rgba(0,0,0,.2) 100%);
 		}
+			.auction td.settings .setting {
+				display: inline-block;
+			}
+			.auction td.settings .setting:not(:last-child) {
+				margin-right: 10px;
+			}
+			.auction td.settings .label {
+				font-weight: bold;
+			}
+			.auction td.settings .value,
+			.auction td.settings .value a {
+				color: rgba(255, 255, 255, .6);
+			}
+			.auction td.settings .refresh {
+				position: absolute;
+				top: 0px;
+				right: 10px;
+				font-size: 150%;
+				color: blue;
+				cursor: pointer;
+			}
 
 		/* tip icons */
 		.auction .alerts-icon {
@@ -859,13 +882,13 @@
 					<div class="info">Overthrow the current Monarch for just <span class='bid-price'></span>!</div>
 					<div class="bullet-ctnr">
 						<div class="bullet">
-							You'll become the Monarch, <span class="refund tip-manually no-tip-style" title="You'll receive a refund if:<br>- You are overthrown in the same block.<br>- You are already the Monarch.<br>- The wrong fee is sent.">or get refunded</span>
+							If you reign for <span class="reign-blocks"></span>, you'll win <span class="prize"></span>!
 						</div>
 						<div class="bullet">
 							Everyone will see your decree.
 						</div>
 						<div class="bullet">
-							If you reign for <span class="reign-blocks"></span>, you'll win <span class="prize"></span>!
+							You'll become the Monarch, <span class="refund tip-manually no-tip-style" title="You'll receive a refund if:<br>- You are overthrown in the same block.<br>- You are already the Monarch.<br>- The wrong fee is sent.">or get refunded</span>
 						</div>
 						<div class="bullet prize-incr"></div>
 					</div>
@@ -1019,7 +1042,19 @@
 					</td>
 				</tr>
 				<tr>
-					<td colspan="3" class="settings"></td>
+					<td colspan="3" class="settings">
+						<span class="setting game-id">
+							<span class="label">Game Id:</span>
+							<span class="value"></span>
+						</span>
+						<span class="setting started">
+							<span class="label">Started:</span>
+							<span class="value tx"></span>
+							<span> with </span>
+							<span class="value start-prize"></span>
+						</span>
+						<span class="refresh tip-manually no-tip-style" title="Refreshes the game state.<br>This happens each new block." data-tippy-disabled>↻</span>
+					</td>
 				</tr>
 			</table>	
 		</div>
