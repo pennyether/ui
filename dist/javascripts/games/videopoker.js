@@ -5,9 +5,13 @@ Loader.require("vp")
     ethUtil.onStateChanged((state)=>{
         if (!state.isConnected) return;
         const curUser = ethUtil.getCurrentStateSync().account;
-        controller.setUser(curUser);
-        ghv.setUser(curUser);
-        syncGames().then(syncUserCredits);
+        if (curUser) {
+            ghv.setUser(curUser);
+            ghv.enable();
+        } else {
+            ghv.disable(`No account available.`);
+        }
+        syncGames(curUser).then(() => syncUserCredits(curUser));
     });
 
     // do this just once.
@@ -41,11 +45,12 @@ Loader.require("vp")
     });
 
     // Get all fresh gameStates, and update our games.
-    function syncGames() {
+    function syncGames(curUser) {
+        controller.setUser(curUser);
         const toBlock = ethUtil.getCurrentBlockHeight();
         const fromBlock = toBlock - 11520;
         return Promise.all([
-            controller.refreshGameStates(fromBlock, toBlock),
+            curUser ? controller.refreshGameStates(fromBlock, toBlock) : [],
             getVpSettings(true)
         ]).then(arr => {
             createAndUpdateGames(arr[0], arr[1]);
@@ -124,9 +129,7 @@ Loader.require("vp")
         updateGame(gameState, null, false, true);
     }
 
-    function syncUserCredits(){
-        const state = ethUtil.getCurrentStateSync();
-        const curUser = state.account;
+    function syncUserCredits(curUser){
         if (!curUser) {
             $credits.text("No account.");
             return;

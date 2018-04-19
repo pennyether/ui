@@ -22,7 +22,11 @@
 					height: 101%;
 					background: url(/images/castle.jpg);
 					background-size: cover;
-					filter: blur(1px);
+					filter: blur(0px) saturate(150%);
+					transition: filter 10s;
+				}
+				body.loaded .topCtnr .background {
+					filter: blur(1.2px) saturate(70%);
 				}
 				.topCtnr .foreground {
 					position: relative;

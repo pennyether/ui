@@ -11,7 +11,7 @@
                     width: 100%;
                     border-collapse: collapse;    
                 }
-                .GameHistoryViewer thead td {
+                .GameHistoryViewer thead td[data-sort-prop] {
                     cursor: pointer;
                 }
                 .GameHistoryViewer thead td.sort-asc,
@@ -137,7 +137,6 @@
         // Will remove any gameStates that were updated over a block ago.
         function _refreshGameStates(fromBlock, toBlock) {
             if (!fromBlock || !toBlock) throw new Error(`Must provide from and to block`);
-            if (!_user) return _self.getGameStates();
 
             const curBlockNum = ethUtil.getCurrentStateSync().latestBlock.number;
             return Promise.all([
@@ -176,6 +175,7 @@
                 gs = {
                     state: "dealt",
                     id: id,
+                    user: ev.args.user,
                     uiid: ev.args.uiid.toNumber(),
                     bet: ev.args.bet,
                     payTableId: ev.args.payTableId,
@@ -283,12 +283,13 @@
         }
     }
 
-    function GameHistoryViewer(vp, numBlocks) {
+    function GameHistoryViewer(vp, numBlocks, showUser) {
         const _self = this;
 
         const _user = null;
         const _controller = new VpController(vp);
         const _numBlocks = numBlocks;
+        const _showUser = showUser;
 
         var _isDone = false;
         var _nextFromBlock = null;
@@ -304,6 +305,7 @@
                     <thead>
                         <tr class="header">
                             <td data-sort-prop="id">ID</td>
+                            <td class="user" data-sort-prop="user">User</td>
                             <td data-sort-prop="bet.toNumber()">Bet</td>
                             <td data-sort-prop="state">State</td>
                             <td class="txs" data-sort-prop="latestEvent.args.time.toNumber()">TXs</td>
@@ -314,7 +316,7 @@
                     </thead>
                     <tbody>
                         <tr class='status'>
-                            <td colspan=7>
+                            <td colspan=8>
                                 <div class='loaded'></div>
                                 <div class='load-more'>load more...</div>
                             </td>
@@ -333,6 +335,10 @@
             if (!key) return;
             _self.setSort(key, $header.is(".sort-asc") ? "desc" : "asc");
         }).toArray();
+        if (!_showUser) {
+            _$e.find(".header .user").remove();
+            _$e.find(".status td").attr("colspan", 7);
+        }
 
         const _cmp = (function(){
             function getVal(obj, key) {
@@ -366,9 +372,18 @@
             _$loaded.text("No results loaded.");
             _redraw();
         };
+        this.enable = function() {
+            _$loaded.text("No results loaded.");
+            _$loadMore.show();
+        };
+        this.disable = function(str) {
+            _self.reset();
+            _$loaded.text(str);
+            _$loadMore.hide();
+        };
         this.setMinBlock = function(val){
             _minBlock = val;
-        }
+        };
         this.setUser = function(user){
             if (user !== _user) _self.reset();
             _controller.setUser(user);
@@ -431,6 +446,7 @@
                 const $game = $(`
                     <tr class='GameHistory'>
                         <td class="id"></td>
+                        <td class="user"></td>
                         <td class="bet"></td>
                         <td class="state"></td>
                         <td class="txs"></td>
@@ -446,6 +462,7 @@
 
                 var fHand;
                 $game.find(".id").append(nav.$getVpGameLink(gs.id));
+                $game.find(".user").append(nav.$getPlayerLink(gs.user));
                 $game.find(".bet").text(util.toEthStrFixed(gs.bet));
                 $game.find(".state").text(gs.state);
                 $game.find(".iHand").append(gs.iHandRaw.toHtml());
@@ -460,6 +477,7 @@
                 if (gs.drawEvent) $game.find(".txs").append($getTx(gs.drawEvent, "drawn"));
                 if (gs.finalizeEvent) $game.find(".txs").append($getTx(gs.finalizeEvent, "finalized"));
                 if (gs.isWinner) $game.addClass("is-winner");
+                if (!_showUser) $game.find(".user").remove();
 
                 function $getTx(ev, str) {
                     const tip = util.toDateStr(ev.args.time) + "<br>" + `Block #${ev.blockNumber.toLocaleString()}`;
@@ -521,6 +539,7 @@
 
         (function _init(){
             _self.setSort(`id`, `desc`);
+            _self.reset();
         }());
     }
 

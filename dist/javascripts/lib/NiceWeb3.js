@@ -49,7 +49,8 @@
             });
             // for each indexed input, add to topics array as null or our value
             indexedInputs.forEach(input=>{
-                const topicValue = filter.hasOwnProperty(input.name)
+                const filterVal = filter[input.name];
+                const topicValue = filterVal !== null && filterVal !== undefined
                     ? "0x"+ethUtil.toBytesStr(filter[input.name], 32)
                     : null;
                 topics.push(topicValue);

@@ -24,6 +24,7 @@
         "EthGraph": true,
         "DiceUtil": true,
         "PokerUtil": true,
+        "MonarchyUtil": true,
 
         "Loader": true,
             "Registry": true,
@@ -38,6 +39,7 @@
 
             "Bankrollable": true,
             "Ledger": true,
+            "MonarchyGame": true,
 
             "AJAX": true,
             "doScrolling": true,

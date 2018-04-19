@@ -18,6 +18,7 @@ Loader.require("vp")
                 return arr[0].blockNumber;
             }).then(creationBlockNum => {
                 _initEventLog(creationBlockNum);
+                _initGames(creationBlockNum);
                 Promise.all([
                     ethUtil.getBlock(creationBlockNum),
                     _niceWeb3.ethUtil.getAverageBlockTime(),
@@ -193,16 +194,21 @@ Loader.require("vp")
         }
     }
 
+    function _initGames(creationBlockNum) {
+        if (!PokerUtil) throw new Error(`PokerUtil is required.`);
+        const ghv = new PokerUtil.GameHistoryViewer(vp, 5760, true);
+        ghv.setUser(null);
+        ghv.setMinBlock(creationBlockNum);
+        ghv.$e.appendTo($(".cell.games .log-viewer"));
+    }
+
     function _initEventLog(creationBlockNum) {
         // event Created(uint time);
         // event PayTableAdded(uint time, address admin, uint payTableId);
         // event SettingsChanged(uint time, address admin);
         // // Game Events
-        // event BetSuccess(uint time, address indexed user, uint32 indexed id, uint bet, uint payTableId, uint uiid);
         // event BetFailure(uint time, address indexed user, uint bet, string msg);
-        // event DrawSuccess(uint time, address indexed user, uint32 indexed id, uint32 iHand, uint8 draws, uint8 warnCode);
         // event DrawFailure(uint time, address indexed user, uint32 indexed id, uint8 draws, string msg);
-        // event FinalizeSuccess(uint time, address indexed user, uint32 indexed id, uint32 dHand, uint8 handRank, uint payout, uint8 warnCode);
         // event FinalizeFailure(uint time, address indexed user, uint32 indexed id, string msg);
         // // If _payout = true on finalization
         // event PayoutSuccess(uint time, address indexed user, uint32 indexed id, uint amount);
@@ -217,14 +223,9 @@ Loader.require("vp")
         // event BankrollRemoved(uint time, address indexed bankroller, uint amount, uint bankroll);
         const formatters = {
             user: (val) => Loader.linkOf(val),
-            id: (val) => {
-                return $("<a target='_blank'></a>").text(`Game #${val}`)
-                    .attr("href", `/games/viewvideopokergame.html#${val}`);
-            },
+            id: (val) => nav.$getVpGameLink(val),
             bet: (val) => util.toEthStrFixed(val, 3),
             payout: (val) => util.toEthStrFixed(val, 3),
-            iHand: (val) => (new PokerUtil.Hand(val)).toString(),
-            dHand: (val) => (new PokerUtil.Hand(val)).toString(),
             draws: (val) => PokerUtil.getDrawsArray(val).join(", "),
             handRank: (val) => PokerUtil.Hand.getRankString(val),
             // Bankrollable
@@ -242,9 +243,6 @@ Loader.require("vp")
         // define legends, build events from this.
         const labels = {
             "Settings": [true, ["PayTableAdded", "SettingsChanged"]],
-            "Hand Dealt": [false, ["BetSuccess"]],
-            "Hand Drawn": [false, ["DrawSuccess"]],
-            "Hand Finalized": [false, ["FinalizeSuccess"]],
             "Failures": [false, ["BetFailure", "DrawFailure", "FinalizeFailure", "PayoutFailure"]],
             "Credits": [false, ["CreditsAdded", "CreditsUsed", "CreditsCashedout"]],
             "Payouts": [false, ["PayoutSuccess", "PayoutFailure"]],
