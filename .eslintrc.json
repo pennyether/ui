@@ -34,6 +34,7 @@
             "util": true,
             "ethUtil": true,
             "ethStatus": true,
+            "nav": true,
 
             "Bankrollable": true,
             "Ledger": true,

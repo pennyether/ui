@@ -52,7 +52,7 @@
                     linkInBreadcrumb: true,
                     children: [{
                         name: "View Game",
-                        url: "/games/view-videopoker-game.html"
+                        url: "/games/view-videopoker-hand.html"
                     }]
                 }]
             }, {
@@ -242,7 +242,7 @@
         this.$getVpGameLink = function(id) {
             return $("<a class='videopoker-game-link' target='_blank'></a>")
                 .text(`Game #${id}`)
-                .attr("href", `/games/view-videopoker-game.html#${id}`);
+                .attr("href", `/games/view-videopoker-hand.html#${id}`);
         };
         this.$getPlayerLink = function(addr) {
             const $el = $("<div class='player-link'></div>");

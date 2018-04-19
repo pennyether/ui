@@ -97,6 +97,15 @@
                     text-decoration: underline;
                 }
 
+            .Hand .Card.heart,
+            .Hand .Card.diamond {
+                color: red;
+            }
+            .Hand .Card.spade,
+            .Hand .Card.club {
+                color: black;
+            }
+
         `;
         document.getElementsByTagName('head')[0].appendChild(style);
     }());
@@ -416,7 +425,7 @@
         function _redraw() {
             _$statusRow.detach();
             _$tbody.detach().empty();
-            _gameStates.forEach((obj,i) => {
+            _gameStates.forEach((obj, i) => {
                 obj.i = i;
                 const gs = obj.gs;
                 const $game = $(`
@@ -453,8 +462,9 @@
                 if (gs.isWinner) $game.addClass("is-winner");
 
                 function $getTx(ev, str) {
+                    const tip = util.toDateStr(ev.args.time) + "<br>" + `Block #${ev.blockNumber.toLocaleString()}`;
                     const $link = util.$getTxLink(str, ev.transactionHash)
-                        .attr("title", util.toDateStr(ev.args.time));
+                        .attr("title", tip);
                     tippy($link[0], {placement: "left"});
                     return $(`<div class="tx"></div>`).append($link);
                 }
@@ -813,9 +823,31 @@
         };
     }());
 
+    function getGame(vp, gameId) {
+        return vp.games([gameId]).then(arr => {
+            const userId = arr[0];
+            return vp.userAddresses([userId]).then(userAddr => {
+                return {
+                    id: gameId,
+                    user: userAddr,
+                    userId: userId,
+                    bet: arr[1],
+                    payTableId: arr[2],
+                    iBlock: arr[3],
+                    iHand: arr[4],
+                    draws: arr[5],
+                    dBlock: arr[6],
+                    dhand: arr[7],
+                    handRank: arr[8]
+                };
+            });
+        });
+    }
+
     window.PokerUtil = {
         VpController: VpController,
         GameHistoryViewer: GameHistoryViewer,
+        getGame: getGame,
         Hand: HandUtil.Hand,
         getIHand: HandUtil.getIHand,
         getDHand: HandUtil.getDHand,
