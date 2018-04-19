@@ -466,7 +466,7 @@ function Game(vp) {
         // Show the bet, id, and update better to be bet amount.
         _$details.show();
         _$gameBet.text(`Bet: ${_eth(_gameState.bet)}`);
-        _$gameId.text(`Game #${_gameState.id}`);
+        _$gameId.empty().append(nav.$getVpGameLink(_gameState.id));
         _slider.setValue(_gameState.bet.div(1e18));
 
         // It's a winner, add class and hilite paytable entry.

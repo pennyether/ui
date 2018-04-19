@@ -50,10 +50,7 @@
 				}
 				#Title .sub {
 					display: inline-block;
-					padding: 1px 1em;
-					border-radius: 2px;
 					color: white;
-					/*background: rgba(200,200,255,.6);*/
 					font-size: 90%;
 					text-shadow: 0px 0px 4px blue;
 				}
@@ -142,83 +139,8 @@
 				margin-right: 50px;
 			}
 
-			.Card.club, .Card.spade {
-				color: rgba(0,0,0,.7);
-			}
-			.Card.heart, .Card.diamond {
-				color: rgba(255,0,0,.7);
-			}
-		</style>
-	</head>
-	<body>
-	<div id="Content">
-		<div class="top-ctnr">
-			<div class="background"></div>
-			<div class="foreground">
-				<div id="Title">
-					<div class="sup">Video Poker</div>
-					<div class="sub">the world's first blockchain video poker</div>
-				</div>
-				<div class="featureBox">
-					<div class="left">
-						<div class="block">
-							<div class="title">Fast</div>
-							<div class="feature tipLeft" title="No need to deposit Ether or fill out any forms.">
-								No deposit, no sign-up
-							</div><br>
-							<div class="feature tipLeft" title="See your initial hand as soon as your transaction is mined. See your final hand as soon as you submit your draws.">
-								Fast Gameplay
-							</div><br>
-							<div class="feature tipLeft" title="Our UI automatically reloads any pending games, allows you to easily choose gas prices, and tracks the progress of all transactions.">
-								Intelligent UI
-							</div>
-						</div>
-					</div>
-					<div class="middle">
-						<div class="block">
-							<div class="title">Fair</div>
-							<div class="feature tipLeft" title="Our random numbers come from the blockchain, not from a third party.">
-								Results based on blockhash
-							</div><br>
-							<div class="feature tipLeft" title="You can read over our fully annotated source code.">
-								Fully transparent contract
-							</div>
-						</div>
-						<div class="stats">
-							<div class="stat games">
-								<div class="value">0</div>
-								<div class="label">games</div>
-							</div>
-							<div class="stat wagered">
-								<div class="value">0</div>
-								<div class="label">ETH wagered</div>
-							</div>
-							<div class="stat won">
-								<div class="value">0</div>
-								<div class="label">ETH won</div>
-							</div>
-						</div>
-					</div>
-					<div class="right">
-						<div class="block">
-							<div class="title">The Best</div>
-							<div class="feature tipLeft" title="Our pay table provides over 99% returns when played optimally.">
-								Generous Payoffs
-							</div><br>
-							<div class="feature tipLeft" title="It's easy to play several hands at the same time.">
-								Play Multiple Games
-							</div><br>
-							<div class="feature tipLeft" title="We strive to keep the gas costs low. For repeat players, a full game is typically under 100,000 gas!">
-								Low gas costs
-							</div><br>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		
 
-		<style>
+			/******* TABBER / MACHINE STYLING *********/
 			#Machine {
 				margin: 50px 10px;
 				border: 1px solid black;
@@ -421,33 +343,10 @@
 						.Tabber .mini-status.is-error .loading .LoadingBar .loaded {
 							background: rgba(255,0,0,.5);
 						}
-						
-		</style>
-		<div id="Machine">
-			<div class="header">
-				<table cellpadding="0" cellspacing="0"><tr>
-					<td width="100%"><div class="tabber-ctnr"></div></td>
-					<td class="credits-cell">
-						<div class="credits-ctnr">Credits: 1000 ETH</div>
-						<div style="display: table; width: 100%;">
-							<div style="display: table-cell; width: 50%; text-align: center;">
-								<button>Add Credits</button>
-							</div>
-							<div style="display: table-cell; width: 50%; text-align: center;">
-								<button>Cash Out</button>
-							</div>
-					</td>
-				</tr></table>
-			</div>
-			<div class="game-ctnr" style="background: black;"></div>
-		</div>
-		<div id="History">
-			<div>My Hand History</div>
-			<div class="history-ctnr"></div>
-		</div>
 
 
-		<style>
+			/**** GAME STYLING **********************/
+
 			.Game {
 				padding: 20px 0px;
 				border-top: 1px solid black;
@@ -662,6 +561,7 @@
 				margin: 30px 0px 0px 0px;
 			}
 			
+			/* this applies to the cards in the game and in mini-display */
 			.HandDisplay {
 				position: relative;
 				text-align: center;
@@ -788,7 +688,99 @@
 				.HandDisplay .card .cardIcon.diamond { color: red; }
 				.HandDisplay .card .cardIcon.spade,
 				.HandDisplay .card .cardIcon.club { color: black; }
+
+
 		</style>
+	</head>
+	<body>
+	<div id="Content">
+		<div class="top-ctnr">
+			<div class="background"></div>
+			<div class="foreground">
+				<div id="Title">
+					<div class="sup">Video Poker</div>
+					<div class="sub">the world's first blockchain video poker</div>
+				</div>
+				<div class="featureBox">
+					<div class="left">
+						<div class="block">
+							<div class="title">Fast</div>
+							<div class="feature tipLeft" title="No need to deposit Ether or fill out any forms.">
+								No deposit, no sign-up
+							</div><br>
+							<div class="feature tipLeft" title="See your initial hand as soon as your transaction is mined. See your final hand as soon as you submit your draws.">
+								Fast Gameplay
+							</div><br>
+							<div class="feature tipLeft" title="Our UI automatically reloads any pending games, allows you to easily choose gas prices, and tracks the progress of all transactions.">
+								Intelligent UI
+							</div>
+						</div>
+					</div>
+					<div class="middle">
+						<div class="block">
+							<div class="title">Fair</div>
+							<div class="feature tipLeft" title="Our random numbers come from the blockchain, not from a third party.">
+								Results based on blockhash
+							</div><br>
+							<div class="feature tipLeft" title="You can read over our fully annotated source code.">
+								Fully transparent contract
+							</div>
+						</div>
+						<div class="stats">
+							<div class="stat games">
+								<div class="value">0</div>
+								<div class="label">games</div>
+							</div>
+							<div class="stat wagered">
+								<div class="value">0</div>
+								<div class="label">ETH wagered</div>
+							</div>
+							<div class="stat won">
+								<div class="value">0</div>
+								<div class="label">ETH won</div>
+							</div>
+						</div>
+					</div>
+					<div class="right">
+						<div class="block">
+							<div class="title">The Best</div>
+							<div class="feature tipLeft" title="Our pay table provides over 99% returns when played optimally.">
+								Generous Payoffs
+							</div><br>
+							<div class="feature tipLeft" title="It's easy to play several hands at the same time.">
+								Play Multiple Games
+							</div><br>
+							<div class="feature tipLeft" title="We strive to keep the gas costs low. For repeat players, a full game is typically under 100,000 gas!">
+								Low gas costs
+							</div><br>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="Machine">
+			<div class="header">
+				<table cellpadding="0" cellspacing="0"><tr>
+					<td width="100%"><div class="tabber-ctnr"></div></td>
+					<td class="credits-cell">
+						<div class="credits-ctnr">Credits: 1000 ETH</div>
+						<div style="display: table; width: 100%;">
+							<div style="display: table-cell; width: 50%; text-align: center;">
+								<button>Add Credits</button>
+							</div>
+							<div style="display: table-cell; width: 50%; text-align: center;">
+								<button>Cash Out</button>
+							</div>
+					</td>
+				</tr></table>
+			</div>
+			<div class="game-ctnr" style="background: black;"></div>
+		</div>
+		<div id="History">
+			<div>My Hand History</div>
+			<div class="history-ctnr"></div>
+		</div>
+
 		<div class="Game template" style="display: none;">
 			<div class="top">
 				<table width="100%" style="box-sizing: border-box;" cellspacing="0" cellpadding=""><tr>
