@@ -8,22 +8,54 @@
 			/*********************************************/
 			/******** TITLE AND FEATURES *****************/
 			/*********************************************/
+			.top-ctnr {
+				margin-top: 40px;
+				position: relative;
+				overflow: hidden;
+			}
+				.top-ctnr .background {
+					position: absolute;
+					z-index: 1;
+					top: -2px;
+					left: -2px;
+					width: 101%;
+					height: 101%;
+					background: url(/images/poker.jpg);
+					background-size: cover;
+					filter: blur(0px) saturate(150%);
+					transition: filter 10s;
+				}
+				body.loaded .top-ctnr .background {
+					filter: blur(1.2px) saturate(70%);
+				}
+				.top-ctnr .foreground {
+					position: relative;
+					z-index: 2;
+				}
+
 			#Title {
-				padding: 20px 0px 20px 0px;
-				background: white;
+				padding-top: 30px;
 				text-align: center;
 			}
 				#Title .sup {
-					font-size: 180%;
-					text-shadow: 0px 0px 5px #AAB;
+					color: white;
+					font-weight: bold;
+					font-size: 250%;
+					text-shadow: 0px 0px 15px cyan;
 				}
 				body.loaded #Title .sup {
-					letter-spacing: .20em;
-					text-shadow: 0px 0px 5px blue;
+					letter-spacing: .25em;
+					text-shadow: 0px 0px 10px #68D;
 					transition: letter-spacing 3s ease-out, text-shadow 3s ease-out;
 				}
 				#Title .sub {
+					display: inline-block;
+					padding: 1px 1em;
+					border-radius: 2px;
+					color: white;
+					/*background: rgba(200,200,255,.6);*/
 					font-size: 90%;
+					text-shadow: 0px 0px 4px blue;
 				}
 				body.loaded #Title .sub {
 					letter-spacing: .2em;
@@ -31,53 +63,55 @@
 				}
 
 			.featureBox {
-				box-sizing: border-box;
-				width: 100%;
 				display: table;
-				background: linear-gradient(to bottom, #AAB 0%, #22A 100%);
-				padding: 15px 0px;
-				margin: 0px;
+				box-sizing: border-box;
+				margin: 50px auto;
+				width: 88%;
+				padding: 10px 10px 15px 10px;
+				background: linear-gradient(0deg, rgba(57, 115, 173, 0.95) 0%, rgba(112, 180, 222, .9) 100%);
+				background: linear-gradient(0deg, rgba(80, 115, 173, 0.95) 0%, rgba(80, 112, 222, .9) 100%);
+				border-radius: 5px;
+				box-shadow: 0px 0px 15px 2px rgba(0,0,0,.4);
 			}
-			.featureBox > .left {
-				display: table-cell;
-				vertical-align: top;
-				padding-left: 40px;
-				width: 33%;
-			}
-			.featureBox > .middle {
-				display: table-cell;
-				vertical-align: top;
-				width: 33%;
-			}
-			.featureBox > .right {
-				display: table-cell;
-				vertical-align: top;
-				width: 33%;
-			}
-			.featureBox .block {
-				display: inline-block;
-				margin: 0px 40px;
-				text-shadow: 1px 1px 1px rgba(255,255,255,.4);
-			}
-			.featureBox .title {
-				text-align: center;
-				font-weight: bold;
-				font-size: 180%;
-				color: #FAFAFA;
-				letter-spacing: .1em;
-				padding-bottom: 4px;
-				text-shadow: 0px 0px 10px blue;
-			}
-			.featureBox .feature {
-				display: inline-block;
-				font-size: 90%;
-				margin: 4px 0px;
-				font-weight: bold;
-
-			}
-			.featureBox .tipLeft::before {
-				background: rgba(0,0,0,.1);
-			}
+				.featureBox > .left {
+					display: table-cell;
+					vertical-align: top;
+					width: 33%;
+				}
+				.featureBox > .middle {
+					display: table-cell;
+					vertical-align: top;
+					width: 33%;
+				}
+				.featureBox > .right {
+					display: table-cell;
+					vertical-align: top;
+					width: 33%;
+				}
+				.featureBox .block {
+					display: table;
+					margin: 0px auto;
+					text-shadow: 1px 1px 1px rgba(255,255,255,.4);
+				}
+				.featureBox .title {
+					text-align: center;
+					font-size: 180%;
+					color: #FAFAFA;
+					letter-spacing: .25em;
+					padding-bottom: 4px;
+					text-shadow: 2px 2px 2px rgba(0,0,0,.5);
+					font-variant: small-caps;
+					padding-bottom: 7px;
+				}
+				.featureBox .feature {
+					display: inline-block;
+					font-size: 90%;
+					margin: 4px 0px;
+					font-weight: bold;
+				}
+				.featureBox .tipLeft::before {
+					background: rgba(0,0,0,.1);
+				}
 
 			.featureBox .stats {
 				text-align: center;
@@ -89,7 +123,7 @@
 				text-align: center;
 				padding: 3px 5px;
 				border-radius: 5px;
-				background: rgba(200,200,200,.5);
+				background: rgba(255,255,255,.3);
 				border: 1px inset rgba(200,200,200,.5);
 			}
 			.featureBox .stats .stat .value {
@@ -118,294 +152,298 @@
 	</head>
 	<body>
 	<div id="Content">
-		<div id="Summary">
-			<div id="Title">
-				<div class="sup">Video Poker</div>
-				<div class="sub">the world's first blockchain video poker</div>
+		<div class="top-ctnr">
+			<div class="background"></div>
+			<div class="foreground">
+				<div id="Title">
+					<div class="sup">Video Poker</div>
+					<div class="sub">the world's first blockchain video poker</div>
+				</div>
+				<div class="featureBox">
+					<div class="left">
+						<div class="block">
+							<div class="title">Fast</div>
+							<div class="feature tipLeft" title="No need to deposit Ether or fill out any forms.">
+								No deposit, no sign-up
+							</div><br>
+							<div class="feature tipLeft" title="See your initial hand as soon as your transaction is mined. See your final hand as soon as you submit your draws.">
+								Fast Gameplay
+							</div><br>
+							<div class="feature tipLeft" title="Our UI automatically reloads any pending games, allows you to easily choose gas prices, and tracks the progress of all transactions.">
+								Intelligent UI
+							</div>
+						</div>
+					</div>
+					<div class="middle">
+						<div class="block">
+							<div class="title">Fair</div>
+							<div class="feature tipLeft" title="Our random numbers come from the blockchain, not from a third party.">
+								Results based on blockhash
+							</div><br>
+							<div class="feature tipLeft" title="You can read over our fully annotated source code.">
+								Fully transparent contract
+							</div>
+						</div>
+						<div class="stats">
+							<div class="stat games">
+								<div class="value">0</div>
+								<div class="label">games</div>
+							</div>
+							<div class="stat wagered">
+								<div class="value">0</div>
+								<div class="label">ETH wagered</div>
+							</div>
+							<div class="stat won">
+								<div class="value">0</div>
+								<div class="label">ETH won</div>
+							</div>
+						</div>
+					</div>
+					<div class="right">
+						<div class="block">
+							<div class="title">The Best</div>
+							<div class="feature tipLeft" title="Our pay table provides over 99% returns when played optimally.">
+								Generous Payoffs
+							</div><br>
+							<div class="feature tipLeft" title="It's easy to play several hands at the same time.">
+								Play Multiple Games
+							</div><br>
+							<div class="feature tipLeft" title="We strive to keep the gas costs low. For repeat players, a full game is typically under 100,000 gas!">
+								Low gas costs
+							</div><br>
+						</div>
+					</div>
+				</div>
 			</div>
-			<div class="featureBox">
-				<div class="left">
-					<div class="block">
-						<div class="title">Fast</div>
-						<div class="feature tipLeft" title="No need to deposit Ether or fill out any forms.">
-							No deposit, no sign-up
-						</div><br>
-						<div class="feature tipLeft" title="See your initial hand as soon as your transaction is mined. See your final hand as soon as you submit your draws.">
-							Fast Gameplay
-						</div><br>
-						<div class="feature tipLeft" title="Our UI automatically reloads any pending games, allows you to easily choose gas prices, and tracks the progress of all transactions.">
-							Intelligent UI
-						</div>
-					</div>
-				</div>
-				<div class="middle">
-					<div class="block">
-						<div class="title">Fair</div>
-						<div class="feature tipLeft" title="Our random numbers come from the blockchain, not from a third party.">
-							Results based on blockhash
-						</div><br>
-						<div class="feature tipLeft" title="You can read over our fully annotated source code.">
-							Fully transparent contract
-						</div>
-					</div>
-					<div class="stats">
-						<div class="stat games">
-							<div class="value">0</div>
-							<div class="label">games</div>
-						</div>
-						<div class="stat wagered">
-							<div class="value">0</div>
-							<div class="label">ETH wagered</div>
-						</div>
-						<div class="stat won">
-							<div class="value">0</div>
-							<div class="label">ETH won</div>
-						</div>
-					</div>
-				</div>
-				<div class="right">
-					<div class="block">
-						<div class="title">The Best</div>
-						<div class="feature tipLeft" title="Our pay table provides over 99% returns when played optimally.">
-							Generous Payoffs
-						</div><br>
-						<div class="feature tipLeft" title="It's easy to play several hands at the same time.">
-							Play Multiple Games
-						</div><br>
-						<div class="feature tipLeft" title="We strive to keep the gas costs low. For repeat players, a full game is typically under 100,000 gas!">
-							Low gas costs
-						</div><br>
-					</div>
-				</div>
-			</div>
+		</div>
+		
 
-			<style>
-				#Machine {
-					margin: 50px 10px;
-					border: 1px solid black;
-					overflow: hidden;
-					border-radius: 15px;
+		<style>
+			#Machine {
+				margin: 50px 10px;
+				border: 1px solid black;
+				overflow: hidden;
+				border-radius: 15px;
+			}
+			#Machine .header {
+				background: linear-gradient(to top, rgba(0,0,0,.8) 0%, rgba(0,0,0,.6) 100%);
+			}
+			.credits-cell {
+				vertical-align: middle;
+				padding: 10px;
+				border-left: 1px dotted rgba(0,0,0,.5);
+			}
+			.credits-ctnr {
+				box-sizing: border-box;
+				width: 250px;
+				text-align: center;
+				color: white;
+			}
+
+			.Tabber {
+				padding: 5px 10px;
+			}
+			.Tabber .tab {
+				display: inline-block;
+				vertical-align: bottom;
+				position: relative;
+				box-sizing: border-box;
+				white-space: nowrap;
+				width: 155px;
+				margin: 5px;
+				overflow: hidden;
+				font-size: 80%;
+				text-align: center;
+				color: white;
+				border-radius: 3px;
+				user-select: none;
+				cursor: pointer;
+			}
+			.Tabber .tab:not(.new) {
+				opacity: .7;
+				filter: saturate(15%);
+				box-shadow: none;
+				border: 1px solid #555;
+				transition: filter .3s, opacity .3s, box-shadow .3s, border .3s, width .2s;
+			}
+			.Tabber .tab:not(.new):hover {
+				/*opacity: .7;*/
+				filter: saturate(50%);
+			}
+			.Tabber .tab:not(.new).selected {
+				opacity: .9;
+				box-shadow: 3px 3px 3px 0px rgba(0,0,0,.3);
+				border: 1px solid gray;
+				filter: saturate(100%);
+			}
+			.Tabber .tab.shrunken {
+				width: 0px;
+				opacity: .1;
+			}
+
+			.Tabber .tab.new {
+				border: 1px solid rgb(100,100,100);
+				padding: 4px 6px;
+				background: #111;
+				opacity: .5;
+				transition: opacity .3s;
+			}
+			.Tabber .tab.new:hover {
+				opacity: .9;
+			}
+			
+
+			.Tabber .tab .remove {
+				position: absolute;
+				top: 3px;
+				right: 3px;
+				width: 12px;
+				height: 12px;
+				padding-top: 1px;
+				padding-left: 1px;
+				line-height: 11px;
+				font-size: 10px;
+				border-radius: 20px;
+				background: rgba(255,128,128,.5);
+				color: rgba(255,255,255,.5);
+				transition: background .3s, color .3s;
+			}
+			.Tabber .tab .remove:hover {
+				color: rgba(255,255,255,.8);
+				background: rgba(255,0,0,.7);
+			}
+			
+			.Tabber .tab > .title {
+				padding: 2px 4px;
+				border-bottom: 1px dotted rgba(0,0,0,.1);
+				background: #222;
+				color: #CCC;
+				transition: background .3s, color .3s;
+			}
+			.Tabber .tab.selected > .title {
+				background: black;
+				color: #DDD;
+			}
+
+			.Tabber .mini-status {
+				position: relative;
+				color: #999;
+				background: radial-gradient(rgba(0,0,255,1) 0%, rgba(0,0,128,.5) 100%);
+				padding-top: 8px;
+			}
+				.Tabber .mini-status .HandDisplay {
+					font-size: 50%;
+					opacity: .8;
 				}
-				#Machine .header {
-					background: linear-gradient(to top, rgba(0,0,0,.8) 0%, rgba(0,0,0,.6) 100%);
+				.Tabber .mini-status .HandDisplay .card-ctnr {
+					height: 32px;
+					width: 23px;
+					margin: 0px 2px;
 				}
-				.credits-cell {
-					vertical-align: middle;
-					padding: 10px;
-					border-left: 1px dotted rgba(0,0,0,.5);
-				}
-				.credits-ctnr {
-					box-sizing: border-box;
-					width: 250px;
-					text-align: center;
+					.Tabber .mini-status .HandDisplay .card {
+						border-radius: 3px;
+					}
+					.Tabber .mini-status .HandDisplay .card .heldIcon {
+					    font-size: 5px;
+					    margin-top: 5px;
+					    letter-spacing: initial;
+					    padding: 2px;
+						border-radius: 2px;
+						filter: opacity(50%);
+					}
+
+					.Tabber .mini-status .HandDisplay .card .suit {
+						display: none;
+					}
+					.Tabber .mini-status .HandDisplay .card .corner {
+						margin-top: -3px;
+						margin-left: -4px;
+					}
+				.Tabber .mini-status .HandDisplay .hand-rank {
+					padding: 0px 4px;
 					color: white;
 				}
+					
 
-				.Tabber {
-					padding: 5px 10px;
-				}
-				.Tabber .tab {
-					display: inline-block;
-					vertical-align: bottom;
+				.Tabber .mini-status .bottom {
 					position: relative;
-					box-sizing: border-box;
-					white-space: nowrap;
-					width: 155px;
-					margin: 5px;
-					overflow: hidden;
-					font-size: 80%;
+					margin-top: 8px;
 					text-align: center;
-					color: white;
-					border-radius: 3px;
-					user-select: none;
-					cursor: pointer;
+					padding: 1px 0px;
+					background: rgba(255, 255, 255, .5);
 				}
-				.Tabber .tab:not(.new) {
-					opacity: .7;
-					filter: saturate(15%);
-					box-shadow: none;
-					border: 1px solid #555;
-					transition: filter .3s, opacity .3s, box-shadow .3s, border .3s, width .2s;
-				}
-				.Tabber .tab:not(.new):hover {
-					/*opacity: .7;*/
-					filter: saturate(50%);
-				}
-				.Tabber .tab:not(.new).selected {
-					opacity: .9;
-					box-shadow: 3px 3px 3px 0px rgba(0,0,0,.3);
-					border: 1px solid gray;
-					filter: saturate(100%);
-				}
-				.Tabber .tab.shrunken {
-					width: 0px;
-					opacity: .1;
-				}
-
-				.Tabber .tab.new {
-					border: 1px solid rgb(100,100,100);
-					padding: 4px 6px;
-					background: #111;
-					opacity: .5;
-					transition: opacity .3s;
-				}
-				.Tabber .tab.new:hover {
-					opacity: .9;
-				}
-				
-
-				.Tabber .tab .remove {
-					position: absolute;
-					top: 3px;
-					right: 3px;
-					width: 12px;
-					height: 12px;
-					padding-top: 1px;
-					padding-left: 1px;
-					line-height: 11px;
-					font-size: 10px;
-					border-radius: 20px;
-					background: rgba(255,128,128,.5);
-					color: rgba(255,255,255,.5);
-					transition: background .3s, color .3s;
-				}
-				.Tabber .tab .remove:hover {
-					color: rgba(255,255,255,.8);
-					background: rgba(255,0,0,.7);
-				}
-				
-				.Tabber .tab > .title {
-					padding: 2px 4px;
-					border-bottom: 1px dotted rgba(0,0,0,.1);
-					background: #222;
-					color: #CCC;
-					transition: background .3s, color .3s;
-				}
-				.Tabber .tab.selected > .title {
-					background: black;
-					color: #DDD;
-				}
-
-				.Tabber .mini-status {
-					position: relative;
-					color: #999;
-					background: radial-gradient(rgba(0,0,255,1) 0%, rgba(0,0,128,.5) 100%);
-					padding-top: 8px;
-				}
-					.Tabber .mini-status .HandDisplay {
-						font-size: 50%;
-						opacity: .8;
-					}
-					.Tabber .mini-status .HandDisplay .card-ctnr {
-						height: 32px;
-						width: 23px;
-						margin: 0px 2px;
-					}
-						.Tabber .mini-status .HandDisplay .card {
-							border-radius: 3px;
-						}
-						.Tabber .mini-status .HandDisplay .card .heldIcon {
-						    font-size: 5px;
-						    margin-top: 5px;
-						    letter-spacing: initial;
-						    padding: 2px;
-    						border-radius: 2px;
-    						filter: opacity(50%);
-						}
-
-						.Tabber .mini-status .HandDisplay .card .suit {
-							display: none;
-						}
-						.Tabber .mini-status .HandDisplay .card .corner {
-							margin-top: -3px;
-							margin-left: -4px;
-						}
-					.Tabber .mini-status .HandDisplay .hand-rank {
-						padding: 0px 4px;
-						color: white;
-					}
-						
-
-					.Tabber .mini-status .bottom {
+					.Tabber .mini-status .state {
 						position: relative;
-						margin-top: 8px;
-						text-align: center;
-						padding: 1px 0px;
-						background: rgba(255, 255, 255, .5);
-					}
-						.Tabber .mini-status .state {
-							position: relative;
-							z-index: 2;
-							display: inline-block;
-							padding: 1px 4px;
-							border-radius: 2px;
+						z-index: 2;
+						display: inline-block;
+						padding: 1px 4px;
+						border-radius: 2px;
 
-							color: black;
-							font-variant: small-caps;
-							letter-spacing: .1em;
-							font-size: 120%;
-							transition: color .3s, background .3s;
+						color: black;
+						font-variant: small-caps;
+						letter-spacing: .1em;
+						font-size: 120%;
+						transition: color .3s, background .3s;
+					}
+					.Tabber .mini-status.is-winner.drawn .state {
+						color: white;
+						background: green;
+						font-weight: bold;
+					}
+					.Tabber .mini-status.is-transacting .state {
+						color: blue !important;
+						background: none !important;
+						font-weight: bold;
+						text-shadow: 0px 0px 1px rgba(255,255,255,.8);
+					}
+					.Tabber .mini-status.is-error .state {
+						color: maroon !important;
+						background: none !important;
+					}
+					.Tabber .mini-status .loading {
+						position: absolute;
+						z-index: 1;
+					    top: 0;
+					    left: 0;
+					    width: 100%;
+					    height: 100%;
+					}
+						.Tabber .mini-status .loading .LoadingBar {
+							margin: 0px;
+							height: 100%;
+							border: none;
 						}
-						.Tabber .mini-status.is-winner.drawn .state {
-							color: white;
-							background: green;
-							font-weight: bold;
+						.Tabber .mini-status .loading .LoadingBar .loaded {
+							height: 100%;
+							background: rgba(0,128,0,.5);
+							box-shadow: none;
 						}
-						.Tabber .mini-status.is-transacting .state {
-							color: blue !important;
-							background: none !important;
-							font-weight: bold;
-							text-shadow: 0px 0px 1px rgba(255,255,255,.8);
+						.Tabber .mini-status.is-error .loading .LoadingBar .loaded {
+							background: rgba(255,0,0,.5);
 						}
-						.Tabber .mini-status.is-error .state {
-							color: maroon !important;
-							background: none !important;
-						}
-						.Tabber .mini-status .loading {
-							position: absolute;
-							z-index: 1;
-						    top: 0;
-						    left: 0;
-						    width: 100%;
-						    height: 100%;
-						}
-							.Tabber .mini-status .loading .LoadingBar {
-								margin: 0px;
-								height: 100%;
-								border: none;
-							}
-							.Tabber .mini-status .loading .LoadingBar .loaded {
-								height: 100%;
-								background: rgba(0,128,0,.5);
-								box-shadow: none;
-							}
-							.Tabber .mini-status.is-error .loading .LoadingBar .loaded {
-								background: rgba(255,0,0,.5);
-							}
-							
-			</style>
-			<div id="Machine">
-				<div class="header">
-					<table cellpadding="0" cellspacing="0"><tr>
-						<td width="100%"><div class="tabber-ctnr"></div></td>
-						<td class="credits-cell">
-							<div class="credits-ctnr">Credits: 1000 ETH</div>
-							<div style="display: table; width: 100%;">
-								<div style="display: table-cell; width: 50%; text-align: center;">
-									<button>Add Credits</button>
-								</div>
-								<div style="display: table-cell; width: 50%; text-align: center;">
-									<button>Cash Out</button>
-								</div>
-						</td>
-					</tr></table>
-				</div>
-				<div class="game-ctnr" style="background: black;"></div>
+						
+		</style>
+		<div id="Machine">
+			<div class="header">
+				<table cellpadding="0" cellspacing="0"><tr>
+					<td width="100%"><div class="tabber-ctnr"></div></td>
+					<td class="credits-cell">
+						<div class="credits-ctnr">Credits: 1000 ETH</div>
+						<div style="display: table; width: 100%;">
+							<div style="display: table-cell; width: 50%; text-align: center;">
+								<button>Add Credits</button>
+							</div>
+							<div style="display: table-cell; width: 50%; text-align: center;">
+								<button>Cash Out</button>
+							</div>
+					</td>
+				</tr></table>
 			</div>
-			<div id="History">
-				<div>My Hand History</div>
-				<div class="history-ctnr"></div>
-			</div>
+			<div class="game-ctnr" style="background: black;"></div>
+		</div>
+		<div id="History">
+			<div>My Hand History</div>
+			<div class="history-ctnr"></div>
 		</div>
 
 

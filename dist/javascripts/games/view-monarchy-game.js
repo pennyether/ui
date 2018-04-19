@@ -76,7 +76,9 @@ Loader.require("monarchy", "monarchy-factory")
 				remaining: game.getBlocksRemaining(),
 			}).then(obj => {
 				obj.reigned = obj.needed.minus(obj.remaining);
-				return `Reigned for <b>${obj.reigned}</b> out of <b>${obj.needed}</b> blocks.
+				return obj.remaining.equals(0)
+					? `Reigned for <b>${obj.reigned} blocks</b>, and won.`
+					: `Reigned for <b>${obj.reigned}</b> out of <b>${obj.needed}</b> blocks.
 				Will win in <b>${obj.remaining}</b> blocks, if not overthrown.`;
 			});
 		};

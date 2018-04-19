@@ -8,12 +8,12 @@
 			/*********************************************/
 			/******** TITLE AND FEATURES *****************/
 			/*********************************************/
-			.topCtnr {
+			.top-ctnr {
 				margin-top: 40px;
 				position: relative;
 				overflow: hidden;
 			}
-				.topCtnr .background {
+				.top-ctnr .background {
 					position: absolute;
 					z-index: 1;
 					top: -2px;
@@ -25,14 +25,14 @@
 					filter: blur(0px) saturate(150%);
 					transition: filter 10s;
 				}
-				body.loaded .topCtnr .background {
+				body.loaded .top-ctnr .background {
 					filter: blur(1.2px) saturate(70%);
 				}
-				.topCtnr .foreground {
+				.top-ctnr .foreground {
 					position: relative;
 					z-index: 2;
 				}
-			.dark .topCtnr {
+			.dark .top-ctnr {
 				filter: brightness(70%);
 			}
 
@@ -213,7 +213,7 @@
 	</head>
 	<body>
 	<div id="Content">
-		<div class="topCtnr">
+		<div class="top-ctnr">
 			<div class="background"></div>
 			<div class="foreground">
 				<div id="Title">
@@ -1108,7 +1108,7 @@
 					Ended Games
 					<div class="refresh-notice">Refreshing</div>
 				</div>
-				<div class="body">
+				<div class="body" style="padding-left: 0px; padding-right: 0px;">
 					<div class="none" style="display: none;">
 						There are currently no ended games.
 					</div>
