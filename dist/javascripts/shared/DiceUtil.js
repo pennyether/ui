@@ -3,7 +3,26 @@
         var style = document.createElement('style');
         style.type = 'text/css';
         style.innerHTML = `
-            
+            .dice-roll-event .top > span {
+                display: inline-block;
+                margin-right: 5px;
+            }
+            .dice-roll-wagered.won .result,
+            .dice-roll-wagered.won .sign, 
+            .dice-roll-wagered.won .number {
+                color: green;
+            }
+            .dice-roll-wagered.lost .result,
+            .dice-roll-wagered.lost .sign, 
+            .dice-roll-wagered.lost .number {
+                color: red;
+            }
+            .dice-roll-payout.success .success-str {
+                color: green;
+            }
+            .dice-roll-payout.failure .success-str {
+                color: red;
+            }
         `;
         document.getElementsByTagName('head')[0].appendChild(style);
     }());
@@ -212,7 +231,7 @@
         if (event.name == "RollWagered") {
             // event RollWagered(uint time, uint32 indexed id, address indexed user, uint bet, uint8 number, uint payout);
             const $e = $(`
-                <div class='dice-roll-wagered'>
+                <div class='dice-roll-event dice-roll-wagered'>
                     <div class='top'>
                         <span class='roll'>
                             <span class='label'>Roll:</span>
@@ -260,7 +279,7 @@
         } else if (event.name == "RollRefunded") {
             // event RollRefunded(uint time, address indexed user, string msg, uint bet, uint8 number);
             const $e = $(`
-                <div class="dice-roll-refunded">
+                <div class="dice-roll-event dice-roll-refunded">
                     <div class='top'>
                         <span class="roll">
                             <span class="label">Roll:</span>
@@ -292,7 +311,7 @@
         } else if (event.name == "RollFinalized") {
             // event RollFinalized(uint time, uint32 indexed id, address indexed user, uint8 result, uint payout);
             const $e = $(`
-                <div class="dice-roll-finalized">
+                <div class="dice-roll-event dice-roll-finalized">
                     <div class='top'>
                         <span class="roll">
                             <span class="label">Roll:</span>
@@ -321,7 +340,7 @@
             // event PayoutSuccess(uint time, uint32 indexed id, address indexed user, uint payout);
             // event PayoutFailure(uint time, uint32 indexed id, address indexed user, uint payout);
             const $e = $(`
-                <div class="dice-roll-payout">
+                <div class="dice-roll-event dice-roll-payout">
                     <div class='top'>
                         <span class="roll">
                             <span class="label">Roll:</span>
