@@ -426,9 +426,7 @@ Loader.require("dice")
         }
 
         function _$getViewLink(txt) {
-            return $("<a target='_blank'></a>")
-                .attr("href", `/games/instadice-roll.html#${_state.txId}`)
-                .text(txt);
+            return nav.$getRollLink(_state.txId).text(txt);
         }
 
         var _loaderTimeout;

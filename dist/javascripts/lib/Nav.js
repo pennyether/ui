@@ -230,17 +230,17 @@
             const str = rollId.length > 10
                 ? "@" + rollId.slice(0,4) + "..." + rollId.slice(-4)
                 : `#${rollId}`;
-            return $("<a class='game-link'></a>")
+            return $("<a class='roll-link' target='_blank'></a>")
                 .text(str)
                 .attr("href", `/games/view-instadice-roll.html#${rollId}`);
         };
         this.$getMonarchyGameLink = function(addr) {
-            return $("<a></a>")
+            return $("<a class='monarchy-game-link' target='_blank'></a>")
                 .text(addr.slice(0, 6) + "..." + addr.slice(-4))
                 .attr("href", `/games/view-monarchy-game.html#${addr}`);
         };
         this.$getVpGameLink = function(id) {
-            return $("<a></a>")
+            return $("<a class='videopoker-game-link' target='_blank'></a>")
                 .text(`Game #${id}`)
                 .attr("href", `/games/view-videopoker-game.html#${id}`);
         };

@@ -10,13 +10,14 @@ Loader.require("dice")
 	if (window.location.hash) {
 		const roll = window.location.hash.substring(1)
 		_$roll.val(roll);
-		_$loadBtn.click();
+		findRoll();
 	}
 
 	function findRoll(){
 		_$status.empty();
 		const val = _$roll.val();
 		window.location.hash = `#${val}`;
+
 		var rollId, txHash;
 		if (!val)
 			return alert("Please enter a Roll Id or a transaction hash.");
@@ -43,18 +44,26 @@ Loader.require("dice")
 			const events = dice._getNiceWeb3().decodeEvents(res.logs, dice.abi);
 			const event = events.find((e)=>e.name=="RollWagered" || e.name=="RollRefunded");
 			if (!event) {
-				_$status.empty().text(`No roll was wagered or refunded in this transaction.`);
+				_$status.empty().text(`No InstaDice event was found in the transaction receipt.`);
 				return;
 			}
-			_$status.empty().text(`Found ${event.name} event for the roll.`);
+			_$status.empty().text(`Found an InstaDice event in the transaction receipt.`);
 			if (event.name=="RollRefunded") {
 				refreshRefundedRoll(event);
 			} else {
 				refreshRoll(event.args.id);	
 			}
 		}).catch((e)=>{
-			_$status.empty().text(`Error when retrieving transaction receipt: ${e.message}`);
+			_$status.empty().text(`Unable to load a receipt for this Transaction Id.`);
 		})
+	}
+
+	function $getTxLink(event) {
+		return $("<div></div>")
+			.append(util.toDateStr(event.args.time))
+			.append(` (Block #${event.blockNumber.toLocaleString()})`)
+			.append(` - `)
+			.append(util.$getTxLink(event.transactionHash));
 	}
 
 	function refreshRefundedRoll(event) {
@@ -67,15 +76,11 @@ Loader.require("dice")
 		_$refunded.show();
 		$(".refundReason").show().text(event.args.msg);
 		$(".field.id .value").text(`Roll was not created.`);
-		$(".field.transaction .value")
-			.append(util.toDateStr(event.args.time))
-			.append(" - ")
-			.append(util.$getTxLink(event.transactionHash))
-		$(".field.block .value").text(`${event.blockNumber}`);
+		$(".field.transaction .value").append($getTxLink(event));
 		$(".field.user .value").append(util.$getAddrLink(event.args.user));
-		$(".field.bet .value").append(ethUtil.toEthStr(event.args.bet));
+		$(".field.bet .value").append(util.toEthStrFixed(event.args.bet));
 		$(".field.number .value").append(`${number} or below.`);
-		$(".field.payout .value").append(ethUtil.toEthStr(computePayout(bet, number)));
+		$(".field.payout .value").append(`n/a`);
 	}
 
 	function refreshRoll(rollId) {
@@ -93,19 +98,17 @@ Loader.require("dice")
 			}
 
 			$(".field.id .value").text(`${rollId}`);
-			$(".field.block .value").text(`${roll.block}`);
-			$(".field.user .value").append(util.$getAddrLink(roll.user));
+			$(".field.user .value").append(nav.$getPlayerLink(roll.user));
 			$(".field.bet .value").append(util.toEthStrFixed(roll.bet));
 			$(".field.number .value").append(`${roll.number} or below.`);
 			$(".field.payout .value").append(util.toEthStrFixed(roll.payout));
 
-			// subtract 5000 from block... there's some bug with infura where it
-			// sometimes doesn't return events.
+			// load all events, display roll.
 			Promise.all([
-				dice.getEvents("RollWagered", {id: rollId}, roll.block-5000),
-				dice.getEvents("RollFinalized", {id: rollId}, roll.block-5000),
-				dice.getEvents("PayoutSuccess", {id: rollId}, roll.block-5000),
-				dice.getEvents("PayoutFailure", {id: rollId}, roll.block-5000)
+				dice.getEvents("RollWagered", {id: rollId}, roll.block - 1),
+				dice.getEvents("RollFinalized", {id: rollId}, roll.block - 1),
+				dice.getEvents("PayoutSuccess", {id: rollId}, roll.block - 1),
+				dice.getEvents("PayoutFailure", {id: rollId}, roll.block - 1)
 			]).then(arr=>{
 				const wagered = arr[0].length ? arr[0][0] : null;
 				const resolved = arr[1].length ? arr[1][0] : null;
@@ -113,74 +116,46 @@ Loader.require("dice")
 				const payoutFailures = arr[3];
 
 				if (!wagered) {
-					throw new Error(`Unable to find the RollWagered event of roll: ${rollId}`);
+					throw new Error(`Unable to find the "RollWagered" event of roll: ${rollId}`);
 				}
-				const computedResult = computeResult(wagered.blockHash, rollId);
+				const computedResult = DiceUtil.computeResult(wagered.blockHash, rollId);
 				const isWinner = !computedResult.gt(roll.number);
 				// update initial transaction and result.
-				$(".field.transaction .value")
-					.append(util.toDateStr(wagered.args.time))
-					.append(" - ")
-					.append(util.$getTxLink(wagered.transactionHash));
-				$(".field.result .value")
-					.text(computedResult);
-				$(".field.isWinner .value")
-					.text(isWinner ? "Yes." : "No.");
+				$(".field.transaction .value").append($getTxLink(wagered));
+				$(".field.result .value").text(computedResult);
+				$(".field.isWinner .value").text(isWinner ? "Yes." : "No.");
 
 				// now update the history
-				$(".field.rollWagered .value")
-					.append(`Block ${wagered.blockNumber} - `)
-					.append(util.toDateStr(wagered.args.time))
-					.append(" - ")
-					.append(util.$getTxLink(wagered.transactionHash));
-
+				$(".field.rollWagered .value").append($getTxLink(wagered));
 				if (resolved) {
-					$(".field.rollResolved .value")
-						.append(`Block ${resolved.blockNumber} - `)
-						.append(util.toDateStr(resolved.args.time))
-						.append(" - ")
-						.append(util.$getTxLink(resolved.transactionHash));
-					$(".field.resolvedResult .value")
-						.text(resolved.args.result);
+					$(".field.rollResolved .value").append($getTxLink(wagered));
+					$(".field.resolvedResult .value").text(resolved.args.result);
 				}else{
-					$(".field.rollResolved .value")
-						.text("This roll has not been resolved yet.");
-					$(".field.resolvedResult .value")
-						.text("This roll has not been resolved yet.")
+					$(".field.rollResolved .value").text("This roll has not been resolved yet.");
+					$(".field.resolvedResult .value").text("This roll has not been resolved yet.")
 				}
-
 				if (payoutSuccess) {
-					$(".field.payoutSuccess .value")
-						.append(`Block ${payoutSuccess.blockNumber} - `)
-						.append(util.toDateStr(payoutSuccess.args.time))
-						.append(" - ")
-						.append(util.$getTxLink(payoutSuccess.transactionHash));
+					$(".field.payoutSuccess .value").append($getTxLink(payoutSuccess));
 				} else {
-					$(".field.payoutSuccess .value")
-						.text("This roll has not been paid.");
+					$(".field.payoutSuccess .value").text("This roll has not been paid.");
 				}
 
+				// show failures
 				if (payoutFailures.length > 0) {
 					$(".payoutFailures").show();
+					const $ctnr = $(".payoutFailures .failures").empty();
+					payoutFailures.forEach(payoutFailure => {
+						const $e = $(`
+							<div style='margin-bottom: 5px'>
+								PayoutFailure: <span class="tx"></span><br>
+							</div>
+						`).appendTo($ctnr);
+						$e.find(".tx").append($getTxLink(payoutFailure));
+					});
 				} else {
 					$(".payoutFailures").hide();
 				}
 			});
-			// todo find creating/resolved/paid transactions
-			
-			// $(".field.result .value").append(computeResult(id)) // need blockhash
-			// $(".field.resolvedResult .value").append(`${result}`); // or not yet resolved
-			// $(".field.paid .value").append(`${isPaid}`); // or won/lost
 		})
 	}
-
-	function computeResult(blockHash, id) {
-        const hash = web3.sha3(blockHash + ethUtil.toBytesStr(id, 4), {encoding: "hex"});
-        const bn = new BigNumber(hash);
-        return bn.mod(100).plus(1);
-    }
-    function computePayout(bet, number) {
-		return bet.mul(100).div(number).mul(.99)
-    }
-
 });

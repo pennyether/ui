@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<script src="../javascripts/lib/Loader.js"></script>
-		<script src="../javascripts/status/instadice-roll.js"></script>
+		<script src="../javascripts/games/view-instadice-roll.js"></script>
 		<script src="../javascripts/shared/DiceUtil.js"></script>
 		<style>
 			.roll input {
@@ -43,8 +43,15 @@
 	</head>
 	<body>
 	<div id="Content">
-		<div class="pageTitle">
-			Roll Details
+		<div class="page-header">
+			<div class="title">
+				InstaDice Roll Details
+			</div>
+			<div class="links">
+				<a href="/about/contracts.html#instadice">Contract Info</a>
+				•
+				<a href="">Etherscan Link</a>
+			</div>
 		</div>
 		<div class="section roll">
 			<div class="head">Roll ID</div>
@@ -62,35 +69,43 @@
 					<!-- <div class="info">This data is refreshed every new block.</div> -->
 				</div>
 				<div class="body">
-					<div class="refunded">
+					<div class="refunded" style="display: none;">
 						This bet was refunded for the following reason: <div class="refundReason"></div>
 					</div>
 					<div class="field id">
-						<div class="label tipLeft" title="A unique ID that identifies the roll. This will be empty if the roll was refunded.">Roll Id:</div>
-						<div class="value"></div>
-					</div>
-					<div class="field block">
-						<div class="label tipLeft" title="The block that the roll was created on. The block's hash is used to compute the result.">Created on Block:</div>
+						<div class="label" title="A unique ID that identifies the roll. This will be empty if the roll was refunded." data-tippy-placement="left">
+							Roll Id:
+						</div>
 						<div class="value"></div>
 					</div>
 					<div class="field transaction">
-						<div class="label tipLeft" title="The transaction that originated the roll.">Transaction:</div>
+						<div class="label" title="The transaction that originated the roll." data-tippy-placement="left">
+							Transaction:
+						</div>
 						<div class="value"></div>
 					</div>
 					<div class="field user">
-						<div class="label tipLeft" title="The address that originated the bet.">Bettor Address:</div>
+						<div class="label" title="The address that originated the bet." data-tippy-placement="left">
+							Bettor:
+						</div>
 						<div class="value"></div>
 					</div>
 					<div class="field bet">
-						<div class="label tipLeft" title="The wager size">Bet Size:</div>
+						<div class="label" title="The wager size" data-tippy-placement="left">
+							Bet Size:
+						</div>
 						<div class="value"></div>
 					</div>
 					<div class="field number">
-						<div class="label tipLeft" title="The number chosen. A roll result of this number or lower is a win.">Chosen Number:</div>
+						<div class="label" title="The number chosen. A roll result of this number or lower is a win." data-tippy-placement="left">
+							Chosen Number:
+						</div>
 						<div class="value"></div>
 					</div>
 					<div class="field payout">
-						<div class="label tipLeft" title="The payout size if the roll is a winner.">Payout:</div>
+						<div class="label" title="The payout size if the roll is a winner." data-tippy-placement="left">
+							Payout:
+						</div>
 						<div class="value"></div>
 					</div>
 				</div>
@@ -99,15 +114,21 @@
 				<div class="head">Roll Result</div>
 				<div class="body">
 					<div class="field result">
-						<div class="label tipLeft" title="The result of the roll, as computed locally. This should match the Resolved roll.">Computed Result:</div>
+						<div class="label" title="The result of the roll, as computed locally. This should match the Resolved roll." data-tippy-placement="left">
+							Computed Result:
+						</div>
 						<div class="value"></div>
 					</div>
 					<div class="field resolvedResult">
-						<div class="label tipLeft" title="The result of the roll, as computed by the contract. This should match the computed roll. The only is if the roll is never resolved. After 255 blocks, it will be resolved as 101.">Resolved Result:</div>
+						<div class="label" title="The result of the roll, as computed by the contract. This should match the computed roll, unless it is finalized after 256 blocks from being created." data-tippy-placement="left">
+							Resolved Result:
+						</div>
 						<div class="value"></div>
 					</div>
 					<div class="field isWinner">
-						<div class="label tipLeft" title="Whether or not the roll won.">Winner:</div>
+						<div class="label" title="Whether or not the roll won." data-tippy-placement="left">
+							Winner:
+						</div>
 						<div class="value"></div>
 					</div>
 				</div>
@@ -118,19 +139,29 @@
 				</div>
 				<div class="body">
 					<div class="field rollWagered">
-						<div class="label tipLeft" title="This event is trigged when the roll is created.">RollWagered:</div>
+						<div class="label" title="This event is trigged when the roll is created." data-tippy-placement="left">
+							RollWagered:
+						</div>
 						<div class="value"></div>
 					</div>
 					<div class="field rollResolved">
-						<div class="label tipLeft" title="This event is triggered when the roll is resolved, likely paying it out as well.">RollResolved:</div>
+						<div class="label" title="This event is triggered when the roll is resolved, likely paying it out as well." data-tippy-placement="left">
+							RollResolved:
+						</div>
 						<div class="value"></div>
 					</div>
 					<div class="field payoutSuccess">
-						<div class="label tipLeft" title="The event is triggered when the winnings are paid to the winner.">PayoutSuccess:</div>
+						<div class="label" title="The event is triggered when the winnings are paid to the winner." data-tippy-placement="left">
+							PayoutSuccess:
+						</div>
 						<div class="value"></div>
 					</div>
 					<div class="subsection payoutFailures">
-						<div class="head"><span class="tipLeft" title="This shows all attempts at payment that failed. Payment will fail if the user's fallback function consumes too much gas or throws an error.">Payment Failures</div>
+						<div class="head">
+							<span class="tipLeft" title="This shows all attempts at payment that failed. Payment will fail if the user's fallback function consumes too much gas or throws an error." data-tippy-placement="left">
+								Payment Failures
+							</span>
+						</div>
 						<div class="body">
 							<div class="failures"></div>
 						</div>

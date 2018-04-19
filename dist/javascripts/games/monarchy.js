@@ -429,7 +429,7 @@ Loader.require("monarchy")
 					} else {
 						_$status.empty()
 							.append(nav.$getPlayerLink(_curMonarch))
-							.append(` has reigned for <b>{blocksReigned} blocks</b> and
+							.append(` has reigned for <b>${blocksReigned} blocks</b> and
 							will win in <b>${blocksLeft} blocks</b> unless they are overthrown.`);
 					}
 				}
