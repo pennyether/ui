@@ -11,8 +11,8 @@ Loader.require("monarchy")
 	const _GAS_PRICE_SLIDER = util.getGasPriceSlider(20);
 	const _activeGameObjs = {};
 	const _endedGameObjs = {};
-	const _$activeAuctions = $(".activeAuctions .auctions").empty();
-	const _$endedAuctions = $(".endedAuctions .auctions").empty();
+	const _$activeGames = $(".active-games .games").empty();
+	const _$endedGames = $(".ended-games .games").empty();
 
 	// returns all games
 	function getAllGameObjs() {
@@ -38,7 +38,7 @@ Loader.require("monarchy")
 
 	// get up to 10 last ended game contracts
 	// todo: if optimization is needed, we can update 
-	// this only when numEndedAuctions has changed.
+	// this only when numEndedGames has changed.
 	function getEndedGames() {
 		return monarchy.numEndedGames().then(len=>{
 			const max = Math.min(len, 10);
@@ -90,12 +90,12 @@ Loader.require("monarchy")
 		}).then(obj => {
 			// create and refresh active games
 			avgBlocktime = obj.avgBlocktime;
-			const activeGameObjs = getOrCreateGameObjs(_activeGameObjs, obj.activeGames, _$activeAuctions);
+			const activeGameObjs = getOrCreateGameObjs(_activeGameObjs, obj.activeGames, _$activeGames);
 			return Promise.all(activeGameObjs.map(gameObj => gameObj.refresh(avgBlocktime)));
 		}).then(() => {
 			// load, create, refresh ended games
 			return getEndedGames().then(endedGames => {
-				const endedGameObjs = getOrCreateGameObjs(_endedGameObjs, endedGames, _$endedAuctions);
+				const endedGameObjs = getOrCreateGameObjs(_endedGameObjs, endedGames, _$endedGames);
 				return Promise.all(endedGameObjs.map(gameObj => gameObj.refresh(avgBlocktime)));
 			});
 		}).then(endedGames => {
@@ -111,7 +111,7 @@ Loader.require("monarchy")
 
 	function Game(game) {
 		const _self = this;
-		const _$e = $(".auction.template")
+		const _$e = $(".game.template")
 			.clone()
 			.show()
 			.removeClass("template")
@@ -275,6 +275,7 @@ Loader.require("monarchy")
 				const monarch = obj.monarch;
 				const blockEnded = obj.blockEnded;
 				const blocksLeft = blockEnded - block;
+				const blocksReigned = _reignBlocks - blocksLeft;
 				const decree = _getDecreeStr(obj.decree);
 
 				// compute useful things, store state
@@ -398,7 +399,8 @@ Loader.require("monarchy")
 					setTimeout(function(){ t.hide(); }, 3000);
 				} else if (amNowWinner) {
 					_$status.empty().append(`You are the current Monarch!<br>
-						You'll win in <b>${blocksLeft} blocks</b> unless you are overthrown.`);
+						You've reigned for <b>${blocksReigned} blocks</b> and will win
+						in <b>${blocksLeft} blocks</b> unless you are overthrown.`);
 					_$e.removeClass("now-loser");
 					_$e.removeClass("new-winner");
 					flashClass("now-winner");
@@ -422,11 +424,13 @@ Loader.require("monarchy")
 				} else {
 					if (amWinner) {
 						_$status.empty().append(`You are the current Monarch!<br>
-						You'll win in <b>${blocksLeft} blocks</b> unless you are overthrown.`);
+						You've reigned for <b>${blocksReigned} blocks</b> and will win
+						in <b>${blocksLeft} blocks</b> unless you are overthrown.`);
 					} else {
 						_$status.empty()
 							.append(nav.$getPlayerLink(_curMonarch))
-							.append(` will win in <b>${blocksLeft} blocks</b> unless they are overthrown.`);
+							.append(` has reigned for <b>{blocksReigned} blocks</b> and
+							will win in <b>${blocksLeft} blocks</b> unless they are overthrown.`);
 					}
 				}
 				if (isNewBlock) flashClass("new-block");
@@ -450,7 +454,7 @@ Loader.require("monarchy")
 			const newWinnerStr = _curMonarch == ethUtil.getCurrentAccount()
 				? "You"
 				: _curMonarch.slice(0, 10) + "...";
-			const title = `Auction @ ${_game.address.slice(0,10)}...`;
+			const title = `Game @ ${_game.address.slice(0,10)}...`;
 
 			// alert one or none of: Not Winner, New Winner
 			if (_alerts["whenNowLoser"] && amNowLoser) {
@@ -476,14 +480,14 @@ Loader.require("monarchy")
 				new Notification(title, {
 					tag: `${_game.address}-blocksLeft`,
 					renotify: true,
-					body: `${timeStr} - Auction ended.`,
+					body: `${timeStr} - Game ended.`,
 					requireInteraction: true
 				});
 			} else {
 				if (_alerts["whenBlocksLeft"]){
 					if (blocksLeft < _alerts["whenBlocksLeft"]) {
 						const body = blocksLeft <= 0
-							? `${timeStr} - Auction ended.`
+							? `${timeStr} - Game ended.`
 							: `${timeStr} - Only ${blocksLeft} blocks left.`
 						new Notification(title, {
 							tag: `${_game.address}-blocksLeft`,
@@ -656,7 +660,7 @@ Loader.require("monarchy")
 				const $settings = _$e.find("td.settings");
 				if (obj.startEvent) {
 					const timeStr = util.toDateStr(obj.startEvent.args.time);
-					const $link = nav.$getMonarchyGameLink(obj.startEvent.address).text(timeStr);
+					const $link = util.$getTxLink(obj.startEvent.address).text(timeStr);
 					$settings.find(".setting.started .tx").append($link);
 				} else {
 					$settings.find(".setting.started .tx").text("<unknown>");
@@ -814,7 +818,7 @@ Loader.require("monarchy")
 						if (event.name=="OverthrowOccurred"){
 							return MonarchyUtil.$getOverthrowSummary(event, false);
 						} else if (event.name=="Started"){
-							return "<b>Auction Started</b>";
+							return "<b>Game Started</b>";
 						}
 					}
 				});

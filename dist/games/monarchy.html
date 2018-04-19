@@ -395,44 +395,50 @@
 
 
 		<style>
-		.auction {
+		.active-games .games,
+		.ended-games .games {
+			margin-top: 10px;
+			margin-left: -25px;
+		}
+		.game {
 			display: inline-block;
-			width: 420px; 
+			width: 450px; 
 			background: linear-gradient(to top, #BBB 0%, #EEE 100%);
 			border-radius: 10px;
 			box-shadow: 3px 3px 10px 0px rgba(0,0,0,.2);
-			margin: 10px 10px;
+			margin-left: 25px;
 			overflow: hidden;
 			transition: box-shadow .5s;
+			vertical-align: top;
 		}
-		.auction.half-minute {
+		.game.half-minute {
 			box-shadow: 0px 0px 10px 2px rgba(255, 0, 0, .7);
 		}
-		.auction.one-minute {
+		.game.one-minute {
 			box-shadow: 0px 0px 5px 1px rgba(255, 0, 0, .4);
 		}
-		.auction.two-minutes {
+		.game.two-minutes {
 			box-shadow: 0px 0px 5px 0px rgba(255, 0, 0, .1);
 		}
 
-		.auction.ended,
-		.auction.initializing {
+		.game.ended,
+		.game.initializing {
 			opacity: .70;
 		}
 
-		.auction td {
+		.game td {
 			position: relative;
 			z-index: 1;
 		}
-		.auction td:not(:first-child) {
+		.game td:not(:first-child) {
 			border-left: 1px solid #999;
 		}
-		.auction tr:not(:last-child) td {
+		.game tr:not(:last-child) td {
 			text-align: center;
 			padding: 15px 10px 10px 10px;
 			border-bottom: 1px solid gray;
 		}
-			.auction td > .label {
+			.game td > .label {
 				position: absolute;
 				top: 0px;
 				left: 0px;
@@ -445,10 +451,10 @@
 				border-bottom-right-radius: 4px;
 				text-transform: uppercase;
 			}
-			.auction td .field {
+			.game td .field {
 				padding: 4px;
 			}
-			.auction td .field .eth {
+			.game td .field .eth {
 				display: inline-block;
 				font-size: 80%;
 				font-weight: bold;
@@ -458,24 +464,24 @@
 			}
 
 		/* prize */
-		.auction td.prize,
-		.auction td.fee {
+		.game td.prize,
+		.game td.fee {
 			white-space: nowrap;
 		}
 
-		.auction td.prize > .label {
+		.game td.prize > .label {
 			background: linear-gradient(to top, rgba(0,128,0,.8) 0%, rgba(0,128,0,.5) 100%);
 			font-size: 80%;
 		}
-		.auction td.prize .field {
+		.game td.prize .field {
 			min-width: 120px;
 		}
-		.auction td.prize .value {
+		.game td.prize .value {
 			display: inline-block;
 			font-size: 300%;
 			letter-spacing: -.08em;
 		}
-		.auction td.prize .incr {
+		.game td.prize .incr {
 			margin-top: -5px;
 			font-size: 80%;
 			cursor: pointer;
@@ -484,13 +490,13 @@
 			text-decoration-style: dotted;
 			text-decoration-color: gray;
 		}
-		.auction.new-prize td.prize {
+		.game.new-prize td.prize {
 			border-top-left-radius: 10px;
 			animation: flashGrayBackground 5s 0s 1 ease-out;
 		}
 
 		/* fee */
-		.auction td.fee .value {
+		.game td.fee .value {
 			display: inline-block;
 			font-size: 200%;
 			letter-spacing: -.08em;
@@ -498,13 +504,13 @@
 		}
 
 		/* blocks / time left */
-		.auction td.blocks-left .value {
+		.game td.blocks-left .value {
 			display: inline-block;
 			font-size: 300%;
 			letter-spacing: -.08em;
 			vertical-align: baseline;
 		}
-		.auction td.blocks-left .reign-blocks {
+		.game td.blocks-left .reign-blocks {
 			display: inline-block;
 			color: gray;
 			vertical-align: baseline;
@@ -513,7 +519,7 @@
 			text-decoration-color: gray;
 			cursor: pointer;
 		}
-		.auction td.blocks-left .time-left {
+		.game td.blocks-left .time-left {
 			display: inline-block;
 			font-size: 100%;
 			margin-top: -5px;
@@ -521,41 +527,41 @@
 			padding: 1px 4px;
 			border-radius: 3px;
 		}
-		.auction.half-minute td.blocks-left .time-left {
+		.game.half-minute td.blocks-left .time-left {
 			font-weight: bold;
 			animation: halfMinute 1s 0s infinite ease-in-out alternate;
 		}
-		.auction.one-minute td.blocks-left .time-left {
+		.game.one-minute td.blocks-left .time-left {
 			font-weight: bold;
 			animation: halfMinute 2s 0s infinite ease-in-out alternate;
 		}
-		.auction.two-minutes td.blocks-left .time-left {
+		.game.two-minutes td.blocks-left .time-left {
 			font-weight: bold;
 			color: white;
 			background: red;
 		}
-		.auction.five-minutes td.blocks-left .time-left {
+		.game.five-minutes td.blocks-left .time-left {
 			font-weight: bold;
 			color: red;
 		}
-		.auction.ten-minutes td.blocks-left .time-left {
+		.game.ten-minutes td.blocks-left .time-left {
 			font-weight: bold;
 			color: orange;
 		}
-		.auction.new-block td.blocks-left {
+		.game.new-block td.blocks-left {
 			border-top-right-radius: 10px;
 			animation: flashGrayBackground 5s 0s 1 ease-out;
 		}
 
 
 		/* Current Winner */
-		.auction td.current-monarch {
+		.game td.current-monarch {
 			z-index: 2;
 		}
-		.auction td.current-monarch .field {
+		.game td.current-monarch .field {
 			min-width: 120px;
 		}
-		.auction td.current-monarch .decree {
+		.game td.current-monarch .decree {
 			color: #555;
 			font-size: 70%;
 			font-style: italic;
@@ -566,25 +572,25 @@
 			margin-top: 3px;
 			cursor: pointer;
 		}
-		.auction.winner td.current-monarch {
+		.game.winner td.current-monarch {
 			background: rgba(0,255,128,.2);
 			box-shadow: 0px 0px 8px 0px rgba(0,128,0,.7);
 		}
-		.auction.new-winner td.current-monarch {
+		.game.new-winner td.current-monarch {
 			animation: flashGrayBackground 5s 0s 1 ease-out;
 		}
-		.auction.now-winner td.current-monarch {
+		.game.now-winner td.current-monarch {
 			animation: flashGreenBackground 5s 0s 1 ease-out;	
 		}
-		.auction.now-loser td.current-monarch {
+		.game.now-loser td.current-monarch {
 			animation: flashRedBackground 5s 0s 1 ease-out;		
 		}
 
 		/* overthrow cell */
-		.auction td.overthrow {
+		.game td.overthrow {
 			padding-top: 10px;
 		}
-		.auction td.overthrow button {
+		.game td.overthrow button {
 			font-size: 150%;
 			padding: 5px 10px;
 			cursor: pointer;
@@ -594,51 +600,51 @@
 			animation: buttonGlow 2s 0s infinite ease-in-out alternate;
 			box-shadow: 3px 3px 4px 0px rgba(0,0,0,.3);
 		}
-		.auction td.overthrow button:disabled {
+		.game td.overthrow button:disabled {
 			background: gray;
 			animation: none;
 			cursor: not-allowed;
 		}
-		.auction td.overthrow button:focus {
+		.game td.overthrow button:focus {
 			outline: none;
 		}
 
 		/* status cell */
-		.auction td.status {
+		.game td.status {
 			font-size: 80%;
 		}
-			.auction td.status.prepending {
+			.game td.status.prepending {
 				animation: statusPrepending 1s 0s infinite ease-in-out alternate;
 			}
-			.auction td.status.pending {
+			.game td.status.pending {
 				animation: statusPending 1s 0s infinite ease-in-out alternate;
 			}
-			.auction td.status.refunded {
+			.game td.status.refunded {
 				background: rgba(255, 255, 0, .2);
 			}
-			.auction td.status.failure {
+			.game td.status.failure {
 				background: rgba(255, 0, 0, .2);
 			}
-			.auction td.status.success {
+			.game td.status.success {
 				background: rgba(0, 255, 128, .2);
 			}
-			.auction td.status .TxStatus {
+			.game td.status .TxStatus {
 				/*background: none;*/
 				/*border: none;*/
 			}
-		.auction td.status .view-link {
+		.game td.status .view-link {
 			position: absolute;
 			padding: 0px 3px;
 			bottom: 0px;
 			right: 0px;
 			opacity: .5;
 		}
-		.auction td.status .view-link a {
+		.game td.status .view-link a {
 			text-decoration: none;
 		}
 
 		/* settings */
-		.auction td.settings {
+		.game td.settings {
 			position: relative;
 			text-align: center;
 			color: rgba(0,0,0,.5);
@@ -646,30 +652,30 @@
 			font-size: 70%;
 			background: linear-gradient(to bottom, rgba(0,0,0,.1) 0%, rgba(0,0,0,.2) 100%);
 		}
-			.auction td.settings .setting {
+			.game td.settings .setting {
 				display: inline-block;
 			}
-			.auction td.settings .setting:not(:last-child) {
+			.game td.settings .setting:not(:last-child) {
 				margin-right: 10px;
 			}
-			.auction td.settings .label {
+			.game td.settings .label {
 				font-weight: bold;
 			}
-			.auction td.settings .value,
-			.auction td.settings .value a {
+			.game td.settings .value,
+			.game td.settings .value a {
 				color: rgba(255, 255, 255, .6);
 			}
-			.auction td.settings .refresh {
+			.game td.settings .refresh {
 				position: absolute;
 				top: 0px;
 				right: 10px;
 				font-size: 150%;
-				color: blue;
+				color: rgba(0,0,255,.5);
 				cursor: pointer;
 			}
 
 		/* tip icons */
-		.auction .alerts-icon {
+		.game .alerts-icon {
 			position: absolute;
 			top: 2px;
 			right: 5px;
@@ -678,11 +684,11 @@
 			cursor: pointer;
 			transition: filter .3s;
 		}
-			.auction .alerts-icon.on {
+			.game .alerts-icon.on {
 				filter: saturate(100%);
 			}
 
-		.auction .send-prize-icon {
+		.game .send-prize-icon {
 			margin: 4px;
 			display: inline-block;
 			color: green;
@@ -690,7 +696,7 @@
 			border-bottom: 1px dotted green;
 		}
 
-		.auction .history-icon {
+		.game .history-icon {
 			font-size: 200%;
 			margin-top: -10px;
 			padding: 0px 5px;
@@ -874,7 +880,7 @@
 
 		</style>
 
-		<div class="auction template" style="display: none;">
+		<div class="game template" style="display: none;">
 			<div class="history-tip" style="display: none;">
 			</div>
 			<div class="overthrow-tip" style="display: none;">
@@ -1043,23 +1049,25 @@
 				</tr>
 				<tr>
 					<td colspan="3" class="settings">
-						<span class="setting game-id">
-							<span class="label">Game Id:</span>
-							<span class="value"></span>
-						</span>
-						<span class="setting started">
-							<span class="label">Started:</span>
-							<span class="value tx"></span>
-							<span> with </span>
-							<span class="value start-prize"></span>
-						</span>
+						<div>
+							<span class="setting game-id">
+								<span class="label">Game Id:</span>
+								<span class="value"></span>
+							</span>
+							<span class="setting started">
+								<span class="label">Started:</span>
+								<span class="value tx"></span>
+								<span> with </span>
+								<span class="value start-prize"></span>
+							</span>
+						</div>
 						<span class="refresh tip-manually no-tip-style" title="Refreshes the game state.<br>This happens each new block." data-tippy-disabled>↻</span>
 					</td>
 				</tr>
 			</table>	
 		</div>
 		<style>
-		.head > .refreshNotice {
+		.head > .refresh-notice {
 			display: inline-block;
 			font-size: 70%;
 			font-weight: normal;
@@ -1073,34 +1081,34 @@
 			opacity: 0;
 			transition: opacity .3s ease-out;
 		}
-		.refreshing .head > .refreshNotice {
+		.refreshing .head > .refresh-notice {
 			opacity: .8;
 			transition: opacity .3s ease-out 1s;
 		}
 		</style>
 		<div style="margin: 0px 20px">
-			<div class="subsection activeAuctions">
+			<div class="subsection active-games">
 				<div class="head">
 					Live Games
-					<div class="refreshNotice">Refreshing</div>
+					<div class="refresh-notice">Refreshing</div>
 				</div>
-				<div class="body">
+				<div class="body" style="padding-left: 0px; padding-right: 0px;">
 					<div class="none" style="display: none;">
-						There are currently no live auctions. You may be able to <a href="/games/tasks.html">start one here</a>, for a reward.
+						There are currently no live games. You may be able to <a href="/status/taskmanager.html">start one here</a>, for a reward.
 					</div>
-					<div class="auctions">Loading...</div>
+					<div class="games">Loading...</div>
 				</div>
 			</div>
-			<div class="subsection endedAuctions">
+			<div class="subsection ended-games">
 				<div class="head">
 					Ended Games
-					<div class="refreshNotice">Refreshing</div>
+					<div class="refresh-notice">Refreshing</div>
 				</div>
 				<div class="body">
 					<div class="none" style="display: none;">
-						There are currently no ended auctions.
+						There are currently no ended games.
 					</div>
-					<div class="auctions">Loading...</div>
+					<div class="games">Loading...</div>
 				</div>
 			</div>
 		</div>
