@@ -150,17 +150,6 @@
 			#Machine .header {
 				background: linear-gradient(to top, rgba(0,0,0,.8) 0%, rgba(0,0,0,.6) 100%);
 			}
-			.credits-cell {
-				vertical-align: middle;
-				padding: 10px;
-				border-left: 1px dotted rgba(0,0,0,.5);
-			}
-			.credits-ctnr {
-				box-sizing: border-box;
-				width: 250px;
-				text-align: center;
-				color: white;
-			}
 
 			.Tabber {
 				padding: 5px 10px;
@@ -689,7 +678,14 @@
 				.HandDisplay .card .cardIcon.spade,
 				.HandDisplay .card .cardIcon.club { color: black; }
 
-
+			#History .clear {
+				display: inline-block;
+				color: blue;
+				cursor: pointer;
+				font-size: 80%;
+				letter-spacing: initial;
+				vertical-align: middle;
+			}
 		</style>
 	</head>
 	<body>
@@ -760,25 +756,98 @@
 		</div>
 		<div id="Machine">
 			<div class="header">
+				<style>
+					#Credits {
+						border-left: 1px dotted rgba(255,255,255,.15);
+					}
+						#Credits .ctnr {
+							box-sizing: border-box;
+							padding: 5px;
+							width: 250px;
+							font-size: 90%;
+							color: #DDD;
+						}
+							#Credits .label {
+								font-variant: small-caps;
+								letter-spacing: .15em;
+							}
+							#Credits .cur-user .value a {
+								color: rgba(200,200,255,1);
+							}
+							#Credits .credits .value {
+								/*font-weight: bold;*/
+								text-shadow: 1px 1px 1px green;
+							}
+							#Credits .btn-cash-out {
+								background: rgba(0,128,0,.5);
+								color: #DDD;
+								cursor: pointer;
+								border: 1px solid gray;
+								border-radius: 3px;
+								transition: background .3s;
+								margin-left: 3px;
+							}
+							#Credits .btn-cash-out:hover {
+								background: rgba(0,200,0,.5);
+							}
+							#Credits .btn-cash-out:disabled {
+								background: gray;
+								cursor: not-allowed;
+							}
+							#Credits .status-ctnr {
+								padding: 2px;
+							}
+								#Credits .TxStatus,
+								#Credits .TxStatus a {
+									color: #DDD;
+								}
+				</style>
 				<table cellpadding="0" cellspacing="0"><tr>
 					<td width="100%"><div class="tabber-ctnr"></div></td>
-					<td class="credits-cell">
-						<div class="credits-ctnr">Credits: 1000 ETH</div>
-						<div style="display: table; width: 100%;">
-							<div style="display: table-cell; width: 50%; text-align: center;">
-								<button>Add Credits</button>
-							</div>
-							<div style="display: table-cell; width: 50%; text-align: center;">
-								<button>Cash Out</button>
-							</div>
+					<td id="Credits" valign="top">
+						<div class="ctnr" style="text-align: left;">
+							<table width="100%">
+								<tr class="cur-user">
+									<td style="white-space: nowrap;">
+										<div class="label" title="The current account." data-tippy-placement="left">
+											Account:
+										</div>
+									</td>
+									<td width="100%" align="right">
+										<div class="value"></div>		
+									</td>
+								</tr>
+								<tr class="credits">
+									<td style="white-space: nowrap;">
+										<div class="label" title="All winnings are added to your credits. Credits can be used to bet on a new hand, and they can be cashed out at any time. Your credits can only be removed from the contract by you." data-tippy-placement="left">
+											Credits:
+										</div>
+									</td>
+									<td width="100%" align="right">
+										<fieldset class="has-account">
+											<fieldset class="in-progress">
+												<div class="value" style="display: inline-block;"></div>		
+												<button class="btn-cash-out">Cash Out</button>
+											</fieldset>
+										</fieldset>
+									</td>
+								</tr>
+							</table>
+							<div class="status-ctnr"></div>
+						</div>
 					</td>
 				</tr></table>
 			</div>
 			<div class="game-ctnr" style="background: black;"></div>
 		</div>
-		<div id="History">
-			<div>My Hand History</div>
-			<div class="history-ctnr"></div>
+		<div id="History" class="subsection" style="margin: 20px;">
+			<div class="head">
+				My Hand History
+				<div class="clear">clear</div>
+			</div>
+			<div class="body" style="padding: 0px; margin-top: 20px;">
+				<div class="history-ctnr"></div>
+			</div>
 		</div>
 
 		<div class="Game template" style="display: none;">

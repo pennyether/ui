@@ -4,9 +4,7 @@
         var style = document.createElement('style');
         style.type = 'text/css';
         style.innerHTML = `
-            .GameHistoryViewer {
-                padding: 5px;
-            }
+            .GameHistoryViewer {}
                 .GameHistoryViewer table {
                     width: 100%;
                     border-collapse: collapse;    

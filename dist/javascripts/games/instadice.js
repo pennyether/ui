@@ -632,9 +632,7 @@ Loader.require("dice")
                     const dateStr = util.toDateStr(e.args.time);
                     const betStr = util.toEthStrFixed(e.args.bet);
                     const number = e.args.number.toNumber();
-                    const $userLink = e.args.user == ethUtil.getCurrentAccount()
-                        ? util.$getAddrLink("You!", e.args.user)
-                        : util.$getShortAddrLink(e.args.user);
+                    const $userLink = nav.$getPlayerLink(e.args.user);
                     const payoutStr = util.toEthStrFixed(e.args.payout);
                     const result = computeResult(e.blockHash, rollId);
                     const isWinner = !result.gt(number);

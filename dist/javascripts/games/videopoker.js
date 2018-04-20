@@ -11,7 +11,8 @@ Loader.require("vp")
         } else {
             ghv.disable(`No account available.`);
         }
-        syncGames(curUser).then(() => syncUserCredits(curUser));
+        syncGames(curUser);
+        syncCredits(curUser);
     });
 
     // do this just once.
@@ -22,15 +23,12 @@ Loader.require("vp")
             });
     });
 
+    // init stuff
     const controller = new PokerUtil.VpController(vp);
     const ghv = new PokerUtil.GameHistoryViewer(vp, 5760);
-    
     const tabber = new Tabber();
     tabber.$e.appendTo($("#Machine .tabber-ctnr"));
     ghv.$e.appendTo("#History .history-ctnr");
-
-    const $gameCtnr = $("#Machine .game-ctnr");
-    const $credits = $("#Machine .credits-ctnr");
     
     // Tabber events.
     tabber.onNewGame(()=>{
@@ -38,11 +36,60 @@ Loader.require("vp")
         tabber.selectGame(game);
     });
     tabber.onSelected((game) => {
+        const $gameCtnr = $("#Machine .game-ctnr");
         $gameCtnr.children().detach();
         $gameCtnr.append(game.$e);
         game.$e.removeClass("flash");
         setTimeout(()=>{ game.$e.addClass("flash"); }, 10);
     });
+
+    (function initClearGhv(){
+        $("#History .clear").click(()=>{
+            ghv.reset();
+        });
+    }());
+
+    (function initCredits() {
+        const $e = $("#Credits");
+        const $status = $e.find(".status-ctnr");
+        const $inProgress = $e.find("fieldset.in-progress");
+        util.gasifyButton($e.find(".btn-cash-out"), cashOut);
+
+        // event CreditsCashedout(uint time, address indexed user, uint amount);
+        function cashOut(obj) {
+            $inProgress.attr("disabled", "disabled");
+            $status.show().empty();
+            const txStatus = util.getTxStatus({
+                waitTimeMs: (obj.waitTimeS || 45) * 1000,
+                onSuccess: (res, txStatus) => {
+                    const cashedout = res.events.find(e => e.name=="CreditsCashedout");
+                    if (cashedout) {
+                        const $msg = $("<div></div>")
+                            .append(`Sent ${util.toEthStrFixed(cashedout.args.amount, 7)} to `)
+                            .append(nav.$getPlayerLink(cashedout.args.user));
+                        txStatus.addSuccessMsg($msg);
+                    } else {
+                        txStatus.addWarningMsg(`No credits cashed out.<br>Are you sure you have credits?`);
+                    }
+                },
+                onClear: () => {
+                    $inProgress.removeAttr("disabled");
+                    $status.empty().hide();
+                }
+            });
+            txStatus.$e.appendTo($status);
+
+            // create promise, or fail the TxStatus
+            try {
+                const promise = vp.cashOut([100000e18], {gas: 100000, gasPrice: obj.gasPrice})
+                txStatus.setTxPromise(promise);
+            } catch (e) {
+                txStatus.fail(`Error: ${e.message.split("\n")[0]}`);
+                ethStatus.open();
+            }
+        }
+    }());
+
 
     // Get all fresh gameStates, and update our games.
     function syncGames(curUser) {
@@ -57,11 +104,16 @@ Loader.require("vp")
         });
     }
 
+    // creates a new game object and adds a tab for it.
+    // is called:
+    //    - via "new machine"
+    //    - if game is in blockchain, but not being displayed
+    //    - if the tabber has no machines open
     function createGame(gameState, settings) {
         if (!gameState) gameState = {state: "betting"};
         
         const game = new Game(vp);
-        game.onEvent(updateGameFromEvent);
+        game.onEvent(forceUpdateGameFromEvent);
         game.setSettings(settings);
         game.setGameState(gameState);
         tabber.addTab(game);
@@ -76,7 +128,7 @@ Loader.require("vp")
         // Update games (create if necessary)
         gameStates.forEach(gs => updateGame(gs, settings, gs.isActive));
 
-        // Go through tabber's games, and make sure they're all updated.
+        // Go through tabber's games. Any untouched games are invalid.
         const touchedIds = Object.values(gameStates).map(gs => gs.id);
         tabber.getGames().forEach(g => {
             const gs = g.getGameState();
@@ -98,6 +150,7 @@ Loader.require("vp")
 
 
     // Updates a Game's settings and state, and optionally creates it.
+    // 
     function updateGame(gameState, settings, createIfNotFound, forceUpdate) {
         var game = tabber.getGames().find(g => {
             // If game is dealt, look for matching UIID.
@@ -121,7 +174,8 @@ Loader.require("vp")
     }
 
     // Forces controller to update a gameState, then forcibly updates the game.
-    function updateGameFromEvent(ev) {
+    // This is called when a game emits an event.
+    function forceUpdateGameFromEvent(ev) {
         const gameState = controller.updateGameStateFromEvent(ev);
         if (!gameState) {
             console.warn(`GameState updated from event, but controller doesnt see it.`, ev);
@@ -129,14 +183,43 @@ Loader.require("vp")
         updateGame(gameState, null, false, true);
     }
 
-    function syncUserCredits(curUser){
+    var prevCredits = null;
+    function syncCredits(curUser){
+        const $e = $("#Credits");
+        const $user = $e.find(".cur-user .value");
+        const $credits = $e.find(".credits .value");
+        const $hasAccount = $e.find("fieldset.has-account").attr("disabled","disabled");
         if (!curUser) {
-            $credits.text("No account.");
+            prevCredits = null;
+            $user.text("No account.")
+            $credits.text("--");
             return;
+        } else {
+            $user.empty().append(nav.$getPlayerLink(curUser));
+            $credits.text("Loading...");
+            vp.credits([curUser]).then(eth=>{
+                if (eth.gt(0)) $hasAccount.removeAttr("disabled");
+                $credits.text(util.toEthStrFixed(eth, 7));
+                if (prevCredits !== null && !eth.equals(prevCredits)) {
+                    const delta = eth.minus(prevCredits);
+                    const deltaStr = delta.gt(0)
+                        ? `<div style="color: green;">+${util.toEthStrFixed(delta, 7)}</div>`
+                        : `<div style="color: red;">${util.toEthStrFixed(delta, 7)}</div>`
+                    // flash a tip indicating credits delta
+                    $credits.attr("title", deltaStr);
+                    const t = tippy($credits[0], {
+                        placement: "top",
+                        trigger: "manual",
+                        animation: "fade",
+                        hideOnClick: false,
+                        onHidden: function(){ t.destroy(); }
+                    }).tooltips[0];
+                    t.show(500);
+                    setTimeout(function(){ t.hide(5000); }, 1500);
+                }
+                prevCredits = eth;
+            });
         }
-        vp.credits([curUser]).then(eth=>{
-            $credits.text(`${util.toEthStrFixed(eth, 7)}`);
-        });
     }
 
 
@@ -144,27 +227,9 @@ Loader.require("vp")
     /// HELPER FUNCTIONS /////////////////////////////////////////
     //////////////////////////////////////////////////////////////
 
-    // Returns the average blocktime (synchronously)
-    // Gets fresh result every 60 seconds.
-    var getAverageBlockTime = (function(){
-        var avgBlockTime = 15000;
-
-        function updateAvgBlockTime() {
-            ethUtil.getAverageBlockTime().then(timeMs=>{
-                avgBlockTime = timeMs;
-            });
-        }
-        setInterval(updateAvgBlockTime, 60000);
-        updateAvgBlockTime();
-        
-        return function(){
-            return avgBlockTime;
-        };
-    }());
-
     // Returns settings that all games need to know about.
     // If passed "false" will return current setting synchronously
-    var getVpSettings = (function(){
+    const getVpSettings = (function(){
         var curSettings;
 
         return function getVpSettings(fresh) {
@@ -185,7 +250,6 @@ Loader.require("vp")
                     curPayTable: arr[3],
                     credits: arr[4],
                     latestBlock: state.latestBlock,
-                    avgBlockTime: getAverageBlockTime()
                 };
                 return curSettings;
             });
@@ -357,7 +421,6 @@ function Game(vp) {
     // global params, set externally
     const _vp = vp;
     var _curPayTable;
-    var _avgBlockTime;
 
     // state of the currentGame
     var _gameState = {};
@@ -378,7 +441,6 @@ function Game(vp) {
     this.setSettings = function(settings) {
         if (!settings) return;
         _curPayTable = settings.curPayTable;
-        _avgBlockTime = settings.avgBlockTime;
 
         const units = [{
             name: "eth",

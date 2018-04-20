@@ -1182,8 +1182,8 @@
 
         function _getNiceStep(diff) {
             const minTicks = 24;
-            const step = Math.pow(10, Math.floor(Math.log10(diff.toNumber())) - 2);
-            return [50*step, 10*step, 5*step, 1*step].find(step => {
+            const step = (new BigNumber(10)).pow(Math.floor(Math.log10(diff.toNumber())) - 2);
+            return [step.mul(50), step.mul(10), step.mul(5), step].find(step => {
                 if (diff.div(step) >= minTicks) return true;
             });
         }
