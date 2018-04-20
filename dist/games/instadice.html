@@ -8,7 +8,22 @@
 			/*********************************************/
 			/******** TITLE AND FEATURES *****************/
 			/*********************************************/
+			#Leader {
+				margin-top: 20px;
+			}
+			#Leader .background {
+				background: linear-gradient(to bottom, #BCB 0%, #4A4 100%);
+			}
+			#Leader .feature-table {
+				background: none;
+				box-shadow: none;
+				margin: 0px auto;
+			}
 			#Title {
+				color: black;
+				margin-bottom: 0px;
+			}
+			/*#Title {
 				padding: 20px 0px 20px 0px;
 				background: white;
 				text-align: center;
@@ -105,7 +120,7 @@
 			.featureBox .stats .wagered {
 				margin-left: 50px;
 				margin-right: 50px;
-			}
+			}*/
 
 
 			/*********************************************/
@@ -505,67 +520,71 @@
 		</div>
 		<div id="Summary">
 			<div id="Title">
-				<div class="sup">InstaDice</div>
-				<div class="sub">ethereum's only instant dice game</div>
+				<div class="title">InstaDice</div>
+				<div class="tagline">ethereum's only instant dice game</div>
 			</div>
-			<div class="featureBox">
-				<div class="left">
-					<div class="block">
-						<div class="title">Fast</div>
-						<div class="feature tipLeft" title="No need to deposit Ether or fill out any forms.">
-							No deposit, no sign-up
-						</div><br>
-						<div class="feature tipLeft" title="See the result as soon as your transaction is in the blockchain.">
-							See roll results instantly
-						</div><br>
-						<div class="feature tipLeft" title="Our UI shows you what's happening every step of the way.">
-							Responsive UI
+			<div id="Leader">
+				<div class="background"></div>
+				<div class="foreground">
+					<div class="feature-table">
+						<div class="cell">
+							<div class="centered">
+								<div class="title">Fast</div>
+								<div class="feature tip-left" title="No need to deposit Ether or fill out any forms.">
+									No deposit, no sign-up
+								</div>
+								<div class="feature tip-left" title="See the result as soon as your transaction is in the blockchain.">
+									See roll results instantly
+								</div>
+								<div class="feature tip-left" title="Our UI shows you what's happening every step of the way.">
+									Responsive UI
+								</div>
+							</div>
 						</div>
-					</div>
-				</div>
-				<div class="middle">
-					<div class="block">
-						<div class="title">Fair</div>
-						<div class="feature tipLeft" title="Our random numbers come from the blockchain, not from a third party.">
-							Results based on blockhash
-						</div><br>
-						<div class="feature tipLeft" title="You can read over our fully annotated source code.">
-							Fully transparent contract
+						<div class="cell">
+							<div class="centered">
+								<div class="title">Fair</div>
+								<div class="feature tip-left" title="Our random numbers come from the blockchain, not from a third party.">
+									Results based on blockhash
+								</div>
+								<div class="feature tip-left" title="You can read over our fully annotated source code.">
+									Fully transparent contract
+								</div>
+							</div>
+							<div class="stats">
+								<div class="stat rolls">
+									<div class="value">0</div>
+									<div class="label">rolls</div>
+								</div>
+								<div class="stat wagered">
+									<div class="value">0</div>
+									<div class="label">ETH wagered</div>
+								</div>
+								<div class="stat won">
+									<div class="value">0</div>
+									<div class="label">ETH won</div>
+								</div>
+							</div>
 						</div>
-					</div>
-					<div class="stats">
-						<div class="stat rolls">
-							<div class="value">0</div>
-							<div class="label">rolls</div>
+						<div class="cell">
+							<div class="centered">
+								<div class="title">The Best</div>
+								<div class="feature tip-left" title="Our house fee is just 1%.">
+									The best odds
+								</div>
+								<div class="feature tip-left" title="No more waiting multiple blocks for your results. As soon as your wager is confirmed on the blockchain, you'll see the results!">
+									The fastest results
+								</div>
+								<div class="feature tip-left" title="We strive to keep our gas costs extremely low. For repeat rollers the gas cost is between 72,000 and 96,000 gas - half that of our competition.">
+									The lowest gas cost
+								</div>
+							</div>
 						</div>
-						<div class="stat wagered">
-							<div class="value">0</div>
-							<div class="label">ETH wagered</div>
-						</div>
-						<div class="stat won">
-							<div class="value">0</div>
-							<div class="label">ETH won</div>
-						</div>
-					</div>
-				</div>
-				<div class="right">
-					<div class="block">
-						<div class="title">The Best</div>
-						<div class="feature tipLeft" title="Our house fee is just 1%.">
-							The best odds
-						</div><br>
-						<div class="feature tipLeft" title="No more waiting multiple blocks for your results. As soon as your wager is confirmed on the blockchain, you'll see the results!">
-							The fastest results
-						</div><br>
-						<div class="feature tipLeft" title="We strive to keep our gas costs extremely low. For repeat rollers the gas cost is between 72,000 and 96,000 gas - half that of our competition.">
-							The lowest gas cost
-						</div><br>
 					</div>
 				</div>
 			</div>
 		</div>
-
-		<div class="bet-ui-ctnr"></div>
+		<div class="bet-ui-ctnr"></div>	
 
 		<div class="main">
 			<table width=100%><tr>

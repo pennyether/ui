@@ -8,71 +8,29 @@
 			/*********************************************/
 			/******** TITLE AND FEATURES *****************/
 			/*********************************************/
-			.top-ctnr {
-				margin-top: 40px;
-				position: relative;
-				overflow: hidden;
+			#Leader .background {
+				background-image: url(/images/castle.jpg);
+				filter: blur(1.2px) saturate(90%);
 			}
-				.top-ctnr .background {
-					position: absolute;
-					z-index: 1;
-					top: -2px;
-					left: -2px;
-					width: 101%;
-					height: 101%;
-					background: url(/images/castle.jpg);
-					background-size: cover;
-					filter: blur(0px) saturate(150%);
-					transition: filter 10s;
-				}
-				body.loaded .top-ctnr .background {
-					filter: blur(1.2px) saturate(90%);
-				}
-				.top-ctnr .foreground {
-					position: relative;
-					z-index: 2;
-				}
-			.dark .top-ctnr {
-				filter: brightness(70%);
+			#Leader .feature-table {
+				background: linear-gradient(0deg, rgba(57, 115, 173, 0.95) 0%, rgba(112, 180, 222, .9) 100%);
+				box-shadow: 0px 0px 15px 2px rgba(0,0,0,.4);
 			}
-
-			#Title {
-				padding-top: 30px;
-				text-align: center;
-			}
-				#Title .sup {
-					color: white;
-					font-weight: bold;
-					font-size: 250%;
-					text-shadow: 0px 0px 15px cyan;
-				}
-				body.loaded #Title .sup {
-					letter-spacing: .25em;
-					text-shadow: 0px 0px 10px #68D;
-					transition: letter-spacing 3s ease-out, text-shadow 3s ease-out;
-				}
-				#Title .sub {
-					font-size: 90%;
-					text-shadow: 0px 0px 4px rgba(255,255,255,1);
-				}
-				body.loaded #Title .sub {
-					letter-spacing: .2em;
-					transition: letter-spacing 3s ease-out;
-				}
-
-			.instructions-ctnr {
-				margin-top: 20px;
-				border-top: 1px solid rgba(0,0,0,.1);
-				box-shadow: 0px 4px 4px 0px rgba(0,0,0,.1);
+			#Leader .banner {
 				background: linear-gradient(0deg, rgba(192, 208, 224, .95) 0%, rgba(224, 240, 250, .95) 100%);
 			}
+			#Title .title,
+			#Title .tagline {
+				color: white;
+			}
+
 			.instructions {
 				margin: 0px auto;
 				width: 700px;
 			}
-				.howTo {
+				.instructions > .title {
 					padding: 5px 0px 3px 0px;
-					margin: 0px 25px;
+					margin: 0px 40px;
 					text-align: center;
 					text-transform: uppercase;
 					font-size: 90%;
@@ -82,31 +40,15 @@
 					border-bottom: 2px ridge rgba(255, 255, 255, .5);
 					letter-spacing: .3em;
 				}
-				.oneTwoThree {
-					display: table;
-					width: 100%;
-					padding-top: 5px;
-					padding-bottom: 7px;
-				}
-				.oneTwoThree .oneCell,
-				.oneTwoThree .twoCell,
-				.oneTwoThree .threeCell {
-					display: table-cell;
-					width: 33%;
-					vertical-align: middle;
+				.instructions .container {
 					text-align: center;
-					padding: 5px;
-				}
-				.oneTwoThree .inline {
-					display: inline-block;
+					padding-top: 8px;
+					padding-bottom: 8px;
 				}
 
-				.one,
-				.two,
-				.three {
-					display: table;
-					width: 100%;
-					padding: 4px;
+				.instructions .instruction {
+					display: inline-block;
+					padding: 4px 10px;
 					text-align: left;
 					background: rgba(0,0,0,.1);
 					border-radius: 5px;
@@ -116,39 +58,32 @@
 					filter: saturate(20%);
 					transition: filter .6s, opacity .6s, background .6s;
 				}
-				.one { padding-left: 0px; }
-				.two { padding-left: 8px; }
-				.three { padding-left: 12px; }
-
-				.one:hover,
-				.two:hover,
-				.three:hover {
+				.instructions .instruction:hover {
 					opacity: 1;
 					filter: saturate(300%);
 					text-shadow: 1px 1px 3px #CCC;
 					background: rgba(255,255,255,.4);
 					transition: filter .6s, opacity .6s, background .6s;
 				}
-				.oneTwoThree .left,
-				.oneTwoThree .right {
+				.instructions .instruction:not(:last-child) {
+					margin-right: 40px;
+				}
+				.instructions .instruction > .left,
+				.instructions .instruction > .right {
 					display: table-cell;
-					vertical-align: top;
+					vertical-align: middle;
 				}
 
-				.one .left img { height: 35px; }
-				.two .left { font-size: 200%; padding-right: 5px; }
-				.three .left { font-size: 200%; padding-right: 8px; }
-
-				.oneTwoThree .title {
+				.instructions .instruction .title {
 					font-weight: bold;
 					letter-spacing: .1em;
 					color: blue;
 				}
-				.oneTwoThree .info {
+				.instructions .instruction .info {
 					font-size: 90%;
 					color: black;
 				}
-				.oneTwoThree .question {
+				.instructions .instruction .question {
 					display: inline-block;
 					vertical-align: middle;
 					font-weight: normal;
@@ -163,144 +98,93 @@
 					font-family: serif;
 				}
 
-			.featureBox {
-				display: table;
-				box-sizing: border-box;
-				margin: 50px auto;
-				width: 88%;
-				padding: 10px 10px 15px 10px;
-				background: linear-gradient(0deg, rgba(57, 115, 173, 0.95) 0%, rgba(112, 180, 222, .9) 100%);
-				border-radius: 5px;
-				box-shadow: 0px 0px 15px 2px rgba(0,0,0,.4);
-			}
-				.featureBox > .left {
-					display: table-cell;
-					vertical-align: top;
-					width: 33%;
-				}
-				.featureBox > .middle {
-					display: table-cell;
-					vertical-align: top;
-					width: 33%;
-				}
-				.featureBox > .right {
-					display: table-cell;
-					vertical-align: top;
-					width: 33%;
-				}
-				.featureBox .block {
-					display: table;
-					margin: 0px auto;
-					text-shadow: 1px 1px 1px rgba(255,255,255,.4);
-				}
-				.featureBox .title {
-					text-align: center;
-					font-size: 180%;
-					color: #FAFAFA;
-					letter-spacing: .25em;
-					padding-bottom: 4px;
-					text-shadow: 2px 2px 2px rgba(0,0,0,.5);
-					font-variant: small-caps;
-					padding-bottom: 7px;
-				}
-				.featureBox .feature {
-					display: block;
-					font-size: 90%;
-					margin: 4px 0px;
-					font-weight: bold;
-				}
+				/* specific padding for each icon */
+				.instruction.one { padding-left: 0px; }
+				.instruction.one .left img { height: 35px; }
+				.instruction.two .left { font-size: 200%; padding-right: 6px; }
+				.instruction.three .left { font-size: 200%; padding-right: 8px; }
 		</style>
 	</head>
 	<body>
 	<div id="Content">
-		<div class="top-ctnr">
+		<div id="Leader">
 			<div class="background"></div>
 			<div class="foreground">
 				<div id="Title">
-					<div class="sup">Monarchy!</div>
-					<div class="sub">the world's first truly-fair king-of-the-hill game</div>
+					<div class="title">Monarchy!</div>
+					<div class="tagline">the world's first truly-fair king-of-the-hill game</div>
 				</div>
-				<div class="instructions-ctnr">
+				<div class="banner">
 					<div class="instructions">
-						<div class="howTo">How to play</div>
-						<div class="oneTwoThree">
-							<div class="oneCell">
-								<div class="inline">
-									<div class="one no-tip-style" title="" data-tippy-html="#BidTip" data-tippy-animation="scale" data-tippy-trigger="click">
-										<div class="left">
-											<img class="icon" src="/images/ethereum.png"/>
-										</div>
-										<div class="right">
-											<div class="title">Overthrow <span class="question">i</span></div>
-											<div class="info">Become the Monarch</div>
-										</div>
-									</div>
+						<div class="title">How to play</div>
+						<div class="container">
+							<div class="instruction one no-tip-style" title="" data-tippy-html="#BidTip" data-tippy-animation="scale" data-tippy-trigger="click">
+								<div class="left">
+									<img class="icon" src="/images/ethereum.png"/>
+								</div>
+								<div class="right">
+									<div class="title">Overthrow <span class="question">i</span></div>
+									<div class="info">Become the Monarch</div>
 								</div>
 							</div>
-							<div class="twoCell">
-								<div class="inline">
-									<div class="two no-tip-style" title="" data-tippy-html="#WaitTip" data-tippy-animation="scale" data-tippy-trigger="click">
-										<div class="left">👑</div>
-										<div class="right">
-											<div class="title">Reign <span class="question">i</span></div>
-											<div class="info">Defend your empire</div>
-										</div>
-									</div>
+							<div class="instruction two no-tip-style" title="" data-tippy-html="#WaitTip" data-tippy-animation="scale" data-tippy-trigger="click">
+								<div class="left">👑</div>
+								<div class="right">
+									<div class="title">Reign <span class="question">i</span></div>
+									<div class="info">Defend your empire</div>
 								</div>
 							</div>
-							<div class="threeCell">
-								<div class="inline">
-									<div class="three no-tip-style" title="" data-tippy-html="#WinTip" data-tippy-animation="scale" data-tippy-trigger="click">
-										<div class="left">💸</div>
-										<div class="right">
-											<div class="title">Win! <span class="question">i</span></div>
-											<div class="info">Claim the prize</div>
-										</div>
-									</div>
+							<div class="instruction three no-tip-style" title="" data-tippy-html="#WinTip" data-tippy-animation="scale" data-tippy-trigger="click">
+								<div class="left">💸</div>
+								<div class="right">
+									<div class="title">Win! <span class="question">i</span></div>
+									<div class="info">Claim the prize</div>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-				<div class="featureBox">
-					<div class="left">
-						<div class="block">
+				<div class="feature-table">
+					<div class="cell">
+						<div class="centered">
 							<div class="title">Fast & Fun</div>
-							<div class="feature tip-left" title="Just use Ether! No need for tokens, deposits, or creating an account.">
-								No deposit, no sign-up.
-							</div>
-							<div class="feature tip-left" title="Our UI shows you what's happening every step of the way.">
-								Responsive UI.
-							</div>
-							<div class="feature tip-left" title="Overthrowing the Monarch is cheap, and the transaction itself is pennies (50,000 gas).<br>Leave a 'decree' for added effect!">
-								Leave your mark, for cheap.
-							</div>
-							<div class="feature tip-left" title="We've set up our games so that overthrowing the Monarch is cheap relative to the prize.">
-								Pay a little, win a lot!
+							<div class="centered">
+								<div class="feature tip-left" title="Just use Ether! No need for tokens, deposits, or creating an account.">
+									No deposit, no sign-up.
+								</div>
+								<div class="feature tip-left" title="Our UI shows you what's happening every step of the way.">
+									Responsive UI.
+								</div>
+								<div class="feature tip-left" title="Overthrowing the Monarch is cheap, and the transaction itself is pennies (50,000 gas).<br>Leave a 'decree' for added effect!">
+									Leave your mark, for cheap.
+								</div>
+								<div class="feature tip-left" title="We've set up our games so that overthrowing the Monarch is cheap relative to the prize.">
+									Pay a little, win a lot!
+								</div>
 							</div>
 						</div>
 					</div>
-					<div class="middle">
-						<div class="block">
+					<div class="cell">
+						<div class="centered">
 							<div class="title">Fair & Secure</div>
-						</div>
-						<div class="block">
-							<div class="feature tip-left" title="'Shilling' is impossible: When an overthrow occurs, the Ether is distributed to all PENNY Token Holders. Thus, it is impossible for anyone to overthrow for free.">
-								Cheating is impossible.
-							</div>
-							<div class="feature tip-left" title="The prize is held in a smart contract, and will only ever leave to pay the winner. Short of Ethereum going down, this behavior is immutable.">
-								Prize is already staked.
-							</div>
-							<div class="feature tip-left" title="Monarchy runs purely on the blockchain, and our UI is open-sourced and can be run locally. There are no oracles, random numbers, or dependancies on a website.">
-								Truly Decentralized.
-							</div>
-							<div class="feature tip-left" title="Anytime you overthrow, you'll either become the Monarch or get refunded. If somebody overthrows you in the same block, for example, you'll be refunded.">
-								Fair Gameplay.
+							<div class="centered">
+								<div class="feature tip-left" title="'Shilling' is impossible: When an overthrow occurs, the Ether is distributed to all PENNY Token Holders. Thus, it is impossible for anyone to overthrow for free.">
+									Cheating is impossible.
+								</div>
+								<div class="feature tip-left" title="The prize is held in a smart contract, and will only ever leave to pay the winner. Short of Ethereum going down, this behavior is immutable.">
+									Prize is already staked.
+								</div>
+								<div class="feature tip-left" title="Monarchy runs purely on the blockchain, and our UI is open-sourced and can be run locally. There are no oracles, random numbers, or dependancies on a website.">
+									Truly Decentralized.
+								</div>
+								<div class="feature tip-left" title="Anytime you overthrow, you'll either become the Monarch or get refunded. If somebody overthrows you in the same block, for example, you'll be refunded.">
+									Fair Gameplay.
+								</div>
 							</div>
 						</div>
 					</div>
-					<div class="right">
-						<div class="block">
+					<div class="cell">
+						<div class="centered">
 							<div class="title">Exciting</div>
 							<div class="feature tip-left" title="We always have games running. Catch them at the right time and win!">
 								Always running.
@@ -411,6 +295,7 @@
 			border-radius: 10px;
 			box-shadow: 3px 3px 10px 0px rgba(0,0,0,.2);
 			margin-left: 25px;
+			margin-bottom: 25px;
 			overflow: hidden;
 			transition: box-shadow .5s;
 			vertical-align: top;

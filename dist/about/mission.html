@@ -17,9 +17,172 @@
 		li {
 			margin: 5px 0px;
 		}
+
+		.top-ctnr {
+			margin-top: 40px;
+			position: relative;
+			overflow: hidden;
+		}
+			.top-ctnr .background {
+				position: absolute;
+				z-index: 1;
+				top: -2px;
+				left: -2px;
+				width: 101%;
+				height: 101%;
+				background: url(/images/pennies.jpg);
+				background-size: cover;
+				filter: blur(1.2px) saturate(70%);
+				transition: filter 10s;
+			}
+			.top-ctnr .foreground {
+				position: relative;
+				z-index: 2;
+			}
+
+		#Title {
+			padding-top: 30px;
+			text-align: center;
+		}
+			#Title .sup {
+				color: black;
+				font-weight: bold;
+				font-size: 250%;
+				text-shadow: 0px 0px 15px cyan;
+			}
+			body.loaded #Title .sup {
+				letter-spacing: .25em;
+				text-shadow: 0px 0px 10px #68D;
+				transition: letter-spacing 3s ease-out, text-shadow 3s ease-out;
+			}
+			#Title .sub {
+				display: inline-block;
+				color: white;
+				font-size: 90%;
+				text-shadow: 0px 0px 4px blue;
+			}
+			body.loaded #Title .sub {
+				letter-spacing: .2em;
+				transition: letter-spacing 3s ease-out;
+			}
+
+		.featureBox {
+			display: table;
+			box-sizing: border-box;
+			margin: 50px auto;
+			width: 88%;
+			padding: 10px 10px 15px 10px;
+			background: linear-gradient(0deg, rgba(80, 115, 173, 0.95) 0%, rgba(80, 112, 222, .9) 100%);
+			border-radius: 5px;
+			box-shadow: 0px 0px 15px 2px rgba(0,0,0,1);
+		}
+			.featureBox > .left {
+				display: table-cell;
+				vertical-align: top;
+				width: 33%;
+			}
+			.featureBox > .middle {
+				display: table-cell;
+				vertical-align: top;
+				width: 33%;
+			}
+			.featureBox > .right {
+				display: table-cell;
+				vertical-align: top;
+				width: 33%;
+			}
+			.featureBox .block {
+				display: table;
+				margin: 0px auto;
+				text-shadow: 1px 1px 1px rgba(255,255,255,.4);
+			}
+			.featureBox .title {
+				text-align: center;
+				font-size: 180%;
+				color: #FAFAFA;
+				letter-spacing: .25em;
+				padding-bottom: 4px;
+				text-shadow: 2px 2px 2px rgba(0,0,0,.5);
+				font-variant: small-caps;
+				padding-bottom: 7px;
+			}
+			.featureBox .feature {
+				display: inline-block;
+				font-size: 90%;
+				margin: 4px 0px;
+				font-weight: bold;
+			}
+			.featureBox .tipLeft::before {
+				background: rgba(0,0,0,.1);
+			}
 		</style>
 	</head>
 	<body><div id="Content">
+		<div class="top-ctnr">
+			<div class="background"></div>
+			<div class="foreground">
+				<div id="Title">
+					<div class="sup">Our Mission</div>
+					<div class="sub">an autonomous, distributively-owned casino</div>
+				</div>
+				<div class="featureBox">
+					<div class="left">
+						<div class="block">
+							<div class="title">Fast</div>
+							<div class="feature tipLeft" title="No need to deposit Ether or fill out any forms.">
+								No deposit, no sign-up
+							</div><br>
+							<div class="feature tipLeft" title="See your initial hand as soon as your transaction is mined. See your final hand as soon as you submit your draws.">
+								Fast Gameplay
+							</div><br>
+							<div class="feature tipLeft" title="Our UI automatically reloads any pending games, allows you to easily choose gas prices, and tracks the progress of all transactions.">
+								Intelligent UI
+							</div>
+						</div>
+					</div>
+					<div class="middle">
+						<div class="block">
+							<div class="title">Fair</div>
+							<div class="feature tipLeft" title="Our random numbers come from the blockchain, not from a third party.">
+								Results based on blockhash
+							</div><br>
+							<div class="feature tipLeft" title="You can read over our fully annotated source code.">
+								Fully transparent contract
+							</div>
+						</div>
+						<div class="stats">
+							<div class="stat games">
+								<div class="value">0</div>
+								<div class="label">games</div>
+							</div>
+							<div class="stat wagered">
+								<div class="value">0</div>
+								<div class="label">ETH wagered</div>
+							</div>
+							<div class="stat won">
+								<div class="value">0</div>
+								<div class="label">ETH won</div>
+							</div>
+						</div>
+					</div>
+					<div class="right">
+						<div class="block">
+							<div class="title">The Best</div>
+							<div class="feature tipLeft" title="Our pay table provides over 99% returns when played optimally.">
+								Generous Payoffs
+							</div><br>
+							<div class="feature tipLeft" title="It's easy to play several hands at the same time.">
+								Play Multiple Games
+							</div><br>
+							<div class="feature tipLeft" title="We strive to keep the gas costs low. For repeat players, a full game is typically under 100,000 gas!">
+								Low gas costs
+							</div><br>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<br><br><br><br>
 		<div class="section pageTitle">
 			Our Mission
 		</div>

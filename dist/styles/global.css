@@ -998,3 +998,122 @@ fieldset {
 		right: 0px;
 		border-right-width: 0px;
 	}
+
+
+/** leaderboard ***/
+#Title {
+	margin-top: 30px;
+	text-align: center;
+}
+	#Title .title {
+		font-weight: bold;
+		font-size: 250%;
+		text-shadow: 0px 0px 15px cyan;
+	}
+	body.loaded #Title .title {
+		letter-spacing: .25em;
+		text-shadow: 0px 0px 10px #68D;
+		transition: letter-spacing 3s ease-out, text-shadow 3s ease-out;
+	}
+
+	#Title .tagline {
+		display: inline-block;
+		font-size: 90%;
+		text-shadow: 0px 0px 4px blue;
+	}
+	body.loaded #Title .tagline {
+		letter-spacing: .2em;
+		transition: letter-spacing 3s ease-out;
+	}
+
+#Leader {
+	margin-top: 40px;
+	position: relative;
+	overflow: hidden;
+}
+	#Leader .background {
+		position: absolute;
+		z-index: 1;
+		top: -2px;
+		left: -2px;
+		width: 101%;
+		height: 101%;
+		background: linear-gradient(to bottom, rgba(0,0,0,.5) 0%, rgba(0,0,0,.8) 100%);
+		background-size: cover;
+	}
+	#Leader .foreground {
+		position: relative;
+		z-index: 2;
+	}
+
+	#Leader .banner {
+		margin-top: 20px;
+		border-top: 1px solid rgba(0,0,0,.1);
+		box-shadow: 0px 4px 4px 0px rgba(0,0,0,.1);
+		background: linear-gradient(0deg, rgba(192, 192, 192, .95) 0%, rgba(225, 225, 225, .95) 100%);
+	}
+
+	#Leader .feature-table {
+		display: table;
+		box-sizing: border-box;
+		margin: 50px auto;
+		width: 88%;
+		padding: 10px 10px 15px 10px;
+		background: linear-gradient(to bottom, rgba(255,255,255,.75) 0%, rgba(255,255,255,.9) 100%);
+		border-radius: 5px;
+		box-shadow: 0px 0px 15px 2px rgba(0,0,0,1);
+	}
+		#Leader .feature-table .cell {
+			display: table-cell;
+			vertical-align: top;
+			width: 25%;
+		}
+			#Leader .feature-table .cell .centered {
+				display: table;
+				margin: 0px auto;
+				text-shadow: 1px 1px 1px rgba(255,255,255,.4);
+			}
+			#Leader .feature-table .title {
+				text-align: center;
+				font-size: 180%;
+				color: #FAFAFA;
+				letter-spacing: .25em;
+				padding-bottom: 4px;
+				text-shadow: 2px 2px 2px rgba(0,0,0,.5);
+				font-variant: small-caps;
+				padding-bottom: 7px;
+			}
+			#Leader .feature-table .feature {
+				display: block;
+				font-size: 90%;
+				margin: 4px 0px;
+				font-weight: bold;
+			}
+		#Leader .stats {
+			text-align: center;
+			margin-top: 20px;
+			white-space: nowrap;
+		}
+			#Leader .stats .stat {
+				display: inline-block;
+				text-align: center;
+				padding: 3px 5px;
+				border-radius: 5px;
+				background: rgba(255,255,255,.3);
+				border: 1px inset rgba(200,200,200,.5);
+			}
+			#Leader .stats .stat .value {
+				font-size: 120%;
+				color: blue;
+				margin-bottom: -5px;
+				text-shadow: 0px 0px 5px white;
+			}
+			#Leader  .stats .stat .label {
+				display: inline-block;
+				font-size: 70%;
+				color: #444;
+			}
+			#Leader  .stats .wagered {
+				margin-left: 50px;
+				margin-right: 50px;
+			}
