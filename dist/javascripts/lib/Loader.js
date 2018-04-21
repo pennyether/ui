@@ -52,6 +52,10 @@
         this.onWeb3Ready = new Promise((resolve, reject)=>{
             _triggerWeb3Ready = resolve;
         });
+        const _waits = [];
+        this.waitFor = function(fn) {
+            _waits.push(fn);
+        }
 
         this.nameOf = (addr) => {
             const foundName = Object.keys(_regMappings)
@@ -117,7 +121,8 @@
             if (!window.PennyEtherWebUtil){ throw new Error("Unable to find PennyEtherWebUtil."); }
             if (!window.Nav){ throw new Error("Unable to find Nav"); }
             if (!window.EthStatus){ throw new Error("Unable to find EthStatus"); }
-
+            return Promise.all(_waits.map(fn => fn()));
+        }).then(()=>{
             // create web3 object depending on if its from browser or not
             if (typeof web3 !== 'undefined') {
                 window.hasWeb3 = true;

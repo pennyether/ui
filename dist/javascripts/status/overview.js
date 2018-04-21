@@ -1,3 +1,9 @@
+Loader.waitFor(() => {
+    return AJAX("/snippets/topology.html").then(html => {
+        $(".topology-ctnr").html(html);
+    });
+});
+
 Loader.require("comp", "tr", "token", "tm", "monarchy", "dice", "vp")
 .then(function(comp, tr, token, tm, monarchy, dice, vp){
     // arrows ///////////////////////////////////////////////////

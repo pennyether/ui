@@ -3,77 +3,84 @@
 	<head>
 		<script src="/javascripts/lib/Loader.js"></script>
 		<style>
-
-		#Title .title {
-			color: white;
-			text-shadow: 4px 4px 2px black !important;
-		} 
-		#Title .tagline{
-			color: #DDD;
-			border-radius: 2px;
-			text-shadow: none;
-			padding: 2px 4px;
-			background: rgba(40,40,40,.7);
-		}
-		#Leader .background {
-			background-image: url(/images/pennies.jpg);
-			filter: saturate(60%);
-		}
-		#Leader .banner {
-			margin-top: 30px;
-			margin-bottom: 40px;
-		}
-			#Leader .banner .blurb-ctnr {
-				margin: 10px auto 0px auto;
-				text-align: center;
-				width: 78%;
+			#Title .title {
+				color: white;
+				text-shadow: 4px 4px 2px black !important;
+			} 
+			#Title .tagline{
+				color: #DDD;
+				border-radius: 2px;
+				text-shadow: none;
+				padding: 2px 4px;
+				background: rgba(40,40,40,.7);
 			}
-			#Leader .banner .blurb {
-				text-align: left;
-				display: inline-block;
-				padding: 5px 10px;
-				background: rgba(0,0,0,.2);
-				border-radius: 3px;
+			#Leader .background {
+				background-image: url(/images/pennies.jpg);
+				filter: saturate(60%);
 			}
-			#Leader .items {
-				text-align: center;
-				padding: 20px 0px;
+			#Leader .banner {
+				margin-top: 30px;
+				margin-bottom: 40px;
 			}
-				#Leader .items .item {
+				#Leader .banner .blurb-ctnr {
+					margin: 10px auto 0px auto;
+					text-align: center;
+					width: 78%;
+				}
+				#Leader .banner .blurb {
+					text-align: left;
 					display: inline-block;
 					padding: 5px 10px;
-					cursor: pointer;
-
-					color: black;
-					text-decoration: none;
-					font-size: 120%;
-					font-variant: small-caps;
-					letter-spacing: .15em;
-
-					background: rgba(0,128,255,.2);
-					border-radius: 2px;
-					box-shadow: 2px 2px 2px 0px rgba(0,0,0,.5);
-					transition: background .3s;
+					background: rgba(0,0,0,.2);
+					border-radius: 3px;
 				}
-				#Leader .items .item:not(:last-child) {
-					margin-right: 15px;
+				#Leader .items {
+					text-align: center;
+					padding: 20px 0px;
 				}
-				#Leader .items .item:hover {
-					background: rgba(0,128,255,.4);
-				}
+					#Leader .items .item {
+						display: inline-block;
+						padding: 5px 10px;
+						cursor: pointer;
 
-		.note {
-			margin: 20px 20px 60px 20px;
-			background: linear-gradient(to top, rgba(0,128,0,.4) 0%, rgba(0,255,0,.2) 100%);
-			padding: 10px;
-			border-radius: 5px;
-			text-align: center;
-			box-shadow: 3px 3px 3px 0px rgba(0,0,0,.1);
-		}
+						color: black;
+						text-decoration: none;
+						font-size: 120%;
+						font-variant: small-caps;
+						letter-spacing: .15em;
 
-		li {
-			margin: 5px 0px;
-		}
+						background: rgba(0,128,255,.2);
+						border-radius: 2px;
+						box-shadow: 2px 2px 2px 0px rgba(0,0,0,.5);
+						transition: background .3s;
+					}
+					#Leader .items .item:not(:last-child) {
+						margin-right: 15px;
+					}
+					#Leader .items .item:hover {
+						background: rgba(0,128,255,.4);
+					}
+
+			.note {
+				margin: 20px 20px 60px 20px;
+				background: linear-gradient(to top, rgba(0,128,0,.4) 0%, rgba(0,255,0,.2) 100%);
+				padding: 10px;
+				border-radius: 5px;
+				text-align: center;
+				box-shadow: 3px 3px 3px 0px rgba(0,0,0,.1);
+			}
+
+			h3 {
+				font-size: 150%;
+				color: black;
+			}
+			.subsection {
+				color: #333;
+			}
+
+			li {
+				margin: 5px 0px;
+			}
 		</style>
 	</head>
 	<body><div id="Content">
@@ -190,12 +197,11 @@
 					</ul>
 					<b>For Investors:</b>
 					<ul>
-						<li>We've done our best to thoroughly test and audit all of our contracts. We don't use libraries, and we are quite thorough in our documentation. <a href="/about/contracts.html">You can view contract code, test results, and audit results here.</a></li>
-						<li><b>The Treasury</b> holds all PennyEther funds. Capital can only be moved via <b>Governance</b>, which means you can see a week ahead of time what is going to happen, and requests can be cancelled should there be a security incident. For now, the Owner Wallet can create, execute, and cancel Governance requests -- but we plan to hand off control to a DAO.</li>
-						<li><b>The Owner Wallet</b> is a special smart contract that is owned by a cold-storage wallet. A <i>Custodian</i> can make calls on behalf of the owner, but as per above, cannot actually move funds. Should the <i>Custodian</i> account be compromised, it can be changed via the cold-stored wallet, and changes reverted (eg, a Governance request can be cancelled).
-						<li><b>The Admin Account</b> can change certain configurations of PennyEther, but cannot cause funds to leave the Treasury nor can it deplete funds of Game Contracts. At worst, the Admin can alter configurations of games temporarily. Should the Admin account be compromised, it can be changed instantly by the Custodian, and all configuration changes can be reverted.</li>
-						<li><b>Edge Cases</b> have been handled to the best of our ability. For example, should the Custodian account be compromised, we've ensured a limit of of Governance Requests that can be created. Likewise, should the Admin account be compromised, we have limits on parameters of games (such as daily limits) to ensure that configurations cannot be altered too severely.</li>
-						<li><b>Autonomy</b> ensures you're never at the whim of the Owners taking action. We actually <i>pay the community</i> to keep our system running - from dispersal of dividends to the restarting of Monarchy games.</li>
+						<li>We've done our best to thoroughly document, test, and audit all of our contracts. We've made available all contract code, tests, test results, and audit results. <a href="/about/contracts.html">Read more here.</a></li>
+						<li><b>The Treasury</b> holds all PennyEther funds. Profits are only ever sent to the DividendToken; this is hard-coded and immutable behavior.  Capital can only be moved via <b>Governance</b> requests, which in the future will be controlled by a DAO. <a href="/about/contracts.html#dao">Read more here.</a></li>
+						<li><b>The Owner Wallet</b> is a special smart contract that is owned by a cold-storage wallet. A <i>Custodian</i> can make calls on behalf of the owner, but can be changed should it be compromised. <a href="/about/contracts#owner">Read more here.</a>
+						<li><b>The Admin Account</b> can change certain configurations of PennyEther, but cannot cause funds to leave the Treasury nor can it deplete funds of Game Contracts. <a href="/about/contracts.html#roles">Read more here.</a></li>
+						<li><b>Autonomy</b> ensures you're never at the whim of the Owners taking action. We actually <i>pay the community</i> to keep our system running - from dispersal of dividends to the restarting of Monarchy games. <a href="/about/contracts.html#task-manager">Read more here.</a></li>
 					</ul>
 				</p>
 

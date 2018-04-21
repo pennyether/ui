@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/javascripts/lib/Loader.js"></script>
+		<script src="/javascripts/lib/external/vertices.js"></script>
+		<style>
+		.tutorial {
+			background: rgba(0,0,0,.1);
+			border-radius: 4px;
+			margin: 20px 200px;
+		}
+			.tutorial .sections {
+				padding: 4px;
+				border-bottom: 1px solid rgba(0,0,0,.2);
+				background: linear-gradient(to top, rgba(0,0,0,.4) 0%, rgba(0,0,0,.2) 100%);
+				text-align: center;
+			}
+			.tutorial .section {
+				all: initial;
+				font-family: inherit;
+				cursor: pointer;
+				display: inline-block;
+				padding: 4px 8px;
+				font-size: 90%;
+				background: rgba(255,255,255,.5);
+				color: #444;
+				border-radius: 2px;
+				transition: background .5s, border-color .5s, color .5s;
+			}
+			.tutorial .section:hover {
+				color: black;
+				background: rgba(0,128,255,.3);
+			}
+			.tutorial .section.on {
+				font-weight: bold;
+				color: black;
+				border-bottom: 3px solid rgba(0,0,0,.3);
+				background: rgba(0,128,255,.4);
+				text-shadow: 1px 1px 0px rgba(255,255,255,.4);
+			}
+			.tutorial .title {
+				font-size: 80%;
+				font-weight: bold;
+				padding: 0px;
+				text-align: center;
+			}
+			.tutorial .txt {
+				font-size: 90%;
+				text-align: center;
+				padding: 5px;
+				height: 60px;
+			}
+			.tutorial button {
+				font-size: 120%;
+			}
+
+		#Topology .contract {
+			transition: box-shadow .5s;
+		}
+		#Topology .contract.on {
+			box-shadow: 0px 0px 6px 1px blue;
+		}
+		#Topology .contract a {
+			transition: color .5s;
+		}
+		#Topology .contract a.on {
+			color: blue !important;
+		}
+		#Topology .fields {
+			transition: background .5s;
+		}
+		#Topology .fields.on {
+			background: rgba(0,0,255,.3);
+		}
+		#Topology .arrow + .body {
+			transition: text-shadow .5s color .5s;
+		}
+		#Topology .arrow.on + .body {
+			color: white;
+			text-shadow: 0px 0px 5px blue, 0px 0px 5px blue;
+		}
+		#Topology .field.flash {
+			animation: flashGreenBackground 5s 0s 1 ease-out;
+		}
+		#Topology .line.flash {
+			animation: flashGreenBackground 5s 0s 1 ease-out;
+		}
+
+		@keyframes flashGreenBackground {
+		  from { }
+		  3% { background: rgba(0,150,0,.8); }
+		  to { }
+		}
+
+		</style>
+		<script>
+			Loader.waitFor(()=>{
+				return AJAX("/snippets/topology.html").then(html => {
+					$(".topology-ctnr").html(html);
+				});
+			});
+			Loader.promise.then(()=>{
+				function Sim() {
+					const _self = this;
+					// create _self.someValueName() that changes value and optionally flashes it.
+					$("#Topology .value").toArray().forEach(el => {
+						const classes = el.className.split(/\s+/).filter(cls => cls!="value");
+						if (classes.length != 1) throw new Error(`Expected exactly one name.`);
+						const cls = classes[0];
+						const fnName = cls.replace(/-([a-z])/g, g => g[1].toUpperCase());
+						_self[fnName] = (val, flash) => _doUpdate(cls, val, flash);
+					});
+					// does the actual update and flash
+					function _doUpdate(cls, val, flash) {
+						const $e = $(`#Topology .${cls}`);
+						if (val === undefined) return $e.text();
+						$e.text(val);
+						const $field = $e.closest(".field").show().removeClass("flash");
+						if (flash) {
+							setTimeout(()=>$field.addClass("flash"), 10);
+						}
+					}
+
+					this.clearAll = function(){
+						$("#Topology .value").text("");
+					};
+					this.showAll = function(){
+						
+					};
+				}
+
+				const sim = new Sim();
+				const $text = $(".tutorial .txt");
+				const $title = $(".tutorial .title");
+				const $prev = $(".tutorial .btn-prev").click(prev);
+				const $next = $(".tutorial .btn-next").click(next);
+				$(".section.intro").click(()=>jump(0));
+				$(".section.dividends").click(()=>jump(7));
+				$(".section.comptroller").click(()=>jump(11));
+				$(".section.treasury").click(()=>jump(15));
+				$(".section.profits").click(()=>jump(24));
+				$(".section.tasks").click(()=>jump(28));
+				var stepIndex = -1;
+				var stepTimeout;
+
+				function jump(index) {
+					while (stepIndex < index) next(false);
+					while (stepIndex > index) prev(false)
+				}
+				function next() {
+					if (stepIndex == steps.length-1) return;
+					const step = steps[stepIndex];
+					if (step && step.out) step.out();
+					clearTimeout(stepTimeout);
+					stepIndex++;
+					update();
+				}
+				function prev() {
+					if (stepIndex == 0) return;
+					const step = steps[stepIndex];
+					if (step && step.out) step.out();
+					clearTimeout(stepTimeout);
+					stepIndex--;
+					update();
+				}
+				function update(){
+					const step = steps[stepIndex];
+					if (step.section) selectSection(step.section);
+					if (step.title !== undefined) $title.empty().append(step.title);
+					$next.text(step.button || "Next");
+					$text.empty().append(step.text);
+					if (step.in) stepTimeout = setTimeout(step.in, 10);
+
+					if (stepIndex == steps.length - 1) $next.hide();
+					else $next.show();
+					if (stepIndex == 0) $prev.hide();
+					else $prev.show();
+				}
+				function selectSection(name){
+					// if we're on this section already, return.
+					const $section = $(`.section.${name}`);
+					if ($section.is(".on")) return;
+					// set it as on, build state
+					$(".section").removeClass("on");
+					$section.addClass("on");
+					buildState(name);
+				}
+
+				// initializes state for a given section
+				function buildState(name) {
+					if (name == "intro") {
+						sim.clearAll();
+						return;
+					}
+					if (name == "dividends") {
+						sim.clearAll();
+						sim.tokenDivsReceived(util.toEthStrFixed(0));
+						sim.trDividends(util.toEthStrFixed(0));
+						sim.tokenDivsCollected(util.toEthStrFixed(0));
+						return;
+					}
+					if (name == "comptroller") {
+						sim.clearAll();
+						sim.tokenIsFrozen(false);
+						sim.trCapitalRaised(util.toEthStrFixed(0));
+						sim.trCapAvailable(util.toEthStrFixed(0));
+						return;
+					}
+					if (name == "treasury") {
+						sim.clearAll();
+						sim.tokenTotalSupply(util.toEthStrFixed(4000e18));
+						sim.tokenIsFrozen(false);
+						sim.trCapitalRaised(util.toEthStrFixed(1000e18));
+						sim.trCapAvailable(util.toEthStrFixed(1000e18));
+					}
+					if (name == "profits") {
+						sim.clearAll();
+						sim.tokenTotalSupply(util.toEthStrFixed(4000e18));
+						sim.tokenIsFrozen(false);
+						sim.trCapitalRaised(util.toEthStrFixed(1000e18));
+						sim.trCapAvailable(util.toEthStrFixed(900e18));
+						sim.diceBankrolled(util.toEthStrFixed(100e18))
+					}
+					if (name == "tasks") {
+						sim.clearAll();
+						sim.tokenTotalSupply(util.toEthStrFixed(4000e18));
+						sim.tokenIsFrozen(false);
+						sim.trCapitalRaised(util.toEthStrFixed(1000e18));
+						sim.trCapAvailable(util.toEthStrFixed(900e18));
+						sim.diceBankrolled(util.toEthStrFixed(100e18));
+
+						sim.diceNumRolls(1234);
+						sim.diceTotalWagered(util.toEthStrFixed(toEth(123.456)));
+						sim.diceCurMaxBet(util.toEthStrFixed(toEth(.1)));
+					}
+				}
+
+				var obj = {};
+				const steps = [{
+					section: "intro",
+					title: "Welcome.",
+					text: `This is an interactive demo provides a brief overview of how PennyEther works. For more detailed information, please view the <a href="/about/contracts.html" target="_blank">contracts page</a>, or read <a href="/ico/whitepaper.html">the whitepaper.</a>`,
+					button: "Let's go!",
+				},{
+					section: "intro",
+					title: `The Topology`,
+					text: `The diagram below shows all of the contracts of PennyEther.<br><br>For a realtime view of the PennyEther system, see: <a href="/status/overview.html" target="_blank">System Overview</a>.`,
+					button: "OK.",
+				},{
+					section: "intro",
+					title: `The Topology`,
+					text: `There are several contracts that interact with each other.`,
+					in: () => $("#Topology .contract").addClass("on"),
+					out: () => $("#Topology .contract").removeClass("on")
+				},{
+					section: "intro",
+					title: `The Topology`,
+					text: `For information about any contract, just hover over the title.<br>
+						   To view the actual live status of a contract, you can click the title.`,
+					in: () => $("#Topology .contract a").addClass("on"),
+					out: () => $("#Topology .contract a").removeClass("on")
+				},{
+					section: "intro",
+					title: `The Topology`,
+					text: `Each contract also contains a few state variables.<br>
+						   The contracts actually have many more state variables -- we show only the most important here.`,
+					in: () => $("#Topology .fields").addClass("on"),
+					out: () => $("#Topology .fields").removeClass("on")
+				},{
+					section: "intro",
+					title: `The Topology`,
+					text: `Blue arrows show the flow of Ether between contracts.`,
+					in: () => $("#Topology .arrow.ether").closest(".line").addClass("flow"),
+					out: () => $("#Topology .arrow.ether").closest(".line").removeClass("flow")
+				},{
+					section: "intro",
+					title: "&nbsp;",
+					text: `Ready to get started?`,
+					button: `Yes!`,
+				},{
+					section: "dividends",
+					title: `PENNY Token`,
+					text: `The <a href="/status/token.html" target="_blank">PENNY Token</a> is an ERC20 Token, but it can be sent Ether.`,
+					in: () => $("#Topology .contract.token").addClass("on"),
+					out: () => $("#Topology .contract.token").removeClass("on")
+				},{
+					section: "dividends",
+					title: "Receiving Dividends",
+					text: `Ether can be sent to the Token at any time, and from any source (typically the Treasury). This is called a "Dividend". All Token Holders are credited a share of the dividend relative to their percent ownership at the time the dividend occurs.`,
+					in: () => {
+						$(".tr-dividends").closest(".line").addClass("flow");
+						sim.tokenDivsCollected(util.toEthStrFixed(0));
+
+						var num = (new BigNumber(0));
+						obj.interval = setInterval(()=>{
+							num = num.plus(1e16);
+							sim.tokenDivsReceived(util.toEthStrFixed(num));
+							sim.trDividends(util.toEthStrFixed(num));
+						}, 500);
+					},
+					out: () => {
+						$(".tr-dividends").closest(".line").removeClass("flow");
+						clearInterval(obj.interval);
+					}
+				},{
+					section: "dividends",
+					title: "Dispursing Dividends",
+					text: `Token Holders can collect their owed dividends at any time, even after they transfer tokens.<br>We've made the <a href="/uis/tokenholder.html" target="_blank">Token Holder UI</a> to make this process easy.`,
+					in: () => {
+						$(".token-total-collected").closest(".line").addClass("flow");
+						const received = toEth(.28);
+						sim.tokenDivsReceived(util.toEthStrFixed(received));
+
+						var collected = new BigNumber(0);
+						obj.interval = setInterval(() => {
+							collected = collected.plus(1e16);
+							sim.tokenDivsCollected(util.toEthStrFixed(collected));
+							if (collected.equals(received)) {
+								$(".token-total-collected").closest(".line").removeClass("flow");
+								clearInterval(obj.interval);
+							}
+						}, 500);
+					},
+					out: () => {
+						$(".token-total-collected").closest(".line").removeClass("flow");
+						clearInterval(obj.interval);
+					}
+				},{
+					section: "dividends",
+					title: "&nbsp;",
+					text: `Curious how tokens are minted? Let's move onto the Comptroller...`
+				},{
+					section: "comptroller",
+					title: "Comptroller",
+					text: `<a href="/status/comptroller.html" target="_blank">The Comptroller</a> is in charge of minting PENNY Tokens.`,
+					in: () => $("#Topology .contract.comptroller").addClass("on"),
+					out: () => $("#Topology .contract.comptroller").removeClass("on")
+				},{
+					section: "comptroller",
+					title: "The CrowdSale",
+					text: `The Comptroller will mint Tokens during the CrowdSale. It will sell tokens, then mint tokens for the owners, to vest over a 600 day period. <br><b>In the end 80% are sold, and 20% are retained.</b>`,
+					in: () => {
+						$(".line .token-total-supply").closest(".line").addClass("flow");
+						sim.tokenIsFrozen(true);
+						var num = (new BigNumber(0));
+						obj.interval = setInterval(()=>{
+							num = num.plus(1e16);
+							sim.tokenTotalSupply(util.toEthStrFixed(num, 3, "PENNY"));
+						}, 500);
+					},
+					out: () => {
+						$(".line .token-total-supply").closest(".line").removeClass("flow");
+						clearInterval(obj.interval);
+					}
+				},{
+					section: "comptroller",
+					title: "The CrowdSale",
+					text: `After the CrowdSale, a percent of the proceeds will go to the Treasury as capital, and the Tokens will be unfrozen.`,
+					in: ()=>{
+						sim.tokenTotalSupply(util.toEthStrFixed(4000e18));
+						sim.trCapAvailable(util.toEthStrFixed(0));
+						sim.trCapitalRaised(util.toEthStrFixed(0));
+						sim.tokenIsFrozen(true);
+						sendEth($(".line .tr-capital-raised").closest(".line"), "right").then(()=>{
+							sim.trCapAvailable(util.toEthStrFixed(1000e18), true);
+							sim.trCapitalRaised(util.toEthStrFixed(1000e18), true);
+							sim.tokenIsFrozen(false, true);
+						});
+					}
+				},{
+					section: "comptroller",
+					title: "The CrowdSale",
+					text: `Once the CrowdSale is complete the<br>Treasury will be funded and ready to go.`,
+				},{
+					section: "treasury",
+					title: "Treasury",
+					text: `<a href="/status/treasury.html" target="_blank">The Treasury</a> has two roles: <b><br>1: Manage Capital<br>2: Receive Profits</b>`,
+					in: () => $("#Topology .contract.treasury").addClass("on"),
+					out: () => $("#Topology .contract.treasury").removeClass("on"),
+				},{
+					section: "treasury",
+					title: "Managing Capital",
+					text: `The Treasury can be asked to bankroll Games via a "Governance Request"`
+				}, {
+					section: "treasury",
+					title: "Governance",
+					text: `Once a Governance Request is created, it can be cancelled at any time, or executed after one week. Currently, requests can only be made by the Admin account, but we are working to have this be controlled by a DAO.`,
+					in: () => sim.trNumRequests(1, true)
+				},{
+					section: "treasury",
+					title: "Governance",
+					text: `Governance ensures transparency with how Capital is used. It also provides a layer of security - should the Admin account be compromised, the Admin account can be changed, and the request cancelled.`,
+				},{
+					section: "treasury",
+					title: "Governance",
+					text: `All Governance requests can be viewed on the <a href="/status/treasury.html" target="_blank">Treasury Status</a> page.`
+				},{
+					section: "treasury",
+					title: "Bankrolling",
+					text: `Let's assume bankrolling 200 Ether to InstaDice was approved.<br>The Treasury will send some capital, and InstaDice will now have a bankroll to work with. Note that Treasury's available capital decreases.`,
+					in: () => {
+						sim.trCapAvailable(util.toEthStrFixed(1000e18));
+						sim.diceBankrolled(util.toEthStrFixed(0))
+						sendEth($(".line .dice-bankrolled").closest(".line"), "down").then(()=>{
+							sim.trCapAvailable(util.toEthStrFixed(800e18), true);
+							sim.diceBankrolled(util.toEthStrFixed(200e18), true)
+						});
+					},
+				},{
+					section: "treasury",
+					title: "Bankrolling",
+					text: `Bankroll can be also recalled by a Governance request. Let's pretend a Governance request to remove 100 Ether of bankroll from InstaDice was created.`,
+					in: ()=>{
+						sim.trNumRequests(2, true)
+					}
+				}, {
+					section: "treasury",
+					title: "Bankrolling",
+					text: `After it's approved, the Treasury will recall 100 Ether, and it's available Capital will increase.`,
+					in: ()=>{
+						sim.trCapAvailable(util.toEthStrFixed(800e18));
+						sim.diceBankrolled(util.toEthStrFixed(200e18));
+						sendEth($(".line .dice-bankrolled").closest(".line"), "up").then(()=>{
+							sim.trCapAvailable(util.toEthStrFixed(900e18), true);
+							sim.diceBankrolled(util.toEthStrFixed(100e18), true)
+						});
+					}
+				},{
+					section: "treasury",
+					title: "&nbsp;",
+					text: `Now let's take a look at how the flow of profits works.`
+				},{
+					section: "profits",
+					title: " ",
+					text: `In this example, InstaDice has received 100 Ether of bankroll, allowing it to take a maximum bet of .1 Ether. (The actual max bet will vary depending on settings.)`,
+					in: ()=>{
+						sim.diceNumRolls(0, true);
+						sim.diceTotalWagered(util.toEthStrFixed(0), true);
+						sim.diceCurMaxBet(util.toEthStrFixed(.1e18), true);
+						sim.diceCurProfits(util.toEthStrFixed(0), true);
+					}
+				},{
+					section: "profits",
+					title: "Gameplay...",
+					text: `As players play, profits will accumulate in the contract.`,
+					in: ()=>{
+						sim.diceNumRolls(0);
+						sim.diceTotalWagered(util.toEthStrFixed(0));
+						sim.diceCurMaxBet(util.toEthStrFixed(.1e18));
+						sim.diceCurProfits(util.toEthStrFixed(0));
+						obj.interval = setInterval(()=>{
+							const rolls = parseFloat(sim.diceNumRolls()) + 1;
+							const wagered = parseFloat(sim.diceTotalWagered()) + Math.random()*.1;
+							const profits = wagered * .01;
+							sim.diceNumRolls(rolls);
+							sim.diceTotalWagered(util.toEthStrFixed(toEth(wagered)));
+							sim.diceCurProfits(util.toEthStrFixed(toEth(profits)));
+						}, 100)
+					},
+					out: ()=>{
+						clearInterval(obj.interval);
+					}
+				}, {
+					section: "profits",
+					title: "Sending Profits",
+					text: `Anytime the contract has more balance than its bankroll, it has profits. InstaDice will send the profits <u>only</u> to the Treasury. This can be triggered at anytime, by anyone.`,
+					in: ()=>{
+						sim.diceNumRolls(1234);
+						sim.diceTotalWagered(util.toEthStrFixed(toEth(123.456)));
+						sim.diceCurMaxBet(util.toEthStrFixed(toEth(.1)));
+
+						const profits = toEth(1.234);
+						sim.trProfits(util.toEthStrFixed(0));
+						sim.diceProfits(util.toEthStrFixed(0));
+						sim.diceCurProfits(util.toEthStrFixed(profits));
+						sendEth($(".line .dice-profits").closest(".line"), "up").then(()=>{
+							sim.trProfits(util.toEthStrFixed(profits), true);
+							sim.diceProfits(util.toEthStrFixed(profits), true);
+							sim.diceCurProfits(util.toEthStrFixed(0), true);
+						});
+					}
+				}, {
+					section: "profits",
+					title: "Issuing Dividends",
+					text: `Treasury will send accumulated profits <u>only</u> to the PENNY Token, as a dividend. Dividends can be triggered at anytime, by anyone.`,
+					in: ()=>{
+						const profits = toEth(1.234);
+						sim.trProfits(util.toEthStrFixed(profits));
+						sim.trDividends(util.toEthStrFixed(0));
+						sim.tokenDivsReceived(util.toEthStrFixed(0));
+						sendEth($(".tr-dividends").closest(".line"), "left").then(()=>{
+							sim.trProfits(0, true);
+							sim.trDividends(util.toEthStrFixed(profits), true);
+							sim.tokenDivsReceived(util.toEthStrFixed(profits), true);
+						})
+					}
+				}, {
+					section: "tasks",
+					title: "Built-in Autonomy",
+					text: `As mentioned in the previous section, the sending of profits can be triggered by anyone, at anytime. However, it costs Gas to trigger these operations.`,
+				}, {
+					section: "tasks",
+					title: "Built-in Autonomy",
+					text: `To ensure profits are continously sent, we've created a "TaskManager" that rewards users for executing tasks.`,
+					in: () => $("#Topology .contract.task-manager").addClass("on"),
+					out: () => $("#Topology .contract.task-manager").removeClass("on")
+				}, {
+					section: "tasks",
+					title: "Built-in Autonomy",
+					text: `In this example, assume InstaDice has generated profits. A reward will be available to any user who wishes to execute the "sendProfits" task.`,
+					in: () => {
+						sim.diceCurProfits(util.toEthStrFixed(1.23e18), true);
+						sim.tmSendProfitsReward(".1%", true);
+						sim.diceSendProfits(".00123 ETH reward", true);
+					}
+				},{
+					section: "tasks",
+					title: "Built-in Autonomy",
+					text: `The user executes the task, causing InstaDice to send its profits to Treasury. The user is then rewarded for executing this task.`,
+					in: ()=> {
+						const $taskLine = $("#Topology .dice-send-profits").closest(".line").removeClass("flash");
+						const $rewardLine = $("#Topology .tm-rewards-paid").closest(".line");
+						const $profitLine = $("#Topology .dice-profits").closest(".line");
+
+						// dice and upwards
+						const profits = toEth(1.234);
+						const reward = profits.div(1000);
+						sim.trProfits(util.toEthStrFixed(0));
+						sim.diceProfits(util.toEthStrFixed(0));
+						sim.diceCurProfits(util.toEthStrFixed(profits));
+						// tm and upwards (and leftwards)
+						sim.tmSendProfitsReward(".1%");
+						sim.diceSendProfits(`${util.toEthStrFixed(reward)} reward`);
+						sim.tmRewardsPaid(util.toEthStrFixed(0));
+
+						setTimeout(()=>{ $taskLine.addClass("flash") }, 100);
+						setTimeout(()=>{
+							sendEth($(".line .dice-profits").closest(".line"), "up").then(()=>{
+								sim.trProfits(util.toEthStrFixed(profits), true);
+								sim.diceProfits(util.toEthStrFixed(profits), true);
+								sim.diceCurProfits(util.toEthStrFixed(0), true);
+							}).then(()=>{
+								sendEth($rewardLine, "left").then(()=>{
+									sim.diceSendProfits("Not available.", true);
+									sim.tmRewardsPaid(util.toEthStrFixed(reward), true);
+								});
+							});
+						}, 1000);
+					}
+				},{
+					section: "tasks",
+					title: "Built-in Autonomy",
+					text: `Tasks are also available for issuing dividends, and finalizing Monarchy games. Tasks can be viewed and executed on the <a href="/status/taskmanager.html" target="_blank">TaskManager Status</a> page.`,
+					in: () => {
+
+					}
+				}, {
+					section: "tasks",
+					title: "&nbsp;",
+					text: `That's all for this demonstration.<br><br>A <i>lot</i> more information can be found in <a href="/ico/whitepaper.html" target="_blank">the whitepaper</a>`,
+					in: () => {
+
+					}
+				}];
+
+				jump(0);
+
+				(function initFlows(){
+					function doFlows() {
+						const $lines = $(".line.flow").toArray();
+						if ($lines.length == 0) {
+							setTimeout(doFlows, 500);
+							return;
+						}
+						// flow an ether every second
+						$lines.forEach(doFlow);
+						setTimeout(doFlows, 500);
+					}
+					setTimeout(doFlows, 0);
+
+					function doFlow(line) {
+						const $line = $(line);
+						var direction;
+						if ($line.is(".horizontal"))
+							direction = $line.find(".arrow").is(".left") ? "left" : "right";
+						else if ($line.is(".vertical"))
+							direction = $line.find(".arrow").is(".down") ? "down" : "up";
+						else
+							throw new Error(`This line sucks.`);
+						sendEth(line, direction);
+					}
+				}());
+
+				function toEth(n) {
+					return new BigNumber(n.toFixed(10)).mul(1e18);
+				}
+
+				function sendEth(parent, direction) {
+					return new Promise((resolve, reject)=>{
+						const duration = 1000;
+						const $img = $("<img>")
+							.attr("src", "/images/ethereum.png")
+							.attr("width", 35)
+							.css({
+								opacity: 0,
+								position: "absolute",
+								background: "rgba(215,255,255,.9)",
+								border: "1px solid #AAA",
+								borderRadius: "40px",
+								boxShadow: "0px 0px 10px 0px rgba(0,0,255,.5)",
+								zIndex: 10
+							})
+							.appendTo(parent);
+
+						var start, stop;
+						(function(){
+							const p_w = $(parent).width();
+							const p_h = $(parent).height();
+							const w = $img.width();
+							const h = $img.height();
+							const left = {x: -w/2, y: p_h/2 - h/2};
+							const top = {x: p_w/2 - w/2, y: -h/2};
+							const right = {x: p_w - w/2, y: p_h/2 - h/2};
+							const bottom = {x: p_w/2 - w/2, y: p_h + h/2};
+							if (direction == "up"){ start = bottom; stop = top; }
+							if (direction == "down"){ start = top; stop = bottom; }
+							if (direction == "left"){ start = right; stop = left; }
+							if (direction == "right"){ start = left; stop = right; }
+						}());
+						
+						const startTime = +new Date();
+						window.requestAnimationFrame(function step(){
+							const pct = Math.min((+new Date() - startTime) / duration, 1);
+							const x = start.x + pct*(stop.x - start.x);
+							const y = start.y + pct*(stop.y - start.y);
+							$img.css({
+								opacity: pct < .5 ? pct*4 : (1-pct)*4,
+								left: Math.round(x),
+								top: Math.round(y)
+							});
+							if (pct < 1) window.requestAnimationFrame(step);
+							else {
+								$img.remove();
+								resolve();
+							}
+						});
+					});
+				}
+			});
+		</script>
+	</head>
+	<body><div id="Content">
+		<div class="tutorial">
+			<div class="sections">
+				<div class="section intro">Intro</div>
+				<div class="section dividends">Dividends</div>
+				<div class="section comptroller">Comptroller</div>
+				<div class="section treasury">Treasury</div>
+				<div class="section profits">Profits</div>
+				<div class="section tasks">Tasks</div>
+			</div>
+			<div class="body">
+				<table width="100%"><tr>
+					<td width="100" valign="center" align="left" style="padding: 5px;">
+						<button class="btn-prev">Back</button>
+					</td>
+					<td>
+						<div class="title"></div>
+						<div class="txt"></div>
+					</td>
+					<td width="100" valign="center" align="right" style="padding: 5px;">
+						<button class="btn-next">Next</button>
+					</td>
+				</tr></table>
+			</div>
+		</div>
+		<div class="topology-ctnr"></div>
+	</div></body>
+</html>
