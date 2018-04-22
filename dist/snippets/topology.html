@@ -130,7 +130,139 @@
 			text-shadow: 1px 1px 1px rgba(255,255,255,.7);
 			color: navy;
 		}
+
+		#Topology .contract {
+			transition: box-shadow .5s;
+		}
+		#Topology .contract.on {
+			box-shadow: 0px 0px 6px 1px blue;
+		}
+		#Topology .contract a {
+			transition: color .5s;
+		}
+		#Topology .contract a.on {
+			color: blue !important;
+		}
+		#Topology .fields {
+			transition: background .5s;
+		}
+		#Topology .fields.on {
+			background: rgba(0,0,255,.3);
+		}
+		#Topology .field.flash {
+			animation: flashGreenBackground 5s 0s 1 ease-out;
+		}
+		#Topology .line.flash {
+			animation: flashGreenBackground 5s 0s 1 ease-out;
+		}
+		#Topology .line .body {
+			transition: background .5s, box-shadow .5s, padding .5s
+		}
+		#Topology .line.on .body {
+			padding: 3px;
+			border-radius: 5px;
+			background: rgba(0,0,255,.1);
+			box-shadow: 0px 0px 3px 1px blue;
+		}
+
+		@keyframes flashGreenBackground {
+		  from { }
+		  3% { background: rgba(0,150,0,.8); }
+		  to { }
+		}
 	</style>
+	<script>
+		function Topology() {
+			const _self = this;
+			// create _self.someValueName() that changes value and optionally flashes it.
+			$("#Topology .value").toArray().forEach(el => {
+				const classes = el.className.split(/\s+/).filter(cls => cls!="value");
+				if (classes.length != 1) throw new Error(`Expected exactly one name.`);
+				const name = classes[0];
+				const fnName = name.replace(/-([a-z])/g, g => g[1].toUpperCase());
+				_self[fnName] = (val, opts) => _setOrGet(name, val, opts);
+			});
+			
+			/*
+			Options:
+				- type: if "eth", then formats as eth.
+				- showDelta: if "eth" or "number", will show tip with delta.
+				- flashOnDelta: if true, will flash anytime val changes
+			*/
+			function _setOrGet(name, val, opts) {
+				const $e = $(`#Topology .${name}`);
+				if (val === undefined) return $e.text();
+				if (val.then) {
+					$e.text("Loading...");
+					val.then(v => _set(name, v, opts))
+						.catch(e => _set(name, `Error: ${e.message}`, {doFlash: true}));
+				} else {
+					_set(name, val, opts);
+				}
+			}
+
+			function _set(name, val, opts) {
+				if (!opts) opts = {};
+				const $e = $(`#Topology .${name}`);
+				const $field = $e.closest(".field").show();
+				const prev = $e.data("prev");
+				const didChange = (function(){
+					if (prev===null || prev===undefined) return false;
+					if (!!val.toNumber !== !!prev.toNumber) return false;
+					return val.toNumber
+						? !val.equals(prev)
+						: val!==prev;
+				}());
+
+				if (opts.type == "eth" || opts.type == "number") {
+					const str = opts.type=="eth"
+						? util.toEthStrFixed(val, 5, opts.unit)
+						: val.toLocaleString();
+					$e.text(str);
+					if (opts.showDelta && didChange) {
+						const diff = val.minus(prev);
+						var tipStr = opts.type=="eth"
+							? util.toEthStrFixed(diff, 5, opts.unit)
+							: diff;
+						if (diff.gt(0)) tipStr = `+${tipStr}`;
+						_showTip($e, tipStr);
+					}
+				} else {
+					$e.text(val);
+				}
+				if (opts.doFlash) _flash($field);
+				if (opts.flashOnDelta && didChange) _flash($field);
+				$e.data("prev", val);
+			}
+
+			function _flash($e) {
+				$e.removeClass("flash")
+				setTimeout(() => $e.addClass("flash"), 10);
+			}
+			function _showTip($e, str) {
+				$e.attr("title", str);
+				try {
+	                const t = tippy($e[0], {
+	                    placement: "right",
+	                    trigger: "manual",
+	                    animation: "fade",
+	                    size: "small",
+	                    onHidden: function(){ t.destroy(); }
+	                }).tooltips[0];
+	                t.show();
+	                setTimeout(function(){ t.hide(); }, 5000);
+	            } catch(e) {}
+			}
+
+			this.clearAll = function(){
+				$("#Topology .value").text("");
+			};
+			this.showAll = function(){
+				
+			};
+		}
+		const topology = new Topology();
+	</script>
 	<div id="Topology">
 		<div style="position: relative;">
 			<div class="line horizontal" style="left: 200px; top: 60px; width: 90px;">

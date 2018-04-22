@@ -53,54 +53,6 @@
 				.tutorial button {
 					font-size: 120%;
 				}
-
-			#Topology .contract {
-				transition: box-shadow .5s;
-			}
-			#Topology .contract.on {
-				box-shadow: 0px 0px 6px 1px blue;
-			}
-			#Topology .contract a {
-				transition: color .5s;
-			}
-			#Topology .contract a.on {
-				color: blue !important;
-			}
-			#Topology .fields {
-				transition: background .5s;
-			}
-			#Topology .fields.on {
-				background: rgba(0,0,255,.3);
-			}
-			#Topology .arrow + .body {
-				transition: text-shadow .5s color .5s;
-			}
-			#Topology .arrow.on + .body {
-				color: white;
-				text-shadow: 0px 0px 5px blue, 0px 0px 5px blue;
-			}
-			#Topology .field.flash {
-				animation: flashGreenBackground 5s 0s 1 ease-out;
-			}
-			#Topology .line.flash {
-				animation: flashGreenBackground 5s 0s 1 ease-out;
-			}
-			#Topology .line .body {
-				transition: background .5s, box-shadow .5s, padding .5s
-			}
-			#Topology .line.on .body {
-				padding: 3px;
-				border-radius: 5px;
-				background: rgba(0,0,255,.1);
-				box-shadow: 0px 0px 3px 1px blue;
-			}
-
-			@keyframes flashGreenBackground {
-			  from { }
-			  3% { background: rgba(0,150,0,.8); }
-			  to { }
-			}
-
 		</style>
 		<script>
 			Loader.waitFor(()=>{
@@ -109,36 +61,7 @@
 				});
 			});
 			Loader.promise.then(()=>{
-				function Sim() {
-					const _self = this;
-					// create _self.someValueName() that changes value and optionally flashes it.
-					$("#Topology .value").toArray().forEach(el => {
-						const classes = el.className.split(/\s+/).filter(cls => cls!="value");
-						if (classes.length != 1) throw new Error(`Expected exactly one name.`);
-						const cls = classes[0];
-						const fnName = cls.replace(/-([a-z])/g, g => g[1].toUpperCase());
-						_self[fnName] = (val, flash) => _doUpdate(cls, val, flash);
-					});
-					// does the actual update and flash
-					function _doUpdate(cls, val, flash) {
-						const $e = $(`#Topology .${cls}`);
-						if (val === undefined) return $e.text();
-						$e.text(val);
-						const $field = $e.closest(".field").show().removeClass("flash");
-						if (flash) {
-							setTimeout(()=>$field.addClass("flash"), 10);
-						}
-					}
-
-					this.clearAll = function(){
-						$("#Topology .value").text("");
-					};
-					this.showAll = function(){
-						
-					};
-				}
-
-				const sim = new Sim();
+				const t = topology;
 				const $text = $(".tutorial .txt");
 				const $title = $(".tutorial .title");
 				const $prev = $(".tutorial .btn-prev").click(prev);
@@ -198,55 +121,54 @@
 				// initializes state for a given section
 				function buildState(name) {
 					if (name == "intro") {
-						sim.clearAll();
+						t.clearAll();
 						return;
 					}
 					if (name == "dividends") {
-						sim.clearAll();
-						sim.tokenDivsReceived(util.toEthStrFixed(0));
-						sim.trDividends(util.toEthStrFixed(0));
-						sim.tokenDivsCollected(util.toEthStrFixed(0));
+						t.clearAll();
+						t.tokenDivsReceived(util.toEthStrFixed(0));
+						t.trDividends(util.toEthStrFixed(0));
+						t.tokenDivsCollected(util.toEthStrFixed(0));
 						return;
 					}
 					if (name == "comptroller") {
-						sim.clearAll();
-						sim.tokenIsFrozen(false);
-						sim.trCapitalRaised(util.toEthStrFixed(0));
-						sim.trCapAvailable(util.toEthStrFixed(0));
+						t.clearAll();
+						t.tokenIsFrozen(false);
+						t.trCapitalRaised(util.toEthStrFixed(0));
+						t.trCapAvailable(util.toEthStrFixed(0));
 						return;
 					}
 					if (name == "treasury") {
-						sim.clearAll();
-						sim.tokenTotalSupply(util.toEthStrFixed(4000e18));
-						sim.tokenIsFrozen(false);
-						sim.trCapitalRaised(util.toEthStrFixed(1000e18));
-						sim.trCapAvailable(util.toEthStrFixed(1000e18));
+						t.clearAll();
+						t.tokenTotalSupply(util.toEthStrFixed(4000e18));
+						t.tokenIsFrozen(false);
+						t.trCapitalRaised(util.toEthStrFixed(1000e18));
+						t.trCapAvailable(util.toEthStrFixed(1000e18));
 					}
 					if (name == "profits") {
-						sim.clearAll();
-						sim.tokenTotalSupply(util.toEthStrFixed(4000e18));
-						sim.tokenIsFrozen(false);
-						sim.trCapitalRaised(util.toEthStrFixed(1000e18));
-						sim.trCapAvailable(util.toEthStrFixed(900e18));
-						sim.diceBankrolled(util.toEthStrFixed(100e18))
+						t.clearAll();
+						t.tokenTotalSupply(util.toEthStrFixed(4000e18));
+						t.tokenIsFrozen(false);
+						t.trCapitalRaised(util.toEthStrFixed(1000e18));
+						t.trCapAvailable(util.toEthStrFixed(900e18));
+						t.diceBankrolled(util.toEthStrFixed(100e18))
 					}
 					if (name == "tasks") {
-						sim.clearAll();
-						sim.tokenTotalSupply(util.toEthStrFixed(4000e18));
-						sim.tokenIsFrozen(false);
-						sim.trCapitalRaised(util.toEthStrFixed(1000e18));
-						sim.trCapAvailable(util.toEthStrFixed(900e18));
-						sim.diceBankrolled(util.toEthStrFixed(100e18));
+						t.clearAll();
+						t.tokenTotalSupply(util.toEthStrFixed(4000e18));
+						t.tokenIsFrozen(false);
+						t.trCapitalRaised(util.toEthStrFixed(1000e18));
+						t.trCapAvailable(util.toEthStrFixed(900e18));
+						t.diceBankrolled(util.toEthStrFixed(100e18));
 
-						sim.diceNumRolls(1234);
-						sim.diceTotalWagered(util.toEthStrFixed(toEth(123.456)));
-						sim.diceCurMaxBet(util.toEthStrFixed(toEth(.1)));
+						t.diceNumRolls(1234);
+						t.diceTotalWagered(util.toEthStrFixed(toEth(123.456)));
+						t.diceCurMaxBet(util.toEthStrFixed(toEth(.1)));
 					}
 				}
 
-				var obj = {
-					flowSpeed: 500,
-				};
+				const doFlash = {doFlash: true};
+				const obj = {};
 				const steps = [{
 					section: "intro",
 					title: "Welcome.",
@@ -302,13 +224,13 @@
 					text: `Ether can be sent to the Token at any time, and from any source (typically the Treasury). This is called a "Dividend". All Token Holders are credited a share of the dividend relative to their percent ownership at the time the dividend occurs.`,
 					in: () => {
 						$(".tr-dividends").closest(".line").addClass("flow");
-						sim.tokenDivsCollected(util.toEthStrFixed(0));
+						t.tokenDivsCollected(util.toEthStrFixed(0));
 
 						var num = (new BigNumber(0));
 						obj.interval = setInterval(()=>{
 							num = num.plus(1e16);
-							sim.tokenDivsReceived(util.toEthStrFixed(num));
-							sim.trDividends(util.toEthStrFixed(num));
+							t.tokenDivsReceived(util.toEthStrFixed(num));
+							t.trDividends(util.toEthStrFixed(num));
 						}, 500);
 					},
 					out: () => {
@@ -322,12 +244,12 @@
 					in: () => {
 						$(".token-total-collected").closest(".line").addClass("flow");
 						const received = toEth(.28);
-						sim.tokenDivsReceived(util.toEthStrFixed(received));
+						t.tokenDivsReceived(util.toEthStrFixed(received));
 
 						var collected = new BigNumber(0);
 						obj.interval = setInterval(() => {
 							collected = collected.plus(1e16);
-							sim.tokenDivsCollected(util.toEthStrFixed(collected));
+							t.tokenDivsCollected(util.toEthStrFixed(collected));
 							if (collected.equals(received)) {
 								$(".token-total-collected").closest(".line").removeClass("flow");
 								clearInterval(obj.interval);
@@ -354,11 +276,11 @@
 					text: `The Comptroller will mint Tokens during the CrowdSale. It will sell tokens, then mint tokens for the owners, to vest over a 600 day period. <br><b>In the end 80% are sold, and 20% are retained.</b>`,
 					in: () => {
 						$(".line .token-total-supply").closest(".line").addClass("flow");
-						sim.tokenIsFrozen(true);
+						t.tokenIsFrozen(true);
 						var num = (new BigNumber(0));
 						obj.interval = setInterval(()=>{
 							num = num.plus(1e16);
-							sim.tokenTotalSupply(util.toEthStrFixed(num, 3, "PENNY"));
+							t.tokenTotalSupply(util.toEthStrFixed(num, 3, "PENNY"));
 						}, 500);
 					},
 					out: () => {
@@ -370,14 +292,14 @@
 					title: "The CrowdSale",
 					text: `After the CrowdSale, a percent of the proceeds will go to the Treasury as capital, and the Tokens will be unfrozen.`,
 					in: ()=>{
-						sim.tokenTotalSupply(util.toEthStrFixed(4000e18));
-						sim.trCapAvailable(util.toEthStrFixed(0));
-						sim.trCapitalRaised(util.toEthStrFixed(0));
-						sim.tokenIsFrozen(true);
+						t.tokenTotalSupply(util.toEthStrFixed(4000e18));
+						t.trCapAvailable(util.toEthStrFixed(0));
+						t.trCapitalRaised(util.toEthStrFixed(0));
+						t.tokenIsFrozen(true);
 						sendEth($(".line .tr-capital-raised").closest(".line"), "right").then(()=>{
-							sim.trCapAvailable(util.toEthStrFixed(1000e18), true);
-							sim.trCapitalRaised(util.toEthStrFixed(1000e18), true);
-							sim.tokenIsFrozen(false, true);
+							t.trCapAvailable(util.toEthStrFixed(1000e18), doFlash);
+							t.trCapitalRaised(util.toEthStrFixed(1000e18), doFlash);
+							t.tokenIsFrozen(false, doFlash);
 						});
 					}
 				},{
@@ -439,17 +361,17 @@
 					title: "Managing Capital > Example",
 					text: `Let's walk through an example. Assume bankrolling 200 Ether to InstaDice was approved. After one week it can be executed by anyone.`,
 					button: "Execute Request",
-					in: () => sim.trNumRequests(1, true)
+					in: () => t.trNumRequests(1, doFlash)
 				},{
 					section: "treasury",
 					title: "Managing Capital > Example",
 					text: `The Treasury will send some capital, and InstaDice will now have a bankroll to work with. Note that Treasury's available capital decreases.`,
 					in: () => {
-						sim.trCapAvailable(util.toEthStrFixed(1000e18));
-						sim.diceBankrolled(util.toEthStrFixed(0))
+						t.trCapAvailable(util.toEthStrFixed(1000e18));
+						t.diceBankrolled(util.toEthStrFixed(0))
 						sendEth($(".line .dice-bankrolled").closest(".line"), "down").then(()=>{
-							sim.trCapAvailable(util.toEthStrFixed(800e18), true);
-							sim.diceBankrolled(util.toEthStrFixed(200e18), true)
+							t.trCapAvailable(util.toEthStrFixed(800e18), doFlash);
+							t.diceBankrolled(util.toEthStrFixed(200e18), doFlash)
 						});
 					},
 				},{
@@ -458,18 +380,18 @@
 					text: `Bankroll can be also recalled by a Governance request. Let's pretend a Governance request to remove 100 Ether of bankroll from InstaDice was created a week ago, and can now be executed.`,
 					button: "Execute Request",
 					in: ()=>{
-						sim.trNumRequests(2, true)
+						t.trNumRequests(2, doFlash)
 					}
 				}, {
 					section: "treasury",
 					title: "Managing Capital > Example",
 					text: `The Treasury will recall 100 Ether, and its available Capital will increase.`,
 					in: ()=>{
-						sim.trCapAvailable(util.toEthStrFixed(800e18));
-						sim.diceBankrolled(util.toEthStrFixed(200e18));
+						t.trCapAvailable(util.toEthStrFixed(800e18));
+						t.diceBankrolled(util.toEthStrFixed(200e18));
 						sendEth($(".line .dice-bankrolled").closest(".line"), "up").then(()=>{
-							sim.trCapAvailable(util.toEthStrFixed(900e18), true);
-							sim.diceBankrolled(util.toEthStrFixed(100e18), true)
+							t.trCapAvailable(util.toEthStrFixed(900e18), doFlash);
+							t.diceBankrolled(util.toEthStrFixed(100e18), doFlash)
 						});
 					}
 				},{
@@ -502,30 +424,30 @@
 					text: `When contracts receive Bankroll, they (hopefully) can use that Bankroll to generate profits which eventually get distributed to Token Holders. Let's see how that process works.`
 				},{
 					section: "profits",
-					title: " ",
+					title: "Example",
 					text: `In this example, InstaDice has received 100 Ether of bankroll.<br>Now that it has Bankroll, the contract can accept bets.`,
 					in: ()=>{
-						sim.diceNumRolls(0, true);
-						sim.diceTotalWagered(util.toEthStrFixed(0), true);
-						sim.diceCurMaxBet(util.toEthStrFixed(.1e18), true);
-						sim.diceCurProfits(util.toEthStrFixed(0), true);
+						t.diceNumRolls(0, doFlash);
+						t.diceTotalWagered(util.toEthStrFixed(0), doFlash);
+						t.diceCurMaxBet(util.toEthStrFixed(.1e18), doFlash);
+						t.diceCurProfits(util.toEthStrFixed(0), doFlash);
 					}
 				},{
 					section: "profits",
-					title: "Gameplay...",
+					title: "Example",
 					text: `As players play, profits will accumulate in the contract.`,
 					in: ()=>{
-						sim.diceNumRolls(0);
-						sim.diceTotalWagered(util.toEthStrFixed(0));
-						sim.diceCurMaxBet(util.toEthStrFixed(.1e18));
-						sim.diceCurProfits(util.toEthStrFixed(0));
+						t.diceNumRolls(0);
+						t.diceTotalWagered(util.toEthStrFixed(0));
+						t.diceCurMaxBet(util.toEthStrFixed(.1e18));
+						t.diceCurProfits(util.toEthStrFixed(0));
 						obj.interval = setInterval(()=>{
-							const rolls = parseFloat(sim.diceNumRolls()) + 1;
-							const wagered = parseFloat(sim.diceTotalWagered()) + Math.random()*.1;
+							const rolls = parseFloat(t.diceNumRolls()) + 1;
+							const wagered = parseFloat(t.diceTotalWagered()) + Math.random()*.1;
 							const profits = wagered * .01;
-							sim.diceNumRolls(rolls);
-							sim.diceTotalWagered(util.toEthStrFixed(toEth(wagered)));
-							sim.diceCurProfits(util.toEthStrFixed(toEth(profits)));
+							t.diceNumRolls(rolls);
+							t.diceTotalWagered(util.toEthStrFixed(toEth(wagered)));
+							t.diceCurProfits(util.toEthStrFixed(toEth(profits)));
 						}, 100)
 					},
 					out: ()=>{
@@ -533,18 +455,18 @@
 					}
 				}, {
 					section: "profits",
-					title: "Sending Profits",
-					text: `Anytime the contract has more balance than its bankroll, it has profits. InstaDice will send the profits <u>only</u> to the Treasury. This can be triggered at anytime, by anyone.`,
+					title: "Example",
+					text: `Anytime a Bankrolled contract has more balance than its Bankroll, it has profits. InstaDice will send the profits <u>only</u> to the Treasury. This can be triggered at anytime, by anyone.`,
 					button: `Send Profits`,
 					in: ()=>{
-						sim.diceNumRolls(1234);
-						sim.diceTotalWagered(util.toEthStrFixed(toEth(123.456)));
-						sim.diceCurMaxBet(util.toEthStrFixed(toEth(.1)));
+						t.diceNumRolls(1234);
+						t.diceTotalWagered(util.toEthStrFixed(toEth(123.456)));
+						t.diceCurMaxBet(util.toEthStrFixed(toEth(.1)));
 
 						const profits = toEth(1.234);
-						sim.trProfits(util.toEthStrFixed(0));
-						sim.diceProfits(util.toEthStrFixed(0));
-						sim.diceCurProfits(util.toEthStrFixed(profits));
+						t.trProfits(util.toEthStrFixed(0));
+						t.diceProfits(util.toEthStrFixed(0));
+						t.diceCurProfits(util.toEthStrFixed(profits), true);
 					}
 				}, {
 					section: "profits",
@@ -552,18 +474,18 @@
 					text: `InstaDice has sent its profits to Treasury, and now has 0 profits. We're back to where we started, except the Treasury has some profits! Now, anyone can tell the Treasury to issue a Dividend.`,
 					button: `Issue Dividend`,
 					in: ()=>{
-						sim.diceNumRolls(1234);
-						sim.diceTotalWagered(util.toEthStrFixed(toEth(123.456)));
-						sim.diceCurMaxBet(util.toEthStrFixed(toEth(.1)));
+						t.diceNumRolls(1234);
+						t.diceTotalWagered(util.toEthStrFixed(toEth(123.456)));
+						t.diceCurMaxBet(util.toEthStrFixed(toEth(.1)));
 
 						const profits = toEth(1.234);
-						sim.trProfits(util.toEthStrFixed(0));
-						sim.diceProfits(util.toEthStrFixed(0));
-						sim.diceCurProfits(util.toEthStrFixed(profits));
+						t.trProfits(util.toEthStrFixed(0));
+						t.diceProfits(util.toEthStrFixed(0));
+						t.diceCurProfits(util.toEthStrFixed(profits));
 						sendEth($(".line .dice-profits").closest(".line"), "up").then(()=>{
-							sim.trProfits(util.toEthStrFixed(profits), true);
-							sim.diceProfits(util.toEthStrFixed(profits), true);
-							sim.diceCurProfits(util.toEthStrFixed(0), true);
+							t.trProfits(util.toEthStrFixed(profits), doFlash);
+							t.diceProfits(util.toEthStrFixed(profits), doFlash);
+							t.diceCurProfits(util.toEthStrFixed(0), doFlash);
 						});
 					}
 				}, {
@@ -572,13 +494,13 @@
 					text: `Remember: The Treasury can send accumulated profits <u>only</u> to the PENNY Token. This guarantees Token Holders receive all dividend proceeds.`,
 					in: ()=>{
 						const profits = toEth(1.234);
-						sim.trProfits(util.toEthStrFixed(profits));
-						sim.trDividends(util.toEthStrFixed(0));
-						sim.tokenDivsReceived(util.toEthStrFixed(0));
+						t.trProfits(util.toEthStrFixed(profits));
+						t.trDividends(util.toEthStrFixed(0));
+						t.tokenDivsReceived(util.toEthStrFixed(0));
 						sendEth($(".tr-dividends").closest(".line"), "left").then(()=>{
-							sim.trProfits(0, true);
-							sim.trDividends(util.toEthStrFixed(profits), true);
-							sim.tokenDivsReceived(util.toEthStrFixed(profits), true);
+							t.trProfits(0, doFlash);
+							t.trDividends(util.toEthStrFixed(profits), doFlash);
+							t.tokenDivsReceived(util.toEthStrFixed(profits), doFlash);
 						})
 					}
 				}, {
@@ -613,10 +535,10 @@
 					text: `In this example, assume InstaDice has generated profits. A reward will be available to any user who wishes to execute the "Send Profits" task.`,
 					button: `Execute Task`,
 					in: () => {
-						sim.tmBalance(util.toEthStrFixed(toEth(2.345)));
-						sim.diceCurProfits(util.toEthStrFixed(1.23e18), true);
-						sim.tmSendProfitsReward(".1%", true);
-						sim.diceSendProfits(".00123 ETH reward", true);
+						t.tmBalance(util.toEthStrFixed(toEth(2.345)));
+						t.diceCurProfits(util.toEthStrFixed(1.23e18), doFlash);
+						t.tmSendProfitsReward(".1%", doFlash);
+						t.diceSendProfits(".00123 ETH reward", doFlash);
 					}
 				},{
 					section: "tasks",
@@ -631,26 +553,26 @@
 						const profits = toEth(1.234);
 						const reward = profits.div(1000);
 						const balance = toEth(2.345);
-						sim.trProfits(util.toEthStrFixed(0));
-						sim.diceProfits(util.toEthStrFixed(0));
-						sim.diceCurProfits(util.toEthStrFixed(profits));
+						t.trProfits(util.toEthStrFixed(0));
+						t.diceProfits(util.toEthStrFixed(0));
+						t.diceCurProfits(util.toEthStrFixed(profits));
 						// tm and upwards (and leftwards)
-						sim.tmBalance(util.toEthStrFixed(1e18));
-						sim.tmSendProfitsReward(".1%");
-						sim.diceSendProfits(`${util.toEthStrFixed(reward)} reward`);
-						sim.tmRewardsPaid(util.toEthStrFixed(balance));
+						t.tmBalance(util.toEthStrFixed(1e18));
+						t.tmSendProfitsReward(".1%");
+						t.diceSendProfits(`${util.toEthStrFixed(reward)} reward`);
+						t.tmRewardsPaid(util.toEthStrFixed(balance));
 
 						setTimeout(()=>{ $taskLine.addClass("flash") }, 100);
 						setTimeout(()=>{
 							sendEth($(".line .dice-profits").closest(".line"), "up").then(()=>{
-								sim.trProfits(util.toEthStrFixed(profits), true);
-								sim.diceProfits(util.toEthStrFixed(profits), true);
-								sim.diceCurProfits(util.toEthStrFixed(0), true);
+								t.trProfits(util.toEthStrFixed(profits), doFlash);
+								t.diceProfits(util.toEthStrFixed(profits), doFlash);
+								t.diceCurProfits(util.toEthStrFixed(0), doFlash);
 							}).then(()=>{
 								sendEth($rewardLine, "left").then(()=>{
-									sim.diceSendProfits("Not available.", true);
-									sim.tmRewardsPaid(util.toEthStrFixed(reward), true);
-									sim.tmBalance(util.toEthStrFixed(balance.minus(reward)), true);
+									t.diceSendProfits("Not available.", doFlash);
+									t.tmRewardsPaid(util.toEthStrFixed(reward), doFlash);
+									t.tmBalance(util.toEthStrFixed(balance.minus(reward)), doFlash);
 								});
 							});
 						}, 1000);
@@ -658,7 +580,7 @@
 				},{
 					section: "tasks",
 					title: "TaskManager UI",
-					text: `There are several tasks available, and can easily be viewed and executed on the <a href="/status/taskmanager.html" target="_blank">TaskManager Status</a> page.`,
+					text: `There are several tasks available, and they can all easily be viewed and executed on the <a href="/status/taskmanager.html" target="_blank">TaskManager Status</a> page.`,
 				}, {
 					section: "tasks",
 					title: "Scalability",
@@ -668,10 +590,10 @@
 					title: "Security",
 					text: `Reward amounts are specified by the Admin. There is a limit to the amount of rewards that can be paid in one day. This prevents the Admin from abusing rewards and draining the TaskManager contract.`,
 					in: () => {
-						sim.tmPaStartReward(util.toEthStrFixed(toEth(.01)), true);
-						sim.tmPaEndReward(util.toEthStrFixed(toEth(.01)), true);
-						sim.tmSendProfitsReward(".1%", true);
-						sim.tmIssueDividendReward(".05%", true);
+						t.tmPaStartReward(util.toEthStrFixed(toEth(.01)), doFlash);
+						t.tmPaEndReward(util.toEthStrFixed(toEth(.01)), doFlash);
+						t.tmSendProfitsReward(".1%", doFlash);
+						t.tmIssueDividendReward(".05%", doFlash);
 					}
 				},{
 					section: "tasks",
