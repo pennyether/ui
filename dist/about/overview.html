@@ -578,11 +578,13 @@
 								t.diceProfits(profits, ethDelta);
 								t.diceCurProfits(0, ethDelta);
 							}).then(()=>{
-								sendEth($rewardLine, "left").then(()=>{
-									t.diceSendProfits("Not available.", doFlash);
-									t.tmRewardsPaid(reward, ethDelta);
-									t.tmBalance(balance.minus(reward), ethDelta);
-								});
+								setTimeout(()=>{
+									sendEth($rewardLine, "left").then(()=>{
+										t.diceSendProfits("Not available.", doFlash);
+										t.tmRewardsPaid(reward, ethDelta);
+										t.tmBalance(balance.minus(reward), ethDelta);
+									});
+								}, 1000)
 							});
 						}, 1000);
 					}
