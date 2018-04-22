@@ -203,6 +203,7 @@
 
 			function _set(name, val, opts) {
 				if (!opts) opts = {};
+				if (opts.type=="eth" || opts.type=="number") val = new BigNumber(val);
 				const $e = $(`#Topology .${name}`);
 				const $field = $e.closest(".field").show();
 				const prev = $e.data("prev");
@@ -245,12 +246,13 @@
 	                const t = tippy($e[0], {
 	                    placement: "right",
 	                    trigger: "manual",
-	                    animation: "fade",
+	                    hideOnClick: false,
+	                    animation: "shift-toward",
 	                    size: "small",
 	                    onHidden: function(){ t.destroy(); }
 	                }).tooltips[0];
 	                t.show();
-	                setTimeout(function(){ t.hide(); }, 5000);
+	                setTimeout(function(){ t.hide(10000); }, 2000);
 	            } catch(e) {}
 			}
 

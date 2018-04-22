@@ -119,6 +119,12 @@
 				}
 
 				// initializes state for a given section
+				const eth = {type: "eth"};
+				const ethDelta = {type: "eth", flashOnDelta: true, showDelta: true};
+				const ethFlash = {type: "eth", doFlash: true};
+				const penny = {type: "eth", unit: "PENNY"};
+				const pennyDelta = {type: "eth", unit: "PENNY", flashOnDelta: true, showDelta: true};
+				const doFlash = {doFlash: true};
 				function buildState(name) {
 					if (name == "intro") {
 						t.clearAll();
@@ -126,48 +132,47 @@
 					}
 					if (name == "dividends") {
 						t.clearAll();
-						t.tokenDivsReceived(util.toEthStrFixed(0));
-						t.trDividends(util.toEthStrFixed(0));
-						t.tokenDivsCollected(util.toEthStrFixed(0));
+						t.tokenDivsReceived(0, eth);
+						t.trDividends(0, eth);
+						t.tokenDivsCollected(0, eth);
 						return;
 					}
 					if (name == "comptroller") {
 						t.clearAll();
 						t.tokenIsFrozen(false);
-						t.trCapitalRaised(util.toEthStrFixed(0));
-						t.trCapAvailable(util.toEthStrFixed(0));
+						t.trCapitalRaised(0, eth);
+						t.trCapAvailable(0, eth);
 						return;
 					}
 					if (name == "treasury") {
 						t.clearAll();
-						t.tokenTotalSupply(util.toEthStrFixed(4000e18));
+						t.tokenTotalSupply(4000e18, penny);
 						t.tokenIsFrozen(false);
-						t.trCapitalRaised(util.toEthStrFixed(1000e18));
-						t.trCapAvailable(util.toEthStrFixed(1000e18));
+						t.trCapitalRaised(1000e18, eth);
+						t.trCapAvailable(1000e18, eth);
 					}
 					if (name == "profits") {
 						t.clearAll();
-						t.tokenTotalSupply(util.toEthStrFixed(4000e18));
+						t.tokenTotalSupply(4000e18, penny);
 						t.tokenIsFrozen(false);
-						t.trCapitalRaised(util.toEthStrFixed(1000e18));
-						t.trCapAvailable(util.toEthStrFixed(900e18));
-						t.diceBankrolled(util.toEthStrFixed(100e18))
+						t.trCapitalRaised(1000e18, eth);
+						t.trCapAvailable(900e18, eth);
+						t.diceBankrolled(100e18, eth)
 					}
 					if (name == "tasks") {
 						t.clearAll();
-						t.tokenTotalSupply(util.toEthStrFixed(4000e18));
+						t.tokenTotalSupply(4000e18, penny);
 						t.tokenIsFrozen(false);
-						t.trCapitalRaised(util.toEthStrFixed(1000e18));
-						t.trCapAvailable(util.toEthStrFixed(900e18));
-						t.diceBankrolled(util.toEthStrFixed(100e18));
+						t.trCapitalRaised(1000e18, eth);
+						t.trCapAvailable(900e18, eth);
+						t.diceBankrolled(100e18, eth)
 
 						t.diceNumRolls(1234);
-						t.diceTotalWagered(util.toEthStrFixed(toEth(123.456)));
-						t.diceCurMaxBet(util.toEthStrFixed(toEth(.1)));
+						t.diceTotalWagered(123.456e18, eth);
+						t.diceCurMaxBet(.1e18, eth);
 					}
 				}
 
-				const doFlash = {doFlash: true};
 				const obj = {};
 				const steps = [{
 					section: "intro",
@@ -224,13 +229,13 @@
 					text: `Ether can be sent to the Token at any time, and from any source (typically the Treasury). This is called a "Dividend". All Token Holders are credited a share of the dividend relative to their percent ownership at the time the dividend occurs.`,
 					in: () => {
 						$(".tr-dividends").closest(".line").addClass("flow");
-						t.tokenDivsCollected(util.toEthStrFixed(0));
+						t.tokenDivsCollected(0, eth);
 
 						var num = (new BigNumber(0));
 						obj.interval = setInterval(()=>{
 							num = num.plus(1e16);
-							t.tokenDivsReceived(util.toEthStrFixed(num));
-							t.trDividends(util.toEthStrFixed(num));
+							t.tokenDivsReceived(num, eth);
+							t.trDividends(num, eth);
 						}, 500);
 					},
 					out: () => {
@@ -244,12 +249,12 @@
 					in: () => {
 						$(".token-total-collected").closest(".line").addClass("flow");
 						const received = toEth(.28);
-						t.tokenDivsReceived(util.toEthStrFixed(received));
+						t.tokenDivsReceived(received, eth);
 
 						var collected = new BigNumber(0);
 						obj.interval = setInterval(() => {
 							collected = collected.plus(1e16);
-							t.tokenDivsCollected(util.toEthStrFixed(collected));
+							t.tokenDivsCollected(collected, eth);
 							if (collected.equals(received)) {
 								$(".token-total-collected").closest(".line").removeClass("flow");
 								clearInterval(obj.interval);
@@ -275,30 +280,34 @@
 					title: "The CrowdSale",
 					text: `The Comptroller will mint Tokens during the CrowdSale. It will sell tokens, then mint tokens for the owners, to vest over a 600 day period. <br><b>In the end 80% are sold, and 20% are retained.</b>`,
 					in: () => {
-						$(".line .token-total-supply").closest(".line").addClass("flow");
+						const $line = $(".line .token-total-supply").closest(".line");
 						t.tokenIsFrozen(true);
 						var num = (new BigNumber(0));
-						obj.interval = setInterval(()=>{
-							num = num.plus(1e16);
-							t.tokenTotalSupply(util.toEthStrFixed(num, 3, "PENNY"));
-						}, 500);
+						function add() {
+							num = num.plus(1.23e18);
+							t.tokenTotalSupply(num, penny);
+							$line.removeClass("flash");
+							setTimeout(()=>$line.addClass("flash"), 50);
+							obj.timeout = setTimeout(add, 3000)
+						}
+						add();
 					},
 					out: () => {
 						$(".line .token-total-supply").closest(".line").removeClass("flow");
-						clearInterval(obj.interval);
+						clearTimeout(obj.timeout);
 					}
 				},{
 					section: "comptroller",
 					title: "The CrowdSale",
 					text: `After the CrowdSale, a percent of the proceeds will go to the Treasury as capital, and the Tokens will be unfrozen.`,
 					in: ()=>{
-						t.tokenTotalSupply(util.toEthStrFixed(4000e18));
-						t.trCapAvailable(util.toEthStrFixed(0));
-						t.trCapitalRaised(util.toEthStrFixed(0));
+						t.tokenTotalSupply(4000e18, eth);
+						t.trCapAvailable(0, eth);
+						t.trCapitalRaised(0, eth);
 						t.tokenIsFrozen(true);
 						sendEth($(".line .tr-capital-raised").closest(".line"), "right").then(()=>{
-							t.trCapAvailable(util.toEthStrFixed(1000e18), doFlash);
-							t.trCapitalRaised(util.toEthStrFixed(1000e18), doFlash);
+							t.trCapAvailable(1000e18, ethDelta);
+							t.trCapitalRaised(1000e18, ethDelta);
 							t.tokenIsFrozen(false, doFlash);
 						});
 					}
@@ -367,11 +376,11 @@
 					title: "Managing Capital > Example",
 					text: `The Treasury will send some capital, and InstaDice will now have a bankroll to work with. Note that Treasury's available capital decreases.`,
 					in: () => {
-						t.trCapAvailable(util.toEthStrFixed(1000e18));
-						t.diceBankrolled(util.toEthStrFixed(0))
+						t.trCapAvailable(1000e18, eth);
+						t.diceBankrolled(0, eth)
 						sendEth($(".line .dice-bankrolled").closest(".line"), "down").then(()=>{
-							t.trCapAvailable(util.toEthStrFixed(800e18), doFlash);
-							t.diceBankrolled(util.toEthStrFixed(200e18), doFlash)
+							t.trCapAvailable(800e18, ethDelta);
+							t.diceBankrolled(200e18, ethDelta)
 						});
 					},
 				},{
@@ -387,11 +396,11 @@
 					title: "Managing Capital > Example",
 					text: `The Treasury will recall 100 Ether, and its available Capital will increase.`,
 					in: ()=>{
-						t.trCapAvailable(util.toEthStrFixed(800e18));
-						t.diceBankrolled(util.toEthStrFixed(200e18));
+						t.trCapAvailable(800e18, eth);
+						t.diceBankrolled(200e18, eth);
 						sendEth($(".line .dice-bankrolled").closest(".line"), "up").then(()=>{
-							t.trCapAvailable(util.toEthStrFixed(900e18), doFlash);
-							t.diceBankrolled(util.toEthStrFixed(100e18), doFlash)
+							t.trCapAvailable(900e18, ethDelta);
+							t.diceBankrolled(100e18, ethDelta)
 						});
 					}
 				},{
@@ -427,27 +436,27 @@
 					title: "Example",
 					text: `In this example, InstaDice has received 100 Ether of bankroll.<br>Now that it has Bankroll, the contract can accept bets.`,
 					in: ()=>{
-						t.diceNumRolls(0, doFlash);
-						t.diceTotalWagered(util.toEthStrFixed(0), doFlash);
-						t.diceCurMaxBet(util.toEthStrFixed(.1e18), doFlash);
-						t.diceCurProfits(util.toEthStrFixed(0), doFlash);
+						t.diceNumRolls(0, ethFlash);
+						t.diceTotalWagered(0, ethFlash);
+						t.diceCurMaxBet(.1e18, ethFlash);
+						t.diceCurProfits(0, ethFlash);
 					}
 				},{
 					section: "profits",
 					title: "Example",
 					text: `As players play, profits will accumulate in the contract.`,
 					in: ()=>{
-						t.diceNumRolls(0);
-						t.diceTotalWagered(util.toEthStrFixed(0));
-						t.diceCurMaxBet(util.toEthStrFixed(.1e18));
-						t.diceCurProfits(util.toEthStrFixed(0));
+						t.diceNumRolls(0, eth);
+						t.diceTotalWagered(0, eth);
+						t.diceCurMaxBet(.1e18, eth);
+						t.diceCurProfits(0, eth);
 						obj.interval = setInterval(()=>{
 							const rolls = parseFloat(t.diceNumRolls()) + 1;
 							const wagered = parseFloat(t.diceTotalWagered()) + Math.random()*.1;
 							const profits = wagered * .01;
 							t.diceNumRolls(rolls);
-							t.diceTotalWagered(util.toEthStrFixed(toEth(wagered)));
-							t.diceCurProfits(util.toEthStrFixed(toEth(profits)));
+							t.diceTotalWagered(toEth(wagered), eth);
+							t.diceCurProfits(toEth(profits), eth);
 						}, 100)
 					},
 					out: ()=>{
@@ -460,13 +469,13 @@
 					button: `Send Profits`,
 					in: ()=>{
 						t.diceNumRolls(1234);
-						t.diceTotalWagered(util.toEthStrFixed(toEth(123.456)));
-						t.diceCurMaxBet(util.toEthStrFixed(toEth(.1)));
+						t.diceTotalWagered(123.456e18, eth);
+						t.diceCurMaxBet(.1e18, eth);
 
-						const profits = toEth(1.234);
-						t.trProfits(util.toEthStrFixed(0));
-						t.diceProfits(util.toEthStrFixed(0));
-						t.diceCurProfits(util.toEthStrFixed(profits), true);
+						const profits = 1.234e18;
+						t.trProfits(0, eth);
+						t.diceProfits(0, eth);
+						t.diceCurProfits(profits, ethFlash);
 					}
 				}, {
 					section: "profits",
@@ -475,17 +484,17 @@
 					button: `Issue Dividend`,
 					in: ()=>{
 						t.diceNumRolls(1234);
-						t.diceTotalWagered(util.toEthStrFixed(toEth(123.456)));
-						t.diceCurMaxBet(util.toEthStrFixed(toEth(.1)));
+						t.diceTotalWagered(123.456e18, eth);
+						t.diceCurMaxBet(.1e18, eth);
 
-						const profits = toEth(1.234);
-						t.trProfits(util.toEthStrFixed(0));
-						t.diceProfits(util.toEthStrFixed(0));
-						t.diceCurProfits(util.toEthStrFixed(profits));
+						const profits = 1.234e18;
+						t.trProfits(0, eth);
+						t.diceProfits(0, eth);
+						t.diceCurProfits(profits, eth);
 						sendEth($(".line .dice-profits").closest(".line"), "up").then(()=>{
-							t.trProfits(util.toEthStrFixed(profits), doFlash);
-							t.diceProfits(util.toEthStrFixed(profits), doFlash);
-							t.diceCurProfits(util.toEthStrFixed(0), doFlash);
+							t.trProfits(profits, ethDelta);
+							t.diceProfits(profits, ethDelta);
+							t.diceCurProfits(0, ethDelta);
 						});
 					}
 				}, {
@@ -493,14 +502,14 @@
 					title: "Issuing Dividends",
 					text: `Remember: The Treasury can send accumulated profits <u>only</u> to the PENNY Token. This guarantees Token Holders receive all dividend proceeds.`,
 					in: ()=>{
-						const profits = toEth(1.234);
-						t.trProfits(util.toEthStrFixed(profits));
-						t.trDividends(util.toEthStrFixed(0));
-						t.tokenDivsReceived(util.toEthStrFixed(0));
+						const profits = 1.234e18;
+						t.trProfits(profits, eth);
+						t.trDividends(0, eth);
+						t.tokenDivsReceived(0, eth);
 						sendEth($(".tr-dividends").closest(".line"), "left").then(()=>{
-							t.trProfits(0, doFlash);
-							t.trDividends(util.toEthStrFixed(profits), doFlash);
-							t.tokenDivsReceived(util.toEthStrFixed(profits), doFlash);
+							t.trProfits(0, ethDelta);
+							t.trDividends(profits, ethDelta);
+							t.tokenDivsReceived(profits, ethDelta);
 						})
 					}
 				}, {
@@ -553,26 +562,26 @@
 						const profits = toEth(1.234);
 						const reward = profits.div(1000);
 						const balance = toEth(2.345);
-						t.trProfits(util.toEthStrFixed(0));
-						t.diceProfits(util.toEthStrFixed(0));
-						t.diceCurProfits(util.toEthStrFixed(profits));
+						t.trProfits(0, eth);
+						t.diceProfits(0, eth);
+						t.diceCurProfits(profits, eth);
 						// tm and upwards (and leftwards)
-						t.tmBalance(util.toEthStrFixed(1e18));
+						t.tmBalance(balance, eth);
 						t.tmSendProfitsReward(".1%");
 						t.diceSendProfits(`${util.toEthStrFixed(reward)} reward`);
-						t.tmRewardsPaid(util.toEthStrFixed(balance));
+						t.tmRewardsPaid(0, eth);
 
 						setTimeout(()=>{ $taskLine.addClass("flash") }, 100);
 						setTimeout(()=>{
 							sendEth($(".line .dice-profits").closest(".line"), "up").then(()=>{
-								t.trProfits(util.toEthStrFixed(profits), doFlash);
-								t.diceProfits(util.toEthStrFixed(profits), doFlash);
-								t.diceCurProfits(util.toEthStrFixed(0), doFlash);
+								t.trProfits(profits, ethDelta);
+								t.diceProfits(profits, ethDelta);
+								t.diceCurProfits(0, ethDelta);
 							}).then(()=>{
 								sendEth($rewardLine, "left").then(()=>{
 									t.diceSendProfits("Not available.", doFlash);
-									t.tmRewardsPaid(util.toEthStrFixed(reward), doFlash);
-									t.tmBalance(util.toEthStrFixed(balance.minus(reward)), doFlash);
+									t.tmRewardsPaid(reward, ethDelta);
+									t.tmBalance(balance.minus(reward), ethDelta);
 								});
 							});
 						}, 1000);
