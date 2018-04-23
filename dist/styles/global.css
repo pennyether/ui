@@ -254,25 +254,25 @@ fieldset {
 	}
 
 /* Sections are commonly used chunks of related info */
-.section {
+.page-section {
 	margin: 25px 0px 40px 0px;
 	padding: 0px 20px;
 }
-	.section > .head {
+	.page-section > .head {
 		font-size: 170%;
 		padding: 10px 10px;
 		font-weight: normal;
 		letter-spacing: .25em;
 		border-bottom: 1px solid gray;
 	}
-	.section > .body {
+	.page-section > .body {
 		padding-top: 20px;
 	}
 
-.subsection {
+.page-subsection {
 	margin: 10px 0px;
 }
-	.subsection > .head {
+	.page-subsection > .head {
 		font-size: 140%;
 		padding-left: 0px;
 		font-weight: normal;
@@ -281,7 +281,7 @@ fieldset {
 		text-shadow: 3px 3px 1px rgba(0,0,0,.05);
 		margin-top: 30px;
 	}
-	.subsection > .body {
+	.page-subsection > .body {
 		padding: 10px 10px 10px 20px;
 	}
 

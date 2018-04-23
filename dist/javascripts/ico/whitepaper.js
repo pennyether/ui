@@ -541,14 +541,14 @@ Loader.onPageLoad.then(()=>{
 
 		_reset();
 	};
-	window.demo = new Demo();
+	// window.demo = new Demo();
 
 
 	function NavBar(selectors) {
-		const _selectors = [".section > .head", ".subsection > .head", "h3", "h4"];
+		const _selectors = [".page-section > .head", ".page-subsection > .head", "h3", "h4"];
 		const _items = _selectors.map(s=>$(s));
 		const _$e = $(`<div class='NavBar'></div>`)
-			.appendTo("#Breadcrumb")
+			.appendTo("#Nav .breadcrumb")
 			.css({
 				display: "inline-block",
 				position: "absolute",
@@ -576,7 +576,6 @@ Loader.onPageLoad.then(()=>{
 					if (curTop > prevTop) { $navItems.push($el); }
 				});
 			_$e.text($navItems.map($e=>$e.text()).join(" » "));
-
 		});
 	}
 	window.navBar = new NavBar();

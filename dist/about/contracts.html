@@ -24,16 +24,16 @@
 				color: black;
 				text-decoration: none;
 			}
-				.toc .item .head {
+				.toc .inpage-item .head {
 					padding: 2px 0px 2px 15px;
 					margin-top: 2px;
 					transition: background .2s;
 				}
-					.toc .item .head:hover {
+					.toc .inpage-item .head:hover {
 						background: #DDD;
 						transition: background .2s;
 					}
-					.toc .item.on .head {
+					.toc .inpage-item.on .head {
 						font-weight: bold;
 						text-shadow: 1px 1px 0px rgba(255, 255, 255, .4);
 						background: #CCC;
@@ -94,105 +94,94 @@
 			}
 		</style>
 		<script>
-		var loadedHash = window.location.hash;
-		Loader.onPageLoad.then(()=>{
-			// add "anchor" data to .item and .subitem
-			$(".toc .item").each((i, el)=>{
-				$(el).data("anchor", $(el).find("a").eq(0).attr("href"));
-				$(el).find(".body a").each((i, sublink)=>{
-					$(sublink).find(".subitem").data("anchor", $(sublink).attr("href"));
-				});
+			// fill in all the addresses
+			Loader.require("comp", "tr", "tm", "dice", "vp", "monarchy")
+			.then(function(comp, tr, tm, dice, vp, monarchy){
+				$(".comp-addr").append(util.$getAddrLink(comp.address));
+				util.bindToElement(comp.token().then(util.$getAddrLink), $(".token-addr"), true);
+				util.bindToElement(comp.locker().then(util.$getAddrLink), $(".locker-addr"), true);
+				$(".tr-addr").append(util.$getAddrLink(tr.address));
+				$(".mc-addr").append(util.$getAddrLink(tm.address));
+				$(".dice-addr").append(util.$getAddrLink(dice.address));
 			});
-
-			// adds "on" class to the last of $items which is scrolled to.
-			function activateLastItemScrolledTo($items) {
-				const height = window.innerHeight;
-				const top = window.pageYOffset;
-				$items.removeClass("on");
-				for (var i = $items.length-1; i>=0; i--) {
-					const $item = $items.eq(i);
-					const $anchor = $($item.data("anchor"));
-					if (!$anchor.length) continue;
-
-					if ($anchor[0].getBoundingClientRect().top <= 105) {
-						$item.addClass("on");
-						break;
-					}
-				}
-			}
-
-			// on scroll, set ".on" for proper item and subitem
-			const $items = $(".toc .item");
-			$(window).on("scroll", function(){
-				activateLastItemScrolledTo($items);
-			});
-
-			$(window).scroll();
-		});
-		Loader.require("comp", "tr", "tm", "dice")
-		.then(function(comp, tr, tm, dice){
-			$(".comp-addr").append(util.$getAddrLink(comp.address));
-			util.bindToElement(comp.token().then(util.$getAddrLink), $(".token-addr"), true);
-			util.bindToElement(comp.locker().then(util.$getAddrLink), $(".locker-addr"), true);
-			$(".tr-addr").append(util.$getAddrLink(tr.address));
-			$(".mc-addr").append(util.$getAddrLink(tm.address));
-			$(".dice-addr").append(util.$getAddrLink(dice.address));
-		});
 		</script>
 	</head>
 	<body><div id="Content">
 		<div class="toc">
 			<div class="header">Contracts</div>
-			<div class="item">
-				<a href="#comptroller">
-					<div class="head">Comptroller</div>
-				</a>
+			<div class="section">
+				<div class="title">Core</div>
+				<div class="body">
+					<div class="inpage-item">
+						<a href="#comptroller">
+							<div class="head">Comptroller</div>
+						</a>
+					</div>
+					<div class="inpage-item">
+						<a href="#penny-token">
+							<div class="head">PENNY Token</div>
+						</a>
+					</div>
+					<div class="inpage-item">
+						<a href="#treasury">
+							<div class="head">Treasury</div>
+						</a>
+					</div>
+					<div class="inpage-item">
+						<a href="#task-manager">
+							<div class="head">TaskManager</div>
+						</a>
+					</div>
+				</div>
 			</div>
-			<div class="item">
-				<a href="#dividend-token">
-					<div class="head">DividendToken</div>
-				</a>
+			<div class="section">
+				<div class="title">Game Controllers</div>
+				<div class="body">
+					<div class="inpage-item">
+						<a href="#monarchy">
+							<div class="head">Monarchy</div>
+						</a>
+					</div>
+					<div class="inpage-item">
+						<a href="#instadice">
+							<div class="head">InstaDice</div>
+						</a>
+					</div>
+					<div class="inpage-item">
+						<a href="#video-poker">
+							<div class="head">VideoPoker</div>
+						</a>
+					</div>
+				</div>
 			</div>
-			<div class="item">
-				<a href="#dividend-token-locker">
-					<div class="head">DividendTokenLocker</div>
-				</a>
-			</div>
-			<div class="item">
-				<a href="#treasury">
-					<div class="head">Treasury</div>
-				</a>
-			</div>
-			<div class="item">
-				<a href="#main-controller">
-					<div class="head">MainController</div>
-				</a>
-			</div>
-			<div class="item">
-				<a href="#penny-auction">
-					<div class="head">PennyAuction</div>
-				</a>
-			</div>
-			<div class="item">
-				<a href="#instadice">
-					<div class="head">InstaDice</div>
-				</a>
+			<div class="section">
+				<div class="title">Other</div>
+				<div class="body">
+					<div class="inpage-item">
+						<a href="#dividend-token-locker">
+							<div class="head">DividendTokenLocker</div>
+						</a>
+					</div>
+				</div>
 			</div>
 		</div>
 		<div class="main">
-			<div class="section pageTitle">
-				Contracts, Tests, and Audits
+			<div class="page-header">
+				<div class="title">
+					Contracts, Tests, and Audits
+				</div>
+				<div class="links">
+					<div>
+						On this page you'll find information on our deployed contracts.<br>
+						The realtime status of all contracts <a href="/status/system.html" target="_blank">is available here</a>.
+					</div>		
+				</div>
 			</div>
-			<div>
-				On this page you'll find information on our deployed contracts.<br>
-				To view the current state of each contract, you can view the <a href="/status/system.html" target="_blank">system status page</a>.
-			</div>
-
 			<div>
 				<a data-anchor="comptroller"></a>
 				<h3>Comptroller</h3>
 				<div class="summary">
-					The Comptroller runs the CrowdSale. After the CrowdSale, it sends bankroll to the Treasury, and is in charge of burning tokens for a refund.
+					The Comptroller runs the CrowdSale, and is the only contract that can mint PENNY Tokens. Tokens are minted during the CrowdSale. Tokens may also be minted after the CrowdSale should the Treasury require more Capital to bankroll games. See also: <a href="#treasury">Treasury.</a>
 				</div>
 				<div class="fieldList">
 					<div class="field">
@@ -202,7 +191,7 @@
 					<div class="field">
 						<div class="label">Status:</div>
 						<div class="value">
-							<a href="/status/system.html#comptroller" target="_blank">Comptroller Status</a>
+							<a href="/status/comptroller.html" target="_blank">Comptroller Status</a>
 						</div>
 					</div>
 					<div class="field">
@@ -228,10 +217,10 @@
 			</div>
 
 			<div>
-				<a data-anchor="dividend-token"></a>
-				<h3>DividendToken</h3>
+				<a data-anchor="penny-token"></a>
+				<h3>PENNY Token</h3>
 				<div class="summary">
-					The DividendToken is an ERC20 Token that can distribute dividends to Token Holders at any time. The totalSupply is fixed, and only goes down if/when Token Holders decide to burn tokens. All tokens are backed by at least .5 Ether held in the Treasury.
+					The PENNY Token is an ERC20 Token that can distribute dividends. Any Ether sent to this contract is credited to Token Holders, proportional to their ownership at that time. Token Holders can collect their dividends at any time, even if they transfer their tokens.
 				</div>
 				<div class="fieldList">
 					<div class="field">
@@ -241,9 +230,9 @@
 					<div class="field">
 						<div class="label">Status:</div>
 						<div class="value">
-							<a href="/status/system.html#token">Token Status</a>
+							<a href="/status/token.html" target="_blank">Token Status</a>
 							<br>
-							<a href="/status/token.html">Token UI</a>
+							<a href="/uis/tokenholder.html" target="_blank">Token Holder UI</a>
 						</div>
 					</div>
 					<div class="field">
@@ -271,51 +260,10 @@
 			</div>
 
 			<div>
-				<a data-anchor="dividend-token-locker"></a>
-				<h3>DividendTokenLocker</h3>
-				<div class="summary">
-					The TokenLocker holds the PennyEther Team's ICO tokens. Tokens vest at a rate of 1/6% per day (about 5% per month). Tokens cannot be transferred until they vest, but the dividends of the tokens can be collected at any time. This contract ensures the PennyEther Team is aligned with Token Holders' interest: to generate more revenue.
-				</div>
-				<div class="fieldList">
-					<div class="field">
-						<div class="label">Address:</div>
-						<div class="value locker-addr"></div>
-					</div>
-					<div class="field">
-						<div class="label">Status:</div>
-						<div class="value">
-							<a href="/status/system.html#token">DividendTokenLocker Status</a>
-						</div>
-					</div>
-					<div class="field">
-						<div class="label">More Info:</div>
-						<div class="value">
-							<a href="/ico/whitepaper.html#tokenlocker">Whitepaper</a>
-							<br>
-							<a href="https://github.com/pennyether/contracts#tokenlocker" target="_blank">Technical Documentation</a>
-						</div>
-					</div>
-					<div class="field">
-						<div class="label">Source Code:</div>
-						<div class="value">
-							<a href="https://github.com/pennyether/contracts/blob/master/contracts/DividendTokenLocker.sol" target="_blank">Source Code</a>
-							<br>
-							<a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/DividendTokenLocker.js.html" target="_blank">Test Results</a>
-							(<a href="https://github.com/pennyether/contracts/blob/master/tests/DividendTokenLocker.js" target="_blank">Test File</a>)
-						</div>
-					</div>
-					<div class="field">
-						<div class="label">Audits:</div>
-						<div class="value"><div class="pending">pending</div></div>
-					</div>
-				</div>
-			</div>
-
-			<div>
 				<a data-anchor="treasury"></a>
 				<h3>Treasury</h3>
 				<div class="summary">
-					The Treasury holds the bankroll, and only ever sends Ether to fund games (limited by a daily amount), or to pay Token Holders .5 Ether per Token burned. The bankroll is set after the ICO, by the Comptroller.
+					The Treasury manages Capital and collects Profits. Capital can be bankrolled to and recalled from Games via Governance (a secure, transparent system that will soon be controlled by a DAO). The Treasury receives Profits from games, and can only send that Ether to the PENNY Token in the form of dividends. Lastly, the Treasury can request additional Capital - if this happens the Comptroller will be able to sell tokens in exchange for Capital. This will dilute everyone (owners included), and as such, is unlikely to happen unless necessary to fund new games.
 				</div>
 				<div class="fieldList">
 					<div class="field">
@@ -325,9 +273,7 @@
 					<div class="field">
 						<div class="label">Status:</div>
 						<div class="value">
-							<a href="/status/treasury.html">Treasury UI</a>
-							<br>
-							<a href="/status/system.html#treasury">Treasury Status</a>
+							<a href="/status/treasury.html">Treasury Status</a>
 						</div>
 					</div>
 					<div class="field">
@@ -355,10 +301,10 @@
 			</div>
 
 			<div>
-				<a data-anchor="main-controller"></a>
-				<h3>MainController</h3>
+				<a data-anchor="task-manager"></a>
+				<h3>Task Manager</h3>
 				<div class="summary">
-					The MainController keeps PennyEther running autonomously. It is the only contract that can get funds from the Treasury, and uses those funds to stake PennyAuctions and InstaDice. It also allows for users to run Tasks, and in return pays them rewards.
+					The Task Manager ensures autonomy by rewarding users for executing tasks necessary to keep PennyEther running. Users are rewarded because it costs Gas to execute these tasks, and also so that tasks are executed in a timely manner. An example Task is telling the Treasury to issue a Dividend, or telling a Game Controller to send its profits to the Treasury.
 				</div>
 				<div class="fieldList">
 					<div class="field">
@@ -368,15 +314,13 @@
 					<div class="field">
 						<div class="label">Status:</div>
 						<div class="value">
-							<a href="/status/system.html#maincontroller">MainController Status</a>
-							<br>
-							<a href="/game/tasks.html">Tasks Page</a>
+							<a href="/status/taskmanager.html">TaskManager Status</a>
 						</div>
 					</div>
 					<div class="field">
 						<div class="label">More Info:</div>
 						<div class="value">
-							<a href="/ico/whitepaper.html#maincontroller">Whitepaper</a>
+							<a href="/ico/whitepaper.html#taskmanager">Whitepaper</a>
 							<br>
 							<a href="https://github.com/pennyether/contracts#maincontroller" target="_blank">Technical Documentation</a>
 						</div>
@@ -398,38 +342,33 @@
 			</div>
 
 			<div>
-				<a data-anchor="penny-auction"></a>
-				<h3>PennyAuction</h3>
+				<a data-anchor="monarchy"></a>
+				<h3>Monarchy</h3>
 				<div class="summary">
-					A Penny Auction is a simple game where a prize is staked, and the last person to bid (by paying a small, fixed fee) will win the prize. Each new bid extends the auction by a few blocks.
+					The Monarchy Game Controller allows for games to be pre-defined, then continuously started as necessary. A Game of Monarchy works as follows: The current winner (the Monarch) will win the prize if nobody overthrows them for some amount of blocks. Anybody can pay a small fee to overthrow the Monarch, and they themselves will become the Monarch. Some games may be configured so that some of that fee goes into the prize pool.
 				</div>
 				<div class="fieldList">
 					<div class="field">
 						<div class="label">Status:</div>
 						<div class="value">
-							<div style='margin-bottom: 10px;'>
-								<div class="note">
-									Multiple PennyAuction instances exist. Use the link below to view individual ones.
-								</div>
-							</div>
-							<a href="/games/viewauction.html">View Auction</a>
+							<a href="/status/monarchy.html" target="_blank">Monarchy Status</a>
 						</div>
 					</div>
 					<div class="field">
 						<div class="label">More Info:</div>
 						<div class="value">
-							<a href="/ico/whitepaper.html#games-penny-auctions">Whitepaper</a>
+							<a href="/ico/whitepaper.html#games-monarchy">Whitepaper</a>
 							<br>
-							<a href="https://github.com/pennyether/contracts#pennyauction" target="_blank">Technical Documentation</a>
+							<a href="https://github.com/pennyether/contracts#monarchy" target="_blank">Technical Documentation</a>
 						</div>
 					</div>
 					<div class="field">
 						<div class="label">Source Code:</div>
 						<div class="value">
-							<a href="https://github.com/pennyether/contracts/blob/master/contracts/games/PennyAuction.sol" target="_blank">Source Code</a>
+							<a href="https://github.com/pennyether/contracts/blob/master/contracts/games/Monarchy.sol" target="_blank">Source Code</a>
 							<br>
-							<a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/PennyAuction.js.html" target="_blank">Test Results</a>
-							(<a href="https://github.com/pennyether/contracts/blob/master/tests/PennyAuction.js" target="_blank">Test File</a>)
+							<a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/Monarchy.js.html" target="_blank">Test Results</a>
+							(<a href="https://github.com/pennyether/contracts/blob/master/tests/Monarchy.js" target="_blank">Test File</a>)
 						</div>
 					</div>
 					<div class="field">
@@ -439,11 +378,11 @@
 				</div>
 			</div>
 
-			<div style='padding-bottom: 400px'>
+			<div>
 				<a data-anchor="instadice"></a>
 				<h3>InstaDice</h3>
 				<div class="summary">
-					The InstaDice contract allows for users to wager on a customizable dice roll and immediately see their results the moment their transaction is mined. Rolls are automatically paid the next time any user rolls, or the user can redeem manually.
+					The InstaDice contract allows for users to wager on a customizable dice roll and immediately see their results the moment their transaction is mined. Rolls are automatically paid the next time any user rolls, or the user can redeem manually. There is a limit to the maximum wager both for security purposes, and to ensure InstaDice can always pay out a win.
 				</div>
 				<div class="fieldList">
 					<div class="field">
@@ -453,9 +392,9 @@
 					<div class="field">
 						<div class="label">Status:</div>
 						<div class="value">
-							<a href="/status/games.html#instadice">InstaDice Status</a>
+							<a href="/status/instadice.html">InstaDice Status</a>
 							<br>
-							<a href="/games/viewroll.html#1">View Roll</a>
+							<a href="/games/view-instadice-roll.html#1">View Roll</a>
 						</div>
 					</div>
 					<div class="field">
@@ -473,6 +412,84 @@
 							<br>
 							<a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/InstaDice.js.html" target="_blank">Test Results</a>
 							(<a href="https://github.com/pennyether/contracts/blob/master/tests/InstaDice.js" target="_blank">Test File</a>)
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Audits:</div>
+						<div class="value"><div class="pending">pending</div></div>
+					</div>
+				</div>
+			</div>
+
+			<div>
+				<a data-anchor="video-poker"></a>
+				<h3>VideoPoker</h3>
+				<div class="summary">
+					The VideoPoker contract allows for users to create and play games of VideoPoker. The contract holds all logic for generating and ranking hands, as well as for cashing in and out credits. The contract ensures user credits are safely held (they cannot be removed from the contract only by the user), and also limits the maximum bet to ensure it has sufficient funds to pay on a royal flush.
+				</div>
+				<div class="fieldList">
+					<div class="field">
+						<div class="label">Address:</div>
+						<div class="value dice-addr"></div>
+					</div>
+					<div class="field">
+						<div class="label">Status:</div>
+						<div class="value">
+							<a href="/status/videopoker.html">VideoPoker Status</a>
+							<br>
+							<a href="/games/view-videopoker-hand.html#1">View Hand</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">More Info:</div>
+						<div class="value">
+							<a href="/ico/whitepaper.html#games-videopoker">Whitepaper</a>
+							<br>
+							<a href="https://github.com/pennyether/contracts#videopoker" target="_blank">Technical Documentation</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Source Code:</div>
+						<div class="value">
+							<a href="https://github.com/pennyether/contracts/blob/master/contracts/games/VideoPoker.sol" target="_blank">Source Code</a>
+							<br>
+							<a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/InstaDice.js.html" target="_blank">Test Results</a>
+							(<a href="https://github.com/pennyether/contracts/blob/master/tests/InstaDice.js" target="_blank">Test File</a>)
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Audits:</div>
+						<div class="value"><div class="pending">pending</div></div>
+					</div>
+				</div>
+			</div>
+
+			<div>
+				<a data-anchor="dividend-token-locker"></a>
+				<h3>DividendTokenLocker</h3>
+				<div class="summary">
+					The TokenLocker holds the PennyEther Team's tokens. Tokens vest at a rate of 1/6% per day (about 5% per month), for 600 days. Tokens cannot be transferred until they vest, but the dividends of the tokens can be collected at any time. This contract ensures the PennyEther Team is aligned with Token Holders' interest: to generate more revenue.
+				</div>
+				<div class="fieldList">
+					<div class="field">
+						<div class="label">Address:</div>
+						<div class="value locker-addr"></div>
+					</div>
+					<div class="field">
+						<div class="label">More Info:</div>
+						<div class="value">
+							<a href="/ico/whitepaper.html#tokenlocker">Whitepaper</a>
+							<br>
+							<a href="https://github.com/pennyether/contracts#tokenlocker" target="_blank">Technical Documentation</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Source Code:</div>
+						<div class="value">
+							<a href="https://github.com/pennyether/contracts/blob/master/contracts/DividendTokenLocker.sol" target="_blank">Source Code</a>
+							<br>
+							<a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/DividendTokenLocker.js.html" target="_blank">Test Results</a>
+							(<a href="https://github.com/pennyether/contracts/blob/master/tests/DividendTokenLocker.js" target="_blank">Test File</a>)
 						</div>
 					</div>
 					<div class="field">

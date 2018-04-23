@@ -200,19 +200,52 @@
             $("#Content").prepend(nav.$e);
             window["nav"] = nav;
 
-            // Init scroll links
+            // If hash is #foo, smoothly scrolls to a[data-anchor=foo]
+            // Also gets rid of the annoying scrollToTop default behavior.
             (function initScrollLinks(){
+                // remember last scrollTop. it gets changed immediately before onhashchange
                 var lastScrollTop;
                 $(window).scroll(() => lastScrollTop = window.pageYOffset);
+                // set scrollTop back to what it was. scroll to matching anchor
                 window.onhashchange = function(){
                     window.scrollTo(0, lastScrollTop);
                     const hash = window.location.hash.slice(1);
                     const $anchor = $(`a[data-anchor='${hash}'`);
                     if ($anchor.length == 0) return;
-                    const end = $anchor.position().top-90;
+                    const end = $anchor.position().top - ($("#Nav").outerHeight()+15);
                     doScrolling(end, 500);
                 }
+                // clicking a link might not change hash. scroll manually.
+                $("a[href^='#']").click((ev)=>{
+                    if (window.location.hash == $(ev.currentTarget).attr("href"))
+                        window.onhashchange();
+                });
                 if (loadedHash) window.location.hash = loadedHash;
+            }());
+            // highlights the closest "inpage-item" to any link whose href is last visible.
+            (function initHighlightItems(){
+                const $items = $(".inpage-item");
+                const anchors = $("a[data-anchor]").toArray().reverse();
+                const navHeight = $("#Nav").outerHeight();
+
+                function activateLastItemScrolledTo() {
+                    const top = window.pageYOffset;
+                    $items.removeClass("on");
+                    for (var i=0; i<anchors.length; i++) {
+                        const anchor = anchors[i];
+                        if (anchor.getBoundingClientRect().top <= (navHeight+20)) {
+                            const hash = $(anchor).data("anchor");
+                            const $matches = $items.find(`a[href='#${hash}']`);
+                            if ($matches.length == 0) continue;
+                            $matches.each((i,el) => {
+                                if ($(el).is(".inpage-item")) $(el).addClass("on");
+                            });
+                            $matches.parents(".inpage-item").addClass("on");
+                            return;
+                        }
+                    }
+                }
+                $(window).on("scroll", activateLastItemScrolledTo);
             }());
 
             // Attach Tippies
@@ -314,6 +347,7 @@ function doScrolling(end, duration) {
     const start = window.pageYOffset;
     var diff = end - start;
     var easing = function (t) { return t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1 }
+    console.log(start, end, diff);
     
     // animate it
     var startTime;
