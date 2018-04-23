@@ -226,14 +226,14 @@
             (function initHighlightItems(){
                 const $items = $(".inpage-item");
                 const anchors = $("a[data-anchor]").toArray().reverse();
-                const navHeight = $("#Nav").outerHeight();
 
                 function activateLastItemScrolledTo() {
+                    const targetTop = $(window).height() / 2.5;
                     const top = window.pageYOffset;
                     $items.removeClass("on");
                     for (var i=0; i<anchors.length; i++) {
                         const anchor = anchors[i];
-                        if (anchor.getBoundingClientRect().top <= (navHeight+20)) {
+                        if (anchor.getBoundingClientRect().top <= targetTop) {
                             const hash = $(anchor).data("anchor");
                             const $matches = $items.find(`a[href='#${hash}']`);
                             if ($matches.length == 0) continue;

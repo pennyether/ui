@@ -153,11 +153,8 @@ Loader.require("vp")
     // 
     function updateGame(gameState, settings, createIfNotFound, forceUpdate) {
         var game = tabber.getGames().find(g => {
-            // If game is dealt, look for matching UIID.
-            // TODO: look for matching txId instead!
-            return gameState.state == "dealt"
-                ? g.getGameState().uiid == gameState.uiid
-                : g.getGameState().id == gameState.id;
+            // If game is dealt, look for matching txId
+            return g.txId() == gameState.txId || g.getGameState().id == gameState.id;
         });
 
         if (game) {
@@ -423,6 +420,7 @@ function Game(vp) {
     var _curPayTable;
 
     // state of the currentGame
+    var _txId = null;
     var _gameState = {};
     var _isSkippingDrawing = false;
     var _isTransacting = false;
@@ -432,7 +430,7 @@ function Game(vp) {
 
     this.$e = _$e;
     this.$ms = _$ms;
-
+    this.txId = () => _txId;
     this.onEvent = (fn) => _onEvent = fn;
 
     this.getGameState = () => Object.assign({}, _gameState);
@@ -590,7 +588,8 @@ function Game(vp) {
     // Update the HandDisplays. For draws and freeze, null means "dont change".
     function _refreshHand(hand, draws, freeze, showHandRank) {
         if (freeze === undefined) freeze = true;
-        _hd.setHand(hand, draws, freeze, showHandRank);
+        _$e.addClass("flipping");
+        _hd.setHand(hand, draws, freeze, showHandRank).then(()=>_$e.removeClass("flipping"));
         _miniHd.setHand(hand, draws, true, showHandRank);
     }
 
@@ -802,10 +801,11 @@ function Game(vp) {
 
             const betWei = bet.mul(1e18);
             _slider.freeze(true);
-            _gameState.uiid = Math.floor(Math.random() * 1000000000000);
-            return _slider.getUnitName() == "eth"
-                ? _vp.bet([_gameState.uiid], {value: betWei, gas: 130000, gasPrice: gasPrice})
-                : _vp.betWithCredits([betWei, _gameState.uiid], {gas: 130000, gasPrice: gasPrice});
+            const promise = _slider.getUnitName() == "eth"
+                ? _vp.bet([], {value: betWei, gas: 130000, gasPrice: gasPrice})
+                : _vp.betWithCredits([betWei], {gas: 130000, gasPrice: gasPrice});
+            promise.getTxHash.then((txId) => _txId = txId);
+            return promise;
         };
         const callbackFn = (res, obj) => {
             const betSuccess = res.events.find(e=>e.name=="BetSuccess");
@@ -874,9 +874,11 @@ function Game(vp) {
         const getPromiseFn = (gasPrice) => {
             _$chkBetAgain.attr("disabled", "disabled");
             const params = [_gameState.id, _gameState.dBlockHash];
-            return _$chkBetAgain.is(":checked")
-                ? _vp.betFromGame(params.concat(_gameState.uiid), {gas: 130000, gasPrice: gasPrice})
+            const promise = _$chkBetAgain.is(":checked")
+                ? _vp.betFromGame(params, {gas: 130000, gasPrice: gasPrice})
                 : _vp.finalize(params, {gas: 130000, gasPrice: gasPrice});
+            promise.getTxHash.then(txId => _txId = txId);
+            return promise;
         };
         const callbackFn = (res, obj) => {
             const success = res.events.find(e=>e.name=="FinalizeSuccess");
@@ -1058,6 +1060,10 @@ function HandDisplay() {
             _$cards.removeClass("hilited");
             _$handRank.removeClass("show");
         }
+
+        return new Promise((res,rej)=>{
+            setTimeout(res, pauseTime);
+        });
     };
 
     this.getDraws = function() {

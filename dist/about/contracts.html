@@ -18,12 +18,41 @@
 				padding: 2px 4px;
 				margin-top: 15px;
 				margin-bottom: 0px;
-				border-bottom: 1px dotted #AAA;
 			}
 			.toc a {
 				color: black;
 				text-decoration: none;
 			}
+				.toc .section .title {	
+					overflow: hidden;
+					text-align: center;
+					text-transform: uppercase;
+					font-size: 70%;
+					letter-spacing: .2em;
+					font-weight: bold;
+					color: #AAA;
+					margin: 10px 0px 4px 0px;
+				}
+				.toc .section .title:before,
+				.toc .section .title:after {
+					position: relative;
+					display: inline-block;
+					vertical-align: middle;
+					width: 50%;
+					top: -1px;
+					height: 1px;
+					border-top: 1px solid rgba(0,0,0,.2);
+					content: "";
+				}
+				.toc .section .title:before {
+					right: 0em;
+					margin-left: -50%;
+				}
+				.toc .section .title:after {
+				 	left: 0em;
+				 	margin-right: -50%;
+				}
+
 				.toc .inpage-item .head {
 					padding: 2px 0px 2px 15px;
 					margin-top: 2px;
@@ -78,6 +107,9 @@
 				background: rgba(0,128,0,.15);
 				border-radius: 5px;
 			}
+			.summary.under-development {
+				background: rgba(0,0,0,.15);
+			}
 
 			.note {
 				display: inline-block;
@@ -108,8 +140,7 @@
 	</head>
 	<body><div id="Content">
 		<div class="toc">
-			<div class="header">Contracts</div>
-			<div class="section">
+			<div class="section" style="margin-top: 15px">
 				<div class="title">Core</div>
 				<div class="body">
 					<div class="inpage-item">
@@ -158,8 +189,23 @@
 				<div class="title">Other</div>
 				<div class="body">
 					<div class="inpage-item">
+						<a href="#registry">
+							<div class="head">Registry</div>
+						</a>
+					</div>
+					<div class="inpage-item">
 						<a href="#dividend-token-locker">
 							<div class="head">DividendTokenLocker</div>
+						</a>
+					</div>
+					<div class="inpage-item">
+						<a href="#custodial-wallet">
+							<div class="head">CustodialWallet</div>
+						</a>
+					</div>
+					<div class="inpage-item" style="opacity: .4">
+						<a href="#dao">
+							<div class="head">DAO</div>
 						</a>
 					</div>
 				</div>
@@ -173,7 +219,7 @@
 				<div class="links">
 					<div>
 						On this page you'll find information on our deployed contracts.<br>
-						The realtime status of all contracts <a href="/status/system.html" target="_blank">is available here</a>.
+						Also of interest is the <a href="/status/overview.html">the realtime status</a> of all contracts.
 					</div>		
 				</div>
 			</div>
@@ -206,7 +252,7 @@
 							<a href="https://github.com/pennyether/contracts/blob/master/contracts/Comptroller.sol" target="_blank">Source Code</a>
 							<br>
 							<a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/Comptroller.js.html" target="_blank">Test Results</a>
-							(<a href="https://github.com/pennyether/contracts/blob/master/tests/Comptroller.js" target="_blank">Test File</a>)
+							(<a href="https://github.com/pennyether/contracts/blob/master/tests/Comptroller.test.js" target="_blank">Test File</a>)
 						</div>
 					</div>
 					<div class="field">
@@ -249,7 +295,7 @@
 							<a href="https://github.com/pennyether/contracts/blob/master/contracts/DividendToken.sol" target="_blank">Source Code</a>
 							<br>
 							<a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/DividendToken.js.html" target="_blank">Test Results</a>
-							(<a href="https://github.com/pennyether/contracts/blob/master/tests/DividendToken.js" target="_blank">Test File</a>)
+							(<a href="https://github.com/pennyether/contracts/blob/master/tests/DividendToken.test.js" target="_blank">Test File</a>)
 						</div>
 					</div>
 					<div class="field">
@@ -290,7 +336,7 @@
 							<a href="https://github.com/pennyether/contracts/blob/master/contracts/Treasury.sol" target="_blank">Source Code</a>
 							<br>
 							<a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/Treasury.js.html" target="_blank">Test Results</a>
-							(<a href="https://github.com/pennyether/contracts/blob/master/tests/Treasury.js" target="_blank">Test File</a>)
+							(<a href="https://github.com/pennyether/contracts/blob/master/tests/Treasury.test.js" target="_blank">Test File</a>)
 						</div>
 					</div>
 					<div class="field">
@@ -331,7 +377,7 @@
 							<a href="https://github.com/pennyether/contracts/blob/master/contracts/MainController.sol" target="_blank">Source Code</a>
 							<br>
 							<a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/MainController.js.html" target="_blank">Test Results</a>
-							(<a href="https://github.com/pennyether/contracts/blob/master/tests/MainController.js" target="_blank">Test File</a>)
+							(<a href="https://github.com/pennyether/contracts/blob/master/tests/MainController.test.js" target="_blank">Test File</a>)
 						</div>
 					</div>
 					<div class="field">
@@ -368,7 +414,7 @@
 							<a href="https://github.com/pennyether/contracts/blob/master/contracts/games/Monarchy.sol" target="_blank">Source Code</a>
 							<br>
 							<a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/Monarchy.js.html" target="_blank">Test Results</a>
-							(<a href="https://github.com/pennyether/contracts/blob/master/tests/Monarchy.js" target="_blank">Test File</a>)
+							(<a href="https://github.com/pennyether/contracts/blob/master/tests/Monarchy.test.js" target="_blank">Test File</a>)
 						</div>
 					</div>
 					<div class="field">
@@ -411,7 +457,7 @@
 							<a href="https://github.com/pennyether/contracts/blob/master/contracts/InstaDice.sol" target="_blank">Source Code</a>
 							<br>
 							<a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/InstaDice.js.html" target="_blank">Test Results</a>
-							(<a href="https://github.com/pennyether/contracts/blob/master/tests/InstaDice.js" target="_blank">Test File</a>)
+							(<a href="https://github.com/pennyether/contracts/blob/master/tests/InstaDice.test.js" target="_blank">Test File</a>)
 						</div>
 					</div>
 					<div class="field">
@@ -454,7 +500,46 @@
 							<a href="https://github.com/pennyether/contracts/blob/master/contracts/games/VideoPoker.sol" target="_blank">Source Code</a>
 							<br>
 							<a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/InstaDice.js.html" target="_blank">Test Results</a>
-							(<a href="https://github.com/pennyether/contracts/blob/master/tests/InstaDice.js" target="_blank">Test File</a>)
+							(<a href="https://github.com/pennyether/contracts/blob/master/tests/InstaDice.test.js" target="_blank">Test File</a>)
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Audits:</div>
+						<div class="value"><div class="pending">pending</div></div>
+					</div>
+				</div>
+			</div>
+
+			<div>
+				<a data-anchor="registry"></a>
+				<h3>Registry</h3>
+				<div class="summary">
+					The Registry holds a mapping of names to addresses. The UI and non-core contracts get the addresses of each other via the Registry, which makes upgrading contracts easy. Upgrading a Game, for example, just requires updating the mapping in the Registry to the newly deployed game. The UI and any contracts that interface with that Game (like the Task Manager) will not require changes.
+				</div>
+				<div class="fieldList">
+					<div class="field">
+						<div class="label">Address:</div>
+						<div class="value registry-addr"></div>
+					</div>
+					<div class="field">
+						<div class="label">Mappings:</div>
+						<div class="value registry-mappings"></div>
+					</div>
+					<div class="field">
+						<div class="label">More Info:</div>
+						<div class="value">
+							<a href="/ico/whitepaper.html#registry">Whitepaper</a>
+							<br>
+							<a href="https://github.com/pennyether/contracts#registry" target="_blank">Technical Documentation</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Source Code:</div>
+						<div class="value">
+							<a href="https://github.com/pennyether/contracts/blob/master/contracts/Registry.sol" target="_blank">Source Code</a>
+							<br>
+							<a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/Registry.js.html" target="_blank">Test Results</a>
+							(<a href="https://github.com/pennyether/contracts/blob/master/tests/Registry.test.js" target="_blank">Test File</a>)
 						</div>
 					</div>
 					<div class="field">
@@ -476,6 +561,14 @@
 						<div class="value locker-addr"></div>
 					</div>
 					<div class="field">
+						<div class="label">Owner:</div>
+						<div class="value locker-owner"></div>
+					</div>
+					<div class="field">
+						<div class="label">Tokens:</div>
+						<div class="value locker-tokens"></div>
+					</div>
+					<div class="field">
 						<div class="label">More Info:</div>
 						<div class="value">
 							<a href="/ico/whitepaper.html#tokenlocker">Whitepaper</a>
@@ -489,12 +582,100 @@
 							<a href="https://github.com/pennyether/contracts/blob/master/contracts/DividendTokenLocker.sol" target="_blank">Source Code</a>
 							<br>
 							<a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/DividendTokenLocker.js.html" target="_blank">Test Results</a>
-							(<a href="https://github.com/pennyether/contracts/blob/master/tests/DividendTokenLocker.js" target="_blank">Test File</a>)
+							(<a href="https://github.com/pennyether/contracts/blob/master/tests/DividendTokenLocker.test.js" target="_blank">Test File</a>)
 						</div>
 					</div>
 					<div class="field">
 						<div class="label">Audits:</div>
 						<div class="value"><div class="pending">pending</div></div>
+					</div>
+				</div>
+			</div>
+
+			<div>
+				<a data-anchor="custodial-wallet"></a>
+				<h3>Custodial Wallet</h3>
+				<div class="summary">
+					The Custodial Wallet controls the TokenLocker and the Registry. This contract has three tiers of security: A Custodian can make calls on behalf of the contract, the Supervisor can change the Custodian, and the Owner can change the Supervisor. The Supervisor and Owner accounts are both securely held in cold-storage, and must be changed anytime they are used.
+				</div>
+				<div class="fieldList">
+					<div class="field">
+						<div class="label">Address:</div>
+						<div class="value wallet-addr"></div>
+					</div>
+					<div class="field">
+						<div class="label">Custodian:</div>
+						<div class="value wallet-custodian"></div>
+					</div>
+					<div class="field">
+						<div class="label">Supervisor:</div>
+						<div class="value wallet-supervisor"></div>
+					</div>
+					<div class="field">
+						<div class="label">Owner:</div>
+						<div class="value wallet-owner"></div>
+					</div>
+					<div class="field">
+						<div class="label">More Info:</div>
+						<div class="value">
+							<a href="/ico/whitepaper.html#owner-wallet">Whitepaper</a>
+							<br>
+							<a href="https://github.com/pennyether/contracts#owner-wallet" target="_blank">Technical Documentation</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Source Code:</div>
+						<div class="value">
+							<a href="https://github.com/pennyether/contracts/blob/master/contracts/CustodialWallet.sol" target="_blank">Source Code</a>
+							<br>
+							<a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/CustodialWallet.js.html" target="_blank">Test Results</a>
+							(<a href="https://github.com/pennyether/contracts/blob/master/tests/CustodialWallet.test.js" target="_blank">Test File</a>)
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Audits:</div>
+						<div class="value"><div class="pending">pending</div></div>
+					</div>
+				</div>
+			</div>
+
+			<div style="padding-bottom: 100px;">
+				<a data-anchor="dao"></a>
+				<h3>DAO</h3>
+				<div class="summary under-development">
+					The DAO will allow for Token Holders to deposit their tokens and create and cast votes. When completed, and with community support, the DAO will replace the Admin and Custodian and be able to fully manage PennyEther. For example, votes can take place to change game configurations, and even to add new contracts to the system via the Registry.
+					<div style="text-align: center; margin: 5px 0px 0px 0px">
+						<div style="display: inline-block; padding: 3px 8px; background: rgba(50,50,0,.2);">
+							This contract is under development, and requires an active community of Token Holders.<br>
+							It is to be determined how votes are created and passed.
+						</div>
+					</div>
+				</div>
+				<div class="fieldList">
+					<div class="field">
+						<div class="label">Address:</div>
+						<div class="value dao-addr">--</div>
+					</div>
+					<div class="field">
+						<div class="label">More Info:</div>
+						<div class="value">
+							<a href="/ico/whitepaper.html#dao">Whitepaper</a>
+							<br>
+							<a href="https://github.com/pennyether/contracts#dao" target="_blank">Technical Documentation</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Source Code:</div>
+						<div class="value">
+							<a href="https://github.com/pennyether/contracts/blob/master/contracts/DAO.sol" target="_blank">Source Code</a>
+							<br>
+							<a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/DAO.js.html" target="_blank">Test Results</a>
+							(<a href="https://github.com/pennyether/contracts/blob/master/tests/DAO.test.js" target="_blank">Test File</a>)
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Audits:</div>
+						<div class="value"><div class="pending">not ready yet</div></div>
 					</div>
 				</div>
 			</div>

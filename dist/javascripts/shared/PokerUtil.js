@@ -47,6 +47,7 @@
                     color: green;
                 }
                 .GameHistoryViewer .Card {
+                    vertical-align: bottom;
                     font-size: 11px;
                     height: 28px;
                     width: 20px;
@@ -68,6 +69,14 @@
                     height: 34px;
                     text-align: center;
                     color: gray; 
+                }
+                .GameHistoryViewer .dHand .Card.held {
+                    font-size: 130%;
+                    text-align: center;
+                    border: 1px solid transparent;
+                    background: none;
+                    overflow: hidden;
+                    color: gray;
                 }
                 .GameHistoryViewer .txs .tx {
                     height: 34px;
@@ -172,9 +181,9 @@
             if (ev.name == "BetSuccess") {
                 gs = {
                     state: "dealt",
+                    txId: ev.transactionHash,
                     id: id,
                     user: ev.args.user,
-                    uiid: ev.args.uiid.toNumber(),
                     bet: ev.args.bet,
                     payTableId: ev.args.payTableId,
                     payTable: _getPayTable(ev.args.payTableId.toNumber()),
@@ -284,7 +293,8 @@
     function GameHistoryViewer(vp, numBlocks, showUser) {
         const _self = this;
 
-        const _user = null;
+        var _user = null;
+        var _enabled = true;
         const _controller = new VpController(vp);
         const _numBlocks = numBlocks;
         const _showUser = showUser;
@@ -371,10 +381,14 @@
             _redraw();
         };
         this.enable = function() {
+            if (_enabled) return;
+            _enabled = true;
             _$loaded.text("No results loaded.");
             _$loadMore.show();
         };
         this.disable = function(str) {
+            if (!_enabled) return;
+            _enabled = false;
             _self.reset();
             _$loaded.text(str);
             _$loadMore.hide();
@@ -384,6 +398,7 @@
         };
         this.setUser = function(user){
             if (user !== _user) _self.reset();
+            _user = user;
             _controller.setUser(user);
         };
 
@@ -512,7 +527,7 @@
                     }
                     for (var i=0; i<=4; i++){
                         const isDrawn = draws & Math.pow(2, i);
-                        if (!isDrawn) $dCards.eq(i).css("visibility","hidden");
+                        if (!isDrawn) $dCards.eq(i).text("↓").addClass("held");
                         if (timedout) $dCards.eq(i).addClass("timedout");
                     }
                 }());
