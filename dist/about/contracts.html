@@ -96,23 +96,6 @@
 		<script>
 		var loadedHash = window.location.hash;
 		Loader.onPageLoad.then(()=>{
-			(function goToLoadedHash(){
-				if (!loadedHash) return;
-				goToHash(loadedHash);
-			}());
-
-			function goToHash(hash) {
-				const $hash = $(hash);
-				if ($hash.length==0) return;
-				doScrolling($hash.position().top-90, 500);
-			}
-
-			// all # links should scroll to target
-			$("a[href^='#']").click(function(e){
-				e.preventDefault();
-				goToHash($(e.currentTarget).attr("href"));
-			});
-
 			// add "anchor" data to .item and .subitem
 			$(".toc .item").each((i, el)=>{
 				$(el).data("anchor", $(el).find("a").eq(0).attr("href"));
@@ -146,13 +129,13 @@
 
 			$(window).scroll();
 		});
-		Loader.require("comp", "tr", "mc", "dice")
-		.then(function(comp, tr, mc, dice){
+		Loader.require("comp", "tr", "tm", "dice")
+		.then(function(comp, tr, tm, dice){
 			$(".comp-addr").append(util.$getAddrLink(comp.address));
 			util.bindToElement(comp.token().then(util.$getAddrLink), $(".token-addr"), true);
 			util.bindToElement(comp.locker().then(util.$getAddrLink), $(".locker-addr"), true);
 			$(".tr-addr").append(util.$getAddrLink(tr.address));
-			$(".mc-addr").append(util.$getAddrLink(mc.address));
+			$(".mc-addr").append(util.$getAddrLink(tm.address));
 			$(".dice-addr").append(util.$getAddrLink(dice.address));
 		});
 		</script>
@@ -206,7 +189,7 @@
 			</div>
 
 			<div>
-				<a id="comptroller"></a>
+				<a data-anchor="comptroller"></a>
 				<h3>Comptroller</h3>
 				<div class="summary">
 					The Comptroller runs the CrowdSale. After the CrowdSale, it sends bankroll to the Treasury, and is in charge of burning tokens for a refund.
@@ -245,7 +228,7 @@
 			</div>
 
 			<div>
-				<a id="dividend-token"></a>
+				<a data-anchor="dividend-token"></a>
 				<h3>DividendToken</h3>
 				<div class="summary">
 					The DividendToken is an ERC20 Token that can distribute dividends to Token Holders at any time. The totalSupply is fixed, and only goes down if/when Token Holders decide to burn tokens. All tokens are backed by at least .5 Ether held in the Treasury.
@@ -288,7 +271,7 @@
 			</div>
 
 			<div>
-				<a id="dividend-token-locker"></a>
+				<a data-anchor="dividend-token-locker"></a>
 				<h3>DividendTokenLocker</h3>
 				<div class="summary">
 					The TokenLocker holds the PennyEther Team's ICO tokens. Tokens vest at a rate of 1/6% per day (about 5% per month). Tokens cannot be transferred until they vest, but the dividends of the tokens can be collected at any time. This contract ensures the PennyEther Team is aligned with Token Holders' interest: to generate more revenue.
@@ -329,7 +312,7 @@
 			</div>
 
 			<div>
-				<a id="treasury"></a>
+				<a data-anchor="treasury"></a>
 				<h3>Treasury</h3>
 				<div class="summary">
 					The Treasury holds the bankroll, and only ever sends Ether to fund games (limited by a daily amount), or to pay Token Holders .5 Ether per Token burned. The bankroll is set after the ICO, by the Comptroller.
@@ -372,7 +355,7 @@
 			</div>
 
 			<div>
-				<a id="main-controller"></a>
+				<a data-anchor="main-controller"></a>
 				<h3>MainController</h3>
 				<div class="summary">
 					The MainController keeps PennyEther running autonomously. It is the only contract that can get funds from the Treasury, and uses those funds to stake PennyAuctions and InstaDice. It also allows for users to run Tasks, and in return pays them rewards.
@@ -415,7 +398,7 @@
 			</div>
 
 			<div>
-				<a id="penny-auction"></a>
+				<a data-anchor="penny-auction"></a>
 				<h3>PennyAuction</h3>
 				<div class="summary">
 					A Penny Auction is a simple game where a prize is staked, and the last person to bid (by paying a small, fixed fee) will win the prize. Each new bid extends the auction by a few blocks.
@@ -457,7 +440,7 @@
 			</div>
 
 			<div style='padding-bottom: 400px'>
-				<a id="instadice"></a>
+				<a data-anchor="instadice"></a>
 				<h3>InstaDice</h3>
 				<div class="summary">
 					The InstaDice contract allows for users to wager on a customizable dice roll and immediately see their results the moment their transaction is mined. Rolls are automatically paid the next time any user rolls, or the user can redeem manually.

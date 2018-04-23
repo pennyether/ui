@@ -1,4 +1,7 @@
 (function(){
+    const loadedHash = window.location.hash;
+    window.location.hash = "";
+
     function addScript(src) {
         return new Promise((res, rej)=>{
             var script = document.createElement('script');
@@ -197,6 +200,21 @@
             $("#Content").prepend(nav.$e);
             window["nav"] = nav;
 
+            // Init scroll links
+            (function initScrollLinks(){
+                var lastScrollTop;
+                $(window).scroll(() => lastScrollTop = window.pageYOffset);
+                window.onhashchange = function(){
+                    window.scrollTo(0, lastScrollTop);
+                    const hash = window.location.hash.slice(1);
+                    const $anchor = $(`a[data-anchor='${hash}'`);
+                    if ($anchor.length == 0) return;
+                    const end = $anchor.position().top-90;
+                    doScrolling(end, 500);
+                }
+                if (loadedHash) window.location.hash = loadedHash;
+            }());
+
             // Attach Tippies
             $(".tip-left").attr("data-tippy-placement", "left");
             tippy.defaults.trigger = "mouseenter";
@@ -288,32 +306,24 @@ function AJAX(url){
 }
 
 // eslint-disable-next-line
-function doScrolling(element, duration) {
-    function getElementY(query) {
-        if (typeof query == "number") return query;
-        return window.pageYOffset + document.querySelector(query).getBoundingClientRect().top
-    }
-    var startingY = window.pageYOffset
-    var elementY = getElementY(element)
-    var targetY = document.body.scrollHeight - elementY < window.innerHeight
-        ? document.body.scrollHeight - window.innerHeight
-        : elementY
-    var diff = targetY - startingY
+function doScrolling(end, duration) {
+    // var startingY = window.pageYOffset
+    // var targetY = document.body.scrollHeight - elementY < window.innerHeight
+    //     ? document.body.scrollHeight - window.innerHeight
+    //     : elementY
+    const start = window.pageYOffset;
+    var diff = end - start;
     var easing = function (t) { return t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1 }
     
-    var start;
-    if (!diff) return
-
-    // Bootstrap our animation - it will get called right before next frame shall be rendered.
+    // animate it
+    var startTime;
     window.requestAnimationFrame(function step(timestamp) {
-        if (!start) start = timestamp
-        var time = timestamp - start
-        var percent = Math.min(time / duration, 1)
-        percent = easing(percent)
-        window.scrollTo(0, startingY + diff * percent)
-        if (time < duration) {
-            window.requestAnimationFrame(step)
-        }
+        if (!startTime) startTime = timestamp;
+        const time = timestamp - startTime;
+        const percent = easing(Math.min(time / duration, 1));
+        const scrollTop = start + diff * percent;
+        window.scrollTo(0, scrollTop);
+        if (time < duration) window.requestAnimationFrame(step);
     });
 }
 
