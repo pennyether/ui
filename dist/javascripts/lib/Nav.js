@@ -29,7 +29,7 @@
         const _siteMap = [
             {
                 name: "Win Ether!",
-                url: "/games/pennyauctions.html",
+                url: "/games/monarchy.html",
                 children: [{
                     name: "👑 Monarchy",
                     url: "/games/monarchy.html",
@@ -81,12 +81,13 @@
                 }]
             }, {
                 name: "Status",
-                url: "/status/system.html",
+                url: "/status/overview.html",
                 children: [{
-                    name: "Core"
+                    name: "Realtime Overview",
+                    url: "/status/overview.html",
+                    class: "overview"
                 },{
-                    name: "System Overview",
-                    url: "/status/overview.html"
+                    name: "Core"
                 },{
                     name: "Treasury Status",
                     url: "/status/treasury.html"
@@ -97,9 +98,6 @@
                     name: "Token Status",
                     url: "/status/token.html"
                 },{
-                    name: "TaskManager Status",
-                    url: "/status/taskmanager.html"
-                },{
                     name: "Games"
                 },{
                     name: "Monarchy Status",
@@ -107,20 +105,15 @@
                 },{
                     name: "InstaDice Status",
                     url: "/status/instadice.html",
-                    linkInBreadcrumb: true,
-                    children: [{
-                        name: "View Roll",
-                        url: "/status/instadice-roll.html"
-                    }]
                 },{
                     name: "VideoPoker Status",
                     url: "/status/videopoker.html",
-                    linkInBreadcrumb: true,
-                    children: [{
-                        name: "View Game",
-                        url: "/status/videopoker-game.html"
-                    }]
-                }]
+                },{
+                    name: "Other"
+                },{
+                    name: "TaskManager Status",
+                    url: "/status/taskmanager.html"
+                },]
             }, {
                 name: "UIs",
                 url: "/status/system.html",
@@ -157,9 +150,7 @@
             _siteMap.forEach(obj => {
                 // add menu item, set as breadcrumb (if there is none)
                 const $e = $(`<div class='menuItem'></div>`)
-                    .append(
-                        $("<a class='link'></a>").attr("href", obj.url).text(obj.name)
-                    )
+                    .append($("<a class='link'></a>").attr("href", obj.url).text(obj.name))
                     .appendTo(_$menu);
                 if (obj.class) $e.addClass(obj.class);
 
