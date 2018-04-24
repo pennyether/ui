@@ -67,8 +67,8 @@
 
     function $getRefundSummary(event, showUser) {
         if (showUser === undefined) showUser = true;
-        const success = event.name == "OverthrowRefundFailure";
-        const failure = event.name == "OverthrowRefundSuccess";
+        const success = event.name == "OverthrowRefundSuccess";
+        const failure = event.name == "OverthrowRefundFailure";
         if (!success && !failure) throw new Error(`Must be passed a success or failure event.`);
         
         const successStr = success ? "Successfully refunded" : "Unsuccessfully refunded";
@@ -84,6 +84,10 @@
                     <span class='result'></span>
                     <span class='user'></span>
                     <span class='value'></span>
+                    <span class='reason'></span>
+                </div>
+                <div class='msg'>
+                    Message: <span class='reason'></span>
                 </div>
             </div>
         `);
@@ -92,6 +96,7 @@
         if (!showUser) $el.find(".user").hide();
         $el.find(".summary .result").text(successStr);
         $el.find(".summary .value").text(util.toEthStrFixed(event.args.amount));
+        $el.find(".msg .reason").text(event.args.msg);
         return $el;
     }
 
