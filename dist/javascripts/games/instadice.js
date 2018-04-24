@@ -30,11 +30,9 @@ Loader.require("dice")
 
         Promise.all([
             dice.feeBips(),
-            dice.finalizeId(),
         ]).then(arr => {
             const feeBips = arr[0];
-            const finalizeId = arr[1];
-            _controller.setSettings(user, 256, feeBips, finalizeId);
+            _controller.setSettings(user, 256, feeBips);
             return _controller.refreshRolls();
         }).then(states => {
             states.sort((a, b) => {
@@ -96,7 +94,7 @@ Loader.require("dice")
         var rollPromise;
 
         try {
-            rollPromise = dice.roll({_number: number}, {value: bet, gas: 147000, gasPrice: gasPrice});
+            rollPromise = dice.roll({_number: number}, {value: bet, gas: 60000, gasPrice: gasPrice});
         } catch(e) {
             console.error(e);
             ethStatus.open();
@@ -201,25 +199,22 @@ Loader.require("dice")
                         </div>
                         <div class="waiting">
                             <div class="auto">
-                                You'll automatically get paid after <div class="finalize-rolls-left"></div> more rolls occur.
+                                Winnings will be sent if you roll again within <div class="finalize-blocks-left"></div> blocks.
                             </div>
                             <div class="or">or</div>
                             <div class="manual">
                                 <button class="btn-claim">Claim Winnings Now</button>
                                 <div class="claim-status"></div>
-                                <div class="time-warning tip" title="Results are based off of the blockhash,
-                                and InstaDice cannot look back farther than 256 blocks. This is a limitation of Ethereum.">
-                                    Note: If not enough rolls occur, you must claim within <div class="finalize-blocks-left"></div> blocks.
+                                <div style="text-align: center;">
+                                    <div class="time-warning tip" title="Results are based off of the blockhash,
+                                    and InstaDice cannot look back farther than 256 blocks. This is a limitation of Ethereum."
+                                    data-tippy-placement="left">
+                                        Note: You must roll again or claim within <div class="finalize-blocks-left"></div> blocks.
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="payout-success"></div>
-                        <div class="payout-failure">
-                            <div class="warning">
-                                InstaDice was unable to pay your win!<br>
-                                Please <span class="link">click here</span> for more information.
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -249,7 +244,6 @@ Loader.require("dice")
         // If lost
         const _$inspiration = _$rolled.find(".inspiration");
         // If waiting
-        const _$finalizeRollsLeft = _$rolled.find(".finalize-rolls-left");
         const _$finalizeBlocksLeft = _$rolled.find(".finalize-blocks-left");
         const _$btnClaim = _$rolled.find(".btn-claim");
         const _$claimStatus = _$rolled.find(".claim-status").hide();
@@ -334,29 +328,22 @@ Loader.require("dice")
                 _$resultStatus.text(`> ${_state.number}. You lost.`);
             }
 
-            // show substate (waiting, payoutsuccess, payoutfailure)
+            // show substate (wagered, finalized)
             _$lost.hide();
             _$waiting.hide();
             _$payoutSuccess.hide();
-            _$payoutFailure.hide();
             if (_state.isWinner) {
                 if (_state.state == "wagered") {
                     _initClaimStuff();
                     _$waiting.show();
                     _$finalizeBlocksLeft.text(_state.finalizeBlocksLeft);
-                    _$finalizeRollsLeft.text(_state.finalizeRollsLeft);
                     _$claimStatus.hide();
                 } else if (_state.state == "finalized") {
-                    if (_state.didPayoutSucceed) {
-                        const amt = _state.paymentEvent.args.payout;
-                        _$payoutSuccess.empty()
-                            .append(`✓ Your winnings of ${util.toEthStrFixed(amt)} `)
-                            .append(util.$getTxLink(`have been paid.`, _state.paymentEvent.transactionHash))
-                            .show();
-                    } else {
-                        _$payoutFailure.show();
-                        _$payoutFailure.find(".link").empty().append(_$getViewLink("click here"));
-                    }
+                    const amt = _state.payout
+                    _$payoutSuccess.empty()
+                        .append(`✓ Your winnings of ${util.toEthStrFixed(amt)} `)
+                        .append(util.$getTxLink(`have been paid.`, _state.finalizedEvent.transactionHash))
+                        .show();
                 }
             } else {
                 _$lost.show();
@@ -391,32 +378,30 @@ Loader.require("dice")
                 this._tippy.hide(0);
                 $(this).blur();
 
-                const promise = dice.payoutRoll([_state.id], {gasPrice: gps.getValue()});
+                var promise;
+                try {
+                    promise = dice.payoutPreviousRoll([], {gasPrice: gps.getValue()});
+                } catch (e) {
+                    console.error(e);
+                    ethStatus.open();
+                    return;
+                }
+
                 const $txStatus = util.$getTxStatus(promise, {
                     waitTimeMs: (gps.getWaitTimeS() || 45) * 1000,
                     miningMsg: "Your payout is being claimed...",
                     onSuccess: (res, txStatus) => {
                         const finalized = res.events.find(ev => ev.name=="RollFinalized");
-                        if (finalized) _onEvent(finalized);
-
-                        const payoutSuccess = res.events.find(ev => ev.name=="PayoutSuccess");
-                        const payoutFailure = res.events.find(ev => ev.name=="PayoutFailure");
-                        if (payoutSuccess) {
-                            txStatus.$status.append(`<br>You've been paid. Please wait a moment.`);
-                            _onEvent(payoutSuccess);
-                            return;
-                        }
-
-                        const $link = _$getViewLink("Click here");
-                        if (payoutFailure) {
-                            txStatus.$status.append("<br>Payout failed. ")
-                                .append($link)
-                                .append(" for more details.");
-                            return;
+                        if (finalized) {
+                            const ethStr = util.toEthStrFixed(finalized.args.payout);
+                            txStatus.addSuccessMsg(`Your roll was finalized, and you were paid ${ethStr}`);
+                            _onEvent(finalized);
                         } else {
-                            txStatus.$status.append("<br>No events occurred. ")
+                            const $link = _$getViewLink("Click here");
+                            const $e = $("<div></div>").append("<br>No events occurred. ")
                                 .append($link)
                                 .append(" for more details.");
+                            txStatus.addWarningMsg($e);
                         }
                     },
                     onClear: () => _$claimStatus.empty().hide()
@@ -639,7 +624,7 @@ Loader.require("dice")
 
                     const $txLink = util.$getTxLink(dateStr, txId);
                     const $rollLink = $("<a target='_blank'></a>")
-                        .attr("href", `/games/instadice-roll.html#${rollId}`)
+                        .attr("href", `/games/view-instadice-roll.html#${rollId}`)
                         .text(`Roll #${rollId}`);
                     const $e = $(".mini-roll.template")
                         .clone()
@@ -694,7 +679,7 @@ Loader.require("dice")
         const $wagered = $("#Summary .wagered .value");
         const $won = $("#Summary .won .value");
         Promise.all([
-            dice.curId(),
+            dice.numRolls(),
             dice.totalWagered(),
             dice.totalWon()
         ]).then(arr=>{

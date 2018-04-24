@@ -22,7 +22,6 @@ Loader.require("dice")
                     ethUtil.getBlock(creationBlockNum),
                     _niceWeb3.ethUtil.getAverageBlockTime(),
                 ]).then(arr => {
-                    _initQueue(arr[0], arr[1]);
                     _initActivity(arr[0], arr[1]);
                 });
             });
@@ -85,40 +84,6 @@ Loader.require("dice")
         }
     }
 
-    function _initQueue(creationBlock, avgBlocktime) {
-        const minBlock = creationBlock;
-        const maxBlock = ethUtil.getCurrentStateSync().latestBlock;
-
-        const $e = $(".cell.status");
-        const graph = new EthGraph();
-        $e.find(".graph-ctnr").append(graph.$e);
-
-        const getQueueSize = (block) => {
-            return dice.getNumUnfinalized([], {defaultBlock: Math.round(block)});
-        };
-        graph.init({
-            sequences: [{
-                name: "queueSize",
-                valFn: getQueueSize,
-                showInPreview: true,
-                maxPoints: 20,
-                color: "black",
-                yScaleHeader: "Queue Size",
-                yTickCount: 3,
-                yFormatFn: (y) => `${y} Rolls`,
-            }],
-            min: minBlock.number,
-            max: maxBlock.number,
-            previewXTicks: graph.createPreviewXTicks(minBlock, maxBlock, util),
-            previewNumPoints: 20,
-            previewFormatFn: graph.createPreviewFormatFn(util, avgBlocktime),
-            titleFormatFn: graph.createTitleFormatter(_niceWeb3.ethUtil, util),
-        });
-
-        const dayInBlocks = 60*60*24 / avgBlocktime;
-        graph.setView(maxBlock.number - dayInBlocks, maxBlock.number);
-    }
-
     function _initProfits() {
         const $e = $(".cell.profits");
         $e.find(".profits-ctnr").append(BankrollableUtil.$getProfitsInfo(dice));
@@ -133,13 +98,13 @@ Loader.require("dice")
         $e.find(".graph-ctnr").append(graph.$e);
 
         const getNumRolls = (block) => {
-            return dice.curId([], {defaultBlock: Math.round(block)});
+            return dice.numRolls([], {defaultBlock: Math.round(block)});
         };
         const getTotalWagered = (block) => {
             return dice.totalWagered([], {defaultBlock: Math.round(block)});
         };
         const getNumUsers = (block) => {
-            return dice.curUserId([], {defaultBlock: Math.round(block)});
+            return dice.numUsers([], {defaultBlock: Math.round(block)});
         };
         graph.init({
             sequences: [{
@@ -188,9 +153,9 @@ Loader.require("dice")
         const $doneLoading = $e.find(".done-loading").hide();
 
         return Promise.obj({
-            numRolls: dice.curId(),
+            numRolls: dice.numRolls(),
             totalWagered: dice.totalWagered(),
-            numUsers: dice.curUserId()
+            numUsers: dice.numUsers()
         }).then(doRefresh).then(()=>{
             $loading.hide();
             $doneLoading.show();
@@ -231,13 +196,8 @@ Loader.require("dice")
             selected: false 
         },{
             instance: dice,
-            name: "PayoutSuccess",
-            label: "Payed",
-            selected: false
-        },{
-            instance: dice,
-            name: "PayoutFailure",
-            label: "Payed",
+            name: "PayoutError",
+            label: "Payout Error",
             selected: false
         }];
 

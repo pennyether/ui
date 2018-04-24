@@ -75,10 +75,10 @@
 					<div class="status">
 						<div class="bubble profit hide">
 							<div class="item">
-								This contract can currently send <span class="amount"></span> to the Treasury.
+								Can currently send <span class="amount"></span> to the Treasury.
 							</div>
 							<div class="item">
-								All bankroll is available, and can be recalled by Treasury.
+								All bankroll is available and recallable by Treasury.
 							</div>
 							<div class="item collateral hide">
 								All collateral is covered.
@@ -86,7 +86,7 @@
 						</div>
 						<div class="bubble loss hide">
 							<div class="item">
-								This contract needs <span class="amount"></span> more in order to have profits.
+								This contract needs <span class="amount"></span> in order to have profits.
 							</div>
 							<div class="item">
 								<span class="available"></span> of bankroll is available, and can be recalled.
@@ -161,9 +161,8 @@
 				tippy($e.find(".tip").toArray());
 				tippy($e.find(".tip-left").addClass("tip").toArray(), {placement: "left"});
 				const max = BigNumber.max(balance, collateral.plus(bankroll));
-				function toPct(v, offsetLeft){
-					const thisMax = offsetLeft ? max.minus(offsetLeft) : max;
-					return `${v.div(thisMax).mul(100).toFixed(2)}%`;
+				function toPct(v){
+					return `${v.div(max).mul(100).toFixed(2)}%`;
 				}
 				if (collateral.gt(0)) {
 					$table.find(".collateral").show();
@@ -181,8 +180,9 @@
 
 				$table.find(".profit .value").text(util.toEthStr(profit));			
 				if (profit.gte(0)) {
+					const leftPct = parseFloat(toPct(collateral.plus(bankroll)))-1;
 					$table.find(".profit .inner-bar")
-						.css("left", toPct(collateral.plus(bankroll)))
+						.css("left", `${leftPct}%`)
 						.width(toPct(profit))
 						.css("background", "rgba(0,128,0,.8)");
 				} else {

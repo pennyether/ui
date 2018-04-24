@@ -40,7 +40,8 @@ does not become the new Monarch.`,
     },
 
     InstaDice: {
-        roll: `Rolls the dice, if number lands <= number, you win.`
+        roll: `Rolls the dice, if number lands <= number, you win.`,
+        payoutPreviousRoll: `Pays out the winnings from the previous roll.`
     },
 
     VideoPoker: {

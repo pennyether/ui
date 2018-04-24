@@ -344,6 +344,9 @@ function doScrolling(end, duration) {
     // var targetY = document.body.scrollHeight - elementY < window.innerHeight
     //     ? document.body.scrollHeight - window.innerHeight
     //     : elementY
+    if (typeof end !== "number") {
+        end = $(end).position().top;
+    }
     const start = window.pageYOffset;
     var diff = end - start;
     var easing = function (t) { return t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1 }

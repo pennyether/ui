@@ -54,6 +54,7 @@ Loader.require("dice")
 				refreshRoll(event.args.id);	
 			}
 		}).catch((e)=>{
+			console.error(e);
 			_$status.empty().text(`Unable to load a receipt for this Transaction Id.`);
 		})
 	}
@@ -89,73 +90,46 @@ Loader.require("dice")
 		_$resultSection.show();
 		_$refunded.hide();
 
-		DiceUtil.getRoll(dice, rollId).then(roll => {
-			$(".field .value").text("");
+		// load all events, display roll.
+		$(".field .value").text("");
+		Promise.all([
+			dice.getEvents("RollWagered", {id: rollId}),
+			dice.getEvents("RollFinalized", {id: rollId})
+		]).then(arr=>{
+			const wagered = arr[0].length ? arr[0][0] : null;
+			const finalized = arr[1].length ? arr[1][0] : null;
 
-			if (roll.id.equals(0)) {
-				_$status.empty().append(`Roll Id "${rollId}" not found in contract.`);
+			if (!wagered) {
+				_$status.empty().text(`Unable to find the "RollWagered" event of roll: ${rollId}`);
 				return;
 			}
+			$(".field.id .value").text(`${wagered.args.id}`);
+			$(".field.user .value").append(nav.$getPlayerLink(wagered.args.user));
+			$(".field.bet .value").append(util.toEthStrFixed(wagered.args.bet));
+			$(".field.number .value").append(`${wagered.args.number} or below.`);
+			$(".field.payout .value").append(util.toEthStrFixed(wagered.args.payout));
 
-			$(".field.id .value").text(`${rollId}`);
-			$(".field.user .value").append(nav.$getPlayerLink(roll.user));
-			$(".field.bet .value").append(util.toEthStrFixed(roll.bet));
-			$(".field.number .value").append(`${roll.number} or below.`);
-			$(".field.payout .value").append(util.toEthStrFixed(roll.payout));
+			const computedResult = DiceUtil.computeResult(wagered.blockHash, rollId);
+			const isWinner = !computedResult.gt(wagered.args.number);
+			// update initial transaction and result.
+			$(".field.transaction .value").append($getTxLink(wagered));
+			$(".field.result .value").text(computedResult);
+			$(".field.isWinner .value").text(isWinner ? "Yes." : "No.");
 
-			// load all events, display roll.
-			Promise.all([
-				dice.getEvents("RollWagered", {id: rollId}, roll.block - 1),
-				dice.getEvents("RollFinalized", {id: rollId}, roll.block - 1),
-				dice.getEvents("PayoutSuccess", {id: rollId}, roll.block - 1),
-				dice.getEvents("PayoutFailure", {id: rollId}, roll.block - 1)
-			]).then(arr=>{
-				const wagered = arr[0].length ? arr[0][0] : null;
-				const resolved = arr[1].length ? arr[1][0] : null;
-				const payoutSuccess = arr[2].length ? arr[2][0] : null;
-				const payoutFailures = arr[3];
-
-				if (!wagered) {
-					throw new Error(`Unable to find the "RollWagered" event of roll: ${rollId}`);
-				}
-				const computedResult = DiceUtil.computeResult(wagered.blockHash, rollId);
-				const isWinner = !computedResult.gt(roll.number);
-				// update initial transaction and result.
-				$(".field.transaction .value").append($getTxLink(wagered));
-				$(".field.result .value").text(computedResult);
-				$(".field.isWinner .value").text(isWinner ? "Yes." : "No.");
-
-				// now update the history
-				$(".field.rollWagered .value").append($getTxLink(wagered));
-				if (resolved) {
-					$(".field.rollResolved .value").append($getTxLink(wagered));
-					$(".field.resolvedResult .value").text(resolved.args.result);
-				}else{
-					$(".field.rollResolved .value").text("This roll has not been resolved yet.");
-					$(".field.resolvedResult .value").text("This roll has not been resolved yet.")
-				}
-				if (payoutSuccess) {
-					$(".field.payoutSuccess .value").append($getTxLink(payoutSuccess));
+			// now update the history
+			$(".field.rollWagered .value").append($getTxLink(wagered));
+			if (finalized) {
+				if (finalized.args.payout.gt(0)) {
+					const ethStr = util.toEthStrFixed(finalized.args.payout);
+					$(".field.rollResolved .value").append($getTxLink(finalized).prepend(`Paid ${ethStr}: `));
 				} else {
-					$(".field.payoutSuccess .value").text("This roll has not been paid.");
+					$(".field.rollResolved .value").append($getTxLink(finalized));
 				}
-
-				// show failures
-				if (payoutFailures.length > 0) {
-					$(".payoutFailures").show();
-					const $ctnr = $(".payoutFailures .failures").empty();
-					payoutFailures.forEach(payoutFailure => {
-						const $e = $(`
-							<div style='margin-bottom: 5px'>
-								PayoutFailure: <span class="tx"></span><br>
-							</div>
-						`).appendTo($ctnr);
-						$e.find(".tx").append($getTxLink(payoutFailure));
-					});
-				} else {
-					$(".payoutFailures").hide();
-				}
-			});
-		})
+				$(".field.resolvedResult .value").text(finalized.args.result);
+			} else {
+				$(".field.rollResolved .value").text("This roll has not been finalized yet.");
+				$(".field.resolvedResult .value").text("This roll has not been finalized yet.")
+			}
+		});
 	}
 });

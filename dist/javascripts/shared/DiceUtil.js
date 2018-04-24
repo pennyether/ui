@@ -117,9 +117,8 @@
         const _ethUtil = ethUtil;
 
         var _feeBips;
-        var _finalizeId;
 
-        this.setSettings = (user, numBlocks, feeBips, finalizeId) => {
+        this.setSettings = (user, numBlocks, feeBips) => {
             _controller.setSettings({
                 ethUtil: _ethUtil,
                 user: user,
@@ -128,7 +127,6 @@
                 parseEventFn: _parseEvent
             });
             _feeBips = feeBips;
-            _finalizeId = finalizeId;
         }
         this.getRolls = _controller.getStates;
         this.refreshRolls = _controller.refreshStates;
@@ -138,9 +136,7 @@
             return Promise.all([
                 _dice.getEvents("RollRefunded", {user: user}, fromBlock),
                 _dice.getEvents("RollWagered", {user: user}, fromBlock),
-                _dice.getEvents("RollFinalized", {user: user}, fromBlock),
-                _dice.getEvents("PayoutFailure", {user: user}, fromBlock),
-                _dice.getEvents("PayoutSuccess", {user: user}, fromBlock)
+                _dice.getEvents("RollFinalized", {user: user}, fromBlock)
             ]).then(arr => {
                 const events = [];
                 arr.forEach(evs => evs.forEach(ev => events.push(ev)));
@@ -169,8 +165,7 @@
                 roll.number = event.args.number;
                 roll.payout = event.args.payout;
                 roll.result = computeResult(event.blockHash, roll.id);
-                roll.isWinner = !roll.result.gt(roll.number);
-                roll.finalizeRollsLeft = Math.max((roll.id - _finalizeId) + 1, 0);
+                roll.isWinner = roll.result.lte(roll.number);
                 roll.finalizeBlocksLeft = Math.max((event.blockNumber+255) - curBlockNum, 0)
                 roll.createdEvent = event;
                 roll.createdTimestamp = event.args.time.toNumber();
@@ -179,19 +174,8 @@
                 if (roll.id === undefined) return;
                 roll.state = "finalized";
                 roll.result = event.args.result;
-                roll.isWinner = !roll.result.gt(roll.number);
+                roll.isWinner = roll.result.lte(roll.number);
                 roll.finalizedEvent = event;
-            }
-            if (event.name == "PayoutFailure") {
-                if (roll.id === undefined) return;
-                roll.didPayoutSucceed = false;
-                roll.paymentFailureEvents = roll.paymentFailureEvents || [];
-                roll.paymentFailureEvents.push(event);
-            }
-            if (event.name == "PayoutSuccess") {
-                if (roll.id === undefined) return;
-                roll.didPayoutSucceed = true;
-                roll.paymentEvent = event;
             }
             return roll;
         }

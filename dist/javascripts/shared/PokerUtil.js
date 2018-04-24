@@ -520,11 +520,6 @@
                     const $dCards = $game.find(".dHand .Card");
                     const timedout = gs.dHand.toNumber() !== gs.dHandRaw.toNumber();
                     const draws = gs.draws.toNumber();
-                    if (draws == 0) {
-                        $game.find(".dHand").text("no draws").addClass("no-draws");
-                        $game.find(".tx").eq(0).after("<div class='tx'></div>");
-                        return;
-                    }
                     for (var i=0; i<=4; i++){
                         const isDrawn = draws & Math.pow(2, i);
                         if (!isDrawn) $dCards.eq(i).text("↓").addClass("held");
