@@ -112,7 +112,7 @@ Loader.require("comp", "tr", "token", "tm", "monarchy", "dice", "vp")
         topology.monarchyCurProfits(monarchy.profits(), eth);
 
         // ID
-        topology.diceNumRolls(dice.curId(), num);
+        topology.diceNumRolls(dice.numRolls(), num);
         topology.diceTotalWagered(dice.totalWagered(), eth);
         topology.diceCurProfits(dice.profits(), eth);
         Promise.all([

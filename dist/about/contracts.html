@@ -127,14 +127,59 @@
 		</style>
 		<script>
 			// fill in all the addresses
-			Loader.require("comp", "tr", "tm", "dice", "vp", "monarchy")
-			.then(function(comp, tr, tm, dice, vp, monarchy){
+			Loader.require("comp", "tr", "tm", "dice", "vp", "monarchy", "reg")
+			.then(function(comp, tr, tm, dice, vp, monarchy, reg){
 				$(".comp-addr").append(util.$getAddrLink(comp.address));
 				util.bindToElement(comp.token().then(util.$getAddrLink), $(".token-addr"), true);
-				util.bindToElement(comp.locker().then(util.$getAddrLink), $(".locker-addr"), true);
 				$(".tr-addr").append(util.$getAddrLink(tr.address));
 				$(".mc-addr").append(util.$getAddrLink(tm.address));
 				$(".dice-addr").append(util.$getAddrLink(dice.address));
+				$(".reg-addr").append(util.$getAddrLink(reg.address));
+				(function loadRegistry(){
+					const regMappings = Loader.getRegistryMappings();
+					const count = Object.keys(regMappings).length;
+					const $mappings = $("<div></div>").hide();
+					Object.keys(regMappings).forEach(name => {
+						const $link = Loader.linkOf(regMappings[name]);
+						$mappings.append($("<div></div>").append(`${name}: `).append($link));
+					});
+					const $title = $("<div></div>").text(`${count} Mappings...`).click(()=> $mappings.toggle());
+					$("<div></div>").append($title).append($mappings).appendTo($(".reg-mappings"));
+				}());
+				(function loadTokenLocker(){
+					comp.locker().then(locker => {
+						locker = DividendTokenLocker.at(locker);
+						return Promise.obj({
+							owner: locker.owner(),
+							total: locker.vestingAmt(),
+							vested: locker.tokensVested(),
+							date: locker.vestingStartDay()
+						}).then(obj => {
+							$(".locker-addr").append(util.$getAddrLink(locker.address));
+							$(".locker-owner").append(Loader.linkOf(obj.owner));
+							const total = util.toEthStrFixed(obj.total, 5, "PENNY");
+							const vested = util.toEthStrFixed(obj.vested, 5, "PENNY");
+							const date = util.toDateStr(obj.date);
+							const vestingStr = `Vesting of ${total} started ${date}<br>${vested} tokens have vested.`;
+							$(".locker-vesting").append(vestingStr);
+						})
+					});
+				}());
+				(function loadWallet(){
+					comp.wallet().then(wallet => {
+						wallet = CustodialWallet.at(wallet);
+						return Promise.obj({
+							custodian: wallet.custodian(),
+							supervisor: wallet.supervisor(),
+							owner: wallet.owner()
+						}).then(obj => {
+							$(".wallet-addr").append(util.$getAddrLink(wallet.address));
+							$(".wallet-custodian").append(util.$getAddrLink(obj.custodian));
+							$(".wallet-supervisor").append(util.$getAddrLink(obj.supervisor));
+							$(".wallet-owner").append(util.$getAddrLink(obj.owner));
+						})
+					});
+				}());
 			});
 		</script>
 	</head>
@@ -519,11 +564,11 @@
 				<div class="fieldList">
 					<div class="field">
 						<div class="label">Address:</div>
-						<div class="value registry-addr"></div>
+						<div class="value reg-addr"></div>
 					</div>
 					<div class="field">
 						<div class="label">Mappings:</div>
-						<div class="value registry-mappings"></div>
+						<div class="value reg-mappings"></div>
 					</div>
 					<div class="field">
 						<div class="label">More Info:</div>
@@ -565,8 +610,8 @@
 						<div class="value locker-owner"></div>
 					</div>
 					<div class="field">
-						<div class="label">Tokens:</div>
-						<div class="value locker-tokens"></div>
+						<div class="label">Vesting Info:</div>
+						<div class="value locker-vesting"></div>
 					</div>
 					<div class="field">
 						<div class="label">More Info:</div>

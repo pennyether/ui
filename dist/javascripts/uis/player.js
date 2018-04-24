@@ -162,16 +162,6 @@ Loader.require("monarchy", "dice", "vp")
                 filter: {user: account},
                 label: "Roll Finalized",
                 selected: false 
-            },{
-                name: "PayoutSuccess",
-                filter: {user: account},
-                label: "Payed",
-                selected: false
-            },{
-                name: "PayoutFailure",
-                filter: {user: account},
-                label: "Payed",
-                selected: false
             }].map(obj => {
                 obj.instance = InstaDice;
                 return obj;

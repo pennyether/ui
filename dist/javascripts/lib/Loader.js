@@ -66,6 +66,8 @@
             return foundName || addr;
         };
 
+        this.getRegistryMappings = () => _regMappings;
+
         this.linkOf = (addr) => {
             var name = _self.nameOf(addr);
             if (name.startsWith("0x")) return util.$getShortAddrLink(name);
@@ -88,7 +90,7 @@
         this.getBankrollables = () => {
             return Object.keys(_regMappings).filter(name => {
                 name = name.toLowerCase();
-                const names = ["penny_auction_controller", "insta_dice", "video_poker"];
+                const names = ["monarchy", "insta_dice", "video_poker"];
                 return names.some(tName => name.indexOf(tName) >= 0);
             }).map(name => _regMappings[name]);
         };
