@@ -28,8 +28,8 @@
 
         const _siteMap = [
             {
-                name: "Win Ether!",
-                url: "/games/monarchy.html",
+                name: "Play!",
+                url: "/index.html#games",
                 children: [{
                     name: "👑 Monarchy",
                     url: "/games/monarchy.html",

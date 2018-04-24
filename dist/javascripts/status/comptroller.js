@@ -49,11 +49,11 @@ Loader.require("comp", "tr")
 			const $eToken = $e.find(".token-info");
 			$(`<a href="/status/token.html" target="_blank">status</a>`).appendTo($eToken);
 			util.$getAddrLink("etherscan", obj.token).appendTo($eToken.append(" "));
-			$(`<a href="/about/contracts.html#token" target="_blank">info</a>`).appendTo($eToken.append(" "));
+			$(`<a href="/about/contracts.html#penny-token" target="_blank">info</a>`).appendTo($eToken.append(" "));
 
 			const $eLocker = $e.find(".locker-info");
 			util.$getAddrLink("etherscan", obj.locker).appendTo($eLocker);
-			$(`<a href="/about/contracts.html#token-locker" target="_blank">info</a>`).appendTo($eLocker.append(" "));
+			$(`<a href="/about/contracts.html#dividend-token-locker" target="_blank">info</a>`).appendTo($eLocker.append(" "));
 		}
 	}
 

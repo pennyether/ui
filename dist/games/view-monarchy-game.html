@@ -5,6 +5,11 @@
 		<script src="../javascripts/games/view-monarchy-game.js"></script>
 		<script src="../javascripts/shared/MonarchyUtil.js"></script>
 		<style>
+			.enterAddress {
+				width: 80%;
+				margin: 0px auto;
+				text-align: center;
+			}
 			.enterAddress input {
 				font-size: 120%;
 				width: 470px;
@@ -39,19 +44,23 @@
 	</head>
 	<body>
 	<div id="Content">
-		<div class="pageTitle">
-			PennyAuction Details
+		<div class="page-header">
+			<div class="title">
+				PennyAuction Details
+			</div>
 		</div>
 		<div class="section enterAddress">
-			<div class="head">Auction Address</div>
-			<div class="body">
-				<input type=text id="Address" placeholder="auction address"><button id="LoadButton">Load</button>
+			<div style="display: inline-block;">
+				<div class="head" style="text-align: left;">Auction Address</div>
+				<div class="body">
+					<input type=text id="Address" placeholder="auction address"><button id="LoadButton">Load</button>
+				</div>
 			</div>
 		</div>
 		<div style="margin: 0px 30px">
 			<div class="page-subsection settings">
 				<div class="head">
-					<span title="This values do not change during the course of the game.">
+					<span title="The below values do not change.">
 						Game Settings
 					</span>
 				</div>
