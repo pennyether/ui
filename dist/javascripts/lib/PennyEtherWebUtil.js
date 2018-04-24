@@ -1063,8 +1063,8 @@
             _refresh();
         };
         this.setValue = function(v) {
-            _$txt.val(v);
-            _refreshValue();
+            _setTxt(Number(v));
+            _$txt.trigger("input");
         };
         this.freeze = function(bool) {
             if (bool) {

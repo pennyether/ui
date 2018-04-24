@@ -455,7 +455,7 @@ function Game(vp) {
             });
         }
         _slider.setUnits(units);
-        if (Object.keys(_gameState).length === 0) _slider.setValue(settings.minBet.div(1e18))
+        if (Object.keys(_gameState).length === 0) {_slider.setValue(.01);}
         _refreshDebounce();
     };
 

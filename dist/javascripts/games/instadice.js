@@ -500,7 +500,7 @@ Loader.require("dice")
 
         var _betSlider = util.getSlider("Bet");
         _betSlider.$e.appendTo(_$e.find(".bet-slider"));
-        _betSlider.setValue(0.1);
+        _betSlider.setValue(0.01);
         _betSlider.setOnChange(_refreshPayout);
         var _numSlider = util.getSlider("Number");
         _numSlider.$e.appendTo(_$e.find(".num-slider"));
