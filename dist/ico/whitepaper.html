@@ -84,9 +84,9 @@
 					
 				.toc .subitem {
 					display: block;
-					padding: 1px 4px;
+					padding: 1px 4px 1px 0px;
 					font-size: 90%;
-					margin-left: 35px;
+					margin-left: 30px;
 				}
 					.toc .subitem:hover {
 						color: #666;
@@ -127,6 +127,28 @@
 			ol, ul {
 				margin-bottom: 25px;
 			}
+			.comparison {
+				margin: 0px auto;
+			}
+			.comparison td {
+				padding: 4px 10px;
+			}
+			.comparison thead td {
+				font-weight: bold;
+			}
+			.comparison tbody tr td:first-child {
+				font-weight: bold;
+				white-space: nowrap;
+			}
+			.comparison tbody tr.category td {
+				padding-top: 10px;
+				padding-bottom: 5px;
+				color: gray;
+				font-weight: normal;
+			}
+			.comparison tbody tr:nth-child(odd) {
+				background: #EEE;
+			}
 		</style>
 		<script>
 		var loadedHash = window.location.hash;
@@ -159,7 +181,7 @@
 			</div>
 			<div class="item inpage-item">
 				<a href="#games">
-					<div class="head">Our Games</div>
+					<div class="head">Games</div>
 				</a>
 				<div class="body">
 					<a href="#game-standards" class="subitem inpage-item">
@@ -171,8 +193,14 @@
 					<a href="#games-instadice" class="subitem inpage-item">
 						InstaDice
 					</a>
+					<a href="#games-videopoker" class="subitem inpage-item">
+						Video Poker
+					</a>
 					<a href="#games-upcoming" class="subitem inpage-item">
 						Upcoming Games
+					</a>
+					<a href="#games-3rd-party" class="subitem inpage-item">
+						3rd Party Games
 					</a>
 				</div>
 			</div>
@@ -181,9 +209,6 @@
 					<div class="head">The Market</div>
 				</a>
 				<div class="body">
-					<a href="#market-preface" class="subitem inpage-item">
-						Preface
-					</a>
 					<a href="#market-segments" class="subitem inpage-item">
 						Market Segments
 					</a>
@@ -197,14 +222,20 @@
 					<div class="head">The Application</div>
 				</a>
 				<div class="body">
-					<a href="#application-core" class="subitem inpage-item">
-						Core Contracts
+					<a href="#treasury" class="subitem inpage-item">
+						Treasury
 					</a>
-					<a href="#application-demo" class="subitem inpage-item">
-						Interactive Demo
+					<a href="#comptroller" class="subitem inpage-item">
+						Comptroller
 					</a>
-					<a href="#application-scalability" class="subitem inpage-item">
-						Scalability
+					<a href="#token" class="subitem inpage-item">
+						Token & Dividends
+					</a>
+					<a href="#autonomy" class="subitem inpage-item">
+						TaskManager
+					</a>
+					<a href="#ui" class="subitem inpage-item">
+						UI
 					</a>
 				</div>
 			</div>
@@ -218,9 +249,6 @@
 					</a>
 					<a href="#security-autonomy" class="subitem inpage-item">
 						Autonomy
-					</a>
-					<a href="#security-audits-tests" class="subitem inpage-item">
-						Contracts, Audits, Tests
 					</a>
 				</div>
 			</div>
@@ -359,7 +387,7 @@
 								PennyEther is an Ethereum-based distributed application that autonomously runs any number of revenue generating smart contracts. PennyEther is <a href="/status/overview.html" target="_blank">already deployed</a>, thoroughly tested, and currently runs three innovative games that are best-in-breed, and profitable: <a href="/games/monarchy.html" target="_blank">Monarchy</a>, <a href="/games/instadice.html" target="_blank">InstaDice</a>, and <a href="/games/videopoker.html">Video Poker</a>. All of our games meet <a href="#game-standards">our high standards</a>, and <a href="/about/contracts.html" target="_blank">all contracts</a> are open-source, well-documented, thoroughly tested, and are undergoing audit.
 							</p>
 							<p>
-								PennyEther runs on top of <a href="#transparency">transparent</a> <a href="#core-contracts">Core</a> that is <a href="#scalability">scalable</a>, <a href="#security">secure</a>, and that <a href="#token-contract">distributes 100% of profits</a> to Token Holders. We've created an <a href="/about/overview.html" target="_blank">interactive overview</a> that shows how <a href="#the-application">the application</a> works.
+								PennyEther runs on top of <a href="#transparency">transparent</a> <a href="#application">Core</a> that is <a href="#scalability">scalable</a>, <a href="#security">secure</a>, and that <a href="#token-contract">distributes 100% of profits</a> to Token Holders. We've created an <a href="/about/overview.html" target="_blank">interactive overview</a> that shows how <a href="#the-application">the application</a> works. We also have the technology in place to allow <a href="#games-3rd-party">3rd Party Developers</a> to run games on our platform and share in profits.
 							</p>
 							<p>
 								We strongly believe we've created the world's most sophisticated autonomous blockchain application, and are excited to sell 80% ownership to the public. We're having an ICO for four reasons:
@@ -532,7 +560,7 @@
 
 				<a data-anchor="games"></a>
 				<div class="page-section">
-					<div class="head">Our Games</div>
+					<div class="head">Games</div>
 					<div class="body">
 						<p>
 							We currently offer three games, and will continue to develop more. Our three games, Monarchy, InstaDice, and VideoPoker, are fully developed and deployed, from the Smart Contract to the UI. They were strenuously tested by our <a href="#testing">advanced testing framework</a>, and are undergoing audits. They're also live, and staked with our own Ether, meaning that there already exists a bounty in breaking them.
@@ -581,6 +609,7 @@
 						<div class="page-subsection">
 							<div class="head">Penny Auctions (aka, Monarchy)</div>
 							<div class="body">
+								<h3>Summary</h3>
 								<p>
 									A penny auction is a type of <a href="https://en.wikipedia.org/wiki/All-pay_auction" target="_blank">all-pay auction</a> in which a prize is staked by the house, and any participant can pay a small non-refundable fee, much less than the prize, in order to "bid".  When a bid occurs, the auction timer is reset to some amount, and that bidder becomes the current winner.  Once the auction timer expires (due to nobody else bidding), the current winner has won and can claim the prize.  Ideally, the auction receives enough bids so that the house recoups the cost of staked prize.
 								</p>
@@ -589,12 +618,16 @@
 									<div style="padding: 10px; font-style: italic; background: white; margin: 10px;">
 										The Monarch will win the prize if they reign for long enough without being overthrown. It costs a small fee to overthrow the Monarch and start your reign as the Monarch.
 									</div>
-									We've also added two dynamics to the game:
+								</div>
+								<p>
+									<b>We've added two dynamics to Penny Auctions to improve gameplay</b>:
 									<ul style="margin-bottom: 0px;">
 										<li> Upon each "overthrow", a portion of that fee can be allocated to (or removed from) the prize. This means prizes can continue to grow (or shrink) as the game progresses. We're determining through trial and error how this setting effects gameplay.</li>
 										<li>Upon each "overthrow", the user can provide a "decree" in the form of a string. This message will be viewable to all players.</li>
 									</ul>
-								</div>
+								</p>
+
+								<h3>Prior Art</h3>
 								<p>
 									The penny auction game format already exists online, and is popular because:
 									<ul>
@@ -611,30 +644,6 @@
 								<p>
 									Monarchy is lot more fun and engaging than simple dice games, and we believe this will attract a lot of users who already game on the blockchain.
 								</p>
-								<style>
-									.comparison {
-										margin: 0px auto;
-									}
-									.comparison td {
-										padding: 4px 10px;
-									}
-									.comparison thead td {
-										font-weight: bold;
-									}
-									.comparison tbody tr td:first-child {
-										font-weight: bold;
-										white-space: nowrap;
-									}
-									.comparison tbody tr.category td {
-										padding-top: 10px;
-										padding-bottom: 5px;
-										color: gray;
-										font-weight: normal;
-									}
-									.comparison tbody tr:nth-child(odd) {
-										background: #EEE;
-									}
-								</style>
 								<table class="comparison" cellpadding="0" cellspacing="0">
 									<thead>
 										<tr>
@@ -711,7 +720,7 @@
 										<li>
 											<b>Preventing Shill Bidding</b>
 											<br>
-											When an overthrow occurs, the Ether paid will only ever end up in the hands of the token holders. The only way an insider can overthrow for free is if they own 50% or more of all tokens, which given our ICO conditions, would be prohibitively expensive. Furthermore, even if this user were to own 50% and did cheat, the blockchain is public; they would have to go through great lengths to constantly wash their coins to make it unknown. Lastly, they would only be discouraging gamers from playing, and would have invested quite a large amount of Ether only to scare away players.
+											When an overthrow occurs, the Ether paid will only ever end up in the hands of the token holders. The only way an insider can overthrow for free is if they own 50% or more of all tokens, which given our ICO conditions, would be prohibitively expensive. Furthermore, even if this user were to own 50% and did cheat, the blockchain is public; they would have to go through great lengths to constantly wash their coins to make it unknown. Lastly, they would only be discouraging gamers from playing, and would have invested quite a large amount of Ether only to scare away players. <b>For the first time in history, this type of game can occur fairly.</b>
 										</li>
 										<li>
 											<b>Instant Delivery</b>
@@ -724,16 +733,7 @@
 								<a data-anchor="pennyether-vs-penny-auction-websites"></a>
 								<h3>PennyEther vs Penny Auction Websites</h3>
 								<p>
-									<style>
-									#pe-vs-pa td {
-										vertical-align: top;
-										padding: 5px;
-									}
-									#pe-vs-pa tr:nth-child(even) {
-										background: #EEE;
-									}
-									</style>
-									<table data-anchor="pe-vs-pa" style="font-size: 90%" cellpadding="0" cellspacing="0" width="100%">
+									<table data-anchor="pe-vs-pa" class="comparison" style="font-size: 90%" cellpadding="0" cellspacing="0" width="100%">
 										<tr>
 											<td></td>
 											<td><b>PennyEther</b></td>
@@ -827,7 +827,11 @@
 									It takes two Ethereum transactions, one of which has a low gas price (meaning it can take a <i>very</i> long time), and all the while the user is left waiting with hardly any indication by the UI. We noticed that in the forums and in chat rooms of our competitors, there were constantly questions about "how long should it take?" and "did I win or lose?".
 								</p>
 								<p>
-									Our competitors use an Oracle to resolve their rolls, which responds via a transactions at a fixed gas price of 20 GWei. During times of congestion can take upwards of 20 minutes. It's also We can do better!
+									Our competitors use an Oracle to resolve their rolls, which responds via a transactions at a fixed gas price of 20 GWei. During times of congestion can take upwards of 20 minutes.
+								</p>
+								<b>Large Minimum Bet, Lower House Profit</b>
+								<p>
+									Because our competitors pay an Oracle for results on each roll, they must enforce a higher maximum bet to ensure they make a profit. Without setting a minimum bet, rolls would cost the house more than they could win.  <b>PennyEther is free to allow any minimum bet because there is no Oracle to pay. Additionally, PennyEther's profit margins are higher.</b>
 								</p>
 
 								<h3>Instant Results</h3>
@@ -899,6 +903,11 @@
 										</tr>
 									</thead>
 									<tbody>
+										<tr class="category">
+											<td>Player Considerations</td>
+											<td></td>
+											<td></td>
+										</tr>
 										<tr>
 											<td>Results</td>
 											<td>
@@ -962,7 +971,7 @@
 											<td></td>
 										</tr>
 										<tr>
-											<td>Profitability</td>
+											<td>Profit Margin</td>
 											<td>1%</td>
 											<td>1%, minus Oracle Fee per roll</td>
 										</tr>
@@ -978,6 +987,25 @@
 										</tr>
 									</tbody>
 								</table>
+							</div>
+						</div>
+
+						<a data-anchor="games-videopoker"></a>
+						<div class="page-subsection">
+							<div class="head">Video Poker</div>
+							<div class="body">
+								<p>
+									Late in the process of building PennyEther, we decided to try coding a multi-stage game, and to see if card games were feasible. It turns out that they are, and the gas cost is not too bad. <a href="/games/videopoker.html" target="_blank">Video Poker</a> is our first step towards offering a variety of traditional casino machine games. The game fully meets <a href="#game-standards">our standards</a>.
+								</p>
+								<b>Here are some of the Features of Video Poker:</b>
+								<ul>
+									<li><b>Ether Accepted</b>. No need for tokens.</li>
+									<li><b>Fully on blockchain</b>. No backend server or Oracles are used.</li>
+									<li><b>Instant results</b>. The player sees hand results immediately after each transaction.</li>
+									<li><b>Low Gas Costs</b>. A full game can be played for about 100,000 gas, which at the time of writing is about 7 cents.</li>
+									<li><b>Friendly UI</b>. The UI shows all pending hands, even if the window is closed and re-opened. Players do not need to worry about hands being "lost".</li>
+									<li><b>Protection against block re-orgs.</b> The UI may display one hand, but a blockchain re-org may cause the actual on-chain hand to be different. If the submits a transaction to draw the first card, for example, the contract will ensure they are drawing against thier intended hand -- otherwise it will produce an error.</li>
+								</ul>
 							</div>
 						</div>
 
@@ -998,6 +1026,9 @@
 											<b>Paramutuel Betting (User Generated)</b>: A system for users to create their own paramutuel betting pool. For example, a user may create a "Bitcoin > $10,000 by Jan 1 2019" bet.
 										</li>
 										<li>
+											<b>RNG Games</b>: Some options are plinko, money wheel, and clones of popular offchain bitcoin games like "bustabit", "bitkong", etc.
+										</li>
+										<li>
 											<b>Global Lottery</b>: A simple lottery game in which a user can pick several numbers. Every two days, a drawing is held. Most of the ticket fees go back into the JackPot, and PennyEther keeps a small fee.
 										</li>
 										<li>
@@ -1007,11 +1038,47 @@
 											<b>All-Fee Auctions</b>: All-fee auctions are the type of auction made fair by distributed ownership. We're working on a few ideas.
 										</li>
 										<li>
-											<b>Video Poker (5 card draw)</b>: We're not sure if waiting 30 seconds for 5 cards, then another 30 seconds for new cards is compelling enough for the user. We may test it out and see how it performs.
-										</li>
-										<li>
 											<b>Casino Games</b>: This is our long-term goal. Traditional casino games are currently not viable purely on the blockchain. However, we may explore using a back-end process and using State Channels or new technologies as they progress.
 										</li>
+									</ul>
+								</p>
+							</div>
+						</div>
+
+						<a data-anchor="games-3rd-party"></a>
+						<div class="page-subsection">
+							<div class="head">Third Party Games</div>
+							<div class="body">
+								<h3>Summary</h3>
+								<p>
+									We anticipate that PennyEther will become a compelling platform for developers to create games, and we're open to assisting and running third party games. There are several reason why a developer may choose to create a game and run it on PennyEther rather than on their own:
+									<ul>
+										<li><b>Access to Bankroll:</b> Should the game pass audits, we'll bankroll the game. For developers, this options is a lot easier and quicker than holding an ICO.</li>
+										<li><b>Access to Audience:</b> Should the game meet <a href="#standards">our standards</a>, we'll include it in our UI. This immediately exposes the game to a wide audience of users. From the developers perspective, it's likely their profits would be a smaller slice of a bigger pie.</li>
+										<li><b>Ease of Development:</b> Implementing a game contract is as easy as extending one Solidity contract. If the game's UI targets PennyEther, the developer can leverage a wide array of UI components that make development orders of magnitude quicker.</li>
+									</ul>
+								</p>
+								<h3>Technology</h3>
+								<p>
+									Over the course of developing three games, we've made it easy on ourselves by creating simple components to reuse. By offering these tools our developers, we believe the barrier to game development will be lower than ever before.
+								</p>
+								<p>
+									<h4>Contract Development</h4>
+									Creating a smart contract to run on PennyEther is as simple as extending one simple contract called `Bankroll`. By extending this contract, the following features are implemented for free:
+									<ul>
+										<li>Treasury can bankroll (and un-bankroll) the Game</li>
+										<li>Profits can autonomously be sent to the Treasury</li>
+									</ul>
+								</p>
+								<p>
+									<h4>User Interface Development</h4>
+									Extending our UI grants the developer use of these UI components:
+									<ul>
+										<li><b>GasSlider Buttons:</b> A widget that allows the user to conveniently select a GasPrice from a range of options provided by EthGasStation</li>
+										<li><b>Wager Slider:</b> A widget that allows the user to conveniently select a wager amount, bounding by a minimum and maximum.</li>
+										<li><b>Transaction Status Display:</b> A widget that shows the user every step of a transaction, and allows the developer to react to events and customize messages.</li>
+										<li><b>Log Viewer:</b> A widget that allows the user to browse past events of a contract, or of their own activity. Extremely simple for the developer to customize this.</li>
+										<li><b>NiceWeb3</b>: A wrapper of web3 that makes creating and responding to transactions less bug-prone, and much easier to manage.</li>
 									</ul>
 								</p>
 							</div>
@@ -1050,6 +1117,7 @@
 							<div class="head">Market Segments</div>
 							<div class="body">
 								We see our revenues coming from four segments of customers, each much larger in size, but requiring more time to convert.
+								<a data-anchor="first-market-segment"></a>
 								<h3>
 									Segment One: Existing blockchain gamers
 								</h3>
@@ -1067,6 +1135,7 @@
 									We strongly feel this segment will easily be converted to use PennyEther. Firstly, <a href="/games/pennyauctions.html" target="_blank">Penny Auctions</a> are not available on any other blockchain site. Secondly, <a href="/games/instadice.html" target="_blank">InstaDice</a> is much more compelling than existing dice games; we expect to see a large percentage of gamers migrating to us. Lastly, this market segment is easily reachable via advertising, marketing, and word of mouth.
 								</p>
 
+								<a data-anchor="second-market-segment"></a>
 								<h3>Segment Two: Ethereum holders</h3>
 								<p>
 									This market segment represents the growing set of users who already hold Ethereum (or will in the future), but who have not yet starting using it for gaming.
@@ -1083,6 +1152,7 @@
 									We're very optimistic about both about the growth of this segment, and their willingness to start using Ethereum for gaming. Through a UI focused on user experience, we believe we will tap into this market rapidly.
 								</p>
 
+								<a data-anchor="third-market-segment"></a>
 								<h3>Segment Three: Penny Auction Gamers</h3>
 								<p>
 									This segment represents people that participate (or have participated) in existing Penny Auction websites, and are willing to switch to Ethereum to game. <a href="#pennyether-vs-penny-auction-websites">We believe we offer a compelling value-add to this segment:</a> No sign-up, provable fair and uncheatable, instant prize payment.
@@ -1090,6 +1160,7 @@
 									The challenge with this market is converting them to use Ethereum. While our initial focus will be on segments one and two, after the ICO we will aggressively work towards making the adoption of Ethereum easy for this segment. This includes writing guides, tutorials, videos, etc, all showcasing how easy it is to get and use Ethereum.
 								</p>
 
+								<a data-anchor="fourth-market-segment"></a>
 								<h3>Segment Four: Online casino gamblers</h3>
 								<p>
 									This is a much longer term goal, and requires usage of crypto to grow, as well as technology enabling fast and trusthworthy off-chain random number generation (such as State Channels) so that we can add casino games. It's also the hardest segment to capture.
@@ -1114,7 +1185,7 @@
 							<div class="head">Strategy</div>
 							<div class="body">
 								<p>
-									<b>Our number one priority is to capture the first, second, and third market segments.</b> We see these as low-hanging fruit, and strongly believe that combined they represent a massive opportunity. Strategically, this will put us in prime position to capture some of the fourth segment.
+									<b>Our number one priority is to capture the <a href="#first-market-segment">first</a>, <a href="#second-market-segment">second</a>, and <a href="#third-market-segment">third</a> market segments.</b> We see these as low-hanging fruit, and strongly believe that combined they represent a massive opportunity. Strategically, this will put us in prime position to capture some of the <a href="#fourth-market-segment">fourth</a> segment.
 								</p>
 								<p>
 									After the ICO, we're going to be aggressively trying to increase our brand and player-base by:
@@ -1138,7 +1209,7 @@
 											<b>Building Loyalty</b>: We can increase player loyalty by rewarding those who most frequent the site. For example, we may work on a loyalty system.
 										</li>
 										<li>
-											<b>Tapping Into the PennyEther Community</b>: We know we haven't thought of everything. We'll be in close contact with fellow Token Holders on <a href="reddit.com/r/PennyEther/" target="_blank">/r/PennyEther</a> and <a href="twitter.com" target="_blank">Twitter</a> in search of great marketing and product ideas.
+											<b>Tapping Into the PennyEther Community</b>: We know we haven't thought of everything. We'll be in close contact with fellow Token Holders on <a href="reddit.com/r/PennyEther/" target="_blank">/r/PennyEther</a> in search of great marketing and product ideas.
 										</li>
 										<li>
 											<b>Giving Back to Ethereum</b>: We've created a lot of very useful UI and Testing tools that we'd like to package and spread amongst Ethereum developers. While it may not directly benefit us, we believe having a good standing amongst developers could help 
@@ -1155,94 +1226,164 @@
 					<div class="head">The Application</div>
 					<div class="body">
 						<p>
-							This section provides a non-technical overview of the technologies we've already developed and deployed. For a more technical perspective, please consider these resources:
+							This section provides a non-technical overview of code and architecture of PennyEther. Supplementary information can be found below:
 							<ul>
-								<li><a href="https://github.com/pennyether/contracts" target="_blank">Our Contracts</a></li>
-								<li><a href="https://github.com/pennyether/ui" target="_blank">Our UI</a></li>
-								<li><a href="/about/contracts.html" target="_blank">More Contract Info</a></li>
-								<li><a href="/status/system.html" target="_blank">Live Contract Status</a></li>
+								<li><a href="/about/overview.html">System Overview Demo</a></li>
+								<li><a href="/about/contracts.html" target="_blank">Contract Details</a></li>
+								<li><a href="https://github.com/pennyether/contracts" target="_blank">Contract Github Repo</a></li>
+								<li><a href="https://github.com/pennyether/ui" target="_blank">UI GitHub Repo</a></li>
+								<li><a href="/status/overview.html" target="_blank">Live System Overview</a></li>
 							</ul>
 						</p>
+						<h3>Design Goals</h3>
 						<p>
-							We'd like to take a moment to reiterate our commitment to quality.
-							<br><br>
-							UI Quality:
+							PennyEther was designed with these goals:
 							<ul>
-								<li>Function and usability first, looks second.</li>
-								<li><u>Always</u> show the user what is happening with transactions.</li>
-								<li>Allow the user to make an informed decision about Gas Price.</li>
-								<li>Allow the user to see past transaction and wager details.</li>
-								<li>Show Token Holders all relevant information, in an easy to understand manner.</li>
-								<li>Make a UI for every contract.</li>
+								<li>Profits can be continuously distributed to Token Holders, at any time.</li>
+								<li>PennyEther runs autonomously.</li>
+								<li>Games can easily be added or upgraded.</li>
 							</ul>
-							Contract Quality:
-							<ul>
-								<li>Test <u>everything</u></li>
-								<li>Independantly audit <u>everything</u></li>
-								<li>Proactively <a href="#security">code against bad actors</a>, including ourselves</li>
-								<li>Assure <a href="#security-autonomy">autonomy</a>
-								<li>Simplify as much as possible</li>
-							</ul>
-						</p>
+						<p>
 
 						<a data-anchor="application-core"></a>
 						<div class="page-subsection">
-							<div class="head">Core Contracts</div>
+							<div class="head">Treasury</div>
 							<div class="body">
-								<p>
-									At the core of our application are a few contracts that ensure the following:
-									<ul>
-										<li>Profits can be sent to Token Holders, at any time</li>
-										<li>Bankroll can be refunded to Token Holders, at any time.</li>
-										<li>PennyEther cannot suddenly become bankrupt, even by the owners</li>
-										<li>Games can easily be added or upgraded</li>
-										<li>PennyEther runs autonomously</li>
-									</ul>
-								<p>
-
 								<a data-anchor="treasury"></a>
-								<h3>The Treasury Contract</h3>
+								<h3>The Contract</h3>
 								<p>
-									At the heart of PennyEther is the <a href="/about/contracts.html#treasury" target="_blank">Treasury contract</a>. This contract holds all the Ether of PennyEther, and dispurses this Ether only in specific situations.
+									At the heart of PennyEther is the <a href="/about/contracts.html#treasury" target="_blank">Treasury contract</a>. This contract holds all the Ether of PennyEther in two separate accounts: "Capital" and "Profits". The Treasury has strict behavior about when Ether can leave either of those two accounts.
 								</p>
 								<p>
-									we've created a <a href="/status/treasury.html" target="_blank">UI for the Treasury</a>. You can see the full financial health of the Treasury, including cash-flow, past dividends, etc.
+									We've created a <a href="/status/treasury.html" target="_blank">UI for the Treasury</a>. You can see the full financial health of the Treasury, including cash-flow, past dividends, etc.
 								</p>
 								<p>
 									<div class="note">
-										Everything about this contract is hard coded; its behavior cannot be changed. There are no "emergency backdoors." It has been <a href="/about/contracts.html#treasury" target="_blank">thoroughly tested and independantly audited</a>.
+										Everything about this contract is hard coded; its behavior cannot be changed. There are no "emergency backdoors." It has been <a href="/about/contracts.html#treasury" target="_blank">thoroughly tested</a> and is undergoing audit.
 									</div>
 								</p>
-								<p style="margin-top: 30px">
-									<b>Ether enters the Treasury:</b>
+
+								<a data-anchor="capital"></a>
+								<a data-anchor="governance"></a>
+								<h3>Capital & Governance</h3>
+								<p>
+									Capital is Ether that the Treasury uses to bankroll Game Controllers. The flow of capital is described below:
+								</p>
+								<p>
+									<b>Capital <u>only</u> enters the Treasury:</b>
 									<ol>
-										<li>As revenue sent by games</li>
-										<li>After the ICO, <u>50%</u> of funds raised are sent to Treasury as <span class="code">bankroll</span> to fund games</li>
+										<li>At the end of CrowdSale, the <a href="#comptroller">Comptroller</a> will pass in a portion of the raised Ether as Capital.</li>
+										<li>The Treasury can <i>recall</i> Capital from any contract that it has Bankrolled, provided that contract has a sufficient balance.</li>
+										<li>In the unlikely event that the Treasury <a href="#raising-capital">increases its Capital Target</a>, the Comptroller will sell Tokens until the required Capital has been raised.</li>
+										<li>Capital can be donated by anyone.</li>
 									</ol>
 								</p>
 								<p>
-									<b>Ether leaves the Treasury <u>only</u> in these situations:</b>
+									<b>Capital <u>only</u> leaves the Treasury:</b>
 									<ol>
-										<li>To send dividends to the Token contract</li>
-										<li>To fund games, within a daily limit.  For security, the daily limit can only be changed by a small amount per day.</li>
-										<li>To refund token holders if they burn their tokens</li>
+										<li>To fund a <span class="code">Bankrollable</span> contract (eg, InstaDice, VideoPoker, or Monarch) which has specified the Treasury as the profit recipient.</li>
+										<li>In the unlikely event that there is excess Capital, it can be transferred to Profits and distributed to Token Holders.</li>
+									</ol>
+								</p>
+								<h4>Governance</h4>
+								<p>
+									The follow events require a <span class="code">Governance Request</span> to be executed:
+									<ol>
+										<li>Sending Capital to a <span class="code">Bankrollable</span> contract. This occurs if the Admin (or DAO) decides a game could use more bankroll.</li>
+										<li>Recalling Capital from a <span class="code">Bankrollable</span> contract. This occurs if the Admin (or DAO) decides a game no longer needs bankroll.</li>
+										<li>Raising the Capital Target. This occurs if the Admin (or DAO) decides more capital is needed. <i>This dilutes all Token Holders, owners included.</i> As such, this would only ever occur if Capital could be used to generate a return.</li>
+										<li>Distributing excess Capital to Profits.</li>
 									</ol>
 								</p>
 								<p>
-									<b>Ether flows in the following manner:</b>
+									A <span class="code">Governance Request</span> is a request that is created by the <a href="#admin">Admin</a> (eventually the <a href="#dao">DAO</a>) that specifies execution parameters and a reason why. Once created, the request will remain pending for one week before it is able to be executed. During this one week period, it can be cancelled by the Admin (or DAO).
+								</p>
+								<p>
+									There are several reason for Governance Requests:
 									<ul>
-										<li>After the ICO, the Treasury is granted a <span class="code">bankroll</span>. The bankroll is owned by Token Holders, and can be redeemed at any time in exchange for burning Tokens, at a rate of <span class="code">.5 Ether</span> per token.</li>
-										<li>The Treasury uses the bankroll to fund games, such as penny auctions, InstaDice, and any other future games.
-											<ul style="margin-bottom: 10px">
-												<li>
-													This funding is limited per day; in the unlikely event that games are not profitable or something goes wrong, the bankroll can only be depleted very slowly.
-												</li>
-											</ul>
+										<li>
+											<b>Transparency:</b> All Token Holders can see where Capital is going, and for what reason, a week ahead of time. Should they suspect abuse or see a problem, it can be brought to the attention of everyone.
 										</li>
-										<li>All games will automatically send their revenues to the Treasury</li>
+										<li>
+											<b>Security:</b> Should the Admin account become compromised, there is a one week period to restore the Admin account to a trusted account. Treasury Capital will be at risk only if no action is taken after a week.
+										</li>
+										<li>
+											<b>Future DAO'ification:</b> In the future it will be possible to put Token Holders in charge by setting the Admin account to a DAO contract. This means Token Holders will essentially control PennyEther's Capital.
+										</li>
 									</ul>
 								</p>
+								<p>
+									Note: All past and present <a href="/status/treasury.html" target="_blank">Governance Requests can be viewed here.</a>
+								</p>
 
+								<h3>Situations</h3>
+								<p>
+									The below table lists all situations, and how the Treasury can react to them via Governance:
+									<table class="comparison">
+										<thead>
+											<tr>
+												<td>Situation</td>
+												<td>Example</td>
+												<td>Governance Request Type</td>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>
+													A game needs bankroll
+												</td>
+												<td>
+													- A new game is created<br>
+													- A game could benefit from more bankroll.
+												</td>
+												<td>
+													SendCapital
+												</td>
+											</tr>
+											<tr>
+												<td>
+													A game no longer needs bankroll
+												</td>
+												<td>
+													- A game is retired (eg: bug, exploit, or upgrade)<br>
+													- A game is proving not to be profitable
+												</td>
+												<td>RecallCapital</td>
+											</tr>
+											<tr>
+												<td>
+													More Capital is needed
+												</td>
+												<td>
+													- All Capital is allocated already<br>
+													- A new game requires Capital
+												</td>
+												<td>
+													RaiseCapitalTarget
+												</td>
+											</tr>
+											<tr>
+												<td>
+													Capital is Unneeded
+												</td>
+												<td>
+													- Critical exploit for flaw found<br>
+													- Token Holders demand a liquidity event
+												</td>
+												<td>
+													DistributeCaptial
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</p>
+							</div>
+						</div>
+
+						<a data-anchor="application-core"></a>
+						<div class="page-subsection">
+							<div class="head">Token</div>
+							<div class="body">
 								<a data-anchor="treasury-dividends"></a>
 								<h4>Dividends</h4>
 								<p>
@@ -1322,446 +1463,28 @@
 							</div>
 						</div>
 
-						<a data-anchor="application-demo"></a>
-						<style>
-							#demo {
-								position: relative;
-								width: 700px;
-								height: 450px;
-							}
-							#demo > div {
-								position: absolute;
-								text-align: center;
-								top: 0px;
-								left: 0px;
-								background: white;
-								border: 1px solid gray;
-								font-size: 80%
-							}
-								.demo-tip {
-									display: none;
-									font-size: 80%;
-									max-width: 300px;
-									text-align: left;
-								}
-								.demo-tip ul {
-									 margin-bottom: 0px;
-								}
-								.demo-tip .code {
-									background: #DDD;
-									padding: 0px 2px;
-									font-family: courier;
-								}
-								#demo > div > .title {
-									font-size: 110%;
-									border-bottom: 1px solid gray;
-									background: navy;
-									color: white;
-									text-align: center;
-									padding: 2px;
-									margin-bottom: 5px;
-								}
-								#demo > div > .status {
-									box-sizing: border-box;
-									position: absolute;
-									bottom: 0px;
-									width: 100%;
-									padding: 2px;
-									text-align: center;
-									border-top: 1px dotted #CCC;
-									background: #FAFAFA;
-									transition: background .3s;
-								}
-								#demo .try {
-									color: white;
-									background: rgba(0,128,0,.8);
-								}
-								#demo > div > .status.error {
-									background: #FF8888;
-								}
-								#demo .value {
-									color: gray;
-									padding: 0px 2px;
-									font-family: courier;
-								}
-								#demo button {
-									cursor: pointer;
-									margin-top: 2px;
-									transition: background .4s;
-								}
-							#demo .changed {
-								border-radius: 3px;
-								background: rgba(0,0,200,.15);
-								transition: background .5s;
-							}
-							#demo .token {
-								top: 10px;
-								left: 10px;
-								width: 260px;
-								height: 100px;
-							}
-							#demo .token-holder-one {
-								top: 130px;
-								left: 10px;
-								height: 150px;
-								width: 125px;
-							}
-							#demo .token-holder-two {
-								top: 130px;
-								left: 145px;
-								height: 150px;
-								width: 125px;
-							}
-							#demo .token-holder-three {
-								top: 290px;
-								left: 10px;
-								height: 150px;
-								width: 125px;
-							}
-							#demo .token-locker {
-								top: 290px;
-								left: 145px;
-								height: 150px;
-								width: 125px;
-							}
-							#demo .treasury {
-								top: 10px;
-								left: 310px;
-								width: 360px;
-								height: 100px;
-							}
-							#demo .main-controller {
-								top: 130px;
-								left: 310px;
-								width: 360px;
-								height: 100px;
-							}
-							#demo .penny-auction {
-								top: 250px;
-								left: 310px;
-								width: 170px;
-								height: 100px;
-								transition: opacity .5s;
-							}
-								#demo .penny-auction.ended {
-									opacity: .4;
-								}
-							#demo .insta-dice {
-								top: 250px;
-								left: 500px;
-								width: 170px;
-								height: 100px;
-								transition: opacity .5s;
-							}
-								#demo .insta-dice.unfunded {
-									opacity: .4;
-								}
-							#demo .player-one {
-								top: 370px;
-								left: 310px;
-								width: 113px;
-								height: 70px;
-							}
-							#demo .player-two {
-								top: 370px;
-								left: 434px;
-								width: 113px;
-								height: 70px;
-							}
-							#demo .player-three {
-								top: 370px;
-								left: 556px;
-								width: 114px;
-								height: 70px;
-							}
-						</style>
-						<div class="page-subsection">
-							<div class="head">
-								Interactive Demo
-							</div>
-							<div class="body">
-								<div>
-									<p>
-										We've created an interactive demo to show how Ether flows through the PennyEther application, and how dividends, burning tokens, and autonomy are achieved.f We suggest you first read and understand <a href="#the-application">the application</a>.
-									</p>
-									Some notes about the Demo:
-									<ul>
-										<li>
-											For simplicity, this demo assumes the ICO sells <span class='code'>180 Tokens</span>, and that the <span class='code'>Treasury</span> has a <span class='code'>Daily Funding Limit</span> of 1 Ether. (The actual values will be different.)
-										</li>
-										<li>
-											Based on the above, the ICO would fund the <span class='code'>Treasury</span> with <span class='code'>90 Ether</span> for bankroll, plus <span class='code'>30 Ether (30 * Daily Fund Limit)</span>, for a total of <span class='code'>120 Ether</span>. This ensures all tokens are burnable, and that any profits can be immediately distributed.
-										</li>
-										<li>
-											You can play with the demo to either produce profits, or to try to bankrupt it. Note that in order for the <span class='code'>Treasury</span> balance to get below <span class='code'>bankroll</span>, you'll have to advance at least 30 days with zero revenue.
-										</li>
-										<li>
-											The worst case scenario is that <span class='code'>Treasury</span> funds <span class='code'>Daily Funding Limit</span> per day, and receives no revenue. See: <a href="#security">security</a> for more details about how even this case is unlikely.
-										</li>
-										<li>
-											Any action marked as "Task:" would realistically pay the caller a small reward. This ensures PennyEther is <a href="#security-autonomy">autonomous</a>.
-										</li>
-										<li>
-											You can <button onclick="demo.reset();">click here to reset the demo</button>
-										</li>
-									</ul>
-								</div>
-								<div data-anchor="demo">
-									<div class="token">
-										<div class="demo-tip">
-											The Token contract receives dividends from <span class='code'>Treasury</span> and allows Token Holders to collect their portion relative to their percent ownership at the time the dividend is received.
-										</div>
-										<div class="title tipLeft">Token</div>
-										<div>
-											Dividends Received:
-											<span class="value"><span class="divs"></span> Eth</span>
-										</div>
-										<div>
-											Total Supply:
-											<span class="value"><span class="supply"></span> Tokens</span>
-										</div>
-										<div class="status"></div>
-									</div>
-									<div class="token-holder-one">
-										<div class="demo-tip">
-											A Token Holder's amount owed is updated any time the Token receives a dividend.
-											<ul>
-												<li><b>Collect Dividends</b>: Collects the owed amount from the Token contract.</li>
-												<li><b>Burn Tokens</b>: Burns tokens in exchange for .5 Eth each. This will decrease the Total Supply, and increase ownership of all other Token Holders.</li>
-											</ul>
-										</div>
-										<div class="title tipLeft">Token Holder 1</div>
-										<div>
-											Tokens:
-											<span class="value"><span><span class="tokens"></span></span> <span>(<span class="tPct"></span>%)</span></span>
-										</div>
-										<div>
-											Owed:
-											<span class="value"><span class="owed"></span> Eth</span>
-										</div>
-										<div>
-											Collected:
-											<span class="value"><span class="collected"></span> Eth</span>
-										</div>
-										<br>
-										<button class="btn-collect-divs">Collect Dividends</button><br>
-										<button class="btn-burn">Burn Tokens</button>
-										<div class="status"></div>
-									</div>
-									<div class="token-holder-two">
-										<div class="demo-tip">
-											A Token Holder's amount owed is updated any time the Token receives a dividend.
-											<ul>
-												<li><b>Collect Dividends</b>: Collects the owed amount from the Token contract.</li>
-												<li><b>Burn Tokens</b>: Burns tokens in exchange for .5 Eth each. This will decrease the Total Supply, and increase ownership of all other Token Holders.</li>
-											</ul>
-										</div>
-										<div class="title tipLeft">Token Holder 2</div>
-										<div>
-											Tokens:
-											<span class="value"><span><span class="tokens"></span></span> <span>(<span class="tPct"></span>%)</span></span>
-										</div>
-										<div>
-											Owed:
-											<span class="value"><span class="owed"></span> Eth</span>
-										</div>
-										<div>
-											Collected:
-											<span class="value"><span class="collected"></span> Eth</span>
-										</div>
-										<br>
-										<button class="btn-collect-divs">Collect Dividends</button><br>
-										<button class="btn-burn">Burn Tokens</button>
-										<div class="status"></div>
-									</div>
-									<div class="token-holder-three">
-										<div class="demo-tip">
-											A Token Holder's amount owed is updated any time the Token receives a dividend.
-											<ul>
-												<li><b>Collect Dividends</b>: Collects the owed amount from the Token contract.</li>
-												<li><b>Burn Tokens</b>: Burns tokens in exchange for .5 Eth each. This will decrease the Total Supply, and increase ownership of all other Token Holders.</li>
-											</ul>
-										</div>
-										<div class="title tipLeft">Token Holder 3</div>
-										<div>
-											Tokens:
-											<span class="value"><span><span class="tokens"></span></span> <span>(<span class="tPct"></span>%)</span></span>
-										</div>
-										<div>
-											Owed:
-											<span class="value"><span class="owed"></span> Eth</span>
-										</div>
-										<div>
-											Collected:
-											<span class="value"><span class="collected"></span> Eth</span>
-										</div>
-										<br>
-										<button class="btn-collect-divs">Collect Dividends</button><br>
-										<button class="btn-burn">Burn Tokens</button>
-										<div class="status"></div>
-									</div>
-									<div class="token-locker">
-										<div class="demo-tip">
-											The Token Locker holds the PennyEther Team's ICO tokens. The tokens cannot be transferred or burned until they vest. They vest at a rate of 5% per month. For the purposes of this demo, they are not burnable.
-										</div>
-										<div class="title tipLeft">Token Locker</div>
-										<div>
-											Tokens:
-											<span class="value"><span><span class="tokens"></span></span> <span>(<span class="tPct"></span>%)</span></span>
-										</div>
-										<div>
-											Owed:
-											<span class="value"><span class="owed"></span> Eth</span>
-										</div>
-										<div>
-											Collected:
-											<span class="value"><span class="collected"></span> Eth</span>
-										</div>
-										<br>
-										<button class="btn-collect-divs">Collect Dividends</button>
-										<div class="status"></div>
-									</div>
-									<div class="treasury">
-										<div class="demo-tip">
-											The Treasury holds all of PennyEther's Ether. It receives revenue from games, and dispurses Ether to <span class='code'>MainController</span> to fund games. It can only fund <span class='code'>Daily Limit</span> per day.
-											<ul>
-												<li><b>Send Dividend</b>: If the balance is ever greater than the <span class='code'>bankroll + 30*dailyLimit</span>, the excess can be sent as dividends to Token.
-												<li><b>Skip to Next Day</b>: Simulates a day passing, which resets<span class='code'>Daily Limit Used</span> to 0.</li>
-											</ul>
-											
-										</div>
-										<div class="title tipLeft">Treasury</div>
-										<table width="100%">
-										<tr>
-											<td width="50%">
-												<div>
-													Balance:
-													<span class="value"><span class="balance"></span> Eth</span>
-												</div>
-												<div>
-													Bankroll:
-													<span class="value"><span class="bankroll"></span> Eth</span>
-												</div>
-												<button class="btn-send-div">Task: Send Dividend</button>
-											</td>
-											<td width="50%">
-												<div>
-													Daily Limit:
-													<span class="value"><span class="dl"></span> Eth</span>
-												</div>
-												<div>
-													Daily Limit Used:
-													<span class="value"><span class="dlUsed"></span> Eth</span>
-												</div>
-												<button class="btn-ff">Skip to Next Day</button>
-											</td>
-										</tr>
-										</table>
-										<div class="status"></div>
-									</div>
-									<div class="main-controller">
-										<div class="demo-tip">
-											The MainController keeps PennyEther running autonomously. When 'Tasks' are executed, the caller will receive a small reward.
-											<ul>
-												<li><b>Restart Auction</b>: Pays the auction winner, then gets Ether from <span class='code'>Treasury</span> and starts a new auction.</li>
-												<li><b>Collect Bid Fees</b>: Tells the auction to send its <span class='code'>Bid Fees</span> to the <span class='code'>Treasury</span></li>
-												<li><b>Fund</b>: Gets Ether from <span class='code'>Treasury</span> and sends it to <span class='code'>InstaDice</span> so that it can take bets.</li>
-												<li><b>Collect Profits</b>: Tells <span class='code'>InstaDice</span> to send its profits to the <span class='code'>Treasury</span></li>
-											</ul>
-										</div>
-										<div class="title tipLeft">Main Controller</div>
-										<table width="100%">
-											<tr>
-												<td width="50%" valign="top" align="middle" style="border-right: 1px dotted #CCC">
-													<div>Penny Auction</div>
-													<button class="btn-restart-auction">Task: Restart Auction</button><br>
-													<button class="btn-pa-collect">Task: Collect Bid Fees</button>
-												</td>
-												<td width="50%" valign="top" align="middle">
-													<div>InstaDice</div>
-													<button class="btn-id-fund">Task: Fund</button><br>
-													<button class="btn-id-collect">Task: Collect Profits</button>
-												</td>
-											</tr>
-										</table>
-										<div class="status"></div>
-									</div>
-									<div class="penny-auction">
-										<div class="demo-tip">
-											A Penny Auction collects <span class='code'>Bid Fees</span> from players, and will send them to <span class='code'>Treasury</span> when told to. In this demo, there is only one running Penny Auction. In practice, there may be many.
-											<ul>
-												<li><b>End Auction</b>: Simulates the auction ending. In practice, this occurs when nobody bids for a certain number of blocks.</li>
-											</ul>
-										</div>
-										<div class="title tipLeft">Penny Auction (ended)</div>
-										<div>
-											Prize:
-											<span class="value"><span class="prize"></span> Eth</span>
-										</div>
-										<div>
-											Bid Fees:
-											<span class="value"><span class="bidFees"></span> Eth</span>
-										</div>
-										<button class="btn-end-auction">End Auction</button>
-										<div class="status"></div>
-									</div>
-									<div class="insta-dice">
-										<div class="demo-tip">
-											InstaDice uses its bankroll of <span class='code'>Funded</span> to stake bets on random numbers. In this demo, it has a 10% edge.
-										</div>
-										<div class="title tipLeft">InstaDice</div>
-										<div>
-											Balance:
-											<span class="value"><span class="balance"></span> Eth</span>
-										</div>
-										<div>
-											Funded: 
-											<span class="value"><span class="funded"></span> Eth</span>
-										</div>
-										<div class="status"></div>
-									</div>
-									<div class="player-one">
-										<div class="demo-tip">
-											Players are PennyEther's source of revenue. Their bids and rolls trickle up the system to the <span class='code'>Treasury</span>, then to the <span class='code'>Token</span>.
-											<ul>
-												<li><b>Bid</b>: Sends a bid to the current <span class='code'>Penny Auction</span></li>
-												<li><b>Roll</b>: Sends a bet to <span class='code'>InstaDice</span></li>
-											</ul>
-										</div>
-										<div class="title tipLeft">Player 1</div>
-										<button class="btn-bid">Bid</button>
-										<button class="btn-roll">Roll</button>
-										<div class="status"></div>
-									</div>
-									<div class="player-two">
-										<div class="demo-tip">
-											Players are PennyEther's source of revenue. Their bids and rolls trickle up the system to the <span class='code'>Treasury</span>, then to the <span class='code'>Token</span>.
-											<ul>
-												<li><b>Bid</b>: Sends a bid to the current <span class='code'>Penny Auction</span></li>
-												<li><b>Roll</b>: Sends a bet to <span class='code'>InstaDice</span></li>
-											</ul>
-										</div>
-										<div class="title tipLeft">Player 2</div>
-										<button class="btn-bid">Bid</button>
-										<button class="btn-roll">Roll</button>
-										<div class="status"></div>
-									</div>
-									<div class="player-three">
-										<div class="demo-tip">
-											Players are PennyEther's source of revenue. Their bids and rolls trickle up the system to the <span class='code'>Treasury</span>, then to the <span class='code'>Token</span>.
-											<ul>
-												<li><b>Bid</b>: Sends a bid to the current <span class='code'>Penny Auction</span></li>
-												<li><b>Roll</b>: Sends a bet to <span class='code'>InstaDice</span></li>
-											</ul>
-										</div>
-										<div class="title tipLeft">Player 3</div>
-										<button class="btn-bid">Bid</button>
-										<button class="btn-roll">Roll</button>
-										<div class="status"></div>
-									</div>
-								</div>
-							</div>
-						</div>
+						<!-- <h3>Commitment to Quality</h3>
+						<p>
+							We'd like to take a moment to reiterate our commitment to quality.
+							<br><br>
+							UI Quality:
+							<ul>
+								<li>Function and usability first, looks second.</li>
+								<li><u>Always</u> show the user what is happening with transactions.</li>
+								<li>Allow the user to make an informed decision about Gas Price.</li>
+								<li>Allow the user to see past transaction and wager details.</li>
+								<li>Show Token Holders all relevant information, in an easy to understand manner.</li>
+								<li>Make a UI for every contract.</li>
+							</ul>
+							Contract Quality:
+							<ul>
+								<li>Test <u>everything</u></li>
+								<li>Independantly audit <u>everything</u></li>
+								<li>Proactively <a href="#security">code against bad actors</a>, including ourselves</li>
+								<li>Assure <a href="#security-autonomy">autonomy</a>
+								<li>Simplify as much as possible</li>
+							</ul>
+						</p> -->
 
 						<a data-anchor="application-scalability"></a>
 						<div class="page-subsection">
@@ -1959,7 +1682,7 @@
 							<div class="head">Autonomy</div>
 							<div class="body">
 								<p>
-									Part of <a href="#mission">our mission</a> is to create a blockchain application that is as autonomous as possible. To us, that means that the application can be entirely run strictly by Token Holders in some sort of democratic fashion. It also means that there should be no case where the application relies on the owners or admins to take actions or execute functions.
+									Part of <a href="/#pennyether-mission">our mission</a> is to create a blockchain application that is as autonomous as possible. To us, that means that the application can be entirely run strictly by Token Holders in some sort of democratic fashion. It also means that there should be no case where the application relies on the owners or admins to take actions or execute functions.
 								</p>
 								<p>
 									While we haven't <a href="#security-autonomy-future">yet</a> achieved the former (DAO'ifying everything), we <i>have</i> achieved the latter:
@@ -2028,28 +1751,6 @@
 									<br><br>
 									That being said, a fully autonomous DAO PennyEther <b>is very much our "ideal" version of PennyEther, and we look forward to the day where it is <i>fully</i> decentralized and autonomous</b>.
 								</p>
-							</div>
-						</div>
-
-						<a data-anchor="security-audits-tests"></a>
-						<div class="page-subsection">
-							<div class="head">Contracts, Audits, Tests</div>
-							<div class="body">
-								<p>
-								All information about our deployed contracts, including source code, tests, audits, etherscan verification, etc can be found on <a href="/about/contracts.html" target="_blank">this page</a>.
-								</p>
-								
-								<a data-anchor="transparency"></a>
-								<h3>Transparency</h3>
-								We believe in providing our Token Holders with all the information they need to make informed decisions. We try to make it as easy as possible for anybody to monitor our system and ensure it's working correctly. To that end, we've created User Interfaces to view and interact with essentially all of our deployed contracts:
-								<ul>
-									<li><a href="/status/treasury.html" target="_blank">Treasury UI</a>: Shows the financial health of the PennyEther platform. This shows all the Ether flowing in and out, realtime stats, and the current status of the bankroll.</li>
-									<li><a href="/status/system.html" target="_blank">System Status</a>: This shows the current settings of all deployed contracts.</li>
-									<li><a href="/status/tokens.html" target="_blank">Game Controllers</a>: This shows the status of Penny Auctions and InstaDice.
-									</li>
-									<li><a href="/status/tokens.html" target="_blank">Token Holder UI</a>: This allows Token Holders to claim dividends, transfer tokens, burn tokens, and more.</li>
-									<li><a href="/status/admin.html" target="_blank">Admin UI</a>: Even our Admin UI is open sourced and available to the public. This UI allows the admin to tweak minor configurations.</li>
-								</ul>
 							</div>
 						</div>
 					</div>

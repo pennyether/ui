@@ -155,13 +155,15 @@
 					<ul>
 						<li>We use the blockchain for randomness. No third party or oracles are used.</li>
 						<li>Wagers will never be taken unless they can be paid on a win.</li>
+						<li>Each roll uses only 50,000 gas.</li>
 					</ul>
 					<br>
 					<b>VideoPoker:</b>
 					<ul>
 						<li>We use the blockchain for randomness. No third party or oracles are used.</li>
 						<li>Wagers will never be taken unless they can be paid on a win.</li>
-						<li>You are protected against blockchain re-orgs that could cause undesirable behavior. Here's an exmaple:  You are dealt a full house, and submit a transaction to finalize the hand. However, the first transaction <i>has changed due to a blockchain reorg</i>, and your hand is <i>actually</i> just a low pair. In this scenario our contract will detect the difference and will not finalize your hand.  Instead, your transaction will consume limited gas, and emit an error.</li>
+						<li>Play a full hand for about 100,000 gas.</li>
+						<li>You are protected against blockchain re-orgs that could cause undesirable behavior. Here's an exmaple:  You are dealt a two pair, and submit a transaction to draw just one card. However, your dealt hand <i>has changed due to a blockchain reorg</i>, and your hand is <i>actually</i> a flush. In this scenario our contract will detect the difference and will not draw your card (which would ruin your flush). Your transaction will instead exit early, consuming little gas, and emit an error. The UI will show your <i>actual</i> cards as soon as your provider syncs.</li>
 					</ul>
 				</p>
 
