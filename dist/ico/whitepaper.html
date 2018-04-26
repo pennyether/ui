@@ -1651,33 +1651,126 @@
 						</div>
 
 						<a data-anchor="security-autonomy"></a>
-						<div class="page-subsection">
+						<div class="page-subsection security">
 							<div class="head">Security & Autonomy</div>
 							<div class="body">
-								<p>
-									This section goes over some security features PennyEther has in place to ensure everything runs as expected without reliance on the Owners.
-								</p>
-								<div class="note">
-									For this topic covered in full detail, please see our <a href="https://github.com/pennyether/contracts#security" target="_blank">technical documentation</a>.
-								</div>
-								<p>
-									<br>
-									Some key takeaways:
+								<style>
+								.security .goal .title{
+									font-weight: bold;
+								}
+								</style>
+								<h3>Design Goals</h3>
+								<div class="goal" style="margin-top: 20px;">
+									<div class="title">
+										<span title="The possibility of syphoning profits to the PennyEther team should be as limited as possible until the DAO is instated.">
+											100% of profits should go to Token Holders
+										</span>
+									</div>
 									<ul>
 										<li>
-											The worst case scenario (owners turning evil) would result in <span class="code">Treasury</span> no longer receiving revenue, and <span class="code">Treasury</span> losing <span class="code">Daily Funding Limit</span> per day. <b>Token Holders will still be able to get half of their investment back.</b>
+											<a href="#treasury">The Treasury</a> can only send profits to the PENNY Token.
 										</li>
 										<li>
-											The compromising of any account is reversible, and at worst causes the loss of <span class="code">Daily Funding Limit</span> per day until the changes are reverted. The one exception is the <span class="code">Owner</span> acount, which is an air-gapped cold wallet that has never been used.
+											<a href="#token">PENNY Token</a> credits token holders anytime dividends are issued, and pays out dividends in an amortized fashion. Gas Denial of Service is not possible.
 										</li>
 										<li>
-											Since the reward for compromising an account is so low (only <span class="code">Daily Funding Limit</span> per day), and because we are anonymous, we believe the PennyEther team will not be a substantially targeted. Regardless, the <span class="code">Supervisor</span> and <span class="code">Owner</span> keys are both air-gapped, cold-storage, never-used wallets.
+											<span title="This is loosely enforced in Treasury, but can be bypassed by a clever contract. However, it at least prevents accidental bankrolling from occurring, and makes a malicious contract easier to spot.">
+												Bankrolled contracts can only send profits to the Treasury.
+											</span>
 										</li>
 										<li>
-											Our UI is open-sourced, and has no back-end. Even if the pennyether.com website is temporarily unavailable, users can still participate in all of our games. Additionally, we're using CloudFlare DDoS protection to ensure the website stays online.
+											<a href="/status/overview.html">Excessive transparency</a> would make any malicious situation immediately clear.
 										</li>
 									</ul>
-								</p>
+								</div>
+								<div class="goal">
+									<div class="title">
+										<span title="Profit flow to Token Holders should not in any way rely on the PennyEther Team taking action.">
+											Profit flow should not depend on the PennyEther Team
+										</span>
+									</div>
+									<div class="solution">
+										<ul>
+											<li>
+												<a href="#token">PENNY Token</a> can distribute dividends at any time.
+											</li>
+											<li>
+												The sending of profits from Bankrolled contracts to the Treasury can trigged by anyone.
+											</li>
+											<li>
+												The issuing of Dividends from the Treasury can be trigged by anyone.
+											</li>
+											<li>
+												TaskManager financially incentivizes the above two actions.
+											</li>
+										</ul>
+									</div>
+								</div>
+								<div class="goal">
+									<div class="title">
+										<span title="Capital raised and held in the Treasury should not be able to be stolen or mismanaged.">
+											Capital held in the Treasury is secure.
+										</span>
+									</div>
+									<div class="solution">
+										<ul>
+											<li>
+												Capital can only be moved through <a href="#governance">Governance</a>, which allows the PennyEther Team a full week to cancel any requests should the Admin account be compromised.
+											</li>
+											<li>
+												Once <a href="#the-dao">The DAO</a> is instated, Capital will be fully controlled by Token Holders' votes.
+											</li>
+										</ul>
+									</div>
+								</div>
+								<div class="goal">
+									<div class="title">
+										<span title="The loss of developers' funds or tokens would result in a loss of incentive to improve the platform.">
+											The PennyEther Teams' ownership should be secured.
+										</span>
+									</div>
+									<div class="solution">
+										<ul>
+											<li>
+												Developer Tokens vest in the <a href="#token-locker">Token Locker</a>, and can only be accessed via the secure <a href="#owner-wallet">Owner Wallet</a>.
+											</li>
+										</ul>
+									</div>
+								</div>
+								<div class="goal">
+									<div class="title">
+										<span title="The Admin account, since used often, should have limited power.">
+											The compromising of the Admin account should be recoverable.
+										</span>
+									</div>
+									<div class="solution">
+										<ul>
+											<li>
+												The <a href="#owner-wallet">Owner Wallet</a> can restore the Admin account immediately, and revert all changes.
+											</li>
+											<li>
+												All admin-defined settings have hard-coded limits.
+											</li>
+											<li>
+												Each Game Controller is carefully coded so that changes to configuration result in a limited loss of funds.
+											</li>
+										</ul>
+									</div>
+								</div>
+								<div class="goal">
+									<div class="title">
+										<span title="The loss of developers' funds or tokens would result in a loss of incentive to improve the platform.">
+											The <a href="#owner-wallet">Owner Wallet</a> should be extremely secure.
+										</span>
+									</div>
+									<div class="solution">
+										<ul>
+											<li>
+												There are two additional layers of security: The Supervisor and the Owner. Both accounts will be cold storage wallets and only ever used once.
+											</li>
+										</ul>
+									</div>
+								</div>
 
 								<a data-anchor="security"></a>
 								<h3>Roles & Scenarios</h3>
@@ -1741,6 +1834,15 @@
 										</li>
 									</ul>
 								</p>
+
+								<h3>Tests and Audits</h3>
+								<div class="note" style="text-align: center;">
+									<a href="/about/contracts.html">All information about our contracts can be found here.</a>
+								</div>
+								<p>
+									We've done our best to ensure our contracts do what they are intended to. In additional to performing the most <a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/index.html" target="_blank">exhaustive tests</a> we've see done on contracts, we've painstakingly described and commented our contracts. Lastly, all of our contracts will undergo audit from at least one reputable third party.
+								</p>
+								<p>
 									
 
 								<a data-anchor="autonomy"></a>
@@ -1749,20 +1851,16 @@
 									Part of <a href="/#pennyether-mission">our mission</a> is to create a blockchain application that is as autonomous as possible. To us, that means that the application can be entirely run strictly by Token Holders in some sort of democratic fashion. It also means that there should be no case where the application relies on the owners or admins to take actions or execute functions.
 								</p>
 								<p>
-									While we haven't <a href="#security-autonomy-future">yet</a> achieved the former (DAO'ifying everything), we <i>have</i> achieved the latter:
 									<ul>
 										<li>
-											All games run and manage themselves, and can only be tweaked by <span class="code">Admin</span> to boost profitibility.
+											<b><a href="#task-manager">TaskManager</a> ensures required tasks are continuous performed.</b>
 										</li>
 										<li>
-											<span class="code">Tasks</span> reward users for calling functions that keep PennyEther running.
-										</li>
-										<li>
-											All contracts were coded with amortization in mind. There is no contract function that ever loops over an unbounded array. For example, no matter how many Token Holders there are, or how many games there are, collecting revenues and dispursing profits will always be a fixed gas cost.
+											<b><a href="#the-dao">The DAO</a> will fully decentralize PennyEther.</b>
 										</li>
 									</ul>
 								</p>
-
+								
 								<a href="#task-manager"></a>
 								<h3>Task Manager</h3>
 								<p>
@@ -1792,31 +1890,6 @@
 								</p>
 								<p>
 									Since <span class="code">Tasks</span> receive a financial reward, and are callable by anyone, PennyEther should keep running (as long as people want free Ether). This type of design is called <a href="https://en.wikipedia.org/wiki/Incentive-centered_design" target="_blank">Incentive-centered Design</a>. To make sure everyone is aware of these <span class="code">Tasks</span>, we've created <a href="/games/tasks.html" target="_blank">a UI that shows all available <span class="code">Tasks</span> in detail</a>.
-								</p>
-
-								<a data-anchor="security-autonomy-future"></a>
-								<h3>Next Steps To Autonomy</h3>
-								<p>
-									In the future, we want to make PennyEther <b>fully autonomous</b> by replacing the <span class="code">Admin</span> and <span class="code">Owner</span> wallets with a Token-Staked DAO wallet instead. It would work as follows:
-									<ul>
-										<li>
-											Somebody (probably the PennyEther team) would deploy a new contract. For example, a new type of game.
-										</li>
-										<li>
-											We would start a vote, that when reaching some % approval by Token Holders, would cause that contract to be added to the PennyEther system.
-										</li>
-										<li>
-											Token Holders would stake their tokens into a vote. This would mean their tokens are non-transferrable until the voting period is over.
-										</li>
-										<li>
-											If approved by enough Token Holders, the contract would be deployed to the PennyEther system (already very easy, thanks to the <span class="code">Registry</span>), and all tokens could be removed from the DAO contract.
-										</li>
-									</ul>
-								</p>
-								<p>
-									The above is technically feasible, and we very much look forward to implementing it. However, it's all a bit too complicated for the first cut, we'd like to have a community around PennyEther to trust and to guide us, and there are many details to work out (such as how the UI would get upgraded, the % approval required, creating dividend-tokens within the DAO, etc).
-									<br><br>
-									That being said, a fully autonomous DAO PennyEther <b>is very much our "ideal" version of PennyEther, and we look forward to the day where it is <i>fully</i> decentralized and autonomous</b>.
 								</p>
 							</div>
 						</div>
@@ -2601,7 +2674,7 @@
 												• <b>Tokens are burnable</b> <a href="#burning-tokens">for .5 Ether refund</a>
 											</div>
 											<div>
-												• <b>DAO voting rights</b> <a href="#security-autonomy-future">in the future</a>
+												• <b>DAO voting rights</b> <a href="#the-dao">in the future</a>
 											</div>
 										</td>
 									</tr>
