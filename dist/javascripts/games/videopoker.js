@@ -403,6 +403,7 @@ function Game(vp) {
 
     // Events
     _$btnPlayAgain.click(()=>{
+        _txId = null;
         _self.setGameState({state: "betting"});
     });
     _$chkBetAgain.click(_refreshBetAgain);

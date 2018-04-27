@@ -23,6 +23,84 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
         }
     }
 
+    function makeFinances(instance) {
+        const $e = $(`
+            <div class="finances">
+                <div class="header">
+                    Whitelist
+                </div>
+                <fieldset class="is-admin">
+                    <div class="whitelist">
+                        <table>
+                            <tr>
+                                <td><input type="text" class="txt-new-addr"></td>
+                                <td><button class="btn-add-whitelist">Add</td></td>
+                                <td></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="header">
+                    Add Bankroll
+                </div>
+                <div>
+                    <input type="text" class="txt-bankroll">ETH <button class="btn-add-bankroll">Add</button>
+                </div>
+            </div>
+        `);
+        const $btnAddWhitelist = $e.find(".btn-add-whitelist");
+        const $txtNewAddr = $e.find(".txt-new-addr");
+        const $btnAddBankroll = $e.find(".btn-add-bankroll");
+        const $txtBankroll = $e.find(".txt-bankroll");
+
+        makeTxButton($btnAddWhitelist, (obj)=>{
+            const addr = $txtNewAddr.val();
+            const promise = instance.addToWhitelist({_addr: addr}, {gasPrice: obj.gasPrice});
+            $btnAddWhitelist.attr("disabled", "disabled");
+            return util.$getTxStatus(promise, {
+                waitTimeMs: obj.waitTimeS * 1000,
+                onSuccess: (res, txStatus) => {
+                    const ev = res.events.find(ev => ev.name=="AddedToWhitelist");
+                    if (ev) {
+                        const addr = ev.args.addr;
+                        txStatus.addSuccessMsg(`Added ${addr} to whitelist.`);
+                    } else {
+                        txStatus.addFailureMsg(`Did not add anything (already added?)`);
+                    }
+                },
+                onClear: () => {
+                    $btnAddWhitelist.removeAttr("disabled");
+                }
+            });
+        });
+
+        makeTxButton($btnAddBankroll, (obj)=>{
+            const val = (new BigNumber($txtBankroll.val())).mul(1e18);
+            const promise = instance.addBankroll([], {value: val, gasPrice: obj.gasPrice});
+            $btnAddBankroll.attr("disabled", "disabled");
+            return util.$getTxStatus(promise, {
+                waitTimeMs: obj.waitTimeS * 1000,
+                onSuccess: (res, txStatus) => {
+                    // event BankrollAdded(uint time, address indexed bankroller, uint amount, uint bankroll);
+                    const ev = res.events.find(ev => ev.name=="BankrollAdded");
+                    if (ev) {
+                        const ethStr = util.toEthStrFixed(ev.args.amount);
+                        txStatus.addSuccessMsg(`Added ${ethStr} to bankroll.`);
+                    } else {
+                        txStatus.addFailureMsg(`Did not add anything.`);
+                    }
+                },
+                onClear: () => {
+                    $btnAddBankroll.removeAttr("disabled");
+                }
+            });
+        });
+
+        return $e;
+    }
+
+    // gasify's button, and puts TxStatus after it (if provided)
+    // invokes getTxStatusFn with obj: {gasPrice, waitTimeS}
     function makeTxButton($button, getTxStatusFn) {
         util.gasifyButton($button, (obj) => {
             const $e = getTxStatusFn(obj);
@@ -181,6 +259,8 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
         const $startMonarchyGame = $e.find(".start-monarchy-game");
         const $endMonarchyGame = $e.find(".end-monarchy-game");
 
+        makeFinances(tm).appendTo($e.find(".finances-ctnr"));
+
         makeTxButton($e.find(".btn-div-reward"), (obj) => {
             const val = new BigNumber($issueBips.val());
             const promise = tm.setIssueDividendReward([val], {gasPrice: obj.gasPrice});
@@ -212,7 +292,7 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
         makeTxButton($e.find(".btn-pa-rewards"), (obj) => {
             const startReward = (new BigNumber($startMonarchyGame.val())).mul(1e18);
             const endReward = (new BigNumber($endMonarchyGame.val())).mul(1e18);
-            const promise = tm.setPaRewards([startReward, endReward], {gasPrice: obj.gasPrice});
+            const promise = tm.setMonarchyRewards([startReward, endReward], {gasPrice: obj.gasPrice});
             return util.$getTxStatus(promise, {
                 waitTimeMs: obj.waitTimeS * 1000,
                 onSuccess: (res, txStatus) => {
@@ -242,6 +322,8 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
     function _initMonarchy() {
         const $e = $(".cell.monarchy");
         refreshMonarchy();
+
+        makeFinances(monarchy).appendTo($e.find(".finances-ctnr"));
 
         // draw all items in the table as text inputs
         function refreshMonarchy() {
@@ -407,6 +489,8 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
         const $maxBet = $e.find(".max-bet");
         const $minNum = $e.find(".min-num");
         const $maxNum = $e.find(".max-num");
+
+        makeFinances(dice).appendTo($e.find(".finances-ctnr"));
         
         makeTxButton($e.find(".btn-update"), (obj) => {
             const promise = dice.changeSettings({
@@ -443,6 +527,9 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
         const $minBet = $e.find(".min-bet");
         const $maxBet = $e.find(".max-bet");
         const $ptId = $e.find(".pt-id");
+
+        makeFinances(vp).appendTo($e.find(".finances-ctnr"));
+
         makeTxButton($e.find(".btn-update"), (obj) => {
             const promise = vp.changeSettings({
                 _minBet: (new BigNumber($minBet.val())).mul(1e18),

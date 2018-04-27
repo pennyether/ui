@@ -155,16 +155,17 @@
             // Get the current network, and set up _web3
             const networkPromise = ethUtil.getCurrentState(true).then(state => {
                 // Load network name
-                const mappings = {1: "main", 3: "ropsten"};
-                _network = state.networkId > 10
+                const mappings = {1: "main", 3: "ropsten", 42: "kovan"};
+                _network = state.networkId > 42
                     ? "local"
                     : mappings[state.networkId] || "unknown";
-                console.log(`Detected network: ${_network}`);
+                console.log(`Detected network: ${_network} [id: ${state.networkId}]`);
 
                 // Create a backup _web3, since MetaMask's web3 is... um... "beta".
                 const providerUrl = ({
                     "main": "https://mainnet.infura.io/",
                     "ropsten": "https://ropsten.infura.io/",
+                    "kovan": "https://kovan.infura.io/",
                     "local": "http://localhost:8545/"
                 })[_network];
                 window._web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
@@ -175,6 +176,7 @@
                 // Load registry depending on web3 network name
                 const registryAddr = ({
                     "ropsten": "0xb56db64b37897b24e0cadd9c2eb9dc0d23d11cd7",
+                    "kovan": "0x169b7dd0c039ff69a8a1bf8fdddaef7485876558",
                     "local": "0xc4a1282aedb7397d10b8baa89639cfdaff2ee428"
                 })[_network];
                 _registry = Registry.at(registryAddr || "0x0");
@@ -186,6 +188,7 @@
                     const addresses = arr[1];
                     names.forEach((name,i) => _regMappings[name] = addresses[i]);
                     console.log("Loaded registry mappings", _regMappings);
+                    return _registry;
                 });
             });
 

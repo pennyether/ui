@@ -213,13 +213,19 @@
                 dispUnit = `${unit}`;
             } else if (wei.abs().gt(1e14)) {
                 dispNum = wei.div(1e15);
-                dispUnit = unit=="ETH" ? `finney` : `m${unit}`;
+                dispUnit = unit
+                    ? unit=="ETH" ? `finney` : `m${unit}`
+                    : "";
             } else if (wei.abs().gt(1e8)) {
                 dispNum = wei.div(1e9);
-                dispUnit = unit=="ETH" ? `gWei` : `n${unit}`;
+                dispUnit = unit
+                    ? unit=="ETH" ? `gWei` : `n${unit}`
+                    : "";
             } else {
                 dispNum = wei;
-                dispUnit = unit=="ETH" ? `wei` : `wei-${unit}`;
+                dispUnit = unit
+                    ? unit=="ETH" ? `wei` : `wei-${unit}`
+                    : "";
             }
 
             // Show up to three decimals, eg: "123" "12.3" "1.23" ".123"

@@ -323,6 +323,7 @@
                         const result = {};
                         if (receipt.contractAddress){
                             result.instance = _self.at(receipt.contractAddress)
+                            metadata.instance = result.instance;
                         }
                         result.events = niceWeb3.decodeEvents(receipt.logs, metadata.instance.abi);
                         result.receipt = receipt;

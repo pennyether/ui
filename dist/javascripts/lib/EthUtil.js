@@ -403,7 +403,7 @@
                 1: "",
                 3: "ropsten.",
                 4: "rinkeby.",
-                52: "kovan."
+                42: "kovan."
             })[_curState.networkId];
             
             if (network === undefined)
