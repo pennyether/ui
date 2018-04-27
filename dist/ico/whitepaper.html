@@ -1697,6 +1697,7 @@
 									font-weight: bold;
 								}
 								</style>
+
 								<h3>Design Goals</h3>
 								<div class="goal" style="margin-top: 20px;">
 									<div class="title">
@@ -2024,6 +2025,7 @@
 				<style>
 					.rm h3 {
 						margin: 0px;
+						font-size: 150%;
 					}
 					.roadmap {
 						display: table;
@@ -2034,7 +2036,7 @@
 						padding-top: 20px;
 						display: table-cell;
 						width: 50%;
-						border-right: 3px dashed black;
+						border-right: 3px dashed rgba(0,0,0,.7);
 						vertical-align: top;
 					}
 					.roadmap .right {
@@ -2752,14 +2754,19 @@
 					<div class="head">CrowdSale</div>
 					<div class="body">
 						<p>
-							We're keeping <a href="/ico/crowdsale.html" target="_blank">our crowdsale</a> as simple and as fair as possible:
+							We're keeping <a href="/ico/crowdsale.html" target="_blank">our crowdsale</a> as simple as possible:
 							<ul>
 								<li>There is no "registration period", "pre-sale", or "phases".</li>
-								<li>Between 78% and 69% of Ether raised is used as Treasury bankroll, redeemable by Token Holders.</li>
-								<li>Token distribution is fixed. Investors will receive 80%, developers will receive 20%.</li>
-								<li>Tokens will never be minted again.</li>
-								<li>If an error occurs when buying tokens (eg, sale not started or sale already completed), minimal gas is used and Ether is refunded.</li>
-								<li>If the Soft Cap is not met, all investors can claim a full refund.</li>
+								<li>
+									Token Distribution:<br>
+									- 20%: To Developers, <a href="#token-locker">vested over 600 days</a><br>
+									- 80%: To CrowdSale participants.
+								</li>
+								<li>
+									Funding Distribution:<br>
+									- 20%: Sent to <a href="#treasury">Treasury</a> as Capital to bankroll games.<br>
+									- 80%: Sent to Developers.
+								<li>If the Soft Cap is not met, all participants can claim a full refund.</li>
 								<li>The bonus is on a linear scale, starting at 50%, and smoothly tapering down to 0%.</li>
 								<li><a href="/about/contracts.html#comptroller" target="_blank">CrowdSale Contract</a>: open-source, fully tested, independantly audited</li>
 							</ul>
@@ -2793,10 +2800,12 @@
 
 									.conversion {
 										margin-top: 10px;
+										font-size: 90%;
 									}
 									.conversion tr:first-child td {
 										color: black;
 										background: #DDD;
+										color: #444;
 										font-weight: bold;
 									}
 									.conversion td {
@@ -2815,23 +2824,23 @@
 								</style>
 								<table class="crowdSale" width="100%" cellspacing="2" cellpadding="0">
 									<tr>
-										<td class="tipLeft" title="The name of the PennyEther ERC20 Token.">
+										<td class="tip-left" title="The name of the PennyEther ERC20 Token.">
 											Token Name
 										</td>
 										<td>
-											Penny
+											PENNY
 										</td>
 									</tr>
 									<tr>
-										<td class="tipLeft" title="The date the CrowdSale begins. Any Ether sent before this date will be refunded.">
+										<td class="tip-left" title="The date the CrowdSale begins. Any Ether sent before this date will be refunded.">
 											Start Date
 										</td>
 										<td>
-											TBA
+											June 1st, 2018 16:00:00 UTC
 										</td>
 									</tr>
 									<tr>
-										<td class="tipLeft" title="Any Ether sent after this date will be refunded.">
+										<td class="tip-left" title="Any Ether sent after this date will be refunded.">
 											End Date
 										</td>
 										<td>
@@ -2839,7 +2848,7 @@
 										</td>
 									</tr>
 									<tr>
-										<td class="tipLeft" title="The distribution of the Tokens after the ICO, if Soft Cap is met.">
+										<td class="tip-left" title="The distribution of the Tokens after the ICO, if Soft Cap is met.">
 											Token Distribution
 										</td>
 										<td>
@@ -2850,25 +2859,21 @@
 												</div>
 												<div style='display: table-cell; padding-left: 5px'>
 													Sold in CrowdSale<br>
-													Given to Developers, <a href="#tokenlocker">vesting 5% per month for 20 months.</a><br>
+													Given to Developers, <a href="#token-locker">vesting 5% per month for 20 months.</a><br>
 												</div>
 											</div>
 											<div style='padding-left: 5px; color: gray; font-style: italic; font-size: 90%'>
-												✓ Percentages are fixed; they are independant of amount sold.<br>
-												✓ No other tokens can ever be minted.
+												✓ Percentages are fixed; they are independant of amount sold.
 											</div>
 										</td>
 									</tr>
 									<tr>
-										<td class="tipLeft" title="Rights granted to Token Holders">
+										<td class="tip-left" title="Rights granted to Token Holders">
 											Token Rights
 										</td>
 										<td>
 											<div>
-												• <b>100% of profits</b> <a href="#token-contract">automatically distributed to Token Holders</a>
-											</div>
-											<div>
-												• <b>Tokens are burnable</b> <a href="#burning-tokens">for .5 Ether refund</a>
+												• <b>100% of profits</b> <a href="#security-autonomy">automatically distributed to Token Holders</a>
 											</div>
 											<div>
 												• <b>DAO voting rights</b> <a href="#the-dao">in the future</a>
@@ -2876,34 +2881,12 @@
 										</td>
 									</tr>
 									<tr>
-										<td class="tipLeft" title="The minimum amount of Ether the CrowdSale can raise, and the resultant total supply. If this amount is not met, all Ether sent can be reclaimed.">
-											Soft Cap
-										</td>
-										<td>
-											<b>20,000 Ether</b>: 25,000 Penny
-											<div style='color: gray; font-size: 90%'>
-												<b>Total Supply</b>: 31,250 Penny
-											</div>
-										</td>
-									</tr>
-									<tr>
-										<td class="tipLeft" title="The maximum amount of Ether the CrowdSale can raise, and the resultant total supply.">
-											Hard Cap
-										</td>
-										<td>
-											<b>50,000 Ether</b>: 55,000 Penny
-											<div style='color: gray; font-size: 90%'>
-												<b>Total Supply</b>: 68,750 Penny
-											</div>
-										</td>
-									</tr>
-									<tr>
-										<td class="tipLeft" title="1 Ether = 1 Penny.<br>There is a small bonus period.">
+										<td class="tip-left" title="1 Ether = 1 PENNY.<br>There is a bonus period.">
 											Conversion Rate
 										</td>
 										<td>
 											<div>
-												<b>1 Ether = 1 Penny</b>
+												<b>1 Ether = 1 PENNY</b>
 											</div>
 											<div style='margin: 4px 0px'>
 												<div stlye='display: table'>
@@ -2918,227 +2901,206 @@
 											<table class="conversion" width="100%">
 												<tr>
 													<td>Amount Raised</td>
-													<td>Penny Per Ether</td>
+													<td>PENNY Per Ether</td>
 													<td>Bonus %</td>
 												</tr>
 												<tr>
 													<td>0 Ether</td>
-													<td>1.5 Penny</td>
+													<td>1.5 PENNY</td>
 													<td>50%</td>
 												</tr>
 												<tr>
 													<td>5,000 Ether</td>
-													<td>1.375 Penny</td>
-													<td>37.5%</td>
-												</tr>
-												<tr>
-													<td>10,000 Ether</td>
-													<td>1.25 Penny</td>
+													<td>1.25 PENNY</td>
 													<td>25%</td>
 												</tr>
 												<tr>
-													<td>15,000 Ether</td>
-													<td>1.125 Penny</td>
-													<td>12.5%</td>
-												</tr>
-												<tr>
-													<td>20,000+ Ether</td>
-													<td>1 Penny</td>
+													<td>10,000+ Ether</td>
+													<td>1 PENNY</td>
 													<td>0%</td>
 												</tr>
 											</table>
 										</td>
 									</tr>
+									<tr>
+										<td class="tip-left" title="The minimum amount of Ether the CrowdSale can raise, and the resultant total supply. If this amount is not met, all Ether sent can be reclaimed.">
+											Soft Cap
+										</td>
+										<td>
+											<b>13,500 Ether</b>: 16,000 PENNY Sold, 4,000 PENNY Vesting
+											<div style='color: gray; font-size: 90%'>
+												<b>Total Supply will be</b>: 20,000 PENNY
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<td class="tip-left" title="The maximum amount of Ether the CrowdSale can raise, and the resultant total supply.">
+											Hard Cap
+										</td>
+										<td>
+											<b>37,500 Ether</b>: 40,000 PENNY Sold, 10,000 PENNY Vesting
+											<div style='color: gray; font-size: 90%'>
+												<b>Total Supply will be</b>: 50,000 PENNY
+											</div>
+										</td>
+									</tr>
 								</table>
 							</div>
 
-							<h3>CrowdSale Distribution</h3>
-							<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-						    <script type="text/javascript">
-						    (function(){
-					    		const softCap = 20000;
-						    	const hardCap = 50000;
-						    	const bonusCap = 20000;
-						    	const dailyFundLimit = 5;
-
-						    	Loader.onPageLoad.then(init);
-
-						    	var fChart, tChart, $slider;
-						    	function init(){
-						    		google.charts.load("current", {packages:["corechart"]});
-						    		google.charts.setOnLoadCallback(initCharts);
-						    		$slider = $("#charts .slider");
-						    		$slider.attr("min", softCap);
-						    		$slider.attr("max", hardCap);
-						    		$slider.attr("step", 5000);
-						    		$slider.val(softCap);
-
-						    		const $amtEther = $("#charts .slider-ctnr .amtEther");
-						    		const $amtPenny = $("#charts .slider-ctnr .amtPenny");
-									$slider.on("input", ()=>{
-										const num = new Number($slider.val());
-										const numPenny = (bonusCap*1.25 + (num-bonusCap))*1.25;
-						    			$amtEther.text(`${num.toLocaleString()} Ether`);
-						    			$amtPenny.text(`${numPenny.toLocaleString()} Penny`);
-						    			updateCharts();
-									});
-						    	}
-						    	function initCharts(){
-						    		const fundingChart = $("#charts .funding-chart .ctnr")[0];
-						    		const tokenChart = $("#charts .token-chart .ctnr")[0];
-						    		fChart = new google.visualization.PieChart(fundingChart);
-									tChart = new google.visualization.PieChart(tokenChart);
-									google.visualization.events.addListener(fChart, 'select', ()=>{
-										fChart.setSelection([{row: 0}, {row: 1}, {row: 2}]);
-									});
-									google.visualization.events.addListener(tChart, 'select', ()=>{
-										tChart.setSelection([{row: 0}]);
-									});
-									$slider.trigger("input");
-						    	}
-
-						    	function updateCharts(){
-							    	const amtRaised = $slider.val();
-									const numSoldTokens = bonusCap*1.25 + (amtRaised-bonusCap);
-									const numDevTokens = Math.round(numSoldTokens * .25);
-									const bankroll = Math.round((numSoldTokens + numDevTokens) * .5);
-									const buffer = dailyFundLimit * 30;
-									const idFunding = 500;
-									const vpFunding = 500;
-									const remaining = amtRaised - (bankroll + buffer + idFunding + vpFunding);
-
-						    		updateFundingChart(bankroll+buffer, idFunding, vpFunding, remaining);
-									updateTokenChart(numSoldTokens, numDevTokens);
-						    	}
-
-						    	function updateFundingChart(trFunding, idFunding, vpFunding, devFunding){
-									const trStr = `${trFunding.toLocaleString()} Ether`;
-									const devStr = `${devFunding.toLocaleString()} Ether`;
-									const idStr = `${idFunding.toLocaleString()} Ether`;
-									const vpStr = `${vpFunding.toLocaleString()} Ether`;
-									var data = google.visualization.arrayToDataTable([
-										['Receiver', 'Amount'],
-										['Treasury', {v: trFunding, f: trStr}],
-										['InstaDice', {v: idFunding, f: idStr}],
-										['VideoPoker', {v: vpFunding, f: vpStr}],
-										['Capital', {v: devFunding, f: devStr}]
-									]);
-									var options = {
-										legend: "none",
-										titlePosition: 'none',
-										slices: {
-											3: {color: "#888"},
-										},
-										pieSliceText: "label",
-										chartArea: {width: "70%", height: "70%"},
-										backgroundColor: "transparent"
-									};
-									fChart.draw(data, options);
-									fChart.setSelection([{row: 0}, {row: 1}, {row: 2}]);
-								}
-								function updateTokenChart(numSoldTokens, numDevTokens){
-									const invStr = `${numSoldTokens.toLocaleString()} Penny`;
-									const devStr = `${numDevTokens.toLocaleString()} Penny`;
-									var data = google.visualization.arrayToDataTable([
-										['Receiver', 'Amount'],
-										['Investors', {v: numSoldTokens, f: invStr}],
-										['Developers', {v: numDevTokens, f: devStr}]
-									]);
-									var options = {
-										legend: "none",
-										titlePosition: 'none',
-										slices: {
-											1: {color: "#888"}
-										},
-										pieSliceText: "label",
-										chartArea: {width: "70%", height: "70%"},
-										backgroundColor: "transparent"
-									};
-									tChart.draw(data, options);
-									tChart.setSelection([{row: 0}]);
-								}
-						    }());
-						    </script>
-						    <style>
-						    	#charts {
-						    		padding-top: 30px;
-						    		padding-bottom: 30px;
-						    		background: linear-gradient(45deg, #BBB 0%, #EEE 100%);
-						    		border-radius: 10px;
-						    	}
-								#charts .chart {
-									display: inline-block;
-									box-sizing: border-box;
+							<style>
+								.sim {
 									width: 350px;
+									padding: 10px;
+									background: radial-gradient(rgba(0, 10, 20, 0) 0%, rgba(0, 10, 20, .15) 100%);
+									border-radius: 3px;
+									margin: 0px auto;
 								}
-								#charts .chart .title {
-									text-align: center;
-									font-size: 110%;
-									font-weight: bold;
-									letter-spacing: .2em;
+								.sim .controls {
+									 padding: 10px;
+									 background: rgba(0,0,0,.1);
+									 border-radius: 3px;
+									 margin-bottom: 5px;
 								}
-								#charts .chart .ctnr {
-									height: 300px;
+								.sim .value {
+									text-align: right;
 								}
-								#charts .slider-ctnr {
-									margin-top: 0px;
-									text-align: center;
-								}
-								#charts .slider-ctnr-2 {
-									display: inline-block;
-									padding: 10px 15px;
-									background: linear-gradient(to top, #DDD 0%, #FFF 100%);
-									border-radius: 4px;
-									border: 1px inset #AAA;
-									/*box-shadow: 3px 3px 3px 0px rgba(0,0,0,.2);*/
-								}
-								#charts .slider-ctnr .label {
-									display: inline-block;
-									vertical-align: middle;
-									font-size: 80%;
-									text-shadow: 1px 1px 1px #EEE;
-								}
-								#charts .slider-ctnr .slider {
-									cursor: pointer;
-									width: 300px;
-									margin: 10px 5px;
-									vertical-align: middle;
-								}
-								#charts .slider-ctnr .title {
-									font-weight: bold;
-								}
-								#charts .slider-ctnr .amtEther {
-									margin-top: -5px;
-									font-size: 90%;
-									font-weight: bold;
-								}
-								#charts .slider-ctnr .amtPenny {
-									margin-top: 3px;
-									font-size: 80%;
-									color: #555;
+								.sim hr {
+									opacity: .4;
 								}
 							</style>
-							<div id="charts">
-								<div class="chart funding-chart" style="margin: 0px 10px;">
-									<div class="title">Funding Distribution</div>
-									<div class="ctnr"></div>
-								</div>
-								<div class="chart token-chart">
-									<div class="title">Token Distribution</div>
-									<div class="ctnr"></div>
-								</div>
-								<div class="slider-ctnr">
-									<div class="slider-ctnr-2">
-										<div class="title">Amount Raised</div>
-										<div>
-											<div class="label">Soft<br>Cap</div>
-											<input class="slider" type="range" min="25000" max="75000" step="1000" value="25000">
-											<div class="label">Hard<br>Cap</div>
-										</div>
-										<div class="amtEther">&nbsp;</div>
-										<div class="amtPenny">&nbsp;</div>
+							<script>
+							Loader.onPageLoad.then(()=>{
+								const softCap = new BigNumber(13500e18);
+								const hardCap = new BigNumber(37500e18);
+								const bonusCap = new BigNumber(10000e18);
+								const capitalPct = new BigNumber(.20);
+
+								const $e = $(".sim");
+								const $slider = $e.find(".slider").unbind("input").bind("input", refreshVals);
+								$slider.attr("min", softCap.div(1e18).toNumber())
+									.attr("max", hardCap.div(1e18).toNumber())
+									.attr("step", 500)
+									.val(softCap.div(1e18).toNumber());
+
+								function refreshVals() {
+									function toPct(v) {
+										return `${v.mul(100).toFixed(2)}%`;
+									}
+									const val = (new BigNumber($slider.val())).mul(1e18);
+									const numSoldTokens = bonusCap.mul(1.25).plus(val.minus(bonusCap));
+									const numDevTokens = numSoldTokens.div(4);
+									const totalTokens = numSoldTokens.plus(numDevTokens);
+									const capital = val.mul(capitalPct);
+									const cash = val.minus(capital);
+									$e.find(".outcome-total").text(util.toEthStr(capital.plus(cash)));
+									$e.find(".outcome-total-pct").text(toPct(capital.plus(cash).div(val)));
+									$e.find(".outcome-capital").text(util.toEthStr(capital));
+									$e.find(".outcome-capital-pct").text(toPct(capital.div(val)));
+									$e.find(".outcome-cash").text(util.toEthStr(cash));
+									$e.find(".outcome-cash-pct").text(toPct(cash.div(val)));
+
+									$e.find(".tokens-investors").text(util.toEthStr(numSoldTokens, "PENNY"));
+									$e.find(".tokens-investors-pct").text(toPct(numSoldTokens.div(totalTokens)));
+									$e.find(".tokens-vesting").text(util.toEthStr(numDevTokens, "PENNY"));
+									$e.find(".tokens-vesting-pct").text(toPct(numDevTokens.div(totalTokens)));
+									$e.find(".tokens-total").text(util.toEthStr(totalTokens, "PENNY"));
+									$e.find(".tokens-total-pct").text(toPct(totalTokens.div(totalTokens)));
+								}
+								refreshVals();
+							})
+							</script>
+							<h3>CrowdSale Outcomes</h3>
+							<div class="sim">
+								<div class="controls" style="display: flex;">
+									<div style="flex-shrink: 0;">Soft Cap</div>
+									<div style="flex-grow: 1; padding: 0px 5px;">
+										<input type="range" class="slider" style="width: 98%">
 									</div>
+									<div style="flex-shrink: 0;">Hard Cap</div>
 								</div>
+								<table class="fields" width=100%>
+									<tr>
+										<td>
+											<div class="label tip-left" title="The total amount hypothetically raised in the CrowdSale">
+												Total:
+											</div>
+										</td>
+										<td>
+											<div class="value outcome-total"></div>
+										</td>
+										<td>
+											<div class="value outcome-total-pct"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tip-left" title="This Ether is sent to the Treasury as Capital, and is allocated to various game contracts via Governance.">
+												Bankroll:
+											</div>
+										</td>
+										<td>
+											<div class="value outcome-capital"></div>
+										</td>
+										<td>
+											<div class="value outcome-capital-pct"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tip-left" title="This Ether is sent to the owners to fund marketing and development, and as compensation for creating the platform and foregoing 80% of all future profits.">
+												Cash:
+											</div>
+										</td>
+										<td>
+											<div class="value outcome-cash"></div>
+										</td>
+										<td>
+											<div class="value outcome-cash-pct"></div>
+										</td>
+									</tr>
+								</table>
+								<hr>
+								<table width=100%>
+									<tr>
+										<td>
+											<div class="label tip-left" title="These PENNY are minted to CrowdSale investors. This includes bonus tokens. Tokens are transferrable immediately after the CrowdSale.">
+												Investors:
+											</div>
+										</td>
+										<td>
+											<div class="value tokens-investors"></div>
+										</td>
+										<td>
+											<div class="value tokens-investors-pct"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tip-left" title="20% of tokens are sent to the Token Locker, to be vested over 600 days and retrievable only by the owner Wallet.">
+												Vesting:
+											</div>
+										</td>
+										<td>
+											<div class="value tokens-vesting"></div>
+										</td>
+										<td>
+											<div class="value tokens-vesting-pct"></div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class="label tip-left" title="The total amount of Tokens to be minted during the CrowdSale. If the Treasury later requires more capital (decided by Governance), Comptroller can sell more Tokens, diluting everyone including the owners.">
+												Total:
+											</div>
+										</td>
+										<td>
+											<div class="value tokens-total"></div>
+										</td>
+										<td>
+											<div class="value tokens-total-pct"></div>
+										</td>
+									</tr>
+								</table>
 							</div>
 						</div>
 
@@ -3147,13 +3109,10 @@
 							<div class="head">Our Valuation</div>
 							<div class="body">
 								<p>
-									We chose our Soft Cap and Hard Cap based on three factors:
+									We chose our Soft Cap and Hard Cap based on two factors:
 									<ol>
 										<li>
-											<b>Our Structure</b>: Our CrowdSale is not typical. <b>Between 78% and 69% of Ether raised will end up in the Treasury as bankroll</b>, owned by all Token Holders, and redeemable at any time. Only the remaining 22% to 31% of Ether raised will be used as capital to fund development, marketing, advertising, and everything else.
-										</li>
-										<li>
-											<b>Revenue Potential</b>: We feel we're in a position to capitalize on blockchain dice via <a href="#games-instadice">InstaDice</a>, and that <a href="#monarchy">Penny Auctions</a> will prove to be a very successful blockchain game. Because we're effectively selling the rights to 80% of profits, we want to be sure we're adequately compensated.
+											<b>Revenue Potential</b>: We feel we have created the best blockchain platform to date. Because we're effectively selling the rights to 80% of profits, we want to be sure we're adequately compensated.
 										</li>
 										<li>
 											<b>Our Competition</b>: We ask you to judge us against what our competition has produced (or even has promised to produce), how they are structured, and what they're currently valued at.
@@ -3211,7 +3170,9 @@
 										<td colspan="5" class="sideways">Business Details</td>
 									</tr>
 									<tr>
-										<td class="tipLeft" title="We feel we're offering the most complete blockchain casino to date.">Business Model:</td>
+										<td class="tip-left" title="We feel we're offering the most complete blockchain casino to date.">
+											Business Model:
+										</td>
 										<!--PennyEther-->
 										<td>Casino</td>
 										<!--FunFair-->
@@ -3222,7 +3183,9 @@
 										<td>Casino</td>
 									</tr>
 									<tr>
-										<td class="tipLeft" title="Our code is open-sourced, tested, and audited.">Code:</td>
+										<td class="tip-left" title="Our code is open-sourced, tested, and audited.">
+											Code:
+										</td>
 										<!--PennyEther-->
 										<td>
 											- UI open sourced<br>
@@ -3240,11 +3203,13 @@
 										</td>
 										<!--Etheroll-->
 										<td>
-											<a href="https://etherscan.io/address/0xD91E45416bfbBEc6e2D1ae4aC83b788A21Acf583#code" target="_blank">One contract open sourced</a>
+											<a href="https://etherscan.io/address/0x048717ea892f23fb0126f00640e2b18072efd9d2#code" target="_blank">One contract open sourced</a>
 										</td>
 									</tr>
 									<tr>
-										<td class="tipLeft" title="Our product is done, and we'll be added more games to it shortly.">Status:</td>
+										<td class="tip-left" title="Our product is done, and we'll be added more games to it shortly.">
+											Status:
+										</td>
 										<!--PennyEther-->
 										<td>
 											<a href="https://www.pennyether.com" target="_blank">Live</a>
@@ -3262,23 +3227,42 @@
 											<a href="https://www.etheroll.com" target="_blank">Live</a>
 										</td>
 									</tr>
+									<tr>
+										<td class="tip-left" title="What regions can play games?">
+											Region:
+										</td>
+										<!--PennyEther-->
+										<td>Global</td>
+										<!--FunFair-->
+										<td>n/a</td>
+										<!--Edgeless-->
+										<td>Limited</td>
+										<!--Etheroll-->
+										<td>Global</td>
+									</tr>
 
 									<tr>
 										<td colspan="5" class="sideways">Live Games</td>
 									</tr>
 									<tr>
-										<td class="tipLeft" title="We're the first in the world to offer truly fair Penny Auctions. We believe this game format is more compelling than Dice, and that it has a very high revenue potential.">Penny Auctions</td>
-										<td><a href="/games/pennyauctions.html" target="_blank">Yes</a></td>
+										<td class="tip-left" title="We're the first in the world to offer truly fair Penny Auctions. We believe this game format is more compelling than Dice, and that it has a very high revenue potential.">
+											Penny Auctions
+										</td>
+										<td><a href="/games/monarchy.html" target="_blank">Monarchy</a></td>
 										<td>No</td>
 										<td>No</td>
 										<td>No</td>
 									</tr>
 									<tr>
-										<td class="tipLeft" title="Dice is by far the most popular blockchain game. We feel we currently offer the most compelling product, and that we will establish a foothold in blockchain gaming through this.">Dice</td>
+										<td class="tip-left" title="Dice is by far the most popular blockchain game. We feel we currently offer the most compelling product, and that we will establish a foothold in blockchain gaming through this.">
+											Dice
+										</td>
 										<!--PennyEther-->
 										<td>
-											<a href="/games/instadice.html" target="_blank">Yes</a><br>
-											- Results are instant
+											<a href="/games/instadice.html" target="_blank">InstaDice</a><br>
+											- Results are instant<br>
+											- Low gas cost<br>
+											- No Oracle Fee
 										</td>
 										<!--FunFair-->
 										<td>
@@ -3286,20 +3270,25 @@
 										</td>
 										<!--Edgeless-->
 										<td>
-											"Coming Soon"
+											<a href="https://casino.edgeless.io/games/dice" target="_blank">Available</a><br>
+											- Requires Account<br>
+											- Requires EDG Tokens
 										</td>
 										<!--Etheroll-->
 										<td>
 											<a href="https://etheroll.com/" target="_blank">Yes</a><br>
-											- Often takes 10+ minutes
+											- Often very slow<br>
+											- High gas cost<br>
+											- Oracle Fee
 										</td>
 									</tr>
 									<tr>
-										<td class="tipLeft" title="We were unable to place a single live wager on any casino games. We feel the product offerings are still a long way off, and that the market demand is not very high, yet.">Casino Games</td>
+										<td class="tip-left" title="We were unable to place a single live wager on any casino games. We feel the product offerings are still a long way off, and that the market demand is not very high, yet.">
+											Casino Games
+										</td>
 										<!--PennyEther-->
 										<td>
-											In the future.<br>
-											- <a href="#game-standards">Our game standards</a>
+											<a href="/games/videopoker.html" target="_blank">Video Poker</a>
 										</td>
 										<!--FunFair-->
 										<td>
@@ -3310,24 +3299,26 @@
 										<!--Edgeless-->
 										<td>
 											<a href="https://edgeless.io/#!/games/blackjack" target="_blank">BlackJack</a><br>
-											- Requires Signup<br>
-											- Requires EDG tokens
+											- Requires Account<br>
+											- Requires EDG Tokens
 										</td>
 										<!--Etheroll-->
 										<td>None</td>
 									</tr>
 
 									<tr>
-										<td colspan="5" class="sideways">Autonomy and decentralization</td>
+										<td colspan="5" class="sideways">Token Holder Rights</td>
 									</tr>
 									<tr>
-										<td class="tipLeft" title="We take great pride in having creating the first ERC20 Token that pays dividends on demand. We also make it very clear: 100% of profits go to Token Holders.">Dividends:</td>
+										<td class="tip-left" title="We take great pride in having creating the first ERC20 Token that pays dividends on demand. We also make it very clear: 100% of profits go to Token Holders.">
+											Dividends:
+										</td>
 										<!--PennyEther-->
 										<td>
-											- 100% of profits, in realtime.<br>
-											- Collectable at any time<br>
-											- <a href="/status/token.html" target="_blank">UI to view/collect dividends</a><br>
-											- <a href="/status/treasury.html" target="_blank">UI to view Treasury status</a>
+											- 100% of profits<br>
+											- Issued any time<br>
+											- <a href="/uis/tokenholder.html" target="_blank">Token Holder UI</a><br>
+											- <a href="/status/treasury.html" target="_blank">Treasury Status</a>
 										</td>
 										<!--FunFair-->
 										<td>
@@ -3343,32 +3334,36 @@
 										</td>
 									</tr>
 									<tr>
-										<td class="tipLeft" title="We've only seen a few ICOs actually back Tokens with real ETH.">Tokens Backed:</td>
-										<!--PennyEther-->
-										<td>
-											<a href="#treasury">Yes</a><br>
-											<a href="#burning-tokens">1 Penny burnable for .5 Eth</a>
+										<td class="tip-left" title="As a Token Holder, what assurance do you have that you will receive dividends?">
+											Autonomy:
 										</td>
-										<!--FunFair-->
-										<td>No</td>
-										<!--Edgeless-->
-										<td>No</td>
-										<!--Etheroll-->
-										<td>No</td>
-									</tr>
-									<tr>
-										<td class="tipLeft" title="We've gone through great lengths to ensure that not even the owners can touch the bankroll.">Security:</td>
 										<!--PennyEther-->
 										<td>
-											See: <a href="#security">security.</a><br>
-											- Owners do not control bankroll
+											- <a href="#security-autonomy">Realtime Dividends</a><br>
+											- <a href="#the-dao">DAO coming soon</a>
 										</td>
 										<!--FunFair-->
 										<td>Unknown</td>
 										<!--Edgeless-->
-										<td>Owners control bankroll.</td>
+										<td>Owners have full control.</td>
 										<!--Etheroll-->
-										<td>Owners control bankroll.</td>
+										<td>Owners have full control.</td>
+									</tr>
+									<tr>
+										<td class="tip-left" title="As a Token Holder, is it easy to determine the health of the business and view the underlying technology?">
+											Transparency:
+										</td>
+										<!--PennyEther-->
+										<td>
+											- <a href="/status/overview.html" target="_blank">Realtime Status</a><br>
+											- <a href="/about/contracts.html" target="_blank">Full Contract Details</a>
+										</td>
+										<!--FunFair-->
+										<td>Unknown</td>
+										<!--Edgeless-->
+										<td>Unknown</td>
+										<!--Etheroll-->
+										<td>- <a href="https://myetheroll.com/" target="_blank">One 3rd Party Page</a></td>
 									</tr>
 
 
@@ -3376,19 +3371,21 @@
 										<td colspan="5" class="sideways">Valuation</td>
 									</tr>
 									<tr>
-										<td style='color: white; background: #444; text-align: center; vertical-align: middle' class="tipLeft" title="Source: CoinMarketCap.com Jan 15, 2018.">Market Cap:</td>
+										<td style='color: white; background: #444; text-align: center; vertical-align: middle' class="tip-left" title="Source: CoinMarketCap.com Apr 27, 2018.">
+											Market Cap:
+										</td>
 										<!--PennyEther-->
 										<td>
 											<span style="color: gray; font-style: italic">
-												tbd by CrowdSale
+												~10,000 - 30,000 ETH
 											</span>
 										</td>
 										<!--FunFair-->
-										<td>400,000 Eth</td>
+										<td>332,000 ETH</td>
 										<!--Edgeless-->
-										<td>107,000 Eth</td>
+										<td>87,000 ETH</td>
 										<!--Etheroll-->
-										<td>20,000 Eth</td>
+										<td>21,000 ETH</td>
 									</tr>
 								</table>
 							</div>
