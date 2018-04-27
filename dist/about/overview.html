@@ -58,7 +58,7 @@
 					$(".topology-ctnr").html(html);
 				});
 			});
-			Loader.promise.then(()=>{
+			Loader.onPageLoad.then(()=>{
 				const t = topology;
 				const $text = $(".tutorial .txt");
 				const $title = $(".tutorial .title");

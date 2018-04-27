@@ -151,13 +151,10 @@
 			}
 		</style>
 		<script>
-		var loadedHash = window.location.hash;
-		window.location.hash = "";
-
-		Loader.promise.then(()=>{
-			ethStatus.close();
-			ethStatus.setOpenOnDisconnect(false);
-		});
+			Loader.onPageLoad.then(() => {
+				ethStatus.close();
+				ethStatus.setOpenOnDisconnect(false);
+			});
 		</script>
 	</head>
 	<body><div id="Content">
@@ -283,8 +280,9 @@
 				color: white;
 				text-shadow: 0px 0px 20px lime;
 				text-align: center;
-				font-size: 200%;
+				font-size: 260%;
 				letter-spacing: .2em;
+				font-variant: small-caps;
 			}
 			.wp-body .header .tagline {
 				color: #999;
@@ -302,7 +300,7 @@
 			.wp-body td.label {
 				vertical-align: middle;
 				color: rgba(0, 255, 0, .7);
-				text-shadow: 0px 0px 3px rgba(255, 255, 255, .3);
+				text-shadow: 0px 0px 4px rgba(255, 255, 255, .5);
 				border-right: 1px dotted #676;
 				padding: 2px 12px 2px 0px;
 				text-align: right;
@@ -354,9 +352,10 @@
 							<tr>
 								<td class="label">Ethereum's</td>
 								<td class="body">
-									<div class="item">only instant dice game</div>
 									<div class="item">most complete dApp, top-to-bottom</div>
 									<div class="item">first ERC20 Token to pay dividends in realtime</div>
+									<div class="item">only instant dice game</div>
+									<div class="item">only video poker game</div>
 								</td>
 							</tr>
 						</table>
@@ -400,7 +399,7 @@
 								We feel it is important to note that while <a href="#pennyether-team">our team</a> is anonymous</a>, we're not a typical ICO selling promises; <b>we've already delivered</b>, are taking bets now, and have <a href="#roadmap-future">a lot more planned</a>. We invite you to explore what we've created, to compare it to <a href="#competitive-landscape">our competition</a>, to view <a href="https://github.com/pennyether" target="_blank">our source code</a>, and to learn a lot more in this document.
 							</p>
 							<p>
-								Lastly, we recommend you read the brief <a href="/ico/intro.html" target="_blank">introduction</a> which contains a summary of our project history, and to walk through the <a href="/about/overview.html">interactive system overview</a> to understand how the platform works.
+								Lastly, we recommend you read the brief <a href="/ico/intro.html" target="_blank">introduction</a>, and to walk through the <a href="/about/overview.html">interactive system overview</a> to understand how the platform works.
 							</p>
 							<p>
 								As always, we would love to hear from you. We can be contacted via these channels:
@@ -459,7 +458,10 @@
 							<div class="head">The Team</div>
 							<div class="body">
 								<p>
-									Our team will remain anonymous for the foreseeable future. We realize the skepticism surrounding anonymous ICOs, and we want to address it directly.
+									We're a small group of programmers and technology enthusiasts that are unafraid to push the limits of blockchain technology. We have our sights set on creating the world's first truly autonomous organization.
+								</p>
+								<p>
+									<b>Our team will remain anonymous for the foreseeable future. We realize the skepticism surrounding anonymous ICOs, and we want to address it directly.</b>
 								</p>
 
 								<h3>Foreword</h3>
@@ -470,7 +472,7 @@
 											We're not raising funds on promises. We've already coded, open-sourced, deployed, and tested the Core product as well three best-in-breed games.
 										</li>
 										<li>
-											Our interests are fully aligned with, and rely on, our investors. We maintain 20% ownership, and thus are committed to growing revenues. Without distributed ownership, our flagship game Monarchy would not generate revenue.
+											Our interests are <a href="#owner-alignment">fully aligned with our investors</a>. We maintain 20% ownership, and thus are committed to growing revenues and increasing the value of PENNY Token. Furthermore, without a provably distributed ownership, our flagship game Monarchy would not generate revenue.
 										</li>
 										<li>
 											Our <a href="/about/contracts.html" target="_blank">contracts</a> are well-documented, open-sourced, and in the process of being audited. For the Core contracts, there are no backdoors and no ways to "turn them off".
@@ -493,13 +495,13 @@
 								<h3>Why Anonymous?</h3>
 								<p>
 									We're remaining anonymous for three reasons:
-									<ul>
+									<ol>
 										<li>Decentralization, and true autonomy.</li>
 										<li>The complicated international regulations of online gaming.</li>
 										<li>The complicated international regulations of blockchain tokenization.</li>
-									</ul>
+									</ol>
 
-									<h4>Decentralization and True Autonomy</h4>
+									<h4>1: Decentralization and True Autonomy</h4>
 									<p>
 										Truth be told, we're much more interested in technology than we are about legal frameworks and regulations. Part of <a href="#mission">our mission</a> is to create a <i>truly</i> decentralized, censorship-free application. This is, in fact, a key reason we chose gaming -- it's all on the blockchain.
 									</p>
@@ -510,7 +512,7 @@
 										Unfortunately, the weakest link in the decentralization of PennyEther is us, the owners. Even though our team <i>knows</i> being anonymous is not good for an ICO, we're doing it anyway because we know it makes PennyEther more censorship resistant and secure.
 									</p>
 
-									<h4>Online Gambling</h4>
+									<h4>2: Online Gambling</h4>
 									<p>
 										PennyEther's target market is international.
 										<br><br>
@@ -527,7 +529,7 @@
 										</ul>
 									</p>
 
-									<h4>Tokenization and ICOs</h4>
+									<h4>3: Tokenization and ICOs</h4>
 									<p>
 										As with the above, we're not interested in every specific region's rules and regulations regarding ICOs. We feel confident that this no-frills whitepaper, our open sourced code, and all of our other materials provide <i>you</i> with the information <i>you</i> need to make an informed decision about whether or not <i>you</i> want to invest <i>your</i> Ether into this project.
 									</p>
@@ -536,7 +538,36 @@
 									</p>
 								</p>
 
-								<h4>About Trust</h4>
+								<a data-anchor="owner-alignment"></a>
+								<h3>Alignment of Goals</h3>
+								<p>
+									While there are many safeguards in place that ensure transparency, prior to the instatement of <a href="#the-dao">the DAO</a> the PennyEther Team will <i>technically</i> have full control over PennyEther. However, <i>there is no incentive to act maliciously</i>, as the team's goals are purely aligned with Token Holders:
+									<ul>
+										<li>
+											The PennyEther Team will initially own 20% of PENNY Tokens. This means there is a strong incentive to increase profit flow and to raise the value of PENNY Tokens. Any actions that counter this would be to the detriment of the PennyEther Team. 
+										</li>
+										<li>
+											It is very likely that the value of PENNY Tokens will outweigh any short-term incentive of pilfering Capital or profits. That is, the "gain" of stealing Capital or profits will not outweigh the "loss" incurred from a plummeting Token value. Furthermore, presumably PennyEther will produce profits. If this is the case, there is very little incentive to steal funds which would otherwise return to the PennyEther Team in the form of dividends.
+										</li>
+										<li>
+											Should the PennyEther Team attempt to syphon profits away from the Treasury, the <a href="#monarchy">Monarchy</a> game will no longer be provably fair -- that is, the PennyEther Team would be able to <a href="#penny-auction-problems">shill bid</a>. This would likely cause nobody to play Monarchy anymore, dramatically decreasing profits and the value of PENNY Tokens.
+										</li>
+										<li>
+											Should the PennyEther Team attempt to steal Treasury bankroll (by, for example, allocating Bankroll to a malicious contract), a dramatic loss of trust would occur, and the value of PENNY Tokens would plummet. Furthermore, it would become impossible to raise additional capital to fund any new games.
+										</li>
+										<li>
+											Since PennyEther is open-sourced, there exists a strong incentive for the PennyEther Team to consistently deliver new games and manage PennyEther properly. Should the PennyEther Team fail to do so, there exists a chance that PennyEther is cloned and that profits and Token value will drop due to a competitor's existance.
+										</li>
+										<li>
+											Although the team is anonymous, there still exists a strong incentive to do right by investors. Defrauding investors would place the personal freedom of the PennyEther Team at risk due to possible investigations and strong incentives to "dox".
+										</li>
+									</ul>
+									<p>
+										It should be noted that the above concerns are only temporary.  <b>Once the DAO is instated, PennyEther will fully in the hands of Token Holders</b>, though with 20% ownership the PennyEther Team will still be incentivized to contribute to PennyEther.
+									</p>
+								</p>
+
+								<h3>About Trust</h3>
 								<p>
 									At the end of the day, it's your decision whether or not you want to trust any team. If LinkedIn profiles, hyped up projects, and fancy landing pages are your type of thing, we understand and respect that, and it's your choice not to participate. If, on the other hand, you value the most comprehensive working dApp that's already deployed, tested, and undergoing audits, you should read on.
 								</p>
@@ -550,7 +581,7 @@
 					<div class="head">Games</div>
 					<div class="body">
 						<p>
-							We currently offer three games, and will continue to develop more. Our three games, <a href="/games/monarchy.html" target="_blank">Monarchy</a>, <a href="/games/instadice.html" target="_blank">InstaDice</a>, and <a href="/games/videopoker.html" target="_blank">VideoPoker</a>, are fully developed and deployed, from the Smart Contract to the UI. They were strenuously tested by our <a href="#testing">advanced testing framework</a>, and are undergoing audits. They're live, and staked with our own Ether, meaning that there already exists a bounty in breaking them.
+							We currently offer three games, and will continue to develop more. Our three games, <a href="/games/monarchy.html" target="_blank">Monarchy</a>, <a href="/games/instadice.html" target="_blank">InstaDice</a>, and <a href="/games/videopoker.html" target="_blank">VideoPoker</a>, are fully developed and deployed, from the Smart Contract to the UI. They were strenuously tested by our <a href="#testing-framework">advanced testing framework</a>, and are undergoing audits. They're live, and staked with our own Ether, meaning that there already exists a bounty in breaking them.
 						</p>
 
 						<a data-anchor="game-standards"></a>
@@ -691,6 +722,7 @@
 									</tbody>
 								</table>
 
+								<a href="#penny-auction-problems"></a>
 								<h3>Problems With Existing Penny Auctions</h3>
 								<p>
 									<a href="https://en.wikipedia.org/wiki/Bidding_fee_auction" target="_blank">Penny Auctions</a> are not new. They exploded in popularity a few years ago -- you may have seen commercials for quibids, beezids, etc. They have since faced some <a href="https://en.wikipedia.org/wiki/Bidding_fee_auction#Criticism" target="_blank">controversy and skepticism</a> for two main reasons:
@@ -1050,7 +1082,7 @@
 								</p>
 								<h3>Technology</h3>
 								<p>
-									Over the course of developing three games, we've made it easy on ourselves by creating simple components to reuse. By offering these tools our developers, we believe the barrier to game development will be lower than ever before.
+									Over the course of developing three games, we've made it easy on ourselves by creating simple components to reuse. By offering these tools our developers, we believe the barrier to game development will be lower than ever before. See also: <a href="#scalability">Scalability</a>.
 								</p>
 								<p>
 									<h4>Contract Development</h4>
@@ -1542,7 +1574,7 @@
 
 								<h3>Migration to DAO</h3>
 								<p>
-									Technically, the migration to a DAO doable, and only involves altering a few <a href="#roles">roles</a>: <span class="code">Admin</span>, <span class="code">Custodian</span>, <span class="code">Supervisor</span>, and <span class="code">Owner</span>. It would work as follows:
+									Technically, the migration to a DAO is doable, and only involves altering a few <a href="#roles">roles</a>: <span class="code">Admin</span>, <span class="code">Custodian</span>, <span class="code">Supervisor</span>, and <span class="code">Owner</span>. It would work as follows:
 									<ol>
 										<li>
 											The PennyEther Team, via the <span class="code">Custodian</span> account, would set the DAO as the <span class="code">Admin</span>. This would allow the DAO to make changes to game configurations, and control Capital via Governance. <i>However, the PennyEther Team could still change the <span class="code">Admin</span> at any time, via the <span class="code">Custodian</span> account.</i>
@@ -1649,7 +1681,13 @@
 								</p>
 							</div>
 						</div>
+					</div>
+				</div>
 
+				<a data-anchor="other"></a>
+				<div class="page-section">
+					<div class="head">Other</div>
+					<div class="body">
 						<a data-anchor="security-autonomy"></a>
 						<div class="page-subsection security">
 							<div class="head">Security & Autonomy</div>
@@ -1780,7 +1818,7 @@
 									There are a few roles that participate in and manage PennyEther:
 									<ul>
 										<li>
-											<b><span class='code'>Anybody</span></b>: Can participate in games, and can run <span class='code'>Tasks</span> for rewards.
+											<b><span class='code'>Anybody</span></b>: Can participate in games, and can run <a href="#task-manager"><span class='code'>Tasks</span></a> for rewards.
 											<ul>
 												<li>
 													<span class='code'>Anybody</span> can, at worst, play PennyEther games with the intent of bankrupting the house. We say, have at it!
@@ -1789,21 +1827,21 @@
 										</li>
 										<a data-anchor="admin"></a>
 										<li>
-											<b><span class='code'>Admin</span></b>: Can alter minor configurations in the system, within strict limits. For example, <span class='code'>Admin</span> can change <span class='code'>Task</span> reward amounts, and can change <span class='code'>Penny Auction</span> game parameters.
+											<b><span class='code'>Admin</span></b>: Can alter minor configurations in the system, within strict limits. For example, <span class='code'>Admin</span> can change <span class='code'>Task</span> reward amounts, and can change <span class='code'>Monarchy</span>, <span class="code">InstaDice</span>, and <span class="code">InstaDice</span> game parameters.
 											<ul>
 												<li>
-													The <span class='code'>Admin</span> can, at worst, cause cause <span class='code'>Tasks</span> to pay high rewards (limited to <span class='code'>Daily Funding Limit</span>).
+													The <span class='code'>Admin</span> can, at worst, cause <span class='code'>Tasks</span> to pay high rewards (limited to <span class='code'>Daily Funding Limit</span>). The Admin can also create <a href="#governance">governance requests</a>, but must wait one week before executing them.
 												</li>
 												<li>
-													All changes are reversible by <span class='code'>Custodian</span>, <span class='code'>Supervisor</span>, and <span class='code'>Owner</span>.
+													All changes are reversible by <span class='code'>Custodian</span>, <span class='code'>Supervisor</span>, and <span class='code'>Owner</span>. Governance Requests can be cancelled within one week. 
 												</li>
 											</ul>
 										</li>
 										<li>
-											<b><span class='code'>Custodian</span></b>: Acts on behalf of the owners, can change the <span class='code'>Admin</span> account, and can deploy or upgrade non-core contracts (<span class='code'>MainController</span>, and all games).
+											<b><span class='code'>Custodian</span></b>: Acts on behalf of the <a href="#owner-wallet">Owner Wallet</a>, can change the <span class='code'>Admin</span> account, and can add, remove, or upgrade non-core contracts (<span class='code'>TaskManager</span>, and all game controllers).
 											<ul>
 												<li>
-													The <span class='code'>Custodian</span> can, at worst, cause all revenues to cease, and for PennyEther to lose <span class='code'>Daily Funding Limit</span> per day.
+													The <span class='code'>Custodian</span> can, at worst, cause all revenues to cease.
 												</li>
 												<li>
 													All changes are reversible by <span class='code'>Supervisor</span>, and <span class='code'>Owner</span>.
@@ -1814,10 +1852,10 @@
 											<b><span class='code'>Supervisor</span></b>: A cold wallet that can change who the <span class='code'>Custodian</span> is, should they no longer be trust-worthy.
 											<ul>
 												<li>
-													The <span class='code'>Supervisor</span> can, at worst, cause all revenues to cease, and for PennyEther to lose <span class='code'>Daily Funding Limit</span> per day.
+													The <span class='code'>Supervisor</span> can, at worst, cause all revenues to cease. This account also can also collect the <a href="token-locker">Token Locker's</a> accrued dividends.
 												</li>
 												<li>
-													All changes are reversible by <span class='code'>Owner</span>.
+													All changes are reversible by <span class='code'>Owner</span>. The collection of dividends cannot be reversed.
 												</li>
 											</ul>
 										</li>
@@ -1825,14 +1863,28 @@
 											<b><span class='code'>Owner</span></b>: A very cold wallet, ideally never used, that can change who the <span class='code'>Supervisor</span> is.
 											<ul>
 												<li>
-													The <span class='code'>Owner</span> can, at worst, cause all revenues to cease, and for PennyEther to lose <span class='code'>Daily Funding Limit</span> per day.
+													The <span class='code'>Owner</span> can cause PennyEther to effectively be terminated. <b>This account will ideally never be used.</b>
 												</li>
 												<li>
-													Changes are not reversible.
+													<b>Prior to the DAO being instated, this account can control everything</b>.
+												</li>
+											</ul>
+										</li>
+										<li>
+											<b><a href="#the-dao"><span class='code'>The DAO</span></a></b>: Once instated, will take the roles of any or all: <span class="code">Admin</span>, <span class="code">Custodian</span>, <span class="code">Supervisor</span>, and <span class="code">Owner</span>.
+											<ul>
+												<li>
+													The DAO will allow PennyEther to be run in a fully autonomonized and democratic fashion. If instated fully, the DAO will replace the PennyEther Team in running PennyEther.
 												</li>
 											</ul>
 										</li>
 									</ul>
+								</p>
+
+								<a data-anchor="owner-alignment"></a>
+								<h3>Alignment of Goals</h3>
+								<p>
+									Prior to the instatement of <a href="#the-dao">the DAO</a>, the PennyEther Team will have full control over PennyEther. However, there is no incentive to act maliciously, as the team's goals are purely aligned with Token Holders. For more information, see: <a href="#owner-alignment">owner alignment</a>.
 								</p>
 
 								<h3>Tests and Audits</h3>
@@ -1894,30 +1946,6 @@
 							</div>
 						</div>
 
-
-						<!-- <h3>Commitment to Quality</h3>
-						<p>
-							We'd like to take a moment to reiterate our commitment to quality.
-							<br><br>
-							UI Quality:
-							<ul>
-								<li>Function and usability first, looks second.</li>
-								<li><u>Always</u> show the user what is happening with transactions.</li>
-								<li>Allow the user to make an informed decision about Gas Price.</li>
-								<li>Allow the user to see past transaction and wager details.</li>
-								<li>Show Token Holders all relevant information, in an easy to understand manner.</li>
-								<li>Make a UI for every contract.</li>
-							</ul>
-							Contract Quality:
-							<ul>
-								<li>Test <u>everything</u></li>
-								<li>Independantly audit <u>everything</u></li>
-								<li>Proactively <a href="#security">code against bad actors</a>, including ourselves</li>
-								<li>Assure <a href="#security-autonomy">autonomy</a>
-								<li>Simplify as much as possible</li>
-							</ul>
-						</p> -->
-
 						<a data-anchor="scalability"></a>
 						<div class="page-subsection">
 							<div class="head">Scalability</div>
@@ -1929,18 +1957,32 @@
 											<b>Code the Contract</b>: Coding the contract in Solidity is a fairly simple process, once you're used to Solidity. InstaDice took only a few days of coding, for example.
 										</li>
 										<li>
-											<b>Test the Contract</b>: Testing is much more complicated. We've created a testing framework that makes writing tests a lot easier and more thorough. It also outputs test results in a human friendly manner. Tests, test results, and documentation on the testing framework can be found on <a href="https://github.com/pennyether/contracts" target="_blank">our github</a>.
+											<b>Test the Contract</b>: We've created a <a href="#testing-framework">testing framework</a> that makes writing very thorough tests quite easy.
 										</li>
 										<li>
-											<b>Upgrade <span class='code'>MainController</span></b>: If the new game requires any <span class='code'>Tasks</span> to be run to keep it autonomous, or if it requires funding from <span class='code'>Treasury</span>, this logic must be added to <span class='code'>MainController</span>.
+											<b>Upgrade <a href="#task-manager"><span class='code'>TaskManager</span></a></b>: If the new game requires any <span class='code'>Tasks</span> to be run to keep it autonomous, this logic should be added to <span class='code'>MainController</span>.
 										</li>
 										<li>
-											<b>Create UI</b>: This is perhaps the most time consuming process. We've created some <a href="#application-ui-tools">UI Tools</a> that makes this a lot easier, but coding the game-specific logic and asynchronous transaction workflows is a tedious process.
+											<b>Create UI</b>: This is perhaps the most time consuming process. We've created some <a href="#application-ui-tools">UI Tools</a> to make this a lot easier.
 										</li>
 										<li>
-											<b>Deploy</b>: It's simple to deploy the new game's contract. It's also easy to upgrade <span class='code'>MainController</span>. Thanks to <span class='code'>Registry</span>, and because <span class='code'>MainController</span> has no state, it's very easy to deploy the new version.
+											<b>Create Status Page</b>: The game should have a page that shows it's current status, past games played, etc.
+										</li>
+										<li>
+											<b>Deploy and Bankroll</b>: Deploying the game is as simple as adding an entry to the <a href="#registry">Registry</a>, and creating a <a href="#governance">Governance Request</a> to bankroll it.
 										</li>
 									</ol>
+								</p>
+
+								<a data-anchor="testing-framework"></a>
+								<h3>Testing Framework</h3>
+								<p>
+									Testing smart contracts is hard. We've developed a testing framework that makes it easier for developers to write exhaustive tests, and that produces very helpeful human-readable results.  As a result, we believe our dApp contains the most thorough testing of any dApp release.
+									<ul>
+										<li>Example: <a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/DividendToken.js.html" target="_blank">test results for PENNY Token</a></li>
+										<li>Example: <a href="https://github.com/pennyether/contracts/blob/master/tests/DividendToken.test.js" target="_blank">test file for PENNY Token</a></li>
+										<li>More details on GitHub</li>
+									</ul>
 								</p>
 
 								<a data-anchor="registry"></a>
@@ -2095,7 +2137,7 @@
 								<div class="milestone">
 									<div class="content">
 										<div class="top">
-											MainController and Tasks
+											TaskManager
 										</div>
 										<div class="bottom">
 											<ul>
@@ -2107,25 +2149,6 @@
 									<div class="date">
 										<div class="body">
 											Q3 2017
-										</div>
-									</div>
-								</div>
-								<div class="milestone">
-									<div class="content">
-										<div class="top">
-											Technical Documentation
-										</div>
-										<div class="bottom">
-											<ul>
-												<li>Create list of things to be audited</li>
-												<li>Ensure everything is tested</li>
-												<li>Thoroughly comment and annotate code</li>
-											</ul>
-										</div>
-									</div>
-									<div class="date">
-										<div class="body">
-											Q4 2017
 										</div>
 									</div>
 								</div>
@@ -2145,6 +2168,63 @@
 									<div class="date">
 										<div class="body">
 											Q4 2017
+										</div>
+									</div>
+								</div>
+								<div class="milestone">
+									<div class="content">
+										<div class="top">
+											Create VideoPoker
+										</div>
+										<div class="bottom">
+											<ul>
+												<li>Create and test contract</li>
+												<li>Create UI</li>
+												<li>Create documentation</li>
+											</ul>
+										</div>
+									</div>
+									<div class="date">
+										<div class="body">
+											Q1 2018
+										</div>
+									</div>
+								</div>
+								<div class="milestone">
+									<div class="content">
+										<div class="top">
+											Further UI Work
+										</div>
+										<div class="bottom">
+											<ul>
+												<li>Create player history</li>
+												<li>Create token holder UI</li>
+												<li>Create admin UI</li>
+											</ul>
+										</div>
+									</div>
+									<div class="date">
+										<div class="body">
+											Q1 2018
+										</div>
+									</div>
+								</div>
+								<div class="milestone">
+									<div class="content">
+										<div class="top">
+											Convery Mission
+										</div>
+										<div class="bottom">
+											<ul>
+												<li>Create status overview demo</li>
+												<li>Create whitepaper</li>
+												<li>List all contracts</li>
+											</ul>
+										</div>
+									</div>
+									<div class="date">
+										<div class="body">
+											Q1 2018
 										</div>
 									</div>
 								</div>
@@ -2227,6 +2307,63 @@
 										</div>
 									</div>
 								</div>
+								<div class="milestone">
+									<div class="date">
+										<div class="body">
+											Q1 2018
+										</div>
+									</div>
+									<div class="content">
+										<div class="top">
+											Refinement
+										</div>
+										<div class="bottom">
+											<ul>
+												<li>Refactor of UI</li>
+												<li>Create new status pages</li>
+												<li>Double-check all contracts</li>
+												<li>Optimize Gas costs</li>
+											</ul>
+										</div>
+									</div>
+								</div>
+								<div class="milestone">
+									<div class="date">
+										<div class="body">
+											Q1 2018
+										</div>
+									</div>
+									<div class="content">
+										<div class="top">
+											Open Source Contracts
+										</div>
+										<div class="bottom">
+											<ul>
+												<li>Launch on GitHub</li>
+												<li>Make Test Results Public</li>
+												<li>Begin seeking audit</li>
+											</ul>
+										</div>
+									</div>
+								</div>
+								<div class="milestone">
+									<div class="date">
+										<div class="body">
+											Q1 2018
+										</div>
+									</div>
+									<div class="content">
+										<div class="top">
+											Launch to TestNet
+										</div>
+										<div class="bottom">
+											<ul>
+												<li>Full Launch</li>
+												<li>Test everything</li>
+											</ul>
+										</div>
+									</div>
+								</div>
 							</div>
 						</div>
 
@@ -2237,42 +2374,123 @@
 								<div class="milestone">
 									<div class="content">
 										<div class="top">
-											Launch PennyEther to MainNet
+											Launch to MainNet
 										</div>
 										<div class="bottom">
 											<ul>
 												<li>Full Deploy</li>
-												<li>Run some auctions</li>
-												<li>Run some rolls</li>
+												<li>Bootstrap Capital</li>
+												<li>Test all games</li>
 											</ul>
 										</div>
 									</div>
 									<div class="date">
 										<div class="body">
-											Q1 2018
+											Q2 2018
 										</div>
 									</div>
 								</div>
 								<div class="milestone">
 									<div class="content">
 										<div class="top">
-											Gain Publicity
+											Begin Audit Process
 										</div>
 										<div class="bottom">
 											<ul>
-												<li>Social Media Posts</li>
-												<li>ICO Websites</li>
-												<li>Blockchain Gambling Websites</li>
+												<li>Define audit details</li>
+												<li>Find auditors</li>
+												<li>Offer bug bounties</li>
 											</ul>
 										</div>
 									</div>
 									<div class="date">
 										<div class="body">
-											Q1 2018
+											Q2 2018
 										</div>
 									</div>
 								</div>
 								<div class="milestone">
+									<div class="content">
+										<div class="top">
+											Start CrowdSale
+										</div>
+										<div class="bottom">
+											<ul>
+												<li>Precisely define terms</li>
+												<li>Announce</li>
+											</ul>
+										</div>
+									</div>
+									<div class="date">
+										<div class="body">
+											Q2 2018
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="right">
+								<div class="milestone">
+									<div class="date">
+										<div class="body">
+											Q2 2018
+										</div>
+									</div>
+									<div class="content">
+										<div class="top">
+											Announce
+										</div>
+										<div class="bottom">
+											<ul>
+												<li>Social Media Posts, Reddit</li>
+												<li>ICO Websites</li>
+												<li>Blockchain Gambling Websites</li>
+												<li>Begin Monarch Games</li>
+											</ul>
+										</div>
+									</div>
+								</div>
+								<div class="milestone">
+									<div class="date">
+										<div class="body">
+											Q2 2018
+										</div>
+									</div>
+									<div class="content">
+										<div class="top">
+											Develop Community
+										</div>
+										<div class="bottom">
+											<ul>
+												<li>Gather community feedback</li>
+												<li>Determine exact ICO terms</li>
+												<li>Make changes where necessary</li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+<!-- 						<div class="milestone">
+							<div class="date">
+								<div class="body">
+									Q2 2018
+								</div>
+							</div>
+							<div class="content">
+								<div class="top">
+									Site Translations
+								</div>
+								<div class="bottom">
+									<ul>
+										<li>Penny Auctions and Dice Games</li>
+										<li>WhitePaper</li>
+										<li>All other copy</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+						<div class="milestone">
 									<div class="content">
 										<div class="top">
 											Token Listings
@@ -2291,66 +2509,24 @@
 										</div>
 									</div>
 								</div>
-							</div>
-							<div class="right">
-								<div class="milestone">
-									<div class="date">
-										<div class="body">
-											Q1 2018
-										</div>
-									</div>
-									<div class="content">
-										<div class="top">
-											Open Source and Audit Contracts
-										</div>
-										<div class="bottom">
-											<ul>
-												<li>Launch on GitHub</li>
-												<li>Make Test Results Public</li>
-												<li>Contact Third Parties</li>
-											</ul>
-										</div>
-									</div>
-								</div>
-								<div class="milestone">
-									<div class="date">
-										<div class="body">
-											Q1 2018
-										</div>
-									</div>
-									<div class="content">
-										<div class="top">
-											Site Translations
-										</div>
-										<div class="bottom">
-											<ul>
-												<li>Penny Auctions and Dice Games</li>
-												<li>WhitePaper</li>
-												<li>All other copy</li>
-											</ul>
-										</div>
-									</div>
-								</div>
-								<div class="milestone">
-									<div class="date">
-										<div class="body">
-											Q1 2018
-										</div>
-									</div>
-									<div class="content">
-										<div class="top">
-											Launch CrowdSale
-										</div>
-										<div class="bottom">
-											<ul>
-												<li>List on ICO websites</li>
-												<li>Create FAQs</li>
-											</ul>
-										</div>
-									</div>
+						<div class="milestone">
+							<div class="date">
+								<div class="body">
+									Q1 2018
 								</div>
 							</div>
-						</div>
+							<div class="content">
+								<div class="top">
+									Launch CrowdSale
+								</div>
+								<div class="bottom">
+									<ul>
+										<li>List on ICO websites</li>
+										<li>Create FAQs</li>
+									</ul>
+								</div>
+							</div>
+						</div> -->
 
 						<a data-anchor="roadmap-future"></a>
 						<h3 style="text-align: center;">Future</h3>
@@ -2359,18 +2535,19 @@
 								<div class="milestone">
 									<div class="content">
 										<div class="top">
-											Post ICO
+											Finish CrowdSale
 										</div>
 										<div class="bottom">
 											<ul>
-												<li>Increase number of concurrent auctions</li>
-												<li>Increase InstaDice bankroll</li>
+												<li>Bankroll game contracts</li>
+												<li>Increase maximum bet amounts</li>
+												<li>Increase Monarchy prize pools</li>
 											</ul>
 										</div>
 									</div>
 									<div class="date">
 										<div class="body">
-											Q1 2018
+											Q3 2018
 										</div>
 									</div>
 								</div>
@@ -2389,7 +2566,7 @@
 									</div>
 									<div class="date">
 										<div class="body">
-											Q1 2018
+											Q3 2018
 										</div>
 									</div>
 								</div>
@@ -2408,26 +2585,26 @@
 									</div>
 									<div class="date">
 										<div class="body">
-											Q2 2018
+											Q3 2018
 										</div>
 									</div>
 								</div>
 								<div class="milestone">
 									<div class="content">
 										<div class="top">
-											Research State Channels
+											3rd Party Developer Program
 										</div>
 										<div class="bottom">
 											<ul>
-												<li>Attempt to make multi-step game</li>
-												<li>Blackjack, 5 card draw, etc</li>
-												<li>Determine if backend is required</li>
+												<li>Create "Devleper Portal"</li>
+												<li>Refine documentation</li>
+												<li>Enlist 3rd party developers</li>
 											</ul>
 										</div>
 									</div>
 									<div class="date">
 										<div class="body">
-											Q2 2018
+											Q4 2018
 										</div>
 									</div>
 								</div>
@@ -2438,6 +2615,7 @@
 										</div>
 										<div class="bottom">
 											<ul>
+												<li>Possibly 3rd party</li>
 												<li>Possibly with State Channels</li>
 												<li>Possibly Paramutuel Betting</li>
 											</ul>
@@ -2445,7 +2623,26 @@
 									</div>
 									<div class="date">
 										<div class="body">
-											Q3 2018
+											Q4 2018
+										</div>
+									</div>
+								</div>
+								<div class="milestone">
+									<div class="content">
+										<div class="top">
+											Iterate
+										</div>
+										<div class="bottom">
+											<ul>
+												<li>Gather feedback and ideas</li>
+												<li>Experiement</li>
+												<li>Repeat</li>
+											</ul>
+										</div>
+									</div>
+									<div class="date">
+										<div class="body">
+											Q4 2018
 										</div>
 									</div>
 								</div>
@@ -2454,7 +2651,7 @@
 								<div class="milestone">
 									<div class="date">
 										<div class="body">
-											Q1 2018
+											Q3 2018
 										</div>
 									</div>
 									<div class="content">
@@ -2465,7 +2662,7 @@
 											<ul>
 												<li>Pay for advertising and marketing</li>
 												<li>Work with branding experts</li>
-												<li>Reward evangelists, guerilla marketers</li>
+												<li>Reward evangelists</li>
 											</ul>
 										</div>
 									</div>
@@ -2473,7 +2670,7 @@
 								<div class="milestone">
 									<div class="date">
 										<div class="body">
-											Q2 2018
+											Q3 2018
 										</div>
 									</div>
 									<div class="content">
@@ -2491,7 +2688,7 @@
 								<div class="milestone">
 									<div class="date">
 										<div class="body">
-											Q2 2018
+											Q3 2018
 										</div>
 									</div>
 									<div class="content">
@@ -2510,12 +2707,12 @@
 								<div class="milestone">
 									<div class="date">
 										<div class="body">
-											Q3 2018
+											Q4 2018
 										</div>
 									</div>
 									<div class="content">
 										<div class="top">
-											Create DAO Contract
+											Implement DAO Contract
 										</div>
 										<div class="bottom">
 											<ul>
@@ -2530,7 +2727,7 @@
 								<div class="milestone">
 									<div class="date">
 										<div class="body">
-											Q3 2018
+											Q4 2018
 										</div>
 									</div>
 									<div class="content">

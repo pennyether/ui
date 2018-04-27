@@ -352,7 +352,6 @@ function doScrolling(end, duration) {
     const start = window.pageYOffset;
     var diff = end - start;
     var easing = function (t) { return t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1 }
-    console.log(start, end, diff);
     
     // animate it
     var startTime;
