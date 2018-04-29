@@ -134,6 +134,7 @@
 				$(".tr-addr").append(util.$getAddrLink(tr.address));
 				$(".mc-addr").append(util.$getAddrLink(tm.address));
 				$(".dice-addr").append(util.$getAddrLink(dice.address));
+				$(".vp-addr").append(util.$getAddrLink(vp.address));
 				$(".reg-addr").append(util.$getAddrLink(reg.address));
 				(function loadRegistry(){
 					const regMappings = Loader.getRegistryMappings();
@@ -521,7 +522,7 @@
 				<div class="fieldList">
 					<div class="field">
 						<div class="label">Address:</div>
-						<div class="value dice-addr"></div>
+						<div class="value vp-addr"></div>
 					</div>
 					<div class="field">
 						<div class="label">Status:</div>
