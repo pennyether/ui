@@ -2,7 +2,10 @@
 
 Our UI is fully open source, with no external dependancies.
 
-**We never ask for any user information (public/private keys, email, etc).**
+Some securiy features:
+
+- **We never ask for any user information (public/private keys, email, etc).**
+- The UI does not load anything externally. All libraries are provided locally.
 
 ## Running the UI
 
@@ -60,15 +63,16 @@ You can run a simple http server in node quite easily:
 	- Shows pending transactions, with lots of details
 	- Shows information on creating an Ethereum account
 - `WebUtil` creates interactive DOM objects:
-	- `LogViewer` to view all events of a specific contract
+	- `LogViewer` to view all events of a specific contract, with custom formatting
 	- `GasPriceSlider` to allow user to intelligently select gas price
-	- `LoadingBar` to show user approximate mining status
+	- `TxStatus` shows transaction progress and display relevant tx information
+	- `GasifyButton` creates a button whose tooltip is a `GasPriceSlider`
 
 ## Open Sourcing
 
-This is our initial commit -- many things are interdependant, as we prefer not to use a build script so that anyone can fire up their own UI.
+This is our initial commit -- many things are interdependant, as we prefer not to use a build script (so that anyone can fire up their own UI).
 
-In the future, we plan on cleaning up and open sourcing the above modules for the Ethereum community. We've found them extremely useful!
+In the future, we plan on cleaning up and open sourcing the above modules for the Ethereum community. We've found them extremely useful.
 
 ## Developer Notes
 
