@@ -19,7 +19,7 @@
 				color: white;
 				text-shadow: 0px 0px 20px lime;
 				text-align: center;
-				font-size: 200%;
+				font-size: 240%;
 				letter-spacing: .2em;
 			}
 
@@ -42,14 +42,15 @@
 				padding: 2px 5px;
 				display: inline-block;
 				border-radius: 3px;
-				background: linear-gradient(to bottom, rgba(200,200,200,.5) 0%, rgba(255,255,255,.5) 100%);
-				color: navy;
+				background: linear-gradient(to top, rgba(200,200,200,.7) 0%, rgba(255,255,255,.7) 100%);
+				color: rgb(0,0,220);
 				text-decoration: none;
 				box-shadow: 3px 3px 5px 0px rgba(255,255,255,.2);
-				transition: color .4s, box-shadow .4s;
+				transition: color .4s, box-shadow .4s, transform .4s;
 				margin: 0px 5px;
 			}
 			.links a:hover {
+				transform: scale(1.1);
 				color: blue;
 				box-shadow: 0px 0px 10px 1px blue;
 			}
@@ -120,6 +121,17 @@
 				margin: 4px 0px;
 				text-shadow: 1px 1px 0px black;
 			}
+				.header .bullet a {
+					color: rgba(200,200,255,1);
+					text-shadow: none;
+					text-decoration: underline;
+					text-decoration-color: transparent;
+					transition: color .5s, text-decoration-color .5s;
+				}
+				.header .bullet a:hover {
+					color: rgba(100,100,255,1);
+					text-decoration-color: rgba(100,100,255,1);
+				}
 			.header .bullet:before {
 				color: #777;
 				display: inline-block;
@@ -289,31 +301,35 @@
 					<div class="ctnr">
 						<div class="ctnr-title">PennyEther</div>
 						<div class="bullet">Autonomous Blockchain Gaming</div>
-						<div class="bullet">Two games, with more on the way</div>
-						<div class="bullet">Audited, open-sourced, secure</div>
+						<div class="bullet">Three games, with more on the way</div>
+						<div class="bullet">Live, open-sourced, and tested</div>
+						<div class="bullet"><a href="/status/overview.html">Realtime System Status</a></div>
 					</div>
 				</div>
 				<div class="middle">
 					<div class="ctnr">
-						<div class="ctnr-title">Tokens</div>
-						<div class="bullet">Get 100% of profits</div>
-						<div class="bullet">Dividends distributed on-demand</div>
-						<div class="bullet">Can be burned for .5 Ether</div>
+						<div class="ctnr-title">PENNY Token</div>
+						<div class="bullet">Token holders get 100% of profits</div>
+						<div class="bullet">Dividends distributed in realtime</div>
+						<div class="bullet">Fully ERC20 compliant</div>
+						<div class="bullet"><a href="/uis/tokenholder.html">Token Holder UI</a></div>
 					</div>
 				</div>
 				<div class="right">
 					<div class="ctnr">
 						<div class="ctnr-title">CrowdSale</div>
-						<div class="bullet">80% sold, 20% to developers</div>
-						<div class="bullet">Over 50% of funds go to bankroll</div>
-						<div class="bullet">Fully refunded if Soft Cap not met</div>
+						<div class="bullet">80% for sale, 20% for developers</div>
+						<div class="bullet">Limited bonus period</div>
+						<div class="bullet">Refunded if SoftCap not met</div>
+						<div class="bullet"><a href="/ico/whitepaper.html#crowdsale">More info</a></div>
 					</div>
 				</div>
 			</div>
 			<div>
 				<div class="links">
 					<div class="label">resources</div>
-					<a href="/about/pennyether.html">overview</a>
+					<a href="/ico/intro.html">intro</a>
+					<a href="/about/overview.html">overview</a>
 					<a href="/ico/whitepaper.html">whitepaper</a>
 					<a href="/about/contracts.html">contracts</a>
 					<a href="/ico/whitepaper.html#crowdsale">crowdsale terms</a>

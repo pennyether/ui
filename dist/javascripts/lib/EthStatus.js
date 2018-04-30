@@ -186,8 +186,7 @@
                 _$pendingTxs.show();
                 _$noAccount.hide();
 
-                const acctStr = acctAddr.slice(0,6) + "..." + acctAddr.slice(-4);
-                const $link = _ethUtil.$getLink(acctStr, acctAddr, "address")
+                const $link = nav.$getPlayerLink(acctAddr, true);
                 _$acctCtnr.removeClass("none");
                 _$acctAddr.empty().append("Account: ").append($link);
                 _$acctBal.text("...");

@@ -133,6 +133,9 @@
                 name: "ICO",
                 url: "/ico/whitepaper.html",
                 children: [{
+                    name: "Intro",
+                    url: "/ico/intro.html"
+                },{
                     name: "Whitepaper",
                     url: "/ico/whitepaper.html"
                 },{
@@ -240,13 +243,13 @@
                 .text(`Game #${id}`)
                 .attr("href", `/games/view-videopoker-hand.html#${id}`);
         };
-        this.$getPlayerLink = function(addr) {
+        this.$getPlayerLink = function(addr, forceAddr) {
             const $el = $("<div class='player-link'></div>");
             // get link to player history
             const $link = $("<a></a>")
                 .attr("href", `/uis/player.html#${addr}`)
                 .text(addr.slice(0,6) + "..." + addr.slice(-4));
-            if (ethUtil.getCurrentAccount() === addr) $link.text("You");
+            if (!forceAddr && ethUtil.getCurrentAccount() === addr) $link.text("You");
             // get gravatar
             const gravatarId = addr.slice(2, 34);
             const $gravatar = $("<img></img>").attr(`src`, `https://www.gravatar.com/avatar/${gravatarId}?d=retro`)
