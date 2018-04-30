@@ -135,8 +135,8 @@
                 console.log(`Using browser-provided web3.`);
             } else {
                 window.hasWeb3 = false;
-                window.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545/"));
-                console.log(`No browser-provided web3. Using localhost.`);
+                window.web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io/"));
+                console.log(`No browser-provided web3. Using mainnet.`);
             }
 
             // Public things.
@@ -200,10 +200,20 @@
             ethUtil.pollForStateChange();
 
             // Load nav
-            const nav = new Nav();
-            nav.setEthStatusElement(ethStatus.$e)
-            $("#Content").prepend(nav.$e);
-            window["nav"] = nav;
+            (function initNav(){
+                const nav = new Nav();
+                nav.setEthStatusElement(ethStatus.$e);
+                $("#Content").prepend(nav.$e);
+                window["nav"] = nav;
+
+                var prevNetworkId;
+                ethUtil.onStateChanged((state)=>{
+                    const networkId = state.networkId;
+                    if (networkId === prevNetworkId) return;
+                    nav.$setNetwork(ethUtil.$getNetworkLink());
+                    prevNetworkId = networkId;
+                });
+            }());
 
             // If hash is #foo, smoothly scrolls to a[data-anchor=foo]
             // Also gets rid of the annoying scrollToTop default behavior.

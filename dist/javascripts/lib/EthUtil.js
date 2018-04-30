@@ -74,7 +74,7 @@
 
         this.getCurrentStateSync = function(){
             return _curState;
-        }
+        };
 
         this.pollForStateChange = function(timeMs){
             (function pollState() {
@@ -307,7 +307,7 @@
                 web3.toHex(index),
                 blockNum
             ]);
-        }
+        };
         // returns average blocktime (in seconds)
         //   - avg of avg blocktime for last 100, 1000, and 5000 blocks.
         //   - returns promise for a BigNumber() of seconds
@@ -327,7 +327,7 @@
                     return new BigNumber(num.toFixed(15));
                 });
             });
-        }
+        };
 
         // Returns the gasPrices, refreshing if older than 1 minute
         // To reduce HTTP calls, all calls are memoized.
@@ -369,14 +369,14 @@
                 throw e;
             });
             return _gasPricePromise;
-        }
+        };
 
 
         this.toEth = function(val) {
             try { var bn = new BigNumber(val); }
             catch (e) { throw new Error(`${val} is not convertable to a BigNumber`); }
             return bn.div(1e18);
-        }
+        };
         this.toEthStr = function(wei, digits, unit, trimZeros) {
             console.warn("Use util.toEthStr instead");
             if (digits===undefined) digits = 4;
@@ -388,15 +388,15 @@
             var ethStr = eth.toFixed(digits);
             if (trimZeros) ethStr = ethStr.replace(/(\.?0+)$/, '');
             return `${ethStr} ${unit}`;
-        }
+        };
         this.toTokenStr = function(wei, digits) {
             return _self.toEthStr(wei, digits, "Penny");
-        }
+        };
         this.toWei = function(eth) {
             try { var bn = new BigNumber(eth); }
             catch (e) { throw new Error(`${eth} is not convertable to a BigNumber`); }
             return bn.mul(1e18);
-        }
+        };
         // returns a link to Etherscan
         this.$getLink = function(str, id, type){
             const network = ({
@@ -414,7 +414,21 @@
             return $("<a></a>").attr("href",`http://${network}etherscan.io/${type}/${id}`)
                     .text(str)
                     .attr("target","_blank");
-        }
+        };
+        this.$getNetworkLink = function(){
+            var network = ({
+                1: "",
+                3: "ropsten.",
+                4: "rinkeby.",
+                42: "kovan."
+            })[_curState.networkId];
+            if (network == null) {
+                return $("<span></span>").css("color", "#555").text("unknown network");
+            };
+            return $("<a></a>").attr("href",`http://${network}etherscan.io/`)
+                    .text(network ? network.slice(0,-1) : "mainnet")
+                    .attr("target","_blank");
+        };
     }
     window.EthUtil = EthUtil;
 }());

@@ -7,6 +7,7 @@
                         <div class="logo">
                             PennyEther
                         </div>
+                        <div class="network"></div>
                     </div>
                     <div align=right class="middle">
                     </div>
@@ -25,6 +26,7 @@
         const _$settings = _$e.find(".settings").click(()=>{
             $("body").toggleClass("dark");
         }).hide();
+        const _$network = _$e.find(".left .network");
 
         const _siteMap = [
             {
@@ -149,8 +151,11 @@
             _$menu.empty();
             _siteMap.forEach(obj => {
                 // add menu item, set as breadcrumb (if there is none)
-                const $e = $(`<div class='menuItem'></div>`)
-                    .append($("<a class='link'></a>").attr("href", obj.url).text(obj.name))
+                const $e = $(`<div class='menu-item'></div>`)
+                    .append(
+                        $("<a class='link'></a>").attr("href", obj.url)
+                            .append($("<span class='ctnr'></span>").text(obj.name))
+                    )
                     .appendTo(_$menu);
                 if (obj.class) $e.addClass(obj.class);
 
@@ -164,7 +169,7 @@
                 // there are children. add a submenu.
                 // if we find a matching url, set to breadcrumb
                 // unless we already have a 2-level breadcrumb.
-                const $sub = $(`<div class='subMenu'></div>`);
+                const $sub = $(`<div class='sub-menu'></div>`);
                 children.forEach(child=>{
                     if (!child.url) {
                         const $e = $("<div class='header'></div>")
@@ -172,7 +177,7 @@
                             .appendTo($sub);
                         return;
                     }
-                    const $child = $(`<a class='subItem'></a>`)
+                    const $child = $(`<a class='sub-item'></a>`)
                         .attr("href", child.url)
                         .text(child.name)
                         .appendTo($sub);
@@ -247,6 +252,11 @@
             const $gravatar = $("<img></img>").attr(`src`, `https://www.gravatar.com/avatar/${gravatarId}?d=retro`)
             return $el.append($gravatar).append($link);
         };
+        this.$setNetwork = function($e) {
+            _$network.removeClass("flash");
+            _$network.empty().append($e);
+            setTimeout(()=>{ _$network.addClass("flash"); }, 50);
+        }
     }
     window.Nav = Nav;
 }())

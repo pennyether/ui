@@ -59,70 +59,93 @@ fieldset {
 #Top {
 	display: table;
 	width: 100%;
-	background: linear-gradient(to bottom, #FAFFFA 0%, #CFC 100%);
+	height: 50px;
+	background: linear-gradient(to top, #95d895 0%, #f0fff0 100%)
 }
 	#Top > .left {
 		display: table-cell;
 		text-align: left;
 		vertical-align: middle;
-		border-bottom: 1px solid #CCC;
+		border-bottom: 1px solid rgba(0,0,0,.2);
+		white-space: nowrap;
 	}
 	#Top > .middle {
 		display: table-cell;
 		text-align: right;
 		vertical-align: middle;
 		width: 100%;
+		height: 100%;
 		padding-right: 25px;
-		border-bottom: 1px solid #CCC;
+		border-bottom: 1px solid rgba(0,0,0,.2);
 	}
 	#Top > .right {
 		display: table-cell;
 		vertical-align: middle;
-		border-left: 1px solid #CCC;
-		border-bottom: 1px solid #CCC;
+		border-left: 1px solid rgba(0,0,0,.2);
+		border-bottom: 1px solid rgba(0,0,0,.2);
 	}
 
-#Top .logo {
-	padding: 8px 20px;
-	font-size: 200%;	
+#Top .left .logo {
+	letter-spacing: .05em;
+	display: inline-block;
+	padding-left: 20px;
+	font-size: 220%;
+	text-shadow: 0px 0px 10px white, 0px 0px 5px white;
 }
-#Top .menuItem {
+#Top .left .network {
+	position: relative;	
+	font-size: 80%;
+	margin-left: -5px;
+	display: inline-block;
+	opacity: 0;
+	bottom: -10px;
+	transition: opacity .8s, bottom .8s;
+}
+	#Top .left .network.flash {
+		bottom: -5px;
+		opacity: 1;
+	}
+#Top .menu-item {
 	position: relative;
 	display: inline-block;
 	margin: 0px 5px;
+	height: 100%;
 	transition: color .3s, background .3s;
 }
-#Top .menuItem.on {
+#Top .menu-item.on {
 	font-weight: bold;
 	color: white;
 	background: rgba(0,128,0,.75);
 }
-#Top .menuItem:hover {
+#Top .menu-item:hover {
 	color: white;
 	background: green;
 	box-shadow: 3px 3px 4px 0px rgba(0,0,0,.15);
 }
-	#Top .menuItem a {
+	#Top .menu-item a {
+		display: flex;
+		align-items: center;
+		height: 100%;
 		color: inherit;
 		text-decoration: inherit;
 	}
-	#Top .menuItem .link {
+	#Top .menu-item a span {
 		display: block;
-		padding: 18px 8px;
+		padding: 0px 8px;
 		letter-spacing: .1em;
 	}
-	#Top .menuItem .subMenu {
+	#Top .menu-item .sub-menu {
 		display: block;
 		position: absolute;
 		z-index: 3;
-		/*overflow: hidden;*/ /* leaves a 1px left border for some reason */
+		/*overflow: hidden;  leaves a 1px left border for some reason */
 		font-weight: normal;
 		font-size: 90%;
 		background: linear-gradient(to bottom, green 0%, rgb(100,150,100) 100%);
 		right: -1000px;
-		border-left: 1px solid #AAA;
-		border-right: 1px solid #AAA;
-		border-bottom: 1px solid #AAA;
+		border-left: 1px solid rgba(0,0,0,.1);
+		border-right: 1px solid rgba(0,0,0,.1);
+		border-bottom: 1px solid rgba(0,0,0,.1);
 		border-top-left-radius: 3px;
 		border-bottom-left-radius: 3px;
 		border-bottom-right-radius: 3px;
@@ -130,12 +153,12 @@ fieldset {
 		opacity: 0;
 		transition: opacity .3s;
 	}
-	#Top .menuItem:hover .subMenu {
+	#Top .menu-item:hover .sub-menu {
 		right: -1px;
 		opacity: 1;
 		box-shadow: 3px 3px 4px 0px rgba(0,0,0,.15);
 	}
-		#Top .menuItem .header {
+		#Top .sub-menu .header {
 			display: block;
 			overflow: hidden;
 			text-align: right;
@@ -146,8 +169,8 @@ fieldset {
 			color: rgba(0, 0, 0, .5);
 			padding: 4px 15px 4px 0px;
 		}
-		#Top .menuItem .header:before,
-		#Top .menuItem .header:after {
+		#Top .sub-menu .header:before,
+		#Top .sub-menu .header:after {
 			position: relative;
 			display: inline-block;
 			vertical-align: middle;
@@ -156,17 +179,17 @@ fieldset {
 			border-top: 1px solid rgba(0,0,0,.2);
 			content: "";
 		}
-		#Top .menuItem .header:before {
+		#Top .sub-menu .header:before {
 			right: .4em;
 			width: 100%;
 			margin-left: -100%;
 		}
-		#Top .menuItem .header:after {
+		#Top .sub-menu .header:after {
 			left: .2em;
 			width: 20%;
 		 	margin-right: -20%;
 		}
-		#Top .menuItem .subItem {
+		#Top .sub-menu .sub-item {
 			display: block;
 			white-space: nowrap;
 			letter-spacing: .07em;
@@ -175,11 +198,11 @@ fieldset {
 			text-shadow: 1px 1px 1px rgba(0,0,0,.3);
 			transition: background .3s, color .3s;
 		}
-		#Top .menuItem .subItem:hover {
+		#Top .sub-menu .sub-item:hover {
 			color: white;
 			background: rgba(100,200,100,.8);
 		}
-		#Top .menuItem .subItem.on {
+		#Top .sub-menu .sub-item.on {
 			color: white;
 			background: rgba(100,230,100,.8);
 		}
@@ -339,7 +362,10 @@ fieldset {
 /***********************************************/
 		
 .EthStatus {
+	position: relative;
+	height: 100%;
 	transition: box-shadow .5s, background .5s;
+	background: rgba(230,230,230,.5);
 }
 .EthStatus:hover {
 	background: #EEE;
@@ -351,8 +377,10 @@ fieldset {
 
 	/** Glowing icon... appears red when not connected (.off) *****/
 	.EthStatus .icon {
-		position: relative;
-		top: 0px;
+		display: flex;
+		align-items: center;
+		box-sizing: border-box;
+		height: 100%;
 		padding: 10px;
 		cursor: pointer;
 		filter: hue-rotate(0) saturate(300%) contrast(1);
@@ -361,14 +389,14 @@ fieldset {
 	.EthStatus.no-connection .icon {
 		background: rgba(0,0,255,.25);
 	}
-	.EthStatus .icon:hover, .EthStatus.open .icon {
+	.EthStatus:hover .icon, .EthStatus.open .icon {
 		filter: hue-rotate(0deg) saturate(500%) contrast(5);
 	}
 	.EthStatus.off .icon {
 		filter: hue-rotate(110deg) saturate(100%) contrast(1);
 		transition: all 1s;
 	}
-	.EthStatus.off .icon:hover, .EthStatus.off.open .icon {
+	.EthStatus.off:hover .icon, .EthStatus.off.open .icon {
 		filter: hue-rotate(110deg) saturate(100%) contrast(2);
 	}
 
@@ -389,6 +417,7 @@ fieldset {
 	/** The content menu. Should fade in/out ****************/
 	.EthStatus .content {
 		position: absolute;
+		top: 100%;
 		width: 350px;
 		font-size: 90%;
 		background: #EEE;

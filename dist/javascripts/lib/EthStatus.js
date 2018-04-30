@@ -6,7 +6,7 @@
         const _$e = $(`
             <div class="EthStatus">
                 <div class="icon">
-                    <img src="/images/ethereum.png" width="30"/>
+                    <img src="/images/ethereum.png" height="30"/>
                     <div class="notifications">3</div>
                 </div>
                 <div class="content">
