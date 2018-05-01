@@ -23,104 +23,6 @@
 				color: black;
 				margin-bottom: 0px;
 			}
-			/*#Title {
-				padding: 20px 0px 20px 0px;
-				background: white;
-				text-align: center;
-			}
-				#Title .sup {
-					font-size: 180%;
-					text-shadow: 0px 0px 5px lime;
-				}
-				body.loaded #Title .sup {
-					letter-spacing: .25em;
-					text-shadow: 0px 0px 5px green;
-					transition: letter-spacing 3s ease-out, text-shadow 3s ease-out;
-				}
-				#Title .sub {
-					font-size: 90%;
-				}
-				body.loaded #Title .sub {
-					letter-spacing: .2em;
-					transition: letter-spacing 3s ease-out;
-				}
-
-			.featureBox {
-				box-sizing: border-box;
-				width: 100%;
-				display: table;
-				background: linear-gradient(to bottom, #BCB 0%, #4A4 100%);
-				padding: 15px 0px;
-				margin: 0px;
-			}
-			.featureBox > .left {
-				display: table-cell;
-				vertical-align: top;
-				width: 33%;
-			}
-			.featureBox > .middle {
-				display: table-cell;
-				vertical-align: top;
-				width: 33%;
-			}
-			.featureBox > .right {
-				display: table-cell;
-				vertical-align: top;
-				width: 33%;
-			}
-			.featureBox .block {
-				display: inline-block;
-				margin: 0px 40px;
-				text-shadow: 1px 1px 1px rgba(255,255,255,.4);
-			}
-			.featureBox .title {
-				text-align: center;
-				font-weight: bold;
-				font-size: 180%;
-				color: #FAFAFA;
-				letter-spacing: .1em;
-				padding-bottom: 4px;
-				text-shadow: 0px 0px 10px lime;
-			}
-			.featureBox .feature {
-				display: inline-block;
-				font-size: 90%;
-				margin: 4px 0px;
-				font-weight: bold;
-
-			}
-			.featureBox .tipLeft::before {
-				background: rgba(0,0,0,.1);
-			}
-
-			.featureBox .stats {
-				text-align: center;
-				margin-top: 20px;
-				white-space: nowrap;
-			}
-			.featureBox .stats .stat {
-				display: inline-block;
-				text-align: center;
-				padding: 3px 5px;
-				border-radius: 5px;
-				background: rgba(200,200,200,.5);
-				border: 1px inset rgba(200,200,200,.5);
-			}
-			.featureBox .stats .stat .value {
-				font-size: 120%;
-				color: blue;
-				margin-bottom: -5px;
-				text-shadow: 0px 0px 5px white;
-			}
-			.featureBox .stats .stat .label {
-				display: inline-block;
-				font-size: 70%;
-				color: #666;
-			}
-			.featureBox .stats .wagered {
-				margin-left: 50px;
-				margin-right: 50px;
-			}*/
 
 
 			/*********************************************/
@@ -135,6 +37,7 @@
 				.BetUi {
 					position: relative;
 					box-sizing: border-box;
+					overflow: hidden;
 					width: 800px;
 					padding: 10px;
 					margin: 0px auto;
@@ -143,6 +46,24 @@
 					border: 1px outset #CCC;
 					box-shadow: 3px 3px 5px 0px rgba(0,0,0,.2);
 				}
+				.BetUi > .not-available {
+					 position: absolute;
+					 z-index: 1;
+					 top: 0px;
+					 left: 0px;
+					 width: 100%;
+					 height: 100%;
+					 background: rgba(0,0,0,.4);
+					 display: none;
+				}
+					.BetUi > .not-available .msg {
+						display: inline-block;
+						background: rgba(255,255,255,.7);
+						box-shadow: 3px 3px 3px rgba(0,0,0,.3);
+						padding: 10px;
+						border-radius: 3px;
+					}
+
 				.BetUi .Slider .val-txt {
 					color: rgb(0,240,0);
 					text-shadow: 2px 2px 5px rgba(0,0,0,.5);

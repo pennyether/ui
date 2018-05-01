@@ -468,24 +468,31 @@ Loader.require("dice")
     */
     function BetUi() {
         const _$e = $(`
-            <div class="BetUi" style="display: flex;">
-                <div style="flex-grow: 1;">
-                    <div class="bet-slider"></div>
-                    <div class="num-slider"></div>
+            <div class="BetUi">
+                <div class="not-available" style="display: flex; align-items: center; justify-content: center;">
+                    <div class="msg">
+                        InstaDice is currently not accepting wagers.
+                    </div>
                 </div>
-                <div style="flex-shrink: 0; width: 230px;">
-                    <div class="summary" style="height: 100%; width: 100%; display: flex; flex-direction: column; justify-content: center;">
-                        <div class="valid">
-                            <div class="payout-ctnr">
-                                <div class="label">Payout</div>
-                                <div class="payout">--</div>
-                                <div class="multiple">--</div>
+                <div style="display: flex;">
+                    <div style="flex-grow: 1;">
+                        <div class="bet-slider"></div>
+                        <div class="num-slider"></div>
+                    </div>
+                    <div style="flex-shrink: 0; width: 230px;">
+                        <div class="summary" style="height: 100%; width: 100%; display: flex; flex-direction: column; justify-content: center;">
+                            <div class="valid">
+                                <div class="payout-ctnr">
+                                    <div class="label">Payout</div>
+                                    <div class="payout">--</div>
+                                    <div class="multiple">--</div>
+                                </div>
+                                <button class="btn-roll">Roll!</button>
+                                <div class="roll-tip"></div>
                             </div>
-                            <button class="btn-roll">Roll!</button>
-                            <div class="roll-tip"></div>
-                        </div>
-                        <div class="invalid" style="display: none; align-self: center;">
-                            <div class="msg">Bet is not a number.</div>
+                            <div class="invalid" style="display: none; align-self: center;">
+                                <div class="msg">Bet is not a number.</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -554,6 +561,14 @@ Loader.require("dice")
         }());
 
         this.setSettings = function(settings) {
+            if (settings.maxBet.equals(0) || settings.maxBet.lt(settings.minBet)) {
+                _$e.find("> .not-available").show();
+                return;
+            } else {
+                _$e.find("> .not-available").hide();
+            }
+
+            _$e.find("> .not-available").hide();
             _feeBips = settings.feeBips;
             _betSlider.setUnits([{
                 name: "eth",

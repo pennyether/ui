@@ -17,10 +17,12 @@ Loader.require("vp")
 
     // do this just once.
     ethUtil.getCurrentState().then(()=>{
-        vp.getEvents("Created").then(evs => evs[0].blockNumber)
-            .then(minBlock => {
-                ghv.setMinBlock(minBlock);
-            });
+        vp.getEvents("Created").then(evs => {
+            if (!evs) throw new Error(`Did not find VideoPoker creation event.`);
+            ghv.setMinBlock(evs[0].blockNumber);
+        }).catch(e => {
+            ghv.disable("VideoPoker contract could not be found.");
+        })
     });
 
     // init stuff
@@ -374,22 +376,22 @@ function Game(vp) {
     const _$msHand = _$ms.find(".hand");
     const _$msLoading = _$ms.find(".loading");
     // this holds all children actions
-    const _$fieldCtnr = _$e.find(".field-ctnr");
+    const _$isInvalid = _$e.find(".is-invalid");
         // state = betting
-        const _$bet = _$fieldCtnr.find(".actionArea.bet");
+        const _$bet = _$isInvalid.find(".actionArea.bet");
         // state = dealt
-        const _$draw = _$fieldCtnr.find(".actionArea.draw").hide();
+        const _$draw = _$isInvalid.find(".actionArea.draw").hide();
         // state = drawn (win)
-        const _$finalizeWin = _$fieldCtnr.find(".actionArea.finalizeWin").hide();
+        const _$finalizeWin = _$isInvalid.find(".actionArea.finalizeWin").hide();
             const _$chkBetAgain = _$finalizeWin.find(".chk-bet-again");
             const _$willBetFull = _$finalizeWin.find(".will-bet-full");
             const _$willCreditFull = _$finalizeWin.find(".will-credit-full");
             const _$willBetSome = _$finalizeWin.find(".will-bet-some");
             const _$willCreditSome = _$finalizeWin.find(".will-credit-some");
         // state = drawn (loss)
-        const _$finalizeLoss = _$fieldCtnr.find(".actionArea.finalizeLoss").hide();
+        const _$finalizeLoss = _$isInvalid.find(".actionArea.finalizeLoss").hide();
         // state = finalized
-        const _$finalized = _$fieldCtnr.find(".actionArea.finalized").hide();
+        const _$finalized = _$isInvalid.find(".actionArea.finalized").hide();
     // buttons, misc
     const _$btnPlayAgain = _$e.find(".btnPlayAgain");
     const _$canDeal = _$e.find(".canDeal");
@@ -441,13 +443,27 @@ function Game(vp) {
         if (!settings) return;
         _curPayTable = settings.curPayTable;
 
+        if (settings.maxBet.equals(0) || settings.maxBet.lt(settings.minBet) && _gameState.state=="betting") {
+            _$e.find("> .not-available").show();
+            _slider.setUnits([{
+                name: "eth",
+                $label: "ETH",
+                min: 0,
+                max: .3,
+            }]);
+            _slider.setValue(.01);
+            return;
+        } else {
+            _$e.find("> .not-available").hide();
+        }
+
         const units = [{
             name: "eth",
             $label: "ETH",
             min: settings.minBet.div(1e18),
             max: settings.maxBet.div(1e18),
         }];
-        if (settings.credits.gt(settings.minBet)) {
+        if (settings.credits.gte(settings.minBet)) {
             units.push({
                 name: "credits",
                 $label: "credits",
@@ -456,7 +472,7 @@ function Game(vp) {
             });
         }
         _slider.setUnits(units);
-        if (Object.keys(_gameState).length === 0) {_slider.setValue(.01);}
+        if (Object.keys(_gameState).length === 0) { _slider.setValue(.01); }
         _refreshDebounce();
     };
 
@@ -499,7 +515,7 @@ function Game(vp) {
         _refreshPayTable();
 
         // reset all things that may change within the same state.
-        _$fieldCtnr.removeAttr("disabled");
+        _$isInvalid.removeAttr("disabled");
         _$e.removeClass("is-winner is-invalid");
         _$e.find(".actionArea").hide();
         _$invalid.hide();
@@ -511,7 +527,7 @@ function Game(vp) {
         if (_gameState.isInvalid) {
             _$e.addClass("is-invalid");
             _$invalid.show();
-            _$fieldCtnr.attr("disabled", "disabled");
+            _$isInvalid.attr("disabled", "disabled");
         } 
 
         // Betting. simply show the bet actionArea and an empty hand.
@@ -521,6 +537,7 @@ function Game(vp) {
             _$msg.text(`Select a bet amount, and press "Deal"`);
             if (!_isTransacting) _slider.freeze(false);
             _refreshHand(null, 31);
+
             return;
         }
 

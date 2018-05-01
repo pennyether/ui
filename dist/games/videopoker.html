@@ -216,6 +216,8 @@
 			/**** GAME STYLING **********************/
 
 			.Game {
+				position: relative;
+				overflow: hidden;
 				padding: 20px 0px;
 				border-top: 1px solid black;
 				background: radial-gradient(rgba(10,10,230,1) 0%, rgba(0,0,128,1) 100%);
@@ -230,6 +232,25 @@
 			.Game.is-invalid .hd-ctnr {
 				opacity: .5;
 			}
+
+			.Game > .not-available {
+				 position: absolute;
+				 z-index: 1;
+				 top: 0px;
+				 left: 0px;
+				 width: 100%;
+				 height: 100%;
+				 background: rgba(0,0,0,.5);
+				 display: none;
+			}
+				.Game > .not-available .msg {
+					display: inline-block;
+					background: rgba(255,255,255,.7);
+					box-shadow: 3px 3px 3px rgba(0,0,0,.3);
+					padding: 10px;
+					border-radius: 3px;
+				}
+
 
 			.Game .titleBar {
 				color: #EEE;
@@ -732,6 +753,11 @@
 		</div>
 
 		<div class="Game template" style="display: none;">
+			<div class="not-available" style="display: flex; align-items: center; justify-content: center;">
+                <div class="msg">
+                    VideoPoker is currently not accepting wagers.
+                </div>
+            </div>
 			<div class="top">
 				<table width="100%" style="box-sizing: border-box;" cellspacing="0" cellpadding=""><tr>
 					<td width="50%" style="padding: 0px 15px" valign="top">
@@ -795,7 +821,7 @@
 						<div class="titleBar">
 							Status
 						</div>
-						<fieldset class="field-ctnr">
+						<fieldset class="is-invalid">
 							<div class="invalid">
 								<b>Your provider does not see this game on the blockchain.</b>
 								<br>There may have been a blockchain reorg, or your provider may be lagging.<br>You can try clicking the "Refresh All Games" button above, or refreshing the page.

@@ -295,6 +295,7 @@
 
         var _user = null;
         var _enabled = true;
+        var _disabledMsg = "";
         const _controller = new VpController(vp);
         const _numBlocks = numBlocks;
         const _showUser = showUser;
@@ -376,22 +377,25 @@
             _nextFromBlock = Math.max(curBlockNum - _numBlocks, _minBlock);
             _maxBlockLoaded = curBlockNum;
             _gameStates = [];
-            _$loadMore.show();
-            _$loaded.text("No results loaded.");
+            if (!_enabled) {
+                _$loadMore.hide();
+                _$loaded.text(_disabledMsg);
+            } else {
+                _$loadMore.show();
+                _$loaded.text("No results loaded.");
+            }
             _redraw();
         };
         this.enable = function() {
             if (_enabled) return;
             _enabled = true;
-            _$loaded.text("No results loaded.");
-            _$loadMore.show();
+            if (!_isDone) _$loadMore.show();
         };
         this.disable = function(str) {
             if (!_enabled) return;
             _enabled = false;
+            _disabledMsg = str;
             _self.reset();
-            _$loaded.text(str);
-            _$loadMore.hide();
         };
         this.setMinBlock = function(val){
             _minBlock = val;
