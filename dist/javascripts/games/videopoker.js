@@ -254,6 +254,63 @@ Loader.require("vp")
             });
         };
     }());
+
+    /******************************************************/
+    /*** LIVE STATS ***************************************/
+    /******************************************************/
+    (function initStats(){
+        ethUtil.onStateChanged((state)=>{
+            if (!state.isConnected) return;
+            refreshStats();
+        });
+
+        // t: 0 to 1, returns 0 to 1
+        function easeInOut(t) {
+            return t<0.5 ? 2*t*t : -1+(4-2*t)*t;
+        }
+        function easeNumber(from, to, duration, cb) {
+            var cancel = false;
+            const diff = to - from;
+            const steps = 50;
+            for (var i=1; i<=steps; i++){
+                let n = i/steps;
+                setTimeout(function(){
+                    if (cancel) return;
+                    cb(from + easeInOut(n) * diff);
+                }, duration * n);
+            }
+            return ()=>{ cancel = true; };
+        }
+
+        const _prevEases = [];
+        function refreshStats() {
+            const $games = $("#Leader .games .value");
+            const $wagered = $("#Leader .wagered .value");
+            const $won = $("#Leader .won .value");
+            Promise.all([
+                vp.curId(),
+                vp.totalWagered(),
+                vp.totalWon()
+            ]).then(arr=>{
+                const curGames = Number($games.text());
+                const curWagered = Number($wagered.text());
+                const curWon = Number($won.text());
+                const newGames = arr[0].toNumber();
+                const newWagered = arr[1].div(1e18).toNumber();
+                const newWon = arr[2].div(1e18).toNumber();
+                _prevEases.forEach(cancel => cancel());
+                _prevEases[0] = easeNumber(curGames, newGames, 3000, (n)=>{
+                    $games.text(Math.round(n));
+                });
+                _prevEases[1] = easeNumber(curWagered, newWagered, 3000, (n)=>{
+                    $wagered.text(n.toFixed(2));
+                });
+                _prevEases[2] = easeNumber(curWon, newWon, 3000, (n)=>{
+                    $won.text(n.toFixed(2));
+                });
+            });
+        }
+    }());
 });
 
 // Simple tabber that understands what games are.

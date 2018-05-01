@@ -12,7 +12,6 @@ Loader.require("dice")
         if (!state.isConnected) return;
         refreshBetUiSettings();
         refreshAllRolls();
-        refreshStats();
         refreshLiveRolls();
     });
 
@@ -237,7 +236,7 @@ Loader.require("dice")
         const _$lost = _$rolled.find(".lost");
         const _$waiting = _$rolled.find(".waiting");
         const _$payoutSuccess = _$rolled.find(".payout-success");
-        const _$payoutFailure = _$rolled.find(".payout-failure");
+
         // _$rolled elements
         const _$number = _$rolled.find(".number");
         const _$resultStatus = _$rolled.find(".result-status");
@@ -665,57 +664,60 @@ Loader.require("dice")
 
     }
 
-
-
     /******************************************************/
     /*** LIVE STATS ***************************************/
     /******************************************************/
-    // t: 0 to 1, returns 0 to 1
-    function easeInOut(t) {
-        return t<0.5 ? 2*t*t : -1+(4-2*t)*t;
-    }
-    function easeNumber(from, to, duration, cb) {
-        var cancel = false;
-        const diff = to - from;
-        const steps = 50;
-        for (var i=1; i<=steps; i++){
-            let n = i/steps;
-            setTimeout(function(){
-                if (cancel) return;
-                cb(from + easeInOut(n) * diff);
-            }, duration * n);
-        }
-        return ()=>{ cancel = true; };
-    }
-
-    const _prevEases = [];
-    function refreshStats() {
-        const $rolls = $("#Summary .rolls .value");
-        const $wagered = $("#Summary .wagered .value");
-        const $won = $("#Summary .won .value");
-        Promise.all([
-            dice.numRolls(),
-            dice.totalWagered(),
-            dice.totalWon()
-        ]).then(arr=>{
-            const curRolls = Number($rolls.text());
-            const curWagered = Number($wagered.text());
-            const curWon = Number($won.text());
-            const newRolls = arr[0].toNumber();
-            const newWagered = arr[1].div(1e18).toNumber();
-            const newWon = arr[2].div(1e18).toNumber();
-            _prevEases.forEach(cancel => cancel());
-            _prevEases[0] = easeNumber(curRolls, newRolls, 3000, (n)=>{
-                $rolls.text(Math.round(n));
-            });
-            _prevEases[1] = easeNumber(curWagered, newWagered, 3000, (n)=>{
-                $wagered.text(n.toFixed(2));
-            });
-            _prevEases[2] = easeNumber(curWon, newWon, 3000, (n)=>{
-                $won.text(n.toFixed(2));
-            });
+    (function initStats(){
+        ethUtil.onStateChanged((state)=>{
+            if (!state.isConnected) return;
+            refreshStats();
         });
-    }
-    refreshStats();
 
+        // t: 0 to 1, returns 0 to 1
+        function easeInOut(t) {
+            return t<0.5 ? 2*t*t : -1+(4-2*t)*t;
+        }
+        function easeNumber(from, to, duration, cb) {
+            var cancel = false;
+            const diff = to - from;
+            const steps = 50;
+            for (var i=1; i<=steps; i++){
+                let n = i/steps;
+                setTimeout(function(){
+                    if (cancel) return;
+                    cb(from + easeInOut(n) * diff);
+                }, duration * n);
+            }
+            return ()=>{ cancel = true; };
+        }
+
+        const _prevEases = [];
+        function refreshStats() {
+            const $rolls = $("#Leader .rolls .value");
+            const $wagered = $("#Leader .wagered .value");
+            const $won = $("#Leader .won .value");
+            Promise.all([
+                dice.numRolls(),
+                dice.totalWagered(),
+                dice.totalWon()
+            ]).then(arr=>{
+                const curRolls = Number($rolls.text());
+                const curWagered = Number($wagered.text());
+                const curWon = Number($won.text());
+                const newRolls = arr[0].toNumber();
+                const newWagered = arr[1].div(1e18).toNumber();
+                const newWon = arr[2].div(1e18).toNumber();
+                _prevEases.forEach(cancel => cancel());
+                _prevEases[0] = easeNumber(curRolls, newRolls, 3000, (n)=>{
+                    $rolls.text(Math.round(n));
+                });
+                _prevEases[1] = easeNumber(curWagered, newWagered, 3000, (n)=>{
+                    $wagered.text(n.toFixed(2));
+                });
+                _prevEases[2] = easeNumber(curWon, newWon, 3000, (n)=>{
+                    $won.text(n.toFixed(2));
+                });
+            });
+        }
+    }());
 });
