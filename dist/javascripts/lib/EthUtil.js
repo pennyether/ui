@@ -390,6 +390,7 @@
             return `${ethStr} ${unit}`;
         };
         this.toTokenStr = function(wei, digits) {
+            console.warn("Use util.toEthStr instead");
             return _self.toEthStr(wei, digits, "Penny");
         };
         this.toWei = function(eth) {

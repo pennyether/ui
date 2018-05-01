@@ -51,7 +51,7 @@ Loader.require("comp")
 		// init GPS, refresh every 60 seconds
 		_gps.refresh();
 		_gps.$e.appendTo(_$cont.find(".gasSlider"));
-		setInterval(_gps.refresh, 6000);
+		setInterval(_gps.refresh, 10000);
 		// on input change, refresh contribute msg
 		_$txtEther.on("input", refreshContribute);
 
@@ -255,17 +255,17 @@ Loader.require("comp")
 				const success = res.events.find(e=>e.name=="BuyTokensSuccess");
 				const $msg = $("<div></div>");
 				if (success) {
-					const tokensStr = ethUtil.toTokenStr(success.args.numTokens);
-					const refund = value.minus(success.args.value);
-					const ethStr = ethUtil.toEthStr(success.args.value);
+					const tokensStr = util.toEthStr(success.args.numTokens, "PENNY");
+					const refund = value.minus(success.args.funded);
+					const ethStr = util.toEthStr(success.args.funded);
 					$msg.append(`<div class='success'>You purchased ${tokensStr} for ${ethStr}.</div>`);
 					if (refund.gt(0)) {
-						const refundStr = ethUtil.toEthStr(refund);
+						const refundStr = util.toEthStr(refund);
 						$msg.append(`<div>You were refunded ${refundStr}.</div>`);
 					}
 				}
 				if (failure) {
-					const eth = ethUtil.toEthStr(value);
+					const eth = util.toEthStr(value);
 					const reason = failure.args.reason;
 					$msg
 						.append(`<div class='failure'>Failure: ${reason}</div>`)

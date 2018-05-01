@@ -194,7 +194,7 @@ Loader.require("vp")
             $credits.text("--");
             return;
         } else {
-            $user.empty().append(nav.$getPlayerLink(curUser));
+            $user.empty().append(nav.$getPlayerLink(curUser, true));
             $credits.text("Loading...");
             vp.credits([curUser]).then(eth=>{
                 if (eth.gt(0)) $hasAccount.removeAttr("disabled");

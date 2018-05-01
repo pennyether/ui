@@ -186,7 +186,7 @@
         this.toEthStrFixed = function(wei, maxDecimals, unit) {
             try { wei = new BigNumber(wei); }
             catch (e) { throw new Error(`${wei} is not convertable to a BigNumber`); }
-            if (maxDecimals === undefined) maxDecimals = 5;
+            if (maxDecimals === undefined || maxDecimals === null) maxDecimals = 5;
             if (unit===undefined) unit = "ETH";
             const dispNum = wei.div(1e18);
 
