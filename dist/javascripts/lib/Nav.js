@@ -117,17 +117,17 @@
                     url: "/status/taskmanager.html"
                 },]
             }, {
-                name: "UIs",
-                url: "/status/system.html",
+                name: "Tools",
+                url: "/tools/player.html",
                 children: [{
                     name: "Player History",
-                    url: "/uis/player.html"
+                    url: "/tools/player.html"
                 },{
                     name: "Token Holder UI",
-                    url: "/uis/tokenholder.html"
+                    url: "/tools/tokenholder.html"
                 },{
                     name: "Admin UI",
-                    url: "/uis/admin.html"
+                    url: "/tools/admin.html"
                 }]
             }, {
                 name: "ICO",
@@ -247,7 +247,7 @@
             const $el = $("<div class='player-link'></div>");
             // get link to player history
             const $link = $("<a></a>")
-                .attr("href", `/uis/player.html#${addr}`)
+                .attr("href", `/tools/player.html#${addr}`)
                 .text(addr.slice(0,6) + "..." + addr.slice(-4));
             if (!forceAddr && ethUtil.getCurrentAccount() === addr) $link.text("You");
             // get gravatar
