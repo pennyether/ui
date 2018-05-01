@@ -92,7 +92,7 @@ Loader.require("comp", "tr")
 			$e.find(".soft-cap").text(util.toEthStr(softCap));
 			$e.find(".hard-cap").text(util.toEthStr(hardCap));
 			$e.find(".bonus-cap").text(util.toEthStr(bonusCap));
-			$e.find(".capital-pct").text(`${capitalPct.mul(100).toFixed(2)}%`);
+			$e.find(".capital-pct").text(`${capitalPct.div(100).toFixed(2)}%`);
 
 			if (dateSaleStarted.equals(0)) {
 				$e.find(".not-configured").show();
@@ -142,14 +142,10 @@ Loader.require("comp", "tr")
 		});
 
 		function doRefresh(obj) {
-			// const softCap = obj.softCap;
-			// const hardCap = obj.hardCap;
-			// const bonusCap = obj.bonusCap;
-			// const capitalPct = obj.capitalPct;
-			const softCap = new BigNumber(10000e18);
-			const hardCap = new BigNumber(37500e18);
-			const bonusCap = new BigNumber(10000e18);
-			const capitalPct = new BigNumber(.20);
+			const softCap = obj.softCap;
+			const hardCap = obj.hardCap;
+			const bonusCap = obj.bonusCap;
+			const capitalPct = obj.capitalPct.div(10000);
 
 			if (hardCap.equals(0) && false) {
 				$e.find(".na").show();
@@ -158,10 +154,11 @@ Loader.require("comp", "tr")
 				$e.find(".sim").show();
 			}
 
+			const step = (new BigNumber(5)).pow(Math.floor(Math.log10(hardCap.minus(softCap).div(1e18))-1));
 			const $slider = $e.find(".slider").unbind("input").bind("input", refreshVals);
 			$slider.attr("min", softCap.div(1e18).toNumber())
 				.attr("max", hardCap.div(1e18).toNumber())
-				.attr("step", 500)
+				.attr("step", step)
 				.val(softCap.div(1e18).toNumber());
 
 			function refreshVals() {
