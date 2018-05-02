@@ -261,6 +261,7 @@ input:disabled {
 	}
 
 #Footer {
+	position: relative;
 	margin-top: 70px;
 	border-top: 1px solid rgba(0,0,0,.1);
 	font-size: 90%;
@@ -305,6 +306,9 @@ input:disabled {
 	#Footer .sub-menu .sub-item {
 		display: block;
 		margin: 5px 10px;
+	}
+	#Footer .sub-menu .sub-item.on {
+		color: rgba(0,0,0,.7);
 	}
 	#Footer .sub-menu .sub-item:before {
 		display: inline-block;

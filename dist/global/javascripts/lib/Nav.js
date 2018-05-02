@@ -31,7 +31,7 @@
                                 <a class="link" href="https://www.pennyether.com">PennyEther</a>
                                 <div class="sub-menu">
                                     <a class="sub-item blog" href="https://blog.pennyether.com">Blog</a>
-                                    <a class="sub-item investors" href="https://investors.pennyether.com">Investors</a>
+                                    <a class="sub-item investors" href="https://investor.pennyether.com">Investors</a>
                                 </div>
                                 <div class="icons">
                                     <a href="#"><img src="/global/images/reddit-icon-32.ico"></a>
