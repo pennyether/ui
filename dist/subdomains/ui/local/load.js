@@ -61,14 +61,11 @@
                 name: "Contracts",
                 url: "/about/contracts-games.html"
             },{
-                name: "Contact Us",
-                url: "/about/contact.html"
-            },{
                 name: "Blog",
-                url: "/"
+                url: "https://blog.pennyether.com/"
             },{
                 name: "Investors",
-                url: "/"
+                url: "https://investors.pennyether.com/"
             }]
         }
     ];

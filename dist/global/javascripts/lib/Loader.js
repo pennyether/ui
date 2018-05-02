@@ -214,6 +214,7 @@
                     const nav = new Nav(sitemap, subdomain);
                     nav.setEthStatusElement(ethStatus.$e);
                     $("#Content").prepend(nav.$e);
+                    $("#Content").append(nav.$footer);
                     window["nav"] = nav;
 
                     var prevNetworkId;
