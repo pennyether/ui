@@ -5,8 +5,8 @@
 		<script src="/local/load.js"></script>
 		<script src="/global/javascripts/lib/EthGraph.js"></script>
 		<script src="/global/javascripts/shared/BankrollableUtil.js"></script>
-		<script src="/global/javascripts/shared/PokerUtil.js"></script>
-		<script src="/javascripts/status/videopoker.js"></script>
+		<script src="/global/javascripts/shared/DiceUtil.js"></script>
+		<script src="/global/javascripts/status/instadice.js"></script>
 		<link rel="stylesheet" type="text/css" href="/global/styles/status.css"/>
 		<style>
 			.status .done-loading > .header {
@@ -14,39 +14,17 @@
 				margin: 0px 0px 5px 0px;
 				border-bottom: 1px dotted rgba(0,0,0,.15);
 			}
-			.status .pay-tables {
-				font-size: 80%;
-			}
-				.status .pay-tables thead td {
-					text-align: right;
-					font-weight: bold;
-				}
-				.status .pay-tables thead td:first-child {
-					color: gray;
-				}
-				.status .pay-tables tbody tr:nth-child(odd) {
-					background: rgba(0,0,0,.05);
-				}
-				.status .pay-tables tbody td:not(:first-child) {
-					text-align: right;
-				}
-				.status .pay-tables td {
-					padding: 5px;
-				}
-				.status .pay-tables td.selected {
-					background: rgba(0,128,0,.3);
-				}
 		</style>
 	</head>
 	<body><div id="Content">
 		<div class="page-header">
 			<div class="title">
-				VideoPoker Status
+				InstaDice Status
 			</div>
 			<div class="links">
-				<a href="/games/videopoker.html">Play</a>
+				<a href="/games/instadice.html">Play</a>
 				•
-				<a href="/about/contracts.html#video-poker">Contract Info</a>
+				<a href="/about/contracts.html#instadice">Contract Info</a>
 				•
 				<a href="">Etherscan Link</a>
 			</div>
@@ -54,7 +32,7 @@
 		<div style="margin: 10px 0px;">
 			<div class="statusRow one">
 				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
-					<td width="40%"><div class="cell health">
+					<td width="33%"><div class="cell health">
 						<div class="titleBar">Health</div>
 						<div class="body">
 							<div class="loading">
@@ -68,7 +46,7 @@
 							</div>
 						</div>
 					</div></td>
-					<td width="60%"><div class="cell status">
+					<td width="66%"><div class="cell status">
 						<div class="titleBar">
 							Status
 						</div>
@@ -87,31 +65,41 @@
 								</div>
 								<div style="text-align: center;">
 									<div class="blob">
-										<div class="label" title="The minimum bet a user is allowed to place.">
+										<div title="On average, InstaDice should earn this percent in profit per roll.">
+											House Fee
+										</div>
+										<div class="value fee-pct"></div>
+										<div class="eth">pct</div>
+									</div>
+									<div class="blob">
+										<div title="The minimum bet a user is allowed to place.">
 											Min Bet
 										</div>
 										<div class="value min-bet"></div>
 										<div class="eth">ETH</div>
 									</div>
 									<div class="blob">
-										<div class="label" title="The maximum allowed bet is calculated based on the available Bankroll. This ensures all winning games can be paid out in full. A hard limit is set by the Admin.">
+										<div title="The maximum allowed bet is calculated based on the available Bankroll. This ensures all winning rolls can be paid out in full. A hard limit is set by the Admin.">
 											Max Bet
 										</div>
 										<div class="value max-bet"></div>
 										<div class="eth">ETH</div>
 									</div>
+									<div class="blob">
+										<div title="The minimum number the user can select. This also sets the highest payout multiple.">
+											Min Number
+										</div>
+										<div class="value min-number"></div>
+										<div class="eth"></div>
+									</div>
+									<div class="blob">
+										<div title="The maximum number the user can select. This also sets the lowest payout multiple.">
+											Max Number
+										</div>
+										<div class="value max-number"></div>
+										<div class="eth"></div>
+									</div>
 								</div>
-								<div class="header" style="margin-top: 10px">
-									<span title="When a game begins, it is linked to the current Pay Table, and will be paid out accordingly. The Admin can add Pay Tables and set the current Pay Table, but cannot edit a Pay Table.">
-										Pay Tables
-									</span>
-								</div>
-								<center>
-									<table class="pay-tables" cellspacing="0" cellpadding="0">
-										<thead><tr><td>Id:</td></tr></thead>
-										<tbody></tbody>
-									</table>
-								</center>
 							</div>
 						</div>
 					</div></td>
@@ -131,9 +119,9 @@
 							<div class="done-loading hide">
 								<div style="text-align: center;">
 									<div class="blob">
-										<div class="label">Games</div>
-										<div class="value num-games"></div>
-										<div class="eth">games</div>
+										<div class="label">Rolls</div>
+										<div class="value num-rolls"></div>
+										<div class="eth">rolls</div>
 									</div>
 									<div class="blob">
 										<div class="label">Total Wagered</div>
@@ -158,29 +146,29 @@
 					</div></td>
 				</tr></table>
 			</div>
-			<div class="statusRow">
-				<div class="cell games">
-					<div class="titleBar">
-						<span>
-							Games
-						</span>
-					</div>
-					<div class="body">
-						<div class="log-viewer"></div>
-					</div>
-				</div>
-			</div>
-			<div class="statusRow">
-				<div class="cell events">
-					<div class="titleBar">
-						<span>
-							Events
-						</span>
-					</div>
-					<div class="body">
-						<div class="log-viewer"></div>
-					</div>
-				</div>
+			<div class="statusRow three">
+				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+					<td width="50%"><div class="cell rolls">
+						<div class="titleBar">
+							<span>
+								Rolls
+							</span>
+						</div>
+						<div class="body">
+							<div class="log-viewer"></div>
+						</div>
+					</div></td>
+					<td width="50%"><div class="cell events">
+						<div class="titleBar">
+							<span>
+								Other Events
+							</span>
+						</div>
+						<div class="body">
+							<div class="log-viewer"></div>
+						</div>
+					</div></td>
+				</tr></table>
 			</div>
 		</div>
 	</div></body>

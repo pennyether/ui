@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/global/javascripts/lib/Loader.js"></script>
+		<script src="/local/load.js"></script>
+		<style>
+			.toc {
+				font-size: 85%;
+				position: fixed;
+				padding: 0px 0px 0px 0px;
+				width: 200px;
+				background: #F0F0F0;
+				height: 100%;
+				border-right: 1px solid #AAA;
+			}
+			.toc .header {
+				text-align: center;
+				font-weight: bold;
+				padding: 2px 4px;
+				margin-top: 15px;
+				margin-bottom: 0px;
+			}
+			.toc a {
+				color: black;
+				text-decoration: none;
+			}
+				.toc .section .title {	
+					overflow: hidden;
+					text-align: center;
+					text-transform: uppercase;
+					font-size: 70%;
+					letter-spacing: .2em;
+					font-weight: bold;
+					color: #AAA;
+					margin: 10px 0px 4px 0px;
+				}
+				.toc .section .title:before,
+				.toc .section .title:after {
+					position: relative;
+					display: inline-block;
+					vertical-align: middle;
+					width: 50%;
+					top: -1px;
+					height: 1px;
+					border-top: 1px solid rgba(0,0,0,.2);
+					content: "";
+				}
+				.toc .section .title:before {
+					right: 0em;
+					margin-left: -50%;
+				}
+				.toc .section .title:after {
+				 	left: 0em;
+				 	margin-right: -50%;
+				}
+
+				.toc .inpage-item .head {
+					padding: 2px 0px 2px 15px;
+					margin-top: 2px;
+					transition: background .2s;
+				}
+					.toc .inpage-item .head:hover {
+						background: #DDD;
+						transition: background .2s;
+					}
+					.toc .inpage-item.on .head {
+						font-weight: bold;
+						text-shadow: 1px 1px 0px rgba(255, 255, 255, .4);
+						background: #CCC;
+						transition: background .2s;
+					}
+
+			.main {
+				padding-left: 220px;
+				padding-right: 20px;
+			}
+
+			.fieldList {
+				display: table;
+				box-sizing: border-box;
+				width: 100%;
+				padding: 15px 15px 0px 15px;
+				margin-top: 10px;
+			}
+			.fieldList > .field {
+				display: table-row;
+			}
+			.fieldList > .field:nth-child(odd) {
+				background: #F0F0F0;
+			}
+			.fieldList > .field > .label {
+				display: table-cell;
+				white-space: nowrap;
+				vertical-align: top;
+				padding: 10px;
+				padding-right: 40px;
+			}
+			.fieldList > .field > .value {
+				display: table-cell;
+				padding: 10px;
+				width: 100%;
+			}
+
+			.summary {
+				margin: 15px;
+				padding: 10px;
+				font-size: 90%;
+				background: rgba(0,128,0,.15);
+				border-radius: 5px;
+			}
+			.summary.under-development {
+				background: rgba(0,0,0,.15);
+			}
+
+			.note {
+				display: inline-block;
+				text-align: center;
+				font-size: 75%;
+				background: #CCC;
+				padding: 5px;
+				border-radius: 3px;
+			}
+
+			.pending {
+				color: gray;
+				font-style: italic;
+			}
+		</style>
+		<script>
+			// fill in all the addresses
+			Loader.require("dice", "vp", "monarchy")
+			.then(function(dice, vp, monarchy){
+				$(".dice-addr").append(util.$getAddrLink(dice.address));
+				$(".vp-addr").append(util.$getAddrLink(vp.address));
+				$(".reg-addr").append(util.$getAddrLink(reg.address));
+			});
+		</script>
+	</head>
+	<body><div id="Content">
+		<div class="toc">
+			<div class="section">
+				<div class="title">Games</div>
+				<div class="body">
+					<div class="inpage-item">
+						<a href="#monarchy">
+							<div class="head">MonarchyController</div>
+						</a>
+					</div>
+					<div class="inpage-item">
+						<a href="#monarchy-game">
+							<div class="head">MonarchyGame</div>
+						</a>
+					</div>
+					<div class="inpage-item">
+						<a href="#instadice">
+							<div class="head">InstaDice</div>
+						</a>
+					</div>
+					<div class="inpage-item">
+						<a href="#video-poker">
+							<div class="head">VideoPoker</div>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="main">
+			<div class="page-header">
+				<div class="title">
+					Contracts, Tests, and Audits
+				</div>
+				<div class="links">
+					<div>
+						On this page you'll find information on our deployed games.<br>
+					</div>		
+				</div>
+			</div>
+			
+			<div>
+				<a data-anchor="monarchy"></a>
+				<h3>MonarchyController</h3>
+				<div class="summary">
+					The Monarchy Game Controller allows for games to be pre-defined, then continuously started as necessary.
+				</div>
+				<div class="fieldList">
+					<div class="field">
+						<div class="label">Status:</div>
+						<div class="value">
+							<a href="/status/monarchy.html" target="_blank">Monarchy Status</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">More Info:</div>
+						<div class="value">
+							<a href="/ico/whitepaper.html#monarchy">Whitepaper</a>
+							<br>
+							<a href="https://github.com/pennyether/contracts#monarchy" target="_blank">Technical Documentation</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Source Code:</div>
+						<div class="value">
+							<a href="https://github.com/pennyether/contracts/blob/master/contracts/games/Monarchy.sol" target="_blank">Source Code</a>
+							<br>
+							<a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/Monarchy.js.html" target="_blank">Test Results</a>
+							(<a href="https://github.com/pennyether/contracts/blob/master/tests/Monarchy.test.js" target="_blank">Test File</a>)
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Audits:</div>
+						<div class="value"><div class="pending">pending</div></div>
+					</div>
+				</div>
+			</div>
+
+			<div>
+				<a data-anchor="monarchy-game"></a>
+				<h3>MonarchyGame</h3>
+				<div class="summary">
+					 A Game of Monarchy works as follows: The current winner (the Monarch) will win the prize if nobody overthrows them for some amount of blocks. Anybody can pay a small fee to overthrow the Monarch, and they themselves will become the Monarch. Some games may be configured so that some of that fee goes into the prize pool.
+				</div>
+				<div class="fieldList">
+					<div class="field">
+						<div class="label">More Info:</div>
+						<div class="value">
+							<a href="/ico/whitepaper.html#monarchy">Whitepaper</a>
+							<br>
+							<a href="https://github.com/pennyether/contracts#monarchy" target="_blank">Technical Documentation</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Source Code:</div>
+						<div class="value">
+							<a href="https://github.com/pennyether/contracts/blob/master/contracts/games/MonarchyGame.sol" target="_blank">Source Code</a>
+							<br>
+							<a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/MonarchyGame.js.html" target="_blank">Test Results</a>
+							(<a href="https://github.com/pennyether/contracts/blob/master/tests/games/MonarchyGame.test.js" target="_blank">Test File</a>)
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Audits:</div>
+						<div class="value"><div class="pending">pending</div></div>
+					</div>
+				</div>
+			</div>
+
+			<div>
+				<a data-anchor="instadice"></a>
+				<h3>InstaDice</h3>
+				<div class="summary">
+					The InstaDice contract allows for users to wager on a customizable dice roll and immediately see their results the moment their transaction is mined. Rolls are automatically paid the next time any user rolls, or the user can redeem manually. There is a limit to the maximum wager both for security purposes, and to ensure InstaDice can always pay out a win.
+				</div>
+				<div class="fieldList">
+					<div class="field">
+						<div class="label">Address:</div>
+						<div class="value dice-addr"></div>
+					</div>
+					<div class="field">
+						<div class="label">Status:</div>
+						<div class="value">
+							<a href="/status/instadice.html">InstaDice Status</a>
+							<br>
+							<a href="/games/view-instadice-roll.html#1">View Roll</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">More Info:</div>
+						<div class="value">
+							<a href="/ico/whitepaper.html#games-instadice">Whitepaper</a>
+							<br>
+							<a href="https://github.com/pennyether/contracts#instadice" target="_blank">Technical Documentation</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Source Code:</div>
+						<div class="value">
+							<a href="https://github.com/pennyether/contracts/blob/master/contracts/InstaDice.sol" target="_blank">Source Code</a>
+							<br>
+							<a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/InstaDice.js.html" target="_blank">Test Results</a>
+							(<a href="https://github.com/pennyether/contracts/blob/master/tests/InstaDice.test.js" target="_blank">Test File</a>)
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Audits:</div>
+						<div class="value"><div class="pending">pending</div></div>
+					</div>
+				</div>
+			</div>
+
+			<div>
+				<a data-anchor="video-poker"></a>
+				<h3>VideoPoker</h3>
+				<div class="summary">
+					The VideoPoker contract allows for users to create and play games of VideoPoker. The contract holds all logic for generating and ranking hands, as well as for cashing in and out credits. The contract ensures user credits are safely held (they cannot be removed from the contract only by the user), and also limits the maximum bet to ensure it has sufficient funds to pay on a royal flush.
+				</div>
+				<div class="fieldList">
+					<div class="field">
+						<div class="label">Address:</div>
+						<div class="value vp-addr"></div>
+					</div>
+					<div class="field">
+						<div class="label">Status:</div>
+						<div class="value">
+							<a href="/status/videopoker.html">VideoPoker Status</a>
+							<br>
+							<a href="/games/view-videopoker-hand.html#1">View Hand</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">More Info:</div>
+						<div class="value">
+							<a href="/ico/whitepaper.html#games-videopoker">Whitepaper</a>
+							<br>
+							<a href="https://github.com/pennyether/contracts#videopoker" target="_blank">Technical Documentation</a>
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Source Code:</div>
+						<div class="value">
+							<a href="https://github.com/pennyether/contracts/blob/master/contracts/games/VideoPoker.sol" target="_blank">Source Code</a>
+							<br>
+							<a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/InstaDice.js.html" target="_blank">Test Results</a>
+							(<a href="https://github.com/pennyether/contracts/blob/master/tests/InstaDice.test.js" target="_blank">Test File</a>)
+						</div>
+					</div>
+					<div class="field">
+						<div class="label">Audits:</div>
+						<div class="value"><div class="pending">pending</div></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div></body>
+</html>

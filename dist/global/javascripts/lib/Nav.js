@@ -1,5 +1,5 @@
 (function(){
-    function Nav(sitemap) {
+    function Nav(sitemap, subdomain) {
         const _sitemap = sitemap;
 
         const _$e = $(`
@@ -7,11 +7,14 @@
                 <div id="Top">
                     <div align=left class="left">
                         <div class="logo">
-                            <a href="/" style="color: inherit; text-decoration: none;">
+                            <a href="/">
                                 PennyEther
                             </a>
+                            <div class="network"></div>
                         </div>
-                        <div class="network"></div>
+                        <div class="subdomain">
+                            <div class="txt"></div>
+                        </div>
                     </div>
                     <div align=right class="middle">
                     </div>
@@ -31,6 +34,8 @@
             $("body").toggleClass("dark");
         }).hide();
         const _$network = _$e.find(".left .network");
+        if (subdomain) _$e.find(".left .subdomain .txt").text(subdomain);
+        else _$e.find(".left .subdomain").hide();
 
         function _initSitemap() {
             var breadcrumb = [];

@@ -33,7 +33,7 @@ Loader.require("token")
                 onSuccess: (res, txStatus) => {
                     const collected = res.events.find(ev => ev.name == "CollectedDividends");
                     if (collected) {
-                        const ethStr = util.toEthStr(collected.args.amount);
+                        const ethStr = util.toEthStrFixed(collected.args.amount);
                         const $link = Loader.linkOf(collected.args.account);
                         const $temp = $("<div></div>").append(`Sent ${ethStr} to `).append($link);
                         txStatus.addSuccessMsg($temp);
@@ -70,8 +70,8 @@ Loader.require("token")
             divs: token.getOwedDividends([account])
         }).then(obj => {
             $account.empty().append(util.$getShortAddrLink(account));
-            $balance.text(util.toEthStr(obj.balance, "PENNY"));
-            $divs.text(util.toEthStr(obj.divs, "PENNY"));
+            $balance.text(util.toEthStrFixed(obj.balance, null, "PENNY"));
+            $divs.text(util.toEthStrFixed(obj.divs));
             if (obj.divs.gt(0)) {
                 $fieldset.removeAttr("disabled");
             } else {

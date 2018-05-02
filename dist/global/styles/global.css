@@ -67,6 +67,7 @@ input:disabled {
 }
 	#Top > .left {
 		display: table-cell;
+		padding-left: 20px;
 		text-align: left;
 		vertical-align: middle;
 		border-bottom: 1px solid rgba(0,0,0,.2);
@@ -89,25 +90,45 @@ input:disabled {
 	}
 
 #Top .left .logo {
+	position: relative;
+}
+#Top .left .logo a {
+	margin-left: -2px;
+	color: black;
+	text-decoration: none;
 	letter-spacing: .05em;
 	display: inline-block;
-	padding-left: 20px;
 	font-size: 220%;
 	text-shadow: 0px 0px 10px white, 0px 0px 5px white;
 }
-#Top .left .network {
-	position: relative;	
+#Top .left .logo .network {
+	position: absolute;	
 	font-size: 80%;
 	margin-left: -5px;
 	display: inline-block;
 	opacity: 0;
-	bottom: -10px;
+	bottom: -5px;
 	transition: opacity .8s, bottom .8s;
 }
 	#Top .left .network.flash {
-		bottom: -5px;
+		bottom: 0px;
 		opacity: 1;
 	}
+#Top .left .subdomain {
+	margin-top: -5px;
+	margin-bottom: 5px;
+}
+	#Top .left .subdomain .txt {
+		text-transform: uppercase;
+		letter-spacing: .3em;
+		display: inline-block;
+		padding: 2px 2px 2px 4px;
+		background: linear-gradient(to bottom, rgba(0,0,128,.5) 0%, rgba(0,0,128,.8) 100%);
+		color: rgba(255,255,255,.9);
+		border-radius: 2px;
+		font-size: 70%;
+	}
+
 #Top .menu-item {
 	position: relative;
 	display: inline-block;

@@ -109,6 +109,7 @@
                 ? "/global/javascripts/lib/ABIs-full.js"
                 : "/global/javascripts/lib/ABIs-lite.js";
             const sitemap = opts.sitemap;
+            const subdomain = opts.subdomain;
 
             _self.promise = Promise.all([
                 new Promise((res, rej)=>{ window.addEventListener('load', res); }),
@@ -210,7 +211,7 @@
 
                 // Load nav
                 (function initNav(){
-                    const nav = new Nav(sitemap);
+                    const nav = new Nav(sitemap, subdomain);
                     nav.setEthStatusElement(ethStatus.$e);
                     $("#Content").prepend(nav.$e);
                     window["nav"] = nav;

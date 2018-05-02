@@ -11,13 +11,13 @@ Some securiy features:
 
 The UI is just standard html/css/js files. There's no build process at all.
 
-Simply run a webserver whose root directory is `/dist`
+Simply run a webserver whose root directory is `/dist/subdomains/ui`
 
 You can run a simple http server in node quite easily:
 
 - Install `node` and `npm`
 - `npm install -g http-server`
-- `http-server /path/to/pennyether-ui/dist`
+- `http-server /path/to/pennyether-ui/dist/subdomains/ui`
 
 ## Architecture
 
