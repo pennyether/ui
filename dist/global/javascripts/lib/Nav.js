@@ -1,11 +1,15 @@
 (function(){
-    function Nav() {
+    function Nav(sitemap) {
+        const _sitemap = sitemap;
+
         const _$e = $(`
             <div id="Nav">
                 <div id="Top">
                     <div align=left class="left">
                         <div class="logo">
-                            PennyEther
+                            <a href="/" style="color: inherit; text-decoration: none;">
+                                PennyEther
+                            </a>
                         </div>
                         <div class="network"></div>
                     </div>
@@ -28,131 +32,11 @@
         }).hide();
         const _$network = _$e.find(".left .network");
 
-        const _siteMap = [
-            {
-                name: "Play!",
-                url: "/index.html#games",
-                children: [{
-                    name: "👑 Monarchy",
-                    url: "/games/monarchy.html",
-                    linkInBreadcrumb: true,
-                    children: [{
-                        name: "View Game",
-                        url: "/games/view-monarchy-game.html"
-                    }]
-                },{
-                    name: "🎲 InstaDice",
-                    url: "/games/instadice.html",
-                    linkInBreadcrumb: true,
-                    children: [{
-                        name: "View Roll",
-                        url: "/games/view-instadice-roll.html"
-                    }]
-                },{
-                    name: "🃏 Video Poker",
-                    url: "/games/videopoker.html",
-                    linkInBreadcrumb: true,
-                    children: [{
-                        name: "View Game",
-                        url: "/games/view-videopoker-hand.html"
-                    }]
-                }]
-            }, {
-                name: "About",
-                url: "/about/mission.html",
-                children: [{
-                    name: "Our Mission",
-                    url: "/about/mission.html"
-                },{
-                    name: "Overview",
-                    url: "/about/overview.html"
-                },{
-                    name: "Contracts",
-                    url: "/about/contracts.html",
-                    linkInBreadcrumb: true,
-                    children: [{
-                        name: "Test Results",
-                        url: "/test-results/index.html"
-                    }]
-                },{
-                    name: "Audits",
-                    url: "/about/audits.html"
-                },{
-                    name: "Contact",
-                    url: "/about/contact.html"
-                }]
-            }, {
-                name: "Status",
-                url: "/status/overview.html",
-                children: [{
-                    name: "Realtime Overview",
-                    url: "/status/overview.html",
-                    class: "overview"
-                },{
-                    name: "Core"
-                },{
-                    name: "Treasury Status",
-                    url: "/status/treasury.html"
-                },{
-                    name: "Comptroller Status",
-                    url: "/status/comptroller.html"
-                },{
-                    name: "Token Status",
-                    url: "/status/token.html"
-                },{
-                    name: "Games"
-                },{
-                    name: "Monarchy Status",
-                    url: "/status/monarchy.html",
-                },{
-                    name: "InstaDice Status",
-                    url: "/status/instadice.html",
-                },{
-                    name: "VideoPoker Status",
-                    url: "/status/videopoker.html",
-                },{
-                    name: "Other"
-                },{
-                    name: "TaskManager Status",
-                    url: "/status/taskmanager.html"
-                },]
-            }, {
-                name: "Tools",
-                url: "/tools/player.html",
-                children: [{
-                    name: "Player History",
-                    url: "/tools/player.html"
-                },{
-                    name: "Token Holder UI",
-                    url: "/tools/tokenholder.html"
-                },{
-                    name: "Admin UI",
-                    url: "/tools/admin.html"
-                }]
-            }, {
-                name: "ICO",
-                url: "/ico/whitepaper.html",
-                children: [{
-                    name: "Intro",
-                    url: "/ico/intro.html"
-                },{
-                    name: "Whitepaper",
-                    url: "/ico/whitepaper.html"
-                },{
-                    name: "CrowdSale",
-                    class: "crowdsale",
-                    url: "/ico/crowdsale.html"
-                }]
-            }
-        ];
-
-        _init();
-
-        function _init() {
+        function _initSitemap() {
             var breadcrumb = [];
             const curUrl = window.location.pathname.toLowerCase();
             _$menu.empty();
-            _siteMap.forEach(obj => {
+            _sitemap.forEach(obj => {
                 // add menu item, set as breadcrumb (if there is none)
                 const $e = $(`<div class='menu-item'></div>`)
                     .append(
@@ -183,8 +67,8 @@
                     const $child = $(`<a class='sub-item'></a>`)
                         .attr("href", child.url)
                         .text(child.name)
-                        .appendTo($sub);
                     if (child.class) $child.addClass(child.class);
+                    if (!child.hide) $child.appendTo($sub);
 
                     if (child.url == curUrl) {
                         $child.addClass("on");
@@ -220,6 +104,7 @@
                 }
             }
         }
+        _initSitemap();
 
         this.$e = _$e;
         this.setEthStatusElement = function($e) {

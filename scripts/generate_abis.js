@@ -81,8 +81,9 @@ filenames.forEach((filename)=>{
     if (!fs.existsSync(fullpath)) {
         throw new Error(`Couldn't find ${fullpath}`);
     }
-    var obj = JSON.parse(fs.readFileSync(fullpath))
-    result[filename.slice(0, -5)] = {
+    const obj = JSON.parse(fs.readFileSync(fullpath))
+    const name = filename.slice(0, -5); // remove trailing ".json"
+    result[name] = {
         "abi": obj.abi,
         "unlinked_binary": obj.unlinked_binary
     };
@@ -108,17 +109,37 @@ Object.keys(comments).forEach((cName)=>{
         console.log(`Added comment for ${cName}.${fnName}`);
     });
 });
-//console.log(result["MainController"].abi);
 
-// create .JSON file
-const json = JSON.stringify(result, null, 2);
-const fileout = path.join(libDir, "ABIs.js");
-const str = 
-`(function(){
-    window.ABIs = ${json}
-}());`;
+// create ABIs-full.js
+(function(){
+    const json = JSON.stringify(result, null, 2);
+    const fileout = path.join(libDir, "ABIs-full.js");
+    const str = 
+    `(function(){
+        window.ABIs = ${json}
+    }());`;
 
-fs.writeFile(fileout, str, function(err) {
-    if(err) { return console.error(err); }
-    console.log(`Saved to ${fileout}.`);
-}); 
+    fs.writeFile(fileout, str, function(err) {
+        if(err) { return console.error(err); }
+        console.log(`Saved to ${fileout}.`);
+    }); 
+}());
+
+// create ABIs.js
+(function(){
+    Object.keys(result).forEach(name => {
+        delete result[name].unlinked_binary;
+    });
+    
+    const json = JSON.stringify(result, null, 2);
+    const fileout = path.join(libDir, "ABIs-lite.js");
+    const str = 
+    `(function(){
+        window.ABIs = ${json}
+    }());`;
+
+    fs.writeFile(fileout, str, function(err) {
+        if(err) { return console.error(err); }
+        console.log(`Saved to ${fileout}.`);
+    }); 
+}());

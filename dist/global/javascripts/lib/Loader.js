@@ -47,14 +47,18 @@
         var _registry;
         var _regMappings = {};
         
+        // Resolved after all scripts are loaded, and global objects created.
         var _triggerPageLoaded;
         this.onPageLoad = new Promise((resolve, reject)=>{
             _triggerPageLoaded = resolve;
         });
+
+        // Resolved after web3 is loaded for the given network.
         var _triggerWeb3Ready;
         this.onWeb3Ready = new Promise((resolve, reject)=>{
             _triggerWeb3Ready = resolve;
         });
+
         const _waits = [];
         this.waitFor = function(fn) {
             _waits.push(fn);
@@ -73,7 +77,6 @@
             if (name.startsWith("0x")) return util.$getShortAddrLink(name);
             name = name[0].toUpperCase() + name.toLowerCase().slice(1);
             name = name.replace(/_([a-z])/g, (m, w)=>w.toUpperCase())
-            name = name.replace(/PennyAuctionController/, "Monarchy");
             const href = ({
                 "Treasury": "/status/treasury.html",
                 "Comptroller": "/status/comptroller.html",
@@ -101,184 +104,191 @@
             return _regMappings[name];
         };
 
-        this.promise = Promise.all([
-            new Promise((res, rej)=>{ window.addEventListener('load', res); }),
-            addScript("/global/javascripts/lib/external/jquery-3.2.1.slim.min.js"),
-            addScript("/global/javascripts/lib/external/tippy.all.min.js"),
-            addScript("/global/javascripts/lib/external/web3.min.js"),
-            addScript("/global/javascripts/lib/external/EthAbi.js"),
-            addScript("/global/javascripts/lib/EthUtil.js"),
-            addScript("/global/javascripts/lib/NiceWeb3.js"),
-            addScript("/global/javascripts/lib/ABIs.js"),
-            addScript("/global/javascripts/lib/PennyEtherWebUtil.js"),
-            addScript("/global/javascripts/lib/Nav.js"),
-            addScript("/global/javascripts/lib/EthStatus.js"),
-            addStyle("/global/styles/global.css")
-        ]).then(()=>{
-            var Web3 = require("web3");
-            if (!window.$) throw new Error("Unable to find jQuery.");
-            if (!window.tippy){ throw new Error("Unable to find Tippy."); }
-            if (!window.Web3) throw new Error("Unable to find web3.");
-            if (!window.ethAbi) throw new Error("Unable to find ethAbi.")
-            if (!window.EthUtil) throw new Error("Unable to find EthUtil.");
-            if (!window.NiceWeb3) throw new Error("Unable to find NiceWeb3.");
-            if (!window.ABIs){ throw new Error("Unable to find ABIs."); }
-            if (!window.PennyEtherWebUtil){ throw new Error("Unable to find PennyEtherWebUtil."); }
-            if (!window.Nav){ throw new Error("Unable to find Nav"); }
-            if (!window.EthStatus){ throw new Error("Unable to find EthStatus"); }
-            return Promise.all(_waits.map(fn => fn()));
-        }).then(()=>{
-            // create web3 object depending on if its from browser or not
-            if (typeof web3 !== 'undefined') {
-                window.hasWeb3 = true;
-                window.web3 = new Web3(web3.currentProvider);
-                console.log(`Using browser-provided web3.`);
-            } else {
-                window.hasWeb3 = false;
-                window.web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io/"));
-                console.log(`No browser-provided web3. Using mainnet.`);
-            }
+        this.load = function(opts) {
+            const abiUrl = opts.fullAbi
+                ? "/global/javascripts/lib/ABIs-full.js"
+                : "/global/javascripts/lib/ABIs-lite.js";
+            const sitemap = opts.sitemap;
 
-            // Public things.
-            window.niceWeb3 = new NiceWeb3(web3, ethAbi, EthUtil); 
-            window.ethUtil = niceWeb3.ethUtil;
-            window.BigNumber = web3.toBigNumber().constructor;
-            window.util = new PennyEtherWebUtil(niceWeb3);
-            window.ethStatus = new EthStatus(ethUtil, niceWeb3);
-
-            // Expose all ABIs as NiceWeb3 contract factories, since web3 is... um... "beta".
-            Object.keys(ABIs).forEach((contractName) => {
-                var abi = ABIs[contractName];
-                window[contractName] = niceWeb3.createContractFactory(contractName, abi.abi, abi.unlinked_binary);
-            });
-
-            // Get the current network, and set up _web3
-            const networkPromise = ethUtil.getCurrentState(true).then(state => {
-                // Load network name
-                const mappings = {1: "main", 3: "ropsten", 42: "kovan"};
-                _network = state.networkId > 42
-                    ? "local"
-                    : mappings[state.networkId] || "unknown";
-                console.log(`Detected network: ${_network} [id: ${state.networkId}]`);
-
-                // Create a backup _web3, since MetaMask's web3 is... um... "beta".
-                const providerUrl = ({
-                    "main": "https://mainnet.infura.io/",
-                    "ropsten": "https://ropsten.infura.io/",
-                    "kovan": "https://kovan.infura.io/",
-                    "local": "http://localhost:8545/"
-                })[_network];
-                window._web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
-                window._niceWeb3 = new NiceWeb3(_web3, ethAbi, EthUtil);
-                console.log(`Created _web3 [${_network}] @ ${providerUrl}`);
-                _triggerWeb3Ready();
-
-                // Load registry depending on web3 network name
-                const registryAddr = ({
-                    "ropsten": "0xdf2e6681d22aeb322c4c8c7213a6aea8f053dd15",
-                    "kovan": "0x169b7dd0c039ff69a8a1bf8fdddaef7485876558",
-                    "local": "0xc4a1282aedb7397d10b8baa89639cfdaff2ee428"
-                })[_network];
-                _registry = Registry.at(registryAddr || "0x0");
-                console.log(`Registry for ${_network} is ${registryAddr}`);
-
-                // Load all registry mappings
-                return _registry.mappings().then(arr => {
-                    const names = arr[0].map(web3.toUtf8);
-                    const addresses = arr[1];
-                    names.forEach((name,i) => _regMappings[name] = addresses[i]);
-                    console.log("Loaded registry mappings", _regMappings);
-                    return _registry;
-                });
-            });
-
-            /////////////////////////////////////////////////////////////////////////////
-            ///////////// SET UP EVERYTHING ELSE WHILE NETWORK LOADS ////////////////////
-            /////////////////////////////////////////////////////////////////////////////
-
-            // Tell ethUtil to poll for state change
-            ethUtil.pollForStateChange();
-
-            // Load nav
-            (function initNav(){
-                const nav = new Nav();
-                nav.setEthStatusElement(ethStatus.$e);
-                $("#Content").prepend(nav.$e);
-                window["nav"] = nav;
-
-                var prevNetworkId;
-                ethUtil.onStateChanged((state)=>{
-                    const networkId = state.networkId;
-                    if (networkId === prevNetworkId) return;
-                    nav.$setNetwork(ethUtil.$getNetworkLink());
-                    prevNetworkId = networkId;
-                });
-            }());
-
-            // If hash is #foo, smoothly scrolls to a[data-anchor=foo]
-            // Also gets rid of the annoying scrollToTop default behavior.
-            (function initScrollLinks(){
-                // remember last scrollTop. it gets changed immediately before onhashchange
-                var lastScrollTop;
-                $(window).scroll(() => lastScrollTop = window.pageYOffset);
-                // set scrollTop back to what it was. scroll to matching anchor
-                window.onhashchange = function(){
-                    window.scrollTo(0, lastScrollTop);
-                    const hash = window.location.hash.slice(1);
-                    const $anchor = $(`a[data-anchor='${hash}'`);
-                    if ($anchor.length == 0) return;
-                    const end = $anchor.position().top - ($("#Nav").outerHeight()+15);
-                    doScrolling(end, 500);
+            _self.promise = Promise.all([
+                new Promise((res, rej)=>{ window.addEventListener('load', res); }),
+                addScript("/global/javascripts/lib/external/jquery-3.2.1.slim.min.js"),
+                addScript("/global/javascripts/lib/external/tippy.all.min.js"),
+                addScript("/global/javascripts/lib/external/web3.min.js"),
+                addScript("/global/javascripts/lib/external/EthAbi.js"),
+                addScript("/global/javascripts/lib/EthUtil.js"),
+                addScript("/global/javascripts/lib/NiceWeb3.js"),
+                addScript(abiUrl),
+                addScript("/global/javascripts/lib/PennyEtherWebUtil.js"),
+                addScript("/global/javascripts/lib/Nav.js"),
+                addScript("/global/javascripts/lib/EthStatus.js"),
+                addStyle("/global/styles/global.css")
+            ]).then(()=>{
+                var Web3 = require("web3");
+                if (!window.$) throw new Error("Unable to find jQuery.");
+                if (!window.tippy){ throw new Error("Unable to find Tippy."); }
+                if (!window.Web3) throw new Error("Unable to find web3.");
+                if (!window.ethAbi) throw new Error("Unable to find ethAbi.")
+                if (!window.EthUtil) throw new Error("Unable to find EthUtil.");
+                if (!window.NiceWeb3) throw new Error("Unable to find NiceWeb3.");
+                if (!window.ABIs){ throw new Error("Unable to find ABIs."); }
+                if (!window.PennyEtherWebUtil){ throw new Error("Unable to find PennyEtherWebUtil."); }
+                if (!window.Nav){ throw new Error("Unable to find Nav"); }
+                if (!window.EthStatus){ throw new Error("Unable to find EthStatus"); }
+                return Promise.all(_waits.map(fn => fn()));
+            }).then(()=>{
+                // create web3 object depending on if its from browser or not
+                if (typeof web3 !== 'undefined') {
+                    window.hasWeb3 = true;
+                    window.web3 = new Web3(web3.currentProvider);
+                    console.log(`Using browser-provided web3.`);
+                } else {
+                    window.hasWeb3 = false;
+                    window.web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io/"));
+                    console.log(`No browser-provided web3. Using mainnet.`);
                 }
-                // clicking a link might not change hash. scroll manually.
-                $("a[href^='#']").click((ev)=>{
-                    if (window.location.hash == $(ev.currentTarget).attr("href"))
-                        window.onhashchange();
-                });
-                if (loadedHash) window.location.hash = loadedHash;
-            }());
-            // highlights the closest "inpage-item" to any link whose href is last visible.
-            (function initHighlightItems(){
-                const $items = $(".inpage-item");
-                const anchors = $("a[data-anchor]").toArray().reverse();
 
-                function activateLastItemScrolledTo() {
-                    const targetTop = $(window).height() / 2.5;
-                    const top = window.pageYOffset;
-                    $items.removeClass("on");
-                    for (var i=0; i<anchors.length; i++) {
-                        const anchor = anchors[i];
-                        if (anchor.getBoundingClientRect().top <= targetTop) {
-                            const hash = $(anchor).data("anchor");
-                            const $matches = $items.find(`a[href='#${hash}']`);
-                            if ($matches.length == 0) continue;
-                            $matches.each((i,el) => {
-                                if ($(el).is(".inpage-item")) $(el).addClass("on");
-                            });
-                            $matches.parents(".inpage-item").addClass("on");
-                            return;
+                // Public things.
+                window.niceWeb3 = new NiceWeb3(web3, ethAbi, EthUtil); 
+                window.ethUtil = niceWeb3.ethUtil;
+                window.BigNumber = web3.toBigNumber().constructor;
+                window.util = new PennyEtherWebUtil(niceWeb3);
+                window.ethStatus = new EthStatus(ethUtil, niceWeb3);
+
+                // Expose all ABIs as NiceWeb3 contract factories, since web3 is... um... "beta".
+                Object.keys(ABIs).forEach((contractName) => {
+                    var abi = ABIs[contractName];
+                    window[contractName] = niceWeb3.createContractFactory(contractName, abi.abi, abi.unlinked_binary);
+                });
+
+                // Get the current network, and set up _web3
+                const networkPromise = ethUtil.getCurrentState(true).then(state => {
+                    // Load network name
+                    const mappings = {1: "main", 3: "ropsten", 42: "kovan"};
+                    _network = state.networkId > 42
+                        ? "local"
+                        : mappings[state.networkId] || "unknown";
+                    console.log(`Detected network: ${_network} [id: ${state.networkId}]`);
+
+                    // Create a backup _web3, since MetaMask's web3 is... um... "beta".
+                    const providerUrl = ({
+                        "main": "https://mainnet.infura.io/",
+                        "ropsten": "https://ropsten.infura.io/",
+                        "kovan": "https://kovan.infura.io/",
+                        "local": "http://localhost:8545/"
+                    })[_network];
+                    window._web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
+                    window._niceWeb3 = new NiceWeb3(_web3, ethAbi, EthUtil);
+                    console.log(`Created _web3 [${_network}] @ ${providerUrl}`);
+                    _triggerWeb3Ready();
+
+                    // Load registry depending on web3 network name
+                    const registryAddr = ({
+                        "ropsten": "0xdf2e6681d22aeb322c4c8c7213a6aea8f053dd15",
+                        "kovan": "0x169b7dd0c039ff69a8a1bf8fdddaef7485876558",
+                        "local": "0xc4a1282aedb7397d10b8baa89639cfdaff2ee428"
+                    })[_network];
+                    _registry = Registry.at(registryAddr || "0x0");
+                    console.log(`Registry for ${_network} is ${registryAddr}`);
+
+                    // Load all registry mappings
+                    return _registry.mappings().then(arr => {
+                        const names = arr[0].map(web3.toUtf8);
+                        const addresses = arr[1];
+                        names.forEach((name,i) => _regMappings[name] = addresses[i]);
+                        console.log("Loaded registry mappings", _regMappings);
+                        return _registry;
+                    });
+                });
+
+                /////////////////////////////////////////////////////////////////////////////
+                ///////////// SET UP EVERYTHING ELSE WHILE NETWORK LOADS ////////////////////
+                /////////////////////////////////////////////////////////////////////////////
+
+                // Tell ethUtil to poll for state change
+                ethUtil.pollForStateChange();
+
+                // Load nav
+                (function initNav(){
+                    const nav = new Nav(sitemap);
+                    nav.setEthStatusElement(ethStatus.$e);
+                    $("#Content").prepend(nav.$e);
+                    window["nav"] = nav;
+
+                    var prevNetworkId;
+                    ethUtil.onStateChanged((state)=>{
+                        const networkId = state.networkId;
+                        if (networkId === prevNetworkId) return;
+                        nav.$setNetwork(ethUtil.$getNetworkLink());
+                        prevNetworkId = networkId;
+                    });
+                }());
+
+                // If hash is #foo, smoothly scrolls to a[data-anchor=foo]
+                // Also gets rid of the annoying scrollToTop default behavior.
+                (function initScrollLinks(){
+                    // remember last scrollTop. it gets changed immediately before onhashchange
+                    var lastScrollTop;
+                    $(window).scroll(() => lastScrollTop = window.pageYOffset);
+                    // set scrollTop back to what it was. scroll to matching anchor
+                    window.onhashchange = function(){
+                        window.scrollTo(0, lastScrollTop);
+                        const hash = window.location.hash.slice(1);
+                        const $anchor = $(`a[data-anchor='${hash}'`);
+                        if ($anchor.length == 0) return;
+                        const end = $anchor.position().top - ($("#Nav").outerHeight()+15);
+                        doScrolling(end, 500);
+                    }
+                    // clicking a link might not change hash. scroll manually.
+                    $("a[href^='#']").click((ev)=>{
+                        if (window.location.hash == $(ev.currentTarget).attr("href"))
+                            window.onhashchange();
+                    });
+                    if (loadedHash) window.location.hash = loadedHash;
+                }());
+                // highlights the closest "inpage-item" to any link whose href is last visible.
+                (function initHighlightItems(){
+                    const $items = $(".inpage-item");
+                    const anchors = $("a[data-anchor]").toArray().reverse();
+
+                    function activateLastItemScrolledTo() {
+                        const targetTop = $(window).height() / 2.5;
+                        const top = window.pageYOffset;
+                        $items.removeClass("on");
+                        for (var i=0; i<anchors.length; i++) {
+                            const anchor = anchors[i];
+                            if (anchor.getBoundingClientRect().top <= targetTop) {
+                                const hash = $(anchor).data("anchor");
+                                const $matches = $items.find(`a[href='#${hash}']`);
+                                if ($matches.length == 0) continue;
+                                $matches.each((i,el) => {
+                                    if ($(el).is(".inpage-item")) $(el).addClass("on");
+                                });
+                                $matches.parents(".inpage-item").addClass("on");
+                                return;
+                            }
                         }
                     }
-                }
-                $(window).on("scroll", activateLastItemScrolledTo);
-            }());
+                    $(window).on("scroll", activateLastItemScrolledTo);
+                }());
 
-            // Attach Tippies
-            $(".tip-left").attr("data-tippy-placement", "left");
-            tippy.defaults.trigger = "mouseenter";
-            tippy.defaults.interactive = true;
-            tippy.defaults.sticky = true;
-            tippy.defaults.arrow = true;
-            tippy.defaults.placement = "top";
-            $('[title]:not(.no-tip-style)').addClass("tip");
-            tippy('[title]:not(.tip-manually)');
+                // Attach Tippies
+                $(".tip-left").attr("data-tippy-placement", "left");
+                tippy.defaults.trigger = "mouseenter";
+                tippy.defaults.interactive = true;
+                tippy.defaults.sticky = true;
+                tippy.defaults.arrow = true;
+                tippy.defaults.placement = "top";
+                $('[title]:not(.no-tip-style)').addClass("tip");
+                tippy('[title]:not(.tip-manually)');
 
-            // Add class for initial transitions
-            $("body").addClass("loaded");
-            _triggerPageLoaded();
+                // Add class for initial transitions
+                $("body").addClass("loaded");
+                _triggerPageLoaded();
 
-            return networkPromise;
-        });
+                return networkPromise;
+            });
+        };
 
         // Loads items from the registry, and also ensures that ethUtil
         //      has a current state.

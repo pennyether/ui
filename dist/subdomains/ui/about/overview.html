@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<script src="/global/javascripts/lib/Loader.js"></script>
+		<script src="/local/load.js"></script>
 		<style>
 			.tutorial {
 				background: rgba(0,0,0,.1);
@@ -53,7 +54,7 @@
 		</style>
 		<script>
 			Loader.waitFor(()=>{
-				return AJAX("/snippets/topology.html").then(html => {
+				return AJAX("/global/snippets/topology.html").then(html => {
 					$(".topology-ctnr").html(html);
 				});
 			});

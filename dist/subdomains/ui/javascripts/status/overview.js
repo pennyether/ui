@@ -1,5 +1,5 @@
 Loader.waitFor(() => {
-    return AJAX("/snippets/topology.html").then(html => {
+    return AJAX("/global/snippets/topology.html").then(html => {
         $(".topology-ctnr").html(html);
     });
 });
