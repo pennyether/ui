@@ -9,7 +9,7 @@ Only looks for certain ABIs.
 */
 const fs = require('fs');
 const path = require('path');
-const libDir = path.join(__dirname, "../dist/javascripts/lib");
+const libDir = path.join(__dirname, "../dist/global/javascripts/lib");
 if (!fs.existsSync(libDir) || !fs.lstatSync(libDir).isDirectory()){
     throw new Error(`Unable to find output directory: ${libDir}`);
 }

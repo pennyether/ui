@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/global/javascripts/lib/Loader.js"></script>
+		<script src="/global/javascripts/lib/EthGraph.js"></script>
+		<script src="/javascripts/status/treasury.js"></script>
+		<link rel="stylesheet" type="text/css" href="/global/styles/status.css"/>
+		<style>
+			.hide {
+				display: none;
+			}
+
+			.allocation .blob {
+				box-sizing: border-box;
+				width: 100%;
+				margin: 0px;
+			}
+
+			.governance .requests {
+				max-height: 300px;
+				overflow: auto;
+			}
+			.governance .request {
+				border: 1px solid gray;
+				border-radius: 3px;
+				background: #EEE;
+				margin: 10px 5px;
+				font-size: 90%;
+				overflow: hidden;
+			}
+				.governance .request .title {
+					padding: 2px 4px 3px 4px;
+					background: #CCC;
+					color: #555;
+				}
+				.governance .request .description-ctnr {
+					text-align: center;
+					padding: 2px 4px;
+				}
+				.governance .request .type,
+				.governance .request .target,
+				.governance .request .eth {
+					font-weight: bold;
+					color: black;
+				}
+				.governance .details {
+					white-space: nowrap;
+				}
+				.governance .request .status-ctnr {
+					text-align: center;
+				}
+				.governance .request .status {
+					display: inline-block;
+					padding: 2px 6px;
+					background: green;
+					color: white;
+					border-radius: 4px;
+				}
+
+			.funding-status .bubble.met,
+			.funding-status .bubble.unmet {
+				font-size: 80%;
+				margin-top: 10px;
+				margin-bottom: 0px;
+			}
+			.funding-status .bubble.met {
+				background: rgba(0, 128, 0, .2);
+			}
+
+			.funding-status .tiny-bar {
+				margin-bottom: 7px;
+			}
+				.funding-status .tiny-bar .label {
+					display: inline-block;
+					font-size: 90%;
+					margin-bottom: 5px;
+				}
+				.funding-status .tiny-bar .txt {
+					display: inline-block;
+					font-size: 90%;
+					font-weight: bold;
+				}
+				.funding-status .tiny-bar .bar {
+					box-sizing: border-box;
+					position: relative;
+					background: #CCC;
+					width: 100%;
+					height: 10px;
+					border: 1px solid gray;
+				}
+				.funding-status .tiny-bar .amt {
+					position: relative;
+					height: 100%;
+					background: green;
+					transition: width .5s;
+				}
+		</style>
+	</head>
+	<body><div id="Content">
+		<div class="page-header">
+			<div class="title">
+				Treasury Status
+			</div>
+			<div class="links">
+				<a href="/about/contracts.html#treasury">Contract Info</a>
+				•
+				<a href="">Etherscan Link</a>
+			</div>
+		</div>
+		<div style="margin: 10px 0px;">
+			<div class="statusRow one">
+				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+					<td width="50%"><div class="cell allocation">
+						<div class="titleBar">
+							<span title="The Treasury uses its Capital to fund 'Bankrollable' contracts. The Treasury can recall some of its allocated capital at any time. The allocation of Capital is controlled via Governance.">
+								Capital
+							</span>
+						</div>
+						<div class="body">
+							<div class="loading">
+								Loading...
+							</div>
+							<div class="error hide">
+								Error loading reserve details: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								<div>
+									<table cellpadding="0" cellspacing="5" width="100%"><tr>
+										<td width=25%>
+											<div class="blob">
+												<div class="label" style="font-weight: bold">
+													<span title="The amount of Capital available, plus the amount recallable.">
+														Total
+													</span>
+												</div>
+												<div class="value cap-total"></div>
+												<div class="eth">ETH</div>
+											</div>
+										</td>
+										<td width=25%>
+											<div class="blob">
+												<div class="label">
+													<span title="The amount of Capital available to be allocated.">
+														Available
+													</span>
+												</div>
+												<div class="value cap-available"></div>
+												<div class="eth">ETH</div>
+											</div>
+										</td>
+										<td width=25%>
+											<div class="blob">
+												<div class="label">
+													<span title="The amount of Capital currently allocated to various Game Controllers.">
+														Allocated
+													</span>
+												</div>
+												<div class="value cap-allocated"></div>
+												<div class="eth">ETH</div>
+											</div>
+										</td>
+										<td width=25%>
+											<div class="blob">
+												<div class="label">
+													<span title="Of the amount of Capital allocated, a certain amount can be recalled.">
+														Recallable
+													</span>
+												</div>
+												<div class="value cap-recallable"></div>
+												<div class="eth">ETH</div>
+											</div>
+										</td>
+									</tr></table>
+								</div>
+								<div class="table-ctnr">
+									<table width="100%" class="table">
+										<thead>
+											<tr>
+												<td>Game Controller</td>
+												<td>Allocated</td>
+												<td>Recallable</td>
+											</tr>
+										</thead>
+										<tbody></tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div></td>
+					<td width="50%"><div class="cell funding-status">
+						<div class="titleBar">
+							<span title="If more Capital is desired, the 'Capital Target' value can be increased via Governance. When this happens, the Comptroller will raise Capital by selling PENNY Tokens.">
+								Funding Status
+							</span>
+						</div>
+						<div class="body">
+							<div class="loading">
+								Loading...
+							</div>
+							<div class="error hide">
+								Error loading: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								<div>
+									<div class="tiny-bar target">
+										<div class="label">
+											<span title="The target amount of Capital that Treasury would like to have raised.">
+												Capital Target:
+											</span>
+										</div>
+										<div class="txt"></div>
+										<div class="bar">
+											<div class="amt" style="width: 0%"></div>
+										</div>
+									</div>
+									<div class="tiny-bar raised">
+										<div class="label">
+											<span title="The amount of Capital raised via the sale of tokens, either through the CrowdSale or by selling Tokens.">
+												Capital Raised:
+											</span>
+										</div>
+										<div class="txt"></div>
+										<div class="bar">
+											<div class="amt" style="width: 0%"></div>
+										</div>
+									</div>
+									<div class="tiny-bar needed">
+										<div class="label">
+											<span title="The amount of Capital that can be raised by the Comptroller.">
+												Capital Needed:
+											</span>
+										</div>
+										<div class="txt"></div>
+										<div class="bar">
+											<div class="amt" style="width: 0%"></div>
+										</div>
+									</div>
+								</div>
+								<div class="bubble met">
+									Treasuy has raised all requested capital.
+								</div>
+								<div class="bubble not-met">
+									The Treasury needs capital.<br>The Comptroller might be selling tokens.
+								</div>
+							</div>
+						</div>
+					</div></td>
+				</tr></table>
+			</div>
+			<div class="statusRow two">
+				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+					<td width="33%"><div class="cell profits">
+						<div class="titleBar">
+							<span title="All profits generated by Games Controllers are sent to the Treasury. These profits can then be distributed to PENNY Token holders at any time, by anyone.">
+								Game Controllers
+							</span>
+						</div>
+						<div class="body">
+							<div class="loading">
+								Loading...
+							</div>
+							<div class="error hide">
+								Error loading profits: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								<div class="select-ctnr">
+									<select>
+										<option value=all selected>All Time</option>
+										<option value=30>Last 30 days</option>
+										<option value=90>Last 90 days</option>
+										<option value=180>Last 180 days</option>
+									</select>
+								</div>
+								<div class="table-ctnr">
+									<table width="100%" class="table">
+										<thead>
+											<tr>
+												<td>Contract</td>
+												<td>Profits Sent</td>
+											</tr>
+										</thead>
+										<tbody></tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div></td>
+					<td width="66%"><div class="cell total-profits">
+						<div class="titleBar">
+							<span>
+								Profits and Dividends
+							</span>
+						</div>
+						<div class="body">
+							<div class="loading">
+								Loading...
+							</div>
+							<div class="error hide">
+								Error loading profits: <span class="error-msg"></span>
+							</div>
+							<div class="done-loading hide">
+								<div class="blob-ctnr" style="text-align: center;">
+									<div class="blob" style="display: inline-block; margin-right: 10px;">
+										<div class="label">Total Profits</div>
+										<div class="value profits"></div>
+										<div class="eth">ETH</div>
+									</div>
+									<div class="blob" style="display: inline-block">
+										<div class="label">Total Dividends</div>
+										<div class="value dividends"></div>
+										<div class="eth">ETH</div>
+									</div>
+								</div>
+								<div class="graph-ctnr" style="margin-top: 5px;"></div>
+							</div>
+						</div>
+					</div></td>
+				</tr></table>
+			</div>
+			<div class="statusRow two">
+				<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+					<td width="50%"><div class="cell governance">
+						<div class="titleBar">
+							<span title="The Capital Allocation and Target are controller by the Admin (soon to be a DAO). A Governance request will require one week to execute -- should there be a mistake or security incident, the request can be cancelled within a week.">
+								Governance
+							</span>
+						</div>
+						<div class="body">
+							<div>
+								<div class="select-ctnr">
+									<select>
+										<option selected>All</option>
+										<option>Pending</option>
+										<option>Executed</option>
+										<option>Cancelled</option>
+									</select>
+								</div>
+								<div class="loading">
+									Loading...
+								</div>
+								<div class="error hide">
+									Error loading: <span class="error-msg"></span>
+								</div>
+							</div>
+							<div class="done-loading hide">
+								<div class="request template" style="display: none;">
+									<div class="title">
+										<span class="type">SendCapital</span>
+										<span class="value"> (<span class="eth">50.12 Eth</span>) </span>
+										<span class="to-from">to</span>
+										<span class="target">PennyAuctionController</span>
+									</div>
+									<div class="description-ctnr">
+										Message: "<span class="description"></span>"
+									</div>
+									<table width="100%"><tr>
+										<td valign="top">
+											<div class="details">
+												<div class="param">Id: <span class="id"></span></div>
+												<div class="param">Created: <span class="date-created"></span></div>
+												<div class="param executed">
+													Executed: <span class="date-executed"></span>
+												</div>
+												<div class="param cancelled">
+													Cancelled: <span class="date-cancelled"></span>
+												</div>		
+											</div>
+										</td>
+										<td width=100% valign="middle" align="center">
+											<div class="status-ctnr">
+												<div class="status">Executed</div>
+												<div class="result"></div>
+											</div>
+										</td>
+									</tr></table>
+								</div>
+								<div class="requests"></div>
+							</div>
+						</div>
+					</div></td>
+					<td width="50%"><div class="cell events">
+						<div class="titleBar">
+							Events
+						</div>
+						<div class="body">
+							<div class="events-ctnr"></div>
+						</div>
+					</div></td>
+				</tr></table>
+			</div>
+		</div>
+	</div></body>
+</html>

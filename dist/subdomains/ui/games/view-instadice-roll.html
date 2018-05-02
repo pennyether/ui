@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/global/javascripts/lib/Loader.js"></script>
+		<script src="/global/javascripts/shared/DiceUtil.js"></script>
+		<script src="/javascripts/games/view-instadice-roll.js"></script>
+		<style>
+			.roll input {
+				font-size: 120%;
+				width: 470px;
+			}
+			.roll button {
+				font-size: 120%;
+				margin-left: 10px;
+			}
+			.roll .status {
+				margin-top: 10px;
+				color: gray;
+			}
+			.field {
+				padding: 3px 0px;
+			}
+			.field .label {
+				display: inline-block;
+				width: 170px;
+			}
+			.field .value {
+				display: inline-block;
+			}
+			.refunded {
+				display: inline-block;
+				border: 1px solid #AAA;
+				border-radius: 4px;
+				background: #EEE;
+				padding: 5px 10px;
+				margin-bottom: 20px;
+				text-align: center;
+			}
+			.refundReason {
+				font-weight: bold;
+			}
+		</style>
+	</head>
+	<body>
+	<div id="Content">
+		<div class="page-header">
+			<div class="title">
+				InstaDice Roll Details
+			</div>
+			<div class="links">
+				<a href="/about/contracts.html#instadice">Contract Info</a>
+				•
+				<a href="">Etherscan Link</a>
+			</div>
+		</div>
+		<div class="page-section roll">
+			<div class="head">Roll ID</div>
+			<div class="body">
+				<input type=text id="Roll" placeholder="roll_id or transaction"><button id="LoadButton">Load</button>
+				<div class="status">
+					
+				</div>
+			</div>
+		</div>
+		<div>
+			<div class="page-section rollData">
+				<div class="head">
+					Roll Data
+					<!-- <div class="info">This data is refreshed every new block.</div> -->
+				</div>
+				<div class="body">
+					<div class="refunded" style="display: none;">
+						This bet was refunded for the following reason: <div class="refundReason"></div>
+					</div>
+					<div class="field id">
+						<div class="label" title="A unique ID that identifies the roll. This will be empty if the roll was refunded." data-tippy-placement="left">
+							Roll Id:
+						</div>
+						<div class="value"></div>
+					</div>
+					<div class="field transaction">
+						<div class="label" title="The transaction that originated the roll." data-tippy-placement="left">
+							Transaction:
+						</div>
+						<div class="value"></div>
+					</div>
+					<div class="field user">
+						<div class="label" title="The address that originated the bet." data-tippy-placement="left">
+							Bettor:
+						</div>
+						<div class="value"></div>
+					</div>
+					<div class="field bet">
+						<div class="label" title="The wager size" data-tippy-placement="left">
+							Bet Size:
+						</div>
+						<div class="value"></div>
+					</div>
+					<div class="field number">
+						<div class="label" title="The number chosen. A roll result of this number or lower is a win." data-tippy-placement="left">
+							Chosen Number:
+						</div>
+						<div class="value"></div>
+					</div>
+					<div class="field payout">
+						<div class="label" title="The payout size if the roll is a winner." data-tippy-placement="left">
+							Payout:
+						</div>
+						<div class="value"></div>
+					</div>
+				</div>
+			</div>
+			<div class="page-section rollResult">
+				<div class="head">Roll Result</div>
+				<div class="body">
+					<div class="field result">
+						<div class="label" title="The result of the roll, as computed locally. This should match the Resolved roll." data-tippy-placement="left">
+							Computed Result:
+						</div>
+						<div class="value"></div>
+					</div>
+					<div class="field resolvedResult">
+						<div class="label" title="The result of the roll, as computed by the contract. This should match the computed roll, unless it is finalized after 256 blocks from being created." data-tippy-placement="left">
+							Resolved Result:
+						</div>
+						<div class="value"></div>
+					</div>
+					<div class="field isWinner">
+						<div class="label" title="Whether or not the roll won." data-tippy-placement="left">
+							Winner:
+						</div>
+						<div class="value"></div>
+					</div>
+				</div>
+			</div>
+			<div class="page-section rollHistory">
+				<div class="head">
+					Roll History
+				</div>
+				<div class="body">
+					<div class="field rollWagered">
+						<div class="label" title="This event is trigged when the roll is created." data-tippy-placement="left">
+							RollWagered:
+						</div>
+						<div class="value"></div>
+					</div>
+					<div class="field rollResolved">
+						<div class="label" title="This event is triggered when the roll is resolved, likely paying it out as well." data-tippy-placement="left">
+							RollResolved:
+						</div>
+						<div class="value"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	</body>
+</html>

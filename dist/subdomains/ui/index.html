@@ -1,0 +1,377 @@
+<html>
+	<head>
+		<script src="/global/javascripts/lib/Loader.js"></script>
+		<style>
+			#Title .title {
+				color: white;
+				font-variant: small-caps;
+				text-shadow: 0px 0px 10px rgba(0,128,0,1), 0px 0px 10px rgba(0,0,0,1) !important;
+			} 
+			#Title .tagline{
+				color: #85ff85;
+				border-radius: 2px;
+				text-shadow: none;
+				padding: 3px 8px;
+				text-shadow: 0px 0px 3px rgba(255,255,255,.4);
+				background: rgba(40,40,40,.7);
+			}
+			#Leader .background {
+				background-image: url(/global/images/pennies.jpg);
+				filter: saturate(60%);
+			}
+			#Leader .banner {
+				margin-top: 30px;
+				margin-bottom: 40px;
+			}
+				#Leader .banner .blurb-ctnr {
+					margin: 20px auto 0px auto;
+					text-align: center;
+					width: 78%;
+				}
+				#Leader .banner .blurb {
+					font-size: 90%;
+					text-align: center;
+					display: inline-block;
+					padding: 5px 10px;
+					background: rgba(255,255,255,.7);
+					/*box-shadow: 2px 2px 2px 0px rgba(0,0,0,.1);*/
+					border-radius: 3px;
+				}
+				#Leader .items {
+					text-align: center;
+					padding: 20px 0px;
+				}
+					#Leader .items .item {
+						display: inline-block;
+						padding: 5px 10px;
+						cursor: pointer;
+
+						color: black;
+						text-decoration: none;
+						font-size: 120%;
+						font-variant: small-caps;
+						letter-spacing: .15em;
+
+						background: rgba(0,128,255,.2);
+						border-radius: 2px;
+						box-shadow: 2px 2px 2px 0px rgba(0,0,0,.5);
+						transition: background .3s;
+					}
+					#Leader .items .item:not(:last-child) {
+						margin-right: 15px;
+					}
+					#Leader .items .item:hover {
+						background: rgba(0,128,255,.4);
+					}
+
+			.instructions {
+				margin: 20px auto;
+				width: 800px;
+			}
+				.instructions td {
+					text-align: center;
+					vertical-align: middle;
+				}
+				.instructions > .title {
+					padding: 5px 0px 3px 0px;
+					margin: 0px 40px;
+					text-align: center;
+					text-transform: uppercase;
+					font-size: 90%;
+					color: #444;
+					text-shadow: 1px 1px 1px rgba(255, 255, 255, .8);
+					font-weight: bold;
+					border-bottom: 2px ridge rgba(255, 255, 255, .5);
+					letter-spacing: .3em;
+				}
+				.instructions .row {
+					display: table-row;
+				}
+					.instructions .cell {
+						display: table-cell;
+						padding: 15px 10px;
+						padding-top: 0px;
+					}
+					.instructions .row:first-child .cell {
+						padding: 15px;
+					}
+
+				.instructions .instruction {
+					display: inline-block;
+					white-space: nowrap;
+					padding: 5px;
+					text-align: left;
+					cursor: pointer;
+					border-radius: 5px;
+					transition: background .5s;
+				}
+					.instructions .instruction:hover {
+						background: rgba(0,0,0,.2);
+					}
+					.instructions .instruction > .left,
+					.instructions .instruction > .right {
+						display: table-cell;
+						vertical-align: middle;
+					}
+
+					.instructions .instruction .title {
+						font-weight: bold;
+						letter-spacing: .1em;
+						color: blue;
+					}
+					.instructions .instruction .info {
+						font-size: 90%;
+						color: black;
+					}
+					.instructions .instruction .question {
+						display: inline-block;
+						vertical-align: middle;
+						font-weight: normal;
+						font-style: italic;
+						font-size: 80%;
+						color: white;
+						background: rgba(0,0,0,.1);
+						margin-top: -2px;
+						margin-left: -2px;
+						padding: 0px 4px 0px 5px;
+						border-radius: 13px;
+						font-family: serif;
+					}
+					.instructions .instruction .left {
+						font-size: 200%;
+						padding-right: 8px;
+					}
+		</style>
+	</head>
+	<body><div id="Content">
+		<div id="Leader">
+			<div class="background"></div>
+			<div class="foreground">
+				<div id="Title">
+					<div class="title">Penny Ether</div>
+					<div class="tagline">the next generation of blockchain gaming</div>
+				</div>
+				<div class="banner">
+					<div class="blurb-ctnr">
+						<div class="blurb">
+							PennyEther is a distributively owned, autonomously run blockchain casino.<br>
+							All games run on Ethereum smart contracts, and all profits get distributed to Token Holders.
+						</div>
+					</div>
+					<div class="instructions">
+						<div class="title">Features</div>
+						<center>
+							<div class="row">
+								<div class="cell">
+									<div class="instruction no-tip-style" title="We proudly accept and payout in Ether.
+									<br>There's no need to exchange your Ether for tokens, or to fumble around with a Token contract." data-tippy-animation="scale" data-tippy-trigger="click">
+										<div class="left" style="padding-right: 2px;">
+											<img class="icon" src="/global/images/ethereum.png" height="35"/>
+										</div>
+										<div class="right">
+											<div class="title">Ether Accepted <span class="question">i</span></div>
+											<div class="info">No tokens necessary.</div>
+										</div>
+									</div>
+								</div>
+								<div class="cell">
+									<div class="instruction no-tip-style" title="We'll never ask you for any personal details, and no deposit is necessary to play. Just use MetaMask, and you're good to go!" data-tippy-animation="scale" data-tippy-trigger="click">
+										<div class="left">⚡</div>
+										<div class="right">
+											<div class="title">Zero Sign-up <span class="question">i</span></div>
+											<div class="info">No sign-up, no deposit.</div>
+										</div>
+									</div>
+								</div>
+								<div class="cell">
+									<div class="instruction no-tip-style" title="Our entire application exists as smart contracts on the Ethereum blockchain. This means all games have unparalleled transparency, are provably fair, and are always available." data-tippy-animation="scale" data-tippy-trigger="click">
+										<div class="left">⚖</div>
+										<div class="right">
+											<div class="title">Pure Blockchain <span class="question">i</span></div>
+											<div class="info">Trustless. No third parties.</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="cell">
+									<div class="instruction no-tip-style" title="Enjoy a variety of never-before-possible games on the blockchain, at very low house odds. We'll be adding more games soon!" data-tippy-animation="scale" data-tippy-trigger="click">
+										<div class="left">💰</div>
+										<div class="right">
+											<div class="title">Innovative Games <span class="question">i</span></div>
+											<div class="info">With fair odds.</div>
+										</div>
+									</div>
+								</div>
+								<div class="cell">
+									<div class="instruction no-tip-style" title="Our UI will help you choose a gas price and show the progress and results for every single transaction. We also allow you to view your full player history, view full contract details, and much more!" data-tippy-animation="scale" data-tippy-trigger="click">
+										<div class="left">💕</div>
+										<div class="right">
+											<div class="title">Friendly UI <span class="question">i</span></div>
+											<div class="info">Puts you in control.</div>
+										</div>
+									</div>
+								</div>
+								<div class="cell">
+									<div class="instruction no-tip-style" title="Our contracts are extremely efficient and consume very little gas. And, should there be an error, we won't cause all of your gas to be consumed." data-tippy-animation="scale" data-tippy-trigger="click">
+										<div class="left"><div style="margin-top: -10px;">¢</div></div>
+										<div class="right">
+											<div class="title">Gas Efficient <span class="question">i</span></div>
+											<div class="info">For cheap transactions.</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</center>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<style>
+			.games a {
+				color: unset;
+				text-decoration: none;
+			}
+			.games .game {
+				position: relative;
+				display: inline-block;
+				width: 400px;
+				height: 205px;
+				border-radius: 6px;
+				margin: 10px;
+				overflow: hidden;
+			}
+				.games .game .background {
+					position: absolute;
+					top: 0; left: 0;
+					width: 100%; height: 100%;
+					background-size: cover;
+					filter: blur(1.2px) saturate(60%);
+					transition: filter .5s;
+				}
+				.games .game:hover .background {
+					filter: blur(1.2px) saturate(200%);
+				}
+				.games .game .foreground {
+					position: relative;
+					text-align: center;
+				}
+				.games .game .title {
+					font-variant: small-caps;
+					letter-spacing: .1em;
+					text-align: center;
+					font-size: 180%;
+					padding: 10px 0px;
+					text-shadow: 0px 0px 5px white;
+					color: white;
+					transition: letter-spacing 2s;
+				}
+				.games .game:hover .title {
+					letter-spacing: .2em;
+				}
+				.games .game .tagline {
+					display: inline-block;
+					letter-spacing: .1em;
+					font-size: 80%;
+					margin-top: -5px;
+					padding: 2px 4px;
+					color: white;
+					background: rgba(50,50,100,.5);
+				}
+				.games .game .info {
+					display: inline-block;
+					margin: 20px;
+					padding: 5px;
+					background: radial-gradient(rgba(200,200,200,.9) 0%, rgba(250,250,250,.9) 100%);
+					border-radius: 3px;
+					font-size: 90%;
+				}
+				
+				.games .game.monarchy .background {
+					background-image: url(/global/images/castle.jpg);
+				}
+				.games .game.instadice .background {
+					background-image: url(/global/images/dice.jpg);
+				}
+				.games .game.videopoker .background {
+					background-image: url(/global/images/poker.jpg);
+				}
+				.games .game.soon {
+					opacity: .7;
+				}
+					.games .game.soon .background {
+						background: linear-gradient(to bottom, rgba(0,0,0,.4) 0%, rgba(0,0,0,.8) 100%);
+					}
+		</style>
+		<a data-anchor="games"></a>
+		<div class="page-section games">
+			<div class="head">Play</div>
+			<div class="body" style="text-align: center;">
+				<a href="/games/monarchy.html">
+					<div class="game monarchy">
+						<div class="background"></div>
+						<div class="foreground">
+							<div class="title">
+								Monarchy
+							</div>
+							<div class="tagline">
+								The world's first truly-fair king-of-the-hill game
+							</div>
+							<div class="info">
+								Overthrow the current Monarch, and if you reign for long enough without getting overthrown, you'll win the prize! For the first time in a history, a provably fair king-of-the-hill game!
+							</div>
+						</div>
+					</div>
+				</a>
+				<a href="/games/instadice.html">
+					<div class="game instadice">
+						<div class="background"></div>
+						<div class="foreground">
+							<div class="title">
+								InstaDice
+							</div>
+							<div class="tagline">
+								Choose your own odds. Instant results.
+							</div>
+							<div class="info">
+								The world's fastest purely blockchain dice game. No oracles and no third parties means 100% fairness, and insanely cheap transactions. Choose your desired payout odds, roll, see your results as soon as your transaction is mined -- about 20 seconds. Just 1% house odds!
+							</div>
+						</div>
+					</div>
+				</a>
+				<br>
+				<a href="/games/videopoker.html">
+					<div class="game videopoker">
+						<div class="background"></div>
+						<div class="foreground">
+							<div class="title">
+								Video Poker
+							</div>
+							<div class="tagline">
+								9/6 Video Poker on the blockchain
+							</div>
+							<div class="info">
+								The world's only purely blockchain video poker. A typical hand takes less than minute to play, and you can play multiple hands at once. Our 9/6 paytable yields an impressive 99.54% payback if played optimally.
+							</div>
+						</div>
+					</div>
+				</a>
+				<div class="game soon">
+					<div class="background"></div>
+					<div class="foreground">
+						<div class="title">
+							Coming Soon...
+						</div>
+						<div class="tagline">
+							More games on the way!
+						</div>
+						<div class="info">
+							We're working hard to provide you with the most innovative pure blockchain games. Stay tuned... more games will be released in the coming months.
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div></body>
+</html>

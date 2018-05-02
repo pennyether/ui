@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/global/javascripts/lib/Loader.js"></script>
+		<style>
+			#Title .title {
+				color: white;
+				text-shadow: 4px 4px 2px black !important;
+			} 
+			#Title .tagline{
+				color: #DDD;
+				border-radius: 2px;
+				text-shadow: none;
+				padding: 2px 4px;
+				background: rgba(40,40,40,.7);
+			}
+			#Leader .background {
+				background-image: url(/global/images/pennies.jpg);
+				filter: saturate(60%);
+			}
+			#Leader .banner {
+				margin-top: 30px;
+				margin-bottom: 40px;
+			}
+				#Leader .banner .blurb-ctnr {
+					margin: 10px auto 0px auto;
+					text-align: center;
+					width: 78%;
+				}
+				#Leader .banner .blurb {
+					text-align: left;
+					display: inline-block;
+					padding: 5px 10px;
+					background: rgba(0,0,0,.2);
+					border-radius: 3px;
+				}
+				#Leader .items {
+					text-align: center;
+					padding: 20px 0px;
+				}
+					#Leader .items .item {
+						display: inline-block;
+						padding: 5px 10px;
+						cursor: pointer;
+
+						color: black;
+						text-decoration: none;
+						font-size: 120%;
+						font-variant: small-caps;
+						letter-spacing: .15em;
+
+						background: rgba(0,128,255,.2);
+						border-radius: 2px;
+						box-shadow: 2px 2px 2px 0px rgba(0,0,0,.5);
+						transition: background .3s, transform .3s;
+					}
+					#Leader .items .item:not(:last-child) {
+						margin-right: 15px;
+					}
+					#Leader .items .item:hover {
+						background: rgba(0,128,255,.4);
+						transform: scale(1.1);
+					}
+
+			.note {
+				margin: 20px 20px 60px 20px;
+				background: linear-gradient(to top, rgba(0,128,0,.4) 0%, rgba(0,255,0,.2) 100%);
+				padding: 10px;
+				border-radius: 5px;
+				text-align: center;
+				box-shadow: 3px 3px 3px 0px rgba(0,0,0,.1);
+			}
+
+			h3 {
+				font-size: 150%;
+				color: black;
+			}
+			.subsection {
+				color: #333;
+			}
+
+			li {
+				margin: 5px 0px;
+			}
+		</style>
+	</head>
+	<body><div id="Content">
+		<div id="Leader">
+			<div class="background"></div>
+			<div class="foreground">
+				<div id="Title">
+					<div class="title">Our Mission</div>
+					<div class="tagline">the funnest and fairest games, on a game-changing platform</div>
+				</div>
+				<div class="banner">
+					<div class="blurb-ctnr">
+						<div class="blurb">
+							PennyEther's mission is to deliver <b>the next generation of blockchain gaming</b>. We're creating a fully autonous Ethereum gaming platform, owned by Token Holders, open to developers, and launching with most interactive and exciting games on the Ethereum blockchain. Much more information can be found in <a href="/ico/whitepaper.html">our whitepaper</a>.
+						</div>
+					</div>
+					<div class="items">
+						<a class="item" href="#fairness">Fairness</a>
+						<a class="item" href="#transparency">Transparency</a>
+						<a class="item" href="#security">Security</a>
+						<a class="item" href="#user-experience">User Experience</a>
+						<a class="item" href="#innovation">Innovation</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="page-subsection" style="margin-top: 10px; font-size: 90%;">
+			<div class="body">
+				<a data-anchor="fairness"></a>
+				<h3>Fairness</h3>
+				<p>
+					All of our games are <b>open sourced</b>, <b>independantly audited</b>, and <b>provably fair</b>. Here are a few other ways we go above and beyond to ensure we're treating our customers right:
+					<ul>
+						<li>
+							<b>Distributed ownership</b> ensures that there's no "insider" that is able to play games for free. All proceeds of all games get distributed to Token Holders.
+						</li>
+						<li>
+							Our games <b>guarantee full payment</b> on any bet. Our contracts will not accept a bet unless they have Ether to back up multiple times the maximum win amount.
+						</li>
+						<li>
+							<b>We trust no one but the blockchain</b>. No oracles. No off-chain random number generators.
+						</li>
+						<li>
+							Our games are extremely <b>gas efficient</b>. On top of that, most failures will return an error message rather than consume all of the gas of the transaction.
+						</li>
+						<li>
+							<b>Our UI is resilient</b> against blockchain re-orgs. If your transaction results "change", we'll show you the latest results.
+						</li>
+					</ul>
+					
+					<br><br>
+					<b>Monarchy:</b>
+					<ul>
+						<li>
+							<b>There can be no shilling.</b> All fees collected get distributed to Token Holders, thus the scenario where the owner can participate for free is <u>eliminated</u>. PennyEther is the first such organization in the world to provide this assurance.
+						</li>
+						<li>
+							The prize is held in the contact and can only be sent to the winner. It's redeemable the moment the game has ended. There's nothing in the world, short of Ethereum going down, that can change this behavior.
+						</li>
+						<li>
+							Overthrow fees are never wasted -- your fee will be refunded (and gas saved) if it doesn't result in you becoming the Monarch. This includes the following situations:
+							<ul>
+								<li>Somebody else overthrows <i>you</i> in the same block</li>
+								<li>The games ends before your overthrow is mined</li>
+								<li>You are already the current Monarch</li>
+								<li>You send the wrong amount</li>
+							</ul>
+						</li>
+					</ul>
+					<br>
+					<b>InstaDice:</b>
+					<ul>
+						<li>We use the blockchain for randomness. No third party or oracles are used.</li>
+						<li>Wagers will never be taken unless they can be paid on a win.</li>
+						<li>Each roll uses only 50,000 gas.</li>
+					</ul>
+					<br>
+					<b>VideoPoker:</b>
+					<ul>
+						<li>We use the blockchain for randomness. No third party or oracles are used.</li>
+						<li>Wagers will never be taken unless they can be paid on a win.</li>
+						<li>Play a full hand for about 100,000 gas.</li>
+						<li>You are protected against blockchain re-orgs that could cause undesirable behavior. Here's an exmaple:  You are dealt a two pair, and submit a transaction to draw just one card. However, your dealt hand <i>has changed due to a blockchain reorg</i>, and your hand is <i>actually</i> a flush. In this scenario our contract will detect the difference and will not draw your card (which would ruin your flush). Your transaction will instead exit early, consuming little gas, and emit an error. The UI will show your <i>actual</i> cards as soon as your provider syncs.</li>
+					</ul>
+				</p>
+
+				<a data-anchor="transparency"></a>
+				<h3>Transparency</h3>
+				<p>
+					We're open about how we operate and everything that goes on in our platform. 
+					<br><br>
+					<b>For Gamers:</b>
+					<ul>
+						<li><a href="/about/contracts.html">Our contracts</a> are open sourced, tested, and audited</li>
+						<li><a href="/tools/player.html">View all of a user's activity</a></li>
+						<li><a href="/games/view-instadice-roll.html#1">View results of prior rolls.</a></li>
+						<li><a href="/games/view-monarchy-game.html">View results of prior Monarchy games.</a></li>
+						<li><a href="/games/view-videopoker-game.html#1">View the results of a VideoPoker game.</a></li>
+					</ul>
+					<b>For Investors:</b>
+					<ul>
+						<li><a href="/status/overview.html#">View the realtime status of all contracts.</a></li>
+					</ul>
+				</p>
+
+				<a data-anchor="security"></a>
+				<h3>Security</h3>
+				<p>
+					PennyEther has many different layers of security.
+					<br><br>
+					<b>For Gamers:</b>
+					<ul>
+						<li><b>No deposit is needed.</b> We don't require that you trust us with your funds.</li>
+						<li><b>No account is needed.</b> Simply use your Ethereum wallet from MetaMask. We'll never ask you for any information about yourself.</li>
+						<li><b>No tokens are needed.</b> We don't require that you exchange your Ether for Tokens. Just use your Ether to play!</li>
+						<li><b>We're entirely on the blockchain.</b> We have no database or any point of failure.</li>
+						<li><b>Our UI is open source.</b> Should somebody attempt to DDoS our domain to prevent you from playing, <a href="">it's quite easy to run the UI on your own computer.</a>.</li>
+						<li><b>Our UI contains no 3rd party dependancies.</b> All code in our UI is served locally. There's no way for a 3rd party library to secretly change web3 transaction requests.</li>
+					</ul>
+					<b>For Investors:</b>
+					<ul>
+						<li>We've done our best to thoroughly document, test, and audit all of our contracts. We've made available all contract code, tests, test results, and audit results. <a href="/about/contracts.html">Read more here.</a></li>
+						<li><b>The Treasury</b> holds all PennyEther funds. Profits are only ever sent to the DividendToken; this is hard-coded and immutable behavior.  Capital can only be moved via <b>Governance</b> requests, which in the future will be controlled by a DAO. <a href="/about/contracts.html#dao">Read more here.</a></li>
+						<li><b>The Owner Wallet</b> is a special smart contract that is owned by a cold-storage wallet. A <i>Custodian</i> can make calls on behalf of the owner, but can be changed should it be compromised. <a href="/about/contracts#owner">Read more here.</a>
+						<li><b>The Admin Account</b> can change certain configurations of PennyEther, but cannot cause funds to leave the Treasury nor can it deplete funds of Game Contracts. <a href="/about/contracts.html#roles">Read more here.</a></li>
+						<li><b>Autonomy</b> ensures you're never at the whim of the Owners taking action. We actually <i>pay the community</i> to keep our system running - from dispersal of dividends to the restarting of Monarchy games. <a href="/about/contracts.html#task-manager">Read more here.</a></li>
+					</ul>
+				</p>
+
+				<a data-anchor="user-experience"></a>
+				<h3>User Experience</h3>
+				<p>
+					We started PennyEther because we were underwhelmed with the state of blockchain gaming.
+					<br>
+					<br>
+					<b>We'll never release a game unless it meets our standards</b>:
+					<ul>
+						<li>
+							<b>No Signup</b>: Why should you need to provide any information to play?
+						</li>
+						<li>
+							<b>Wager in Ether</b>: There's no need to exchange Ether for tokens.
+						</li>
+						<li>
+							<b>Interactive UI</b>: The UI will show you what's going on every step of the way -- from your transaction being mined, to the results.
+						</li>
+						<li>
+							<b>Function first, looks second</b>: We'll never sacrifice useful features just to make the UI look cooler. We want to provide our gamers with the information they need to make informed decisions.
+						</li>
+						<li>
+							<b>Smart Gas Prices</b>: Every time you create a transaction, we'll show you a slider to help you choose your Gas Price. It uses data generously provided by <a href="https://ethgasstation.info/">EthGasStation</a>.
+						</li>
+						<li>
+							<b>Resilient against blockchain re-orgs</b>: Just because you get a transaction receipt doesn't mean the results are set in stone. Blockchain re-orgs can cause your transaction to have different results entirely. Our UI protects you against this in several different ways -- the least of which being that you will <i>always</i> see the most up-to-date state of whatever game you are playing.
+						</li>
+					</ul>
+					<br>
+					<b>For Investors:</b>
+					<ul>
+						<li><b>Mind the business</b> by viewing the <a href="/status/overview.html">in-depth status of all contracts</a> (including charts, full event logs, and more).</li>
+						<li><b>Manage your Tokens</b> via the <a href="/tools/token.html">Token UI</a>. View and claim your dividends, transfer, and more.
+					</ul>
+				</p>
+
+				<a data-anchor="innovation"></a>
+				<h3>Innovation</h3>
+				<p>
+					We're pretty proud of what we've built. We've broken new ground on pretty much every part of the Ethereum stack, and we're just getting started...
+					<ul>
+						<li><b>ERC20 DividendToken</b>, <a href="https://medium.com/@weka/dividend-bearing-tokens-on-ethereum-42d01c710657" target="_blank">first posited by Nick Johnson here</a>, was <a href="/about/contracts.html#penny-token">fully implemented and tested</a> by us. Quite frankly, we think automated dividends should be the new standard.</li>
+						<li><b>Our Test Framework</b>, as best we can tell, allows us to write the most thorough Ethereum tests ever. We <a href="/about/contracts.html">invite you to take a look for yourself</a>.</li>
+						<li><b>Our UI</b> contains countless innovations. From allowing you to choose your gas price, to showing you full annotated details about every transaction, we're creating the dApp we've always wanted to use.</li>
+					</ul>
+				</p>
+			</div>
+		</div>
+	</div></body>
+</html>

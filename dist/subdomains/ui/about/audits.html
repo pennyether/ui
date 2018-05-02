@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/global/javascripts/lib/Loader.js"></script>
+		<style>
+		.note {
+			display: inline-block;
+			padding: 10px;
+			background: linear-gradient(to top, rgba(0,128,0,.4) 0%, rgba(0,255,0,.2) 100%);
+			border-radius: 5px;
+			text-align: center;
+			box-shadow: 3px 3px 3px 0px rgba(0,0,0,.1);
+		}
+		ul {
+			padding-left: 15px;
+		}
+		li {
+			margin: 5px 0px;
+			list-style: none;
+		}
+		.code {
+			background: #DDD;
+			font-family: courier;
+			padding: 2px 4px;
+		}
+		.toc {
+				font-size: 85%;
+				position: fixed;
+				padding: 0px 0px 0px 0px;
+				width: 200px;
+				background: #F0F0F0;
+				height: 100%;
+				border-right: 1px solid #AAA;
+			}
+			.toc .header {
+				text-align: center;
+				font-weight: bold;
+				padding: 2px 4px;
+				margin-top: 15px;
+				margin-bottom: 0px;
+			}
+			.toc a {
+				color: black;
+				text-decoration: none;
+			}
+				.toc .section .title {	
+					overflow: hidden;
+					text-align: center;
+					text-transform: uppercase;
+					font-size: 70%;
+					letter-spacing: .2em;
+					font-weight: bold;
+					color: #AAA;
+					margin: 10px 0px 4px 0px;
+				}
+				.toc .section .title:before,
+				.toc .section .title:after {
+					position: relative;
+					display: inline-block;
+					vertical-align: middle;
+					width: 50%;
+					top: -1px;
+					height: 1px;
+					border-top: 1px solid rgba(0,0,0,.2);
+					content: "";
+				}
+				.toc .section .title:before {
+					right: 0em;
+					margin-left: -50%;
+				}
+				.toc .section .title:after {
+				 	left: 0em;
+				 	margin-right: -50%;
+				}
+
+				.toc .inpage-item .head {
+					padding: 2px 0px 2px 15px;
+					margin-top: 2px;
+					transition: background .2s;
+				}
+					.toc .inpage-item .head:hover {
+						background: #DDD;
+						transition: background .2s;
+					}
+					.toc .inpage-item.on .head {
+						font-weight: bold;
+						text-shadow: 1px 1px 0px rgba(255, 255, 255, .4);
+						background: #CCC;
+						transition: background .2s;
+					}
+
+			.main {
+				padding-left: 220px;
+				padding-right: 20px;
+				font-size: 90%;
+			}
+			.main h3 {
+				font-size: 150%;
+				background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,.1) 100%);
+				border-left: 3px solid rgba(0,0,0,.6);
+				padding: 4px 8px;
+			}
+		</style>
+	</head>
+	<body><div id="Content">
+		<div class="toc">
+			<div class="section" style="margin-top: 15px">
+				<div class="title">Core</div>
+				<div class="body">
+					<div class="inpage-item">
+						<a href="#comptroller">
+							<div class="head">Comptroller</div>
+						</a>
+					</div>
+					<div class="inpage-item">
+						<a href="#penny-token">
+							<div class="head">PENNY Token</div>
+						</a>
+					</div>
+					<div class="inpage-item">
+						<a href="#treasury">
+							<div class="head">Treasury</div>
+						</a>
+					</div>
+					<div class="inpage-item">
+						<a href="#task-manager">
+							<div class="head">TaskManager</div>
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="section">
+				<div class="title">Games</div>
+				<div class="body">
+					<div class="inpage-item">
+						<a href="#monarchy-game">
+							<div class="head">MonarchyGame</div>
+						</a>
+					</div>
+					<div class="inpage-item">
+						<a href="#instadice">
+							<div class="head">InstaDice</div>
+						</a>
+					</div>
+					<div class="inpage-item">
+						<a href="#video-poker">
+							<div class="head">VideoPoker</div>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="main">
+			<div class="page-header">
+				<div class="title">
+					Audit Checklist
+				</div>
+				<div class="links">
+					<a href="/about/contracts.html">Contracts Info</a>
+				</div>
+			</div>
+			<div style="padding: 0px 10px">
+				<div style="text-align: center;">
+					<div class="note">
+						This page is intended for auditors to review and check.<br>
+						<b>We're currently looking for auditors</b>
+					</div>
+				</div>
+
+				<a data-anchor="comptroller"></a>
+				<h3>Comptroller / CrowdSale</h3>
+				<p>
+					<b>CrowdSale</b>
+					<ul>
+						<li>
+							☐ Any failure to purchase will result in minimal gas usage, and a full refund:
+							<ul>
+								<li>☐ Attemping purchase before sale has started.</li>
+								<li>☐ Attemping purchase after sale has ended (due to date, or HardCap).</li>
+								<li>☐ Attemping purchase by sending an amount not divisible by 1 GWei.</li>
+							</ul>
+						</li>
+						<li>
+							☐ <b>During CrowdSale</b>:
+							<ul>
+								<li>☐ CrowdSale parameters cannot be changed.</li>
+								<li>☐ Exchange rate and bonus period work as expected.</li>
+								<li>☐ The HardCap amount cannot be exceeded.</li>
+								<li>☐ If HardCap is met, the last participant will receive a refund if they contributed over the limit.</li>
+								<li>☐ Once the sale is over, it can be ended by anybody.</li>
+							</ul>
+						</li>
+						<li>
+							☐ <b>If SoftCap met</b>:
+							<ul>
+								<li>☐ 80% of tokens will be owned by participants, and 20% by PennyEther.</li>
+								<li>☐ The 20% owned by PennyEther will vest over 600 days.</li>
+								<li>☐ An percentage of Ether raised (<span class="code">capitalPctBips</span>, decided before sale starts) is sent to Treasury.</li>
+								<li>☐ The remaining Ether is sent to PennyEther.</li>
+							</ul>
+						</li>
+						<li>
+							☐ <b>If SoftCap is met</b>:
+							<ul>
+								<li>☐ All participants can claim a full refund, over an unlimited timeframe.</li>
+								<li>☐ PennyEther is granted nearly 100% token ownership.</li>
+							</ul>
+						</li>
+					</ul>
+
+					<b>Additional Funding</b>
+					<ul>
+						<li>☐ If Treasury's <span class="code">capitalTarget</span> is below <span class="code">capitalRaised</span>, Comptroller can sell tokens.</li>
+						<li>☐ Selling additional tokens will dilute all Token Holders, owners included.</li>
+						<li>☐ Cannot sell more Tokens than is needed to raise proper amount of Capital.</li>
+					</ul>
+
+					<b>Misc Security</b>
+					<ul>
+						<li>☐ Addresses of any involved contracts cannot be changed.</li>
+					</ul>				
+				</p>
+
+				<a data-anchor="penny-token"></a>
+				<h3>PENNY Token</h3>
+				<p>
+					<ul>
+						<li>☐ Is fully ERC20 compliant</li>
+						<li>☐ No overflows are possible</li>
+						<li>☐ Ether received is distributed proptionally to Token Holders at the time the dividend is received.</li>
+						<li>☐ Dividends owed to Token Holders can be claimed at any time, forever.</li>
+						<li>☐ Changes in Token Balance (transfer in/out, mint/burn) do not result in any loss of owed dividends.</li>
+					</ul>
+				</p>
+
+				<div style="display: none;">
+					<li>☐ </li>
+					<li>☐ </li>
+					<li>☐ </li>
+				</div>
+
+				<a data-anchor="treasury"></a>
+				<h3>Treasury</h3>
+				<p>
+					<b>Dividends</b>
+					<ul>
+						<li>☐ All profits sent to the Treasury many only leave as Dividends to the PENNY Token.</li>
+						<li>☐ Dividends can be issued by anyone, provided there are profits.</li>
+						<li>☐ Contracts that implement <span class="code">Bankrollable</span> will send their profits to the Treasury.</li>
+						<li>☐ InstaDice, VideoPoker, and MonarchyController all properly implement <span class="code">Bankrollable</span></li>
+					</ul>
+					<b>Governance (Capital Management)</b>
+					<ul>
+						<li>☐ Capital can only be sent through Governance Requests</li>
+						<li>☐ Governance Requests require one week before being executable.</li>
+						<li>☐ If the Admin account makes a mistake, or is compromised, it can be re-instated to a secure account, and all Requests cancelled (provided this occurs within 1 week).</li>
+						<li>☐ Capital can be recalled from contracts that implement <span class="code">Bankrollable</span></li>
+					</ul>
+				</p>
+
+				<a data-anchor="task-manager"></a>
+				<h3>TaskManager</h3>
+				<p>
+					<ul>
+						<li>☐ Tasks can be executed and will be rewarded properly.</li>
+						<li>☐ A <span class="code">dailyLimit</span> is enforced that prevents too many rewards from being paid.</li>
+						<li>☐ If the Admin account makes a mistake, or is compromised, no more than <span class="code">dailyLimit</span> Ether can be lost per day.</li>
+					</ul>
+				</p>
+
+				<a data-anchor="monarchy-game"></a>
+				<h3>Monarchy Game</h3>
+				<p>
+					<ul>
+						<li>☐ Distributed ownership prevents shill bidding.</li>
+						<li>☐ Games are pre-staked with the prize, and the prize may only leave to pay the winner.</li>
+						<li>☐ "Overthrowing" either results in the player becoming the Monarch, or a full refund (with minimal gas usage).</li>
+						<li>☐ If the Monarch has not been overthrown for <span class="code">reignBlocks</span> blocks, they win.</li>
+					</ul>
+				</p>
+
+				<a data-anchor="instadice"></a>
+				<h3>InstaDice</h3>
+				<p>
+					<ul>
+						<li>☐ Assuming no miner interference, roll numbers are randomly distributed.</li>
+						<li>☐ If the maximum bet is low, miners are financially disincentivized from meddling with RNG.</li>
+						<li>☐ Bets will not be taken unless winnings can be paid.</li>
+						<li>☐ Payout amount cannot be changed after the roll.</li>
+					</ul>
+				</p>
+
+				<a data-anchor="video-poker"></a>
+				<h3>VideoPoker</h3>
+				<p>
+					<ul>
+						<li>☐ Assuming no miner interference, cards are randomly distributed.</li>
+						<li>☐ If the maximum bet is low, miners are financially disincentivized from meddling with RNG.</li>
+						<li>☐ Bets will not be taken unless winnings can be paid.</li>
+						<li>☐ Credits owed will never leave the contract other than for cashing out.</li>
+						<li>☐ Hands are properly ranked and payed out.</li>
+					</ul>
+				</p>
+
+				<div style="margin-top: 300px"></div>
+			</div>
+		</div>
+	</div></body>
+</html>

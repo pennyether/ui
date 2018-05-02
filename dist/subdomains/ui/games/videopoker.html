@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/global/javascripts/lib/Loader.js"></script>
+		<script src="/global/javascripts/shared/PokerUtil.js"></script>
+		<script src="/javascripts/games/videopoker.js"></script>
+		<style>
+			/*********************************************/
+			/******** TITLE AND FEATURES *****************/
+			/*********************************************/
+			#Leader .background {
+				background-image: url(/global/images/poker.jpg);
+				filter: blur(1.2px) saturate(80%);
+			}
+			#Leader .feature-table {
+				background: linear-gradient(0deg, rgba(80, 115, 173, 0.95) 0%, rgba(80, 112, 222, .9) 100%);
+			}
+			#Title .title { color: white; }
+			#Title .tagline { color: white; }
+
+
+			/******* TABBER / MACHINE STYLING *********/
+			#Machine {
+				margin: 50px 10px;
+				border: 1px solid black;
+				overflow: hidden;
+				border-radius: 15px;
+			}
+			#Machine .header {
+				background: linear-gradient(to top, rgba(0,0,0,.8) 0%, rgba(0,0,0,.6) 100%);
+			}
+
+			.Tabber {
+				padding: 5px 10px;
+			}
+			.Tabber .tab {
+				display: inline-block;
+				vertical-align: bottom;
+				position: relative;
+				box-sizing: border-box;
+				white-space: nowrap;
+				width: 155px;
+				margin: 5px;
+				overflow: hidden;
+				font-size: 80%;
+				text-align: center;
+				color: white;
+				border-radius: 3px;
+				user-select: none;
+				cursor: pointer;
+			}
+			.Tabber .tab:not(.new) {
+				opacity: .7;
+				filter: saturate(15%);
+				box-shadow: none;
+				border: 1px solid #555;
+				transition: filter .3s, opacity .3s, box-shadow .3s, border .3s, width .2s;
+			}
+			.Tabber .tab:not(.new):hover {
+				/*opacity: .7;*/
+				filter: saturate(50%);
+			}
+			.Tabber .tab:not(.new).selected {
+				opacity: .9;
+				box-shadow: 3px 3px 3px 0px rgba(0,0,0,.3);
+				border: 1px solid gray;
+				filter: saturate(100%);
+			}
+			.Tabber .tab.shrunken {
+				width: 0px;
+				opacity: .1;
+			}
+
+			.Tabber .tab.new {
+				border: 1px solid rgb(100,100,100);
+				padding: 4px 6px;
+				background: #111;
+				opacity: .5;
+				transition: opacity .3s;
+			}
+			.Tabber .tab.new:hover {
+				opacity: .9;
+			}
+			
+
+			.Tabber .tab .remove {
+				position: absolute;
+				top: 3px;
+				right: 3px;
+				width: 12px;
+				height: 12px;
+				padding-top: 1px;
+				padding-left: 1px;
+				line-height: 11px;
+				font-size: 10px;
+				border-radius: 20px;
+				background: rgba(255,128,128,.5);
+				color: rgba(255,255,255,.5);
+				transition: background .3s, color .3s;
+			}
+			.Tabber .tab .remove:hover {
+				color: rgba(255,255,255,.8);
+				background: rgba(255,0,0,.7);
+			}
+			
+			.Tabber .tab > .title {
+				padding: 2px 4px;
+				border-bottom: 1px dotted rgba(0,0,0,.1);
+				background: #222;
+				color: #CCC;
+				transition: background .3s, color .3s;
+			}
+			.Tabber .tab.selected > .title {
+				background: black;
+				color: #DDD;
+			}
+
+			.Tabber .mini-status {
+				position: relative;
+				color: #999;
+				background: radial-gradient(rgba(0,0,255,1) 0%, rgba(0,0,128,.5) 100%);
+				padding-top: 8px;
+			}
+				.Tabber .mini-status .HandDisplay {
+					font-size: 50%;
+					opacity: .8;
+				}
+				.Tabber .mini-status .HandDisplay .card-ctnr {
+					height: 32px;
+					width: 23px;
+					margin: 0px 2px;
+				}
+					.Tabber .mini-status .HandDisplay .card {
+						border-radius: 3px;
+					}
+					.Tabber .mini-status .HandDisplay .card .heldIcon {
+					    font-size: 5px;
+					    margin-top: 5px;
+					    letter-spacing: initial;
+					    padding: 2px;
+						border-radius: 2px;
+						filter: opacity(50%);
+					}
+
+					.Tabber .mini-status .HandDisplay .card .suit {
+						display: none;
+					}
+					.Tabber .mini-status .HandDisplay .card .corner {
+						margin-top: -3px;
+						margin-left: -4px;
+					}
+				.Tabber .mini-status .HandDisplay .hand-rank {
+					padding: 0px 4px;
+					color: white;
+				}
+					
+
+				.Tabber .mini-status .bottom {
+					position: relative;
+					margin-top: 8px;
+					text-align: center;
+					padding: 1px 0px;
+					background: rgba(255, 255, 255, .5);
+				}
+					.Tabber .mini-status .state {
+						position: relative;
+						z-index: 2;
+						display: inline-block;
+						padding: 1px 4px;
+						border-radius: 2px;
+
+						color: black;
+						font-variant: small-caps;
+						letter-spacing: .1em;
+						font-size: 120%;
+						transition: color .3s, background .3s;
+					}
+					.Tabber .mini-status.is-winner.drawn .state {
+						color: white;
+						background: green;
+						font-weight: bold;
+					}
+					.Tabber .mini-status.is-transacting .state {
+						color: blue !important;
+						background: none !important;
+						font-weight: bold;
+						text-shadow: 0px 0px 1px rgba(255,255,255,.8);
+					}
+					.Tabber .mini-status.is-error .state {
+						color: maroon !important;
+						background: none !important;
+					}
+					.Tabber .mini-status .loading {
+						position: absolute;
+						z-index: 1;
+					    top: 0;
+					    left: 0;
+					    width: 100%;
+					    height: 100%;
+					}
+						.Tabber .mini-status .loading .LoadingBar {
+							margin: 0px;
+							height: 100%;
+							border: none;
+						}
+						.Tabber .mini-status .loading .LoadingBar .loaded {
+							height: 100%;
+							background: rgba(0,128,0,.5);
+							box-shadow: none;
+						}
+						.Tabber .mini-status.is-error .loading .LoadingBar .loaded {
+							background: rgba(255,0,0,.5);
+						}
+
+
+			/**** GAME STYLING **********************/
+
+			.Game {
+				position: relative;
+				overflow: hidden;
+				padding: 20px 0px;
+				border-top: 1px solid black;
+				background: radial-gradient(rgba(10,10,230,1) 0%, rgba(0,0,128,1) 100%);
+				opacity: .7;
+				transition: opacity .5s;
+			}
+			.Game.flash {
+				opacity: 1;
+			}
+			.Game.is-invalid .payTable,
+			.Game.is-invalid .field-ctnr > div:not(.invalid),
+			.Game.is-invalid .hd-ctnr {
+				opacity: .5;
+			}
+
+			.Game > .not-available {
+				 position: absolute;
+				 z-index: 1;
+				 top: 0px;
+				 left: 0px;
+				 width: 100%;
+				 height: 100%;
+				 background: rgba(0,0,0,.5);
+				 display: none;
+			}
+				.Game > .not-available .msg {
+					display: inline-block;
+					background: rgba(255,255,255,.7);
+					box-shadow: 3px 3px 3px rgba(0,0,0,.3);
+					padding: 10px;
+					border-radius: 3px;
+				}
+
+
+			.Game .titleBar {
+				color: #EEE;
+				text-transform: uppercase;
+				font-size: 80%;
+				letter-spacing: .3em;
+				margin-bottom: 10px;
+				text-shadow: 1px 1px 1px black;
+				overflow: hidden;
+				text-align: center;
+			}
+			.Game .titleBar:before,
+			.Game .titleBar:after {
+				position: relative;
+				display: inline-block;
+				vertical-align: middle;
+				width: 50%;
+				top: -1px;
+				height: 1px;
+				border-top: 1px solid rgba(255,255,255,.3);
+				content: "";
+			}
+			.Game .titleBar:before {
+				right: 0.2em;
+				margin-left: -50%;
+			}
+			.Game .titleBar:after {
+				left: 0.2em;
+				margin-right: -50%;
+			}
+
+
+			.Game .payTable {
+				font-size: 80%;
+				border-radius: 5px;
+				overflow: hidden;
+			}
+			.Game .payTable tr:first-child {
+				font-weight: bold;
+				color: #333;
+				font-variant: small-caps;
+				/*text-decoration: underline;*/
+			}
+			.Game .payTable tr:nth-child(even) {
+				background: rgba(255,255,255,.6);
+			}
+			.Game .payTable tr:nth-child(odd) {
+				background: rgba(255,255,255,.55);
+			}
+
+			.Game .payTable td {
+				padding: 1px 0px;
+				border-top: 1px solid transparent;
+				border-bottom: 1px solid transparent;
+				transition: background 1s, color 1s, border 1s, text-shadow 1s;
+			}
+			.Game .payTable td:first-child {
+				padding-left: 5px;
+			}
+			.Game .payTable td:not(:first-child) {
+				text-align: right;
+				padding-right: 7px;
+				border-left: 1px solid rgba(0,0,0,.1);
+			}
+			.Game .payTable td:nth-child(3) {
+				/*background: rgba(0,128,255,.15);*/
+				/*font-weight: bold;*/
+				text-shadow: 0px 0px 2px rgba(255,255,255,1);
+			}
+			.Game:not(.flipping) .payTable tr.won td {
+				color: white;
+				background: rgba(0,128,0,.8);
+				text-shadow: 0px 0px 5px lime;
+				border: none;
+				border-top: 1px solid rgba(0,255,0,.2);
+				border-bottom: 1px solid rgba(0,255,0,.2);
+			}
+
+			.Game .gameStatus {
+				position: relative;
+				background: rgba(255,255,255,.9);
+				border-radius: 3px;
+				box-shadow: 2px 2px 4px 0px rgba(0,0,0,.5);
+				overflow: hidden;
+			}
+				.Game .gameStatus .details {
+					border-bottom: 1px solid rgba(0,0,0,.1);
+					font-size: 70%;
+				}
+				.Game .gameStatus .details .gameBet {
+					padding: 2px 5px;
+					display: inline-block;
+					font-weight: bold;
+				}
+				.Game .gameStatus .details .gameId {
+					padding: 2px 5px;
+					display: inline-block;
+					position: absolute;
+					right: 0px;
+				}
+				.Game .gameStatus .msg {
+					padding: 10px 10px;
+					text-align: center;
+					transition: text-shadow .5s, box-shadow .5s, background .5s;
+				}
+				.Game.is-winner:not(.flipping) .gameStatus .msg {
+					font-weight: bold;
+					text-shadow: 0px 0px 5px white;
+					box-shadow: inset 0px 0px 15px 3px green;
+					background: rgba(0,200,0,.3);
+				}
+				.Game .gameStatus .required {
+					padding: 2px 0px 4px 0px;
+					border-top: 1px solid rgba(0,0,0,.1);
+					background: rgba(255,255,0,.15);
+					font-size: 80%;
+					color: gray;
+					text-align: center;
+				}
+
+			.Game .invalid {
+				font-size: 70%;
+				margin-bottom: 15px;
+				padding: 10px 0px;
+				border-radius: 4px;
+				background: rgba(255,255,0,.9);
+				color: black;
+				text-align: center;
+				box-shadow: 2px 2px 4px 0px rgba(0,0,0,.5);
+			}	
+			.Game .actionArea {
+				background: linear-gradient(to top, rgba(250,250,250,.2) 0%, rgba(250,250,250,.3) 100%);
+				border-radius: 4px;
+				padding: 10px 0px;
+				margin-top: 15px;
+				box-shadow: 2px 2px 4px 0px rgba(0,0,0,.5);
+			}
+				.Game .actionArea .statusArea {
+					padding: 0px 10px;
+				}
+				.Game .actionArea .actionFooter {
+					margin-top: 10px;
+					padding-top: 10px;
+					border-top: 1px dotted rgba(255,255,255,.1);
+					text-align: center;
+				}
+				.Game .actionArea .statusArea .TxStatus {
+					font-size: 80%;
+					color: rgba(255, 255, 255, .8);
+				}
+				.Game .actionArea .statusArea .TxStatus a {
+					color: rgba(255, 255, 255, .8);
+				}
+				.Game .actionArea .actionBtn {
+					font-size: 120%;
+					padding: 5px 20px;
+					margin: 0px 10px;
+					white-space: nowrap;
+					letter-spacing: .1em;
+					border-radius: 5px;
+					cursor: pointer;
+					color: white;
+					background: blue;
+					transition: color .5s, background .5s, opacity .5s;
+				}
+				.Game .actionArea .actionBtn:disabled {
+					cursor: not-allowed;
+					color: #DDD;
+					background: #888;
+					opacity: .9;
+				}
+				.Game .finalizeWin .bulletList {
+					display: inline-block;
+					text-align: left;
+					white-space: nowrap;
+					padding-top: 10px;
+					font-size: 90%;
+				}
+				.Game .finalizeWin .lbl-bet-again {
+					font-variant: small-caps;
+					font-weight: bold;
+					padding: 5px 5px;
+					background: rgba(0,0,0,.3);
+					border-radius: 3px;
+					color: #CCC;
+				}
+				.Game .finalizeWin .bulletList .bullet {
+					color: #AAA;
+				}
+				.Game .finalizeWin .bulletList .bullet .eth {
+					color: #4A4;
+				}
+				.Game .finalizeWin .bulletList .bullet:before {
+					content: "✓ ";
+				}
+
+			.Game .hand-ctnr {
+				padding: 0px 15px;
+				margin: 30px 0px 0px 0px;
+			}
+			
+			/* this applies to the cards in the game and in mini-display */
+			.HandDisplay {
+				position: relative;
+				text-align: center;
+				user-select: none;
+			}
+			.HandDisplay .hand-rank {
+				position: absolute;
+				bottom: 14%;
+				left: 50%;
+				transform: translateX(-50%);
+				padding: 5px 20px;
+
+				font-size: 200%;
+				font-variant: small-caps;
+				color: white;
+				border: 1px solid black;
+				background: rgba(100, 100, 100, 1);
+				box-shadow: inset 0px 0px 10px black, 3px 3px 5px 0px rgba(0,0,0,.6);
+
+				opacity: 0;
+				transition: opacity .5s;
+			}
+			.HandDisplay .hand-rank.is-winner {
+				background: green;
+				border: 1px solid green;
+				text-shadow: 0px 0px 8px lime;
+				box-shadow: inset 0px 0px 15px 3px lime, 3px 3px 5px 0px rgba(0,0,0,.6);
+				color: white;
+				letter-spacing: .1em;
+			}
+			.HandDisplay .hand-rank.show {
+				z-index: 3;
+				opacity: .95;
+			}
+
+			.HandDisplay .card-ctnr {
+				display: inline-block;
+				height: 168px;
+				width: 120px;
+				margin: 0px 10px;
+				perspective: 1000px;
+			}
+			
+			.HandDisplay .card {
+				position: relative;
+				box-sizing: border-box;
+				width: 100%;
+				height: 100%;
+				border: 1px solid black;
+				border-radius: 10px;
+				cursor: pointer;
+				transform-style: preserve-3d;
+				transition: 0.4s;
+			}
+				.HandDisplay.frozen .card { cursor: inherit; }
+				.HandDisplay .card.show { transform: rotateY(180deg); }
+				.HandDisplay .card.held { border: 1px solid black; }
+
+				/* front and back styles */
+				.HandDisplay .card .back,
+				.HandDisplay .card .face {
+					position: absolute;
+					top: 0;
+					left: 0;
+					width: 100%;
+					height: 100%;
+					border-radius: inherit;
+					backface-visibility: hidden;
+				}
+				.HandDisplay .card .back {
+					z-index: 2;
+					transform: rotateY(0deg);
+					background: linear-gradient(135deg, rgb(100,50,50) 0%, rgb(80,40,40) 100%);
+				}
+				.HandDisplay .card .face {
+					transform: rotateY(180deg);
+					background: linear-gradient(135deg, rgb(240,240,240) 0%, rgb(180,180,180) 100%);
+				}
+				.HandDisplay .card.hilited .face {
+					background: linear-gradient(135deg, rgb(225, 255, 225) 0%, rgb(0, 200, 0) 100%);
+				}
+					.HandDisplay .card .heldIcon {
+						box-sizing: border-box;
+						position: absolute;
+						left: 0;
+						right: 0;
+						width: 80%;
+						margin: auto;
+						top: 50%;
+    					transform: translateY(-50%);
+
+						color: white;
+						text-align: center;
+						background: rgba(0,105,165,.8);
+						font-size: 90%;
+						padding: 3px;
+						border-radius: 5px;
+						letter-spacing: .2em;
+						
+						opacity: 0;
+						transition: opacity .2s;
+					}
+					.HandDisplay .card.held .heldIcon {
+						opacity: 1;
+					}
+					.HandDisplay .card .cardIcon .corner {
+						position: relative;
+						padding: 5px;
+						text-align: left;
+						line-height: 1em;
+						font-size: 180%;
+					}
+					.HandDisplay .card .cardIcon .suit {
+						position: absolute;
+						font-size: 400%;
+						left: 0;
+						right: 0;
+						margin: 0 auto;
+						top: 50%;
+    					transform: translateY(-50%);
+					}
+
+				.HandDisplay .card .cardIcon.heart,
+				.HandDisplay .card .cardIcon.diamond { color: red; }
+				.HandDisplay .card .cardIcon.spade,
+				.HandDisplay .card .cardIcon.club { color: black; }
+
+			#History .clear {
+				display: inline-block;
+				color: blue;
+				cursor: pointer;
+				font-size: 80%;
+				letter-spacing: initial;
+				vertical-align: middle;
+			}
+		</style>
+	</head>
+	<body>
+	<div id="Content">
+		<div id="Leader">
+			<div class="background"></div>
+			<div class="foreground">
+				<div id="Title">
+					<div class="title">Video Poker</div>
+					<div class="tagline">the world's first blockchain video poker</div>
+				</div>
+				<div class="feature-table">
+					<div class="cell">
+						<div class="centered">
+							<div class="title">Fast</div>
+							<div class="feature tip-left" title="No need to deposit Ether or fill out any forms.">
+								No deposit, no sign-up
+							</div>
+							<div class="feature tip-left" title="See your initial hand as soon as your transaction is mined. See your final hand as soon as you submit your draws.">
+								Fast Gameplay
+							</div>
+							<div class="feature tip-left" title="Our UI automatically reloads any pending games, allows you to easily choose gas prices, and tracks the progress of all transactions.">
+								Intelligent UI
+							</div>
+						</div>
+					</div>
+					<div class="cell">
+						<div class="centered">
+							<div class="title">Fair</div>
+							<div class="feature tip-left" title="Our random numbers come from the blockchain, not from a third party.">
+								Results based on blockhash
+							</div>
+							<div class="feature tip-left" title="Open-sourced, tested, and undergoing audit.">
+								<a href="/about/contracts.html#video-poker" style="color: inherit;">Fully transparent contract</a>
+							</div>
+						</div>
+						<div class="stats">
+							<div class="stat games">
+								<div class="value">0</div>
+								<div class="label">games</div>
+							</div>
+							<div class="stat wagered">
+								<div class="value">0</div>
+								<div class="label">ETH wagered</div>
+							</div>
+							<div class="stat won">
+								<div class="value">0</div>
+								<div class="label">ETH won</div>
+							</div>
+						</div>
+					</div>
+					<div class="cell">
+						<div class="centered">
+							<div class="title">The Best</div>
+							<div class="feature tip-left" title="Our pay table provides over 99% returns when played optimally.">
+								Generous Payoffs
+							</div>
+							<div class="feature tip-left" title="It's easy to play several hands at the same time.">
+								Play Multiple Games
+							</div>
+							<div class="feature tip-left" title="We strive to keep the gas costs low. For repeat players, a full game is typically under 100,000 gas!">
+								Low gas costs
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="Machine">
+			<div class="header">
+				<style>
+					#Credits {
+						border-left: 1px dotted rgba(255,255,255,.15);
+					}
+						#Credits .ctnr {
+							box-sizing: border-box;
+							padding: 5px;
+							width: 250px;
+							font-size: 90%;
+							color: #DDD;
+						}
+							#Credits .label {
+								font-variant: small-caps;
+								letter-spacing: .15em;
+							}
+							#Credits .cur-user .value a {
+								color: rgba(200,200,255,1);
+							}
+							#Credits .credits .value {
+								/*font-weight: bold;*/
+								text-shadow: 1px 1px 1px green;
+							}
+							#Credits .btn-cash-out {
+								background: rgba(0,128,0,.5);
+								color: #DDD;
+								cursor: pointer;
+								border: 1px solid gray;
+								border-radius: 3px;
+								transition: background .3s;
+								margin-left: 3px;
+							}
+							#Credits .btn-cash-out:hover {
+								background: rgba(0,200,0,.5);
+							}
+							#Credits .btn-cash-out:disabled {
+								background: gray;
+								cursor: not-allowed;
+							}
+							#Credits .status-ctnr {
+								padding: 2px;
+							}
+								#Credits .TxStatus,
+								#Credits .TxStatus a {
+									color: #DDD;
+								}
+				</style>
+				<table cellpadding="0" cellspacing="0"><tr>
+					<td width="100%"><div class="tabber-ctnr"></div></td>
+					<td id="Credits" valign="top">
+						<div class="ctnr" style="text-align: left;">
+							<table width="100%">
+								<tr class="cur-user">
+									<td style="white-space: nowrap;">
+										<div class="label" title="The current account." data-tippy-placement="left">
+											Account:
+										</div>
+									</td>
+									<td width="100%" align="right">
+										<div class="value"></div>		
+									</td>
+								</tr>
+								<tr class="credits">
+									<td style="white-space: nowrap;">
+										<div class="label" title="All winnings are added to your credits. Credits can be used to bet on a new hand, and they can be cashed out at any time. Your credits can only be removed from the contract by you." data-tippy-placement="left">
+											Credits:
+										</div>
+									</td>
+									<td width="100%" align="right">
+										<fieldset class="has-account">
+											<fieldset class="in-progress">
+												<div class="value" style="display: inline-block;"></div>		
+												<button class="btn-cash-out">Cash Out</button>
+											</fieldset>
+										</fieldset>
+									</td>
+								</tr>
+							</table>
+							<div class="status-ctnr"></div>
+						</div>
+					</td>
+				</tr></table>
+			</div>
+			<div class="game-ctnr" style="background: black;"></div>
+		</div>
+		<div id="History" class="page-subsection" style="margin: 20px;">
+			<div class="head">
+				My Hand History
+				<div class="clear">clear</div>
+			</div>
+			<div class="body" style="padding: 0px; margin-top: 20px;">
+				<div class="history-ctnr"></div>
+			</div>
+		</div>
+
+		<div class="Game template" style="display: none;">
+			<div class="not-available" style="display: flex; align-items: center; justify-content: center;">
+                <div class="msg">
+                    VideoPoker is currently not accepting wagers.
+                </div>
+            </div>
+			<div class="top">
+				<table width="100%" style="box-sizing: border-box;" cellspacing="0" cellpadding=""><tr>
+					<td width="50%" style="padding: 0px 15px" valign="top">
+						<div class="titleBar">
+							Pay Table
+						</div>
+						<table class="payTable" cellpadding="0" cellspacing="0" width="100%">
+							<tr>
+								<td>Hand</td>
+								<td>&nbsp;&nbsp;&nbsp;Payout</td>
+								<td>Payout (for 0.250 ETH bet)</td>
+							</tr>
+							<tr>
+								<td>Royal Flush<span class="dots"></span></td>
+								<td>400 x</td>
+								<td>400 ETH</td>
+							</tr>
+							<tr>
+								<td>Straight Flush</td>
+								<td>50 x</td>
+								<td>50 ETH</td>
+							</tr>
+							<tr>
+								<td>Four of a Kind</td>
+								<td>25 x</td>
+								<td>25 ETH</td>
+							</tr>
+							<tr>
+								<td>Full House</td>
+								<td>9 x</td>
+								<td>9 ETH</td>
+							</tr>
+							<tr>
+								<td>Flush</td>
+								<td>6 x</td>
+								<td>6 ETH</td>
+							</tr>
+							<tr>
+								<td>Straight</td>
+								<td>4 x</td>
+								<td>4 ETH</td>
+							</tr>
+							<tr>
+								<td>Three of a Kind</td>
+								<td>3 x</td>
+								<td>3 ETH</td>
+							</tr>
+							<tr>
+								<td>Two Pair</td>
+								<td>2 x</td>
+								<td>2 ETH</td>
+							</tr>
+							<tr>
+								<td>Jacks or Better</td>
+								<td>1 x</td>
+								<td>1 ETH</td>
+							</tr>
+						</table>
+					</td>
+					<td width="50%" valign="top" style="padding: 0px 15px;" valign="top">						
+						<div class="titleBar">
+							Status
+						</div>
+						<fieldset class="is-invalid">
+							<div class="invalid">
+								<b>Your provider does not see this game on the blockchain.</b>
+								<br>There may have been a blockchain reorg, or your provider may be lagging.<br>You can try clicking the "Refresh All Games" button above, or refreshing the page.
+							</div>
+							<div class="gameStatus">
+								<div class="details">
+									<div class="gameBet">Current Bet: .25 ETH</div>
+									<div class="gameId">Game #12312</div>
+								</div>
+								<div class="msg">
+									Initial hand dealt.<br>Select cards to hold, and click "Draw"
+								</div>
+								<div class="required">You have 255 blocks (1hr 5m) to take action.</div>
+							</div>
+							<!--
+								- Each .actionArea is shown depending on the gameState.state:
+								- Upon each gameState.state change:
+									- all .actionBtn's are reset
+									- all .statusArea's are emptied out
+								- Upon a TX:
+									- .statusArea is shown and auto-populated with .TxStatus
+									- .actionBtn's text is auto-populated depending on TX state
+							-->
+							<div class="bet actionArea">
+								<div class="actionFooter">
+									<table width="100%"><tr>
+										<td class="statusArea" width=100%></td>
+										<td align="center">
+											<fieldset class="canDeal">
+												<button class="actionBtn btnDeal" data-txt-default="Deal" data-txt-pending="Dealing..." data-txt-success="Dealt!"></button>
+											</fieldset>
+										</td>
+									</tr></table>
+								</div>
+							</div>
+							<div class="draw actionArea">
+								<table width="100%"><tr>
+									<td class="statusArea" width=100%></td>
+									<td align="center">
+										<button class="actionBtn btnDraw" data-txt-default="Draw 5 Cards" data-txt-pending="Drawing..." data-txt-success="Drawn!"></button>
+									</td>
+								</tr></table>
+							</div>
+							<div class="finalizeLoss actionArea">
+								<div style="text-align: center;">
+									<button class="actionBtn btnPlayAgain" data-txt-default="Play Again"></button>
+								</div>
+							</div>
+							<div class="finalizeWin actionArea">
+								<div style="text-align: center">
+									<button class="actionBtn btnFinalize" data-txt-default="Claim Winnings" data-txt-pending="Claiming..." data-txt-success="Claimed!"></button>
+									<label class="lbl-bet-again">
+										<input type=checkbox class="chk-bet-again" checked> and bet <span class="eth"></span>
+									</label>
+									<br>
+									<div class="bulletList">
+										<div class="bullet will-bet-full">
+											Your winnings of <span class="eth"></span> will be bet.
+										</div>
+										<div class="bullet will-credit-full">
+											Your winnings of <span class="eth"></span> will be credited.
+										</div>
+										<div class="bullet will-bet-some">
+											<span class="eth"></span> of your winnings will be bet.
+										</div>
+										<div class="bullet will-credit-some">
+											The remaining <span class="eth"></span> will be credited.
+										</div>
+									</div>
+								</div>
+								<div class="actionFooter statusArea"></div>
+							</div>
+							<div class="finalized actionArea">
+								<div style="text-align: center;">
+									<button class="actionBtn btnPlayAgain" data-txt-default="Play Again"></button>
+								</div>
+							</div>
+						</fieldset>
+					</td>
+				</tr></table>
+			</div>
+			<div class="hand-ctnr">
+				<div class="titleBar">
+					Cards
+				</div>
+				<div class="hd-ctnr"></div>
+			</div>
+			<div class="mini-status">
+				<div class="hand"></div>
+				<div class="bottom">
+					<div class="state"></div>
+					<div class="loading"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	</body>
+</html>

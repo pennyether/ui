@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/global/javascripts/lib/Loader.js"></script>
+		<script src="/global/javascripts/shared/DiceUtil.js"></script>
+		<script src="/javascripts/games/instadice.js"></script>
+		<style>
+			/*********************************************/
+			/******** TITLE AND FEATURES *****************/
+			/*********************************************/
+			#Leader {
+				margin-top: 20px;
+			}
+			#Leader .background {
+				background: linear-gradient(to bottom, #BCB 0%, #4A4 100%);
+			}
+			#Leader .feature-table {
+				background: none;
+				box-shadow: none;
+				margin: 0px auto;
+			}
+			#Title {
+				color: black;
+				margin-bottom: 0px;
+			}
+
+
+			/*********************************************/
+			/******** BET UI *****************************/
+			/*********************************************/
+			.bet-ui-ctnr {
+				background: linear-gradient(to bottom, #4A4 0%, #6C6 100%);
+				background: #4A4;
+				padding-top: 20px;
+				padding-bottom: 20px;
+			}
+				.BetUi {
+					position: relative;
+					box-sizing: border-box;
+					overflow: hidden;
+					width: 800px;
+					padding: 10px;
+					margin: 0px auto;
+					background: linear-gradient(to bottom, rgba(255,255,255,.9) 0%, rgba(255,255,255,.4) 100%);
+					border-radius: 10px;
+					border: 1px outset #CCC;
+					box-shadow: 3px 3px 5px 0px rgba(0,0,0,.2);
+				}
+				.BetUi > .not-available {
+					 position: absolute;
+					 z-index: 1;
+					 top: 0px;
+					 left: 0px;
+					 width: 100%;
+					 height: 100%;
+					 background: rgba(0,0,0,.4);
+					 display: none;
+				}
+					.BetUi > .not-available .msg {
+						display: inline-block;
+						background: rgba(255,255,255,.7);
+						box-shadow: 3px 3px 3px rgba(0,0,0,.3);
+						padding: 10px;
+						border-radius: 3px;
+					}
+
+				.BetUi .Slider .val-txt {
+					color: rgb(0,240,0);
+					text-shadow: 2px 2px 5px rgba(0,0,0,.5);
+					width: 155px;
+				}
+				.BetUi .num-slider {
+					margin-top: 15px;
+				}
+
+				.BetUi .summary {
+					text-align: center;
+					width: 160px;
+				}
+					.BetUi .summary .payout-ctnr {
+						/*padding: 10px 5px;*/
+						/*border: 1px solid rgba(0,0,0,.3);
+						border-radius: 2px;
+						background: linear-gradient(0deg, rgba(0,255,0,.3) 0%, rgba(0,255,0,.05) 100%);*/
+					}
+					.BetUi .summary .label {
+						font-variant: small-caps;
+						font-weight: bold;
+						letter-spacing: .2em;
+						margin-bottom: 2px;
+					}
+					.BetUi .summary .payout {
+						color: white;
+						font-size: 200%;
+						margin-bottom: 5px;
+						background: linear-gradient(to bottom, rgba(0,128,0,.3) 0%, rgba(0,128,0,.6) 100%);
+						text-shadow: 2px 2px 4px rgba(0,0,0,.4);
+						border-radius: 3px;
+					}
+					.BetUi .summary .multiple {
+						font-size: 80%;
+						font-weight: bold;
+						color: #555;
+					}
+					.BetUi .summary .btn-roll {
+						margin-top: 15px;
+						font-size: 250%;
+						background: blue;
+						color: white;
+						padding: 0px 30px;
+						cursor: pointer;
+						border: none;
+						border-radius: 3px;
+						animation: rollButtonGlow 3s 0s infinite ease-in-out alternate;
+					}
+
+				.BetUi .invalid .msg {
+					display: inline-block;
+					font-size: 80%;
+					letter-spacing: .06em;
+					background: rgba(0,0,0,.5);
+					color: white;
+					padding: 10px;
+					border-radius: 5px
+				}
+			@keyframes rollButtonGlow {
+				from {
+					background-color: #0C0;
+					box-shadow: 0px 0px 10px 0px green;
+				}
+				to {
+					background-color: #3F3;
+					box-shadow: 0px 0px 10px 0px lime;
+				}
+			}
+
+			/*********************************************/
+			/******** ROLLS ******************************/
+			/*********************************************/
+			.current-rolls > .head > .clear {
+				font-size: 80%;
+				letter-spacing: initial;
+				color: blue;
+				cursor: pointer;
+				display: none;
+				vertical-align: middle;
+			}
+			.current-rolls .body,
+			.past-rolls .body {
+				padding-left: 0px !important;
+				padding-right: 0px !important;
+			}
+			.past-rolls {
+				margin-top: 40px;
+			}
+			.past-rolls .head .info {
+				font-size: 50%;
+				color: gray;
+				letter-spacing: initial;
+				vertical-align: middle;
+			}
+
+			@keyframes rollPending {
+				from {
+					background-color: #0C0;
+					box-shadow: 0px 0px 10px 1px green;
+				}
+				to {
+					background-color: #DFD;
+					box-shadow: 0px 0px 3px 0px gray;
+				}
+			}
+			@keyframes boxShadowGlow {
+				from { box-shadow: 0px 0px 10px lime; }
+				to { box-shadow: 0px 0px 4px green; }
+			}
+			.Roll {
+				position: relative;
+				margin: 20px 0px;
+				border: 1px solid gray;
+				border-radius: 5px;
+				box-shadow: 0px 0px 10px 0px gray;
+				transition: opacity 1s, transform 1s;
+			}
+			.Roll.tiny {
+				opacity: .1;
+				transform: scale(.1);
+			}
+			.Roll.new {
+				background-color: #DFD;
+				animation: rollPending 1.5s 0s infinite ease-in-out alternate;
+			}
+			.Roll.failed {
+				border: 1px solid #F88;
+				box-shadow: 0px 0px 10px 0px red;	
+			}
+			.Roll.winner {
+				box-shadow: 0px 0px 10px 0px green;
+				border-color: green;
+			}
+			.Roll.refunded {
+				box-shadow: 0px 0px 10px 0px orange;
+				border-color: orange;
+			}
+				.Roll .header {
+					background: #EEE;
+					padding: 3px 4px;
+					border-bottom: 1px solid gray;
+					border-radius: inherit;
+					border-bottom-left-radius: 0;
+					border-bottom-right-radius: 0;
+					transition: background .3s;
+				}
+				.Roll.failed .header {
+					background: #FEE;
+				}
+				.Roll.refunded .header {
+					background: #FFF7EE;
+				}
+				.Roll.winner .header {
+					background: #EFE;
+				}
+					.Roll .header .info {
+						font-size: 90%;
+						text-shadow: 1px 1px 0px white;
+					}
+						.Roll .header .bet-value,
+						.Roll .header .number-value,
+						.Roll .header .payout-value {
+							font-weight: bold;
+						}
+					.Roll .header .created {
+						text-align: right;
+						font-size: 80%;
+						color: #555;
+					}
+
+				.Roll .new {}
+					.Roll .new .loader {
+						padding: 10px;
+					}
+					.Roll .new .status-ctnr {
+						padding: 15px;
+					}
+
+				.Roll .refunded {
+					padding: 10px;
+					text-align: center;
+				}
+					.Roll .refunded .refund-link {}
+					.Roll .refunded .refund-msg {
+						display: inline-block;
+						font-size: 110%;
+						padding: 2px 8px;
+						background: rgba(0,0,0,.1);
+						border-radius: 2px;
+						margin: 2px;
+					}
+
+				.Roll .left {
+					padding: 10px;
+				}
+					.Roll .roll-icon {
+						background: #EEE;
+						padding: 3px;
+						border-radius: 10px;
+						box-shadow: 2px 2px 2px 0px gray;
+						min-width: 60px;
+						text-align: center;
+						transition: background .3s, box-shadow .3s;
+					}
+					.Roll.winner .roll-icon {
+						background: #EFE;
+						box-shadow: inset 0px 0px 10px 0px green, 2px 2px 2px 0px gray;
+					}
+					.Roll .roll-icon .number {
+						margin-top: -5px;
+						font-size: 300%;
+					}
+					.Roll .roll-icon .label {
+						margin-top: -5px;
+						font-size: 70%;
+						text-align: center;
+					}
+
+				.Roll .middle .result-status {
+					display: inline-block;
+					font-weight: bold;
+				}
+				.Roll .middle .result-msg {
+					display: inline-block;
+					font-size: 90%;
+					color: #444;
+				}
+
+				.Roll .right {
+					padding: 5px 10px;
+				}
+					.Roll .choose {
+						font-size: 90%;
+						letter-spacing: .1em;
+						border-bottom: 1px solid rgba(0,0,0,.1);
+					}
+					.Roll .auto,
+					.Roll .manual {
+						padding: 4px;
+						border-radius: 3px;
+						font-size: 90%;
+						margin-top: 4px;
+					}
+					.Roll .auto { background: rgba(0,128,0,.1); }
+
+					.Roll .or {
+						font-weight: bold;
+						font-style: italic;
+						font-size: 80%;
+						color: gray;
+					}
+					.Roll .manual { background: rgba(0,0,0,.1); }
+						.Roll .manual .claim-status {
+							padding: 5px;
+						}
+						.Roll .manual .time-warning {
+							display: inline-block;
+							font-size: 70%;
+							background: rgba(200,200,0,.2);
+							border-radius: 2px;
+							padding: 2px 4px;
+						}
+
+					.Roll .finalize-rolls-left,
+					.Roll .finalize-blocks-left {
+						display: inline-block;
+						font-weight: bold;
+					}
+					.Roll .payout-success {
+						display: inline-block;
+						padding: 3px 8px;
+						background: rgba(0, 128, 0, .1);
+						border-radius: 3px;
+					}
+					.Roll .inspiration {
+						display: inline-block;
+						font-style: italic;
+						color: #999;
+					}
+			
+
+			.liveRolls {
+				width: 270px;
+				opacity: .6;
+				transition: opacity .3s;
+				min-height: 100px;
+				padding-right: 10px;
+			}
+			.liveRolls .body { padding-right: 0px; }
+			.liveRolls:hover {
+				width: 270px;
+				opacity: 1;
+				transition: opacity .5s;
+			}
+				.mini-roll {
+					transform: scale(0) rotate(20deg);
+					margin: 5px 0px;
+					font-size: 80%;
+				}
+				.mini-roll.new {
+					transform: scale(1) rotate(0deg);
+					transition: transform 1s;
+				}
+				.mini-roll .head {
+					padding: 3px 4px;
+					position: relative;
+					background: #EFEFEF;
+				}
+				.mini-roll .head a {
+					text-decoration: none;
+				}
+				.mini-roll .head .right {
+					font-weight: normal;
+					margin-top: -2px;
+					float: right;
+				}
+				.mini-roll.won .head {
+					background: #EFFFEF;
+				}
+				.mini-roll .body {
+					background: #FAFAFA;
+					padding: 4px;
+				}
+				.mini-roll .table {
+					display: table;
+					width: 100%;
+				}
+				.mini-roll .cell {
+					display: table-cell;
+					vertical-align: top;
+				}
+				.mini-roll .cell.right {
+					width: 100%;
+					padding-left: 10px;
+				}
+
+				.mini-roll .rollicon {
+					background: #EEE;
+					padding: 3px;
+					border-radius: 5px;
+					border: 1px solid #EEE;
+					box-shadow: 2px 2px 2px 0px gray;
+					min-width: 30px;
+					text-align: center;
+				}
+				.mini-roll.won .rollicon {
+					background: #EFE;
+				}
+				.mini-roll .rollicon .rollnumber {
+					margin-top: -3px;
+					font-size: 200%;
+				}
+				.mini-roll .rollicon .label {
+					margin-top: -4px;
+					margin-bottom: -2px;
+					font-size: 70%;
+					text-align: center;
+				}
+				.mini-roll .info {
+					color: gray;
+				}
+		</style>
+	</head>
+	<body>
+	<div id="Content">
+		<div id="Gas">
+			
+		</div>
+		<div id="Summary">
+			<div id="Title">
+				<div class="title">InstaDice</div>
+				<div class="tagline">ethereum's only instant dice game</div>
+			</div>
+			<div id="Leader">
+				<div class="background"></div>
+				<div class="foreground">
+					<div class="feature-table">
+						<div class="cell">
+							<div class="centered">
+								<div class="title">Fast</div>
+								<div class="feature tip-left" title="No need to deposit Ether or fill out any forms.">
+									No deposit, no sign-up
+								</div>
+								<div class="feature tip-left" title="See the result as soon as your transaction is in the blockchain.">
+									See roll results instantly
+								</div>
+								<div class="feature tip-left" title="Our UI shows you what's happening every step of the way.">
+									Responsive UI
+								</div>
+							</div>
+						</div>
+						<div class="cell">
+							<div class="centered">
+								<div class="title">Fair</div>
+								<div class="feature tip-left" title="Our random numbers come from the blockchain, not from a third party.">
+									Results based on blockhash
+								</div>
+								<div class="feature tip-left" title="Open-sourced, tested, and undergoing audit.">
+									<a href="/about/contracts.html#instadice" style="color: inherit;">Fully transparent contract</a>
+								</div>
+							</div>
+							<div class="stats">
+								<div class="stat rolls">
+									<div class="value">0</div>
+									<div class="label">rolls</div>
+								</div>
+								<div class="stat wagered">
+									<div class="value">0</div>
+									<div class="label">ETH wagered</div>
+								</div>
+								<div class="stat won">
+									<div class="value">0</div>
+									<div class="label">ETH won</div>
+								</div>
+							</div>
+						</div>
+						<div class="cell">
+							<div class="centered">
+								<div class="title">The Best</div>
+								<div class="feature tip-left" title="Our house fee is just 1%.">
+									The best odds
+								</div>
+								<div class="feature tip-left" title="No more waiting multiple blocks for your results. As soon as your wager is confirmed on the blockchain, you'll see the results!">
+									The fastest results
+								</div>
+								<div class="feature tip-left" title="We strive to keep our gas costs extremely low. Rolling costs only around 50,000 gas - that's usually a few pennies.">
+									The lowest gas cost
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="bet-ui-ctnr"></div>	
+
+		<div class="main">
+			<table width=100%><tr>
+			<td valign=top width=100%>
+				<div style="margin: 0px 20px">
+					<div class="page-subsection current-rolls">
+						<div class="head">
+							Your Current Rolls
+							<span class="clear">(clear)</span>
+						</div>
+						<div class="body">
+							<div class="empty">
+								Roll above, and watch for your result right here.
+							</div>
+							<div class="rolls"></div>
+						</div>
+					</div>
+					<div class="page-subsection past-rolls">
+						<div class="head">
+							Your Roll History <span class="info">(Last 256 blocks)</span>
+						</div>
+						<div class="body">
+							<div class="empty">
+								You have no rolls in the last 256 blocks.
+							</div>
+							<div class="rolls"></div>
+						</div>
+					</div>
+				</div>
+			</td>
+			<td valign=top>
+				<div class="page-subsection liveRolls" style="width: 270px">
+					<div class="head">Live Feed</div>
+					<div class="body" style="padding: 10px 0px">
+						<div class="rolls"></div>
+					</div>
+				</div>
+			</td>
+			</tr></table>
+		</div>
+
+		<div class='mini-roll template' style="display: none;">
+			<div class='head'>
+				<div class='right'></div>
+				<div class='date'></div>
+			</div>
+			<div class="body">
+				<div class="table">
+					<div class="cell left">
+						<div class="rollicon">
+							<div class="rollnumber"></div>
+							<div class="label">roll</div>
+						</div>
+					</div>
+					<div class="cell right">
+						<div>
+							<span class='info'>Account: </span>
+							<span class='bettor'></span>
+						</div>
+						<div>
+							<span class='info'>Wagered</span>
+							<span class='bet'></span>
+							<span class='info'>on</span>
+							<span class='number'></span>
+						</div>
+						<div>
+							<span class='info win-result'></span>
+							<span class='payout'></span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	</body>
+</html>

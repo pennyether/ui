@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/global/javascripts/lib/Loader.js"></script>
+		<style>
+			.tutorial {
+				background: rgba(0,0,0,.1);
+				border-radius: 4px;
+				margin: 20px 200px;
+			}
+				.tutorial .sections {
+					padding: 4px;
+					border-bottom: 1px solid rgba(0,0,0,.2);
+					background: linear-gradient(to top, rgba(0,0,0,.4) 0%, rgba(0,0,0,.2) 100%);
+					text-align: center;
+				}
+				.tutorial .section {
+					cursor: pointer;
+					display: inline-block;
+					padding: 4px 8px;
+					font-size: 90%;
+					background: rgba(255,255,255,.5);
+					color: #444;
+					border-radius: 2px;
+					transition: background .5s, border-color .5s, color .5s;
+				}
+				.tutorial .section:hover {
+					color: black;
+					background: rgba(0,128,255,.3);
+				}
+				.tutorial .section.on {
+					font-weight: bold;
+					color: black;
+					border-bottom: 3px solid rgba(0,0,0,.3);
+					background: rgba(0,128,255,.4);
+					text-shadow: 1px 1px 0px rgba(255,255,255,.4);
+				}
+				.tutorial .title {
+					font-size: 80%;
+					font-weight: bold;
+					padding: 0px;
+					text-align: center;
+				}
+				.tutorial .txt {
+					font-size: 90%;
+					text-align: center;
+					padding: 5px;
+					height: 60px;
+				}
+				.tutorial button {
+					font-size: 120%;
+				}
+		</style>
+		<script>
+			Loader.waitFor(()=>{
+				return AJAX("/snippets/topology.html").then(html => {
+					$(".topology-ctnr").html(html);
+				});
+			});
+			Loader.onPageLoad.then(()=>{
+				const t = topology;
+				const $text = $(".tutorial .txt");
+				const $title = $(".tutorial .title");
+				const $prev = $(".tutorial .btn-prev").click(prev);
+				const $next = $(".tutorial .btn-next").click(next);
+				$(".section.intro").click(()=>jump(0));
+				$(".section.dividends").click(()=>jump(7));
+				$(".section.comptroller").click(()=>jump(11));
+				$(".section.treasury").click(()=>jump(15));
+				$(".section.profits").click(()=>jump(29));
+				$(".section.tasks").click(()=>jump(36));
+				var stepIndex = -1;
+				var stepTimeout;
+
+				function jump(index) {
+					while (stepIndex < index) next(false);
+					while (stepIndex > index) prev(false)
+				}
+				function next() {
+					if (stepIndex == steps.length-1) return;
+					const step = steps[stepIndex];
+					if (step && step.out) step.out();
+					clearTimeout(stepTimeout);
+					stepIndex++;
+					update();
+				}
+				function prev() {
+					if (stepIndex == 0) return;
+					const step = steps[stepIndex];
+					if (step && step.out) step.out();
+					clearTimeout(stepTimeout);
+					stepIndex--;
+					update();
+				}
+				function update(){
+					const step = steps[stepIndex];
+					if (step.section) selectSection(step.section);
+					if (step.title !== undefined) $title.empty().append(step.title);
+					$next.text(step.button || "Next");
+					$text.empty().append(step.text);
+					if (step.in) stepTimeout = setTimeout(step.in, 10);
+
+					if (stepIndex == steps.length - 1) $next.hide();
+					else $next.show();
+					if (stepIndex == 0) $prev.hide();
+					else $prev.show();
+				}
+				function selectSection(name){
+					// if we're on this section already, return.
+					const $section = $(`.section.${name}`);
+					if ($section.is(".on")) return;
+					// set it as on, build state
+					$(".section").removeClass("on");
+					$section.addClass("on");
+					buildState(name);
+				}
+
+				// initializes state for a given section
+				const eth = {type: "eth"};
+				const ethDelta = {type: "eth", flashOnDelta: true, showDelta: true};
+				const ethFlash = {type: "eth", doFlash: true};
+				const penny = {type: "eth", unit: "PENNY"};
+				const pennyDelta = {type: "eth", unit: "PENNY", flashOnDelta: true, showDelta: true};
+				const doFlash = {doFlash: true};
+				function buildState(name) {
+					if (name == "intro") {
+						t.clearAll();
+						return;
+					}
+					if (name == "dividends") {
+						t.clearAll();
+						t.tokenDivsReceived(0, eth);
+						t.trDividends(0, eth);
+						t.tokenDivsCollected(0, eth);
+						return;
+					}
+					if (name == "comptroller") {
+						t.clearAll();
+						t.tokenIsFrozen(false);
+						t.trCapitalRaised(0, eth);
+						t.trCapAvailable(0, eth);
+						return;
+					}
+					if (name == "treasury") {
+						t.clearAll();
+						t.tokenTotalSupply(4000e18, penny);
+						t.tokenIsFrozen(false);
+						t.trCapitalRaised(1000e18, eth);
+						t.trCapAvailable(1000e18, eth);
+					}
+					if (name == "profits") {
+						t.clearAll();
+						t.tokenTotalSupply(4000e18, penny);
+						t.tokenIsFrozen(false);
+						t.trCapitalRaised(1000e18, eth);
+						t.trCapAvailable(900e18, eth);
+						t.diceBankrolled(100e18, eth)
+					}
+					if (name == "tasks") {
+						t.clearAll();
+						t.tokenTotalSupply(4000e18, penny);
+						t.tokenIsFrozen(false);
+						t.trCapitalRaised(1000e18, eth);
+						t.trCapAvailable(900e18, eth);
+						t.diceBankrolled(100e18, eth)
+
+						t.diceNumRolls(1234);
+						t.diceTotalWagered(123.456e18, eth);
+						t.diceCurMaxBet(.1e18, eth);
+					}
+				}
+
+				const obj = {};
+				const steps = [{
+					section: "intro",
+					title: "Welcome.",
+					text: `This interactive demo provides a brief overview of how PennyEther works. For more detailed information, please view <a href="/about/contracts.html" target="_blank">the contracts page</a>, or read <a href="/ico/whitepaper.html">the whitepaper.</a>`,
+					button: "Let's go!",
+					in: () => $("#Topology .arrow.ether").closest(".line").addClass("flow"),
+					out: () => $("#Topology .arrow.ether").closest(".line").removeClass("flow")
+				},{
+					section: "intro",
+					title: `The Topology`,
+					text: `The diagram below shows all of the contracts of PennyEther.<br><br>For a realtime view of the PennyEther system, see: <a href="/status/overview.html" target="_blank">System Overview</a>.`,
+					button: "OK.",
+				},{
+					section: "intro",
+					title: `The Topology`,
+					text: `There are several contracts that interact with each other.`,
+					in: () => $("#Topology .contract").addClass("on"),
+					out: () => $("#Topology .contract").removeClass("on")
+				},{
+					section: "intro",
+					title: `The Topology`,
+					text: `For information about any contract, just hover over the title.<br>
+						   To view the actual live status of a contract, you can click the title.`,
+					in: () => $("#Topology .contract a").addClass("on"),
+					out: () => $("#Topology .contract a").removeClass("on")
+				},{
+					section: "intro",
+					title: `The Topology`,
+					text: `Each contract also contains a few state variables.<br>
+						   The contracts actually have many more state variables -- we show only the most important here.`,
+					in: () => $("#Topology .fields").addClass("on"),
+					out: () => $("#Topology .fields").removeClass("on")
+				},{
+					section: "intro",
+					title: `The Topology`,
+					text: `Blue arrows show the flow of Ether between contracts.`,
+					in: () => $("#Topology .arrow.ether").closest(".line").addClass("flow"),
+					out: () => $("#Topology .arrow.ether").closest(".line").removeClass("flow")
+				},{
+					section: "intro",
+					title: "&nbsp;",
+					text: `Ready to get started?`,
+					button: `Yes!`,
+				},{
+					section: "dividends",
+					title: `PENNY Token`,
+					text: `The <a href="/status/token.html" target="_blank">PENNY Token</a> is an ERC20 Token, but it can be sent Ether.`,
+					in: () => $("#Topology .contract.token").addClass("on"),
+					out: () => $("#Topology .contract.token").removeClass("on")
+				},{
+					section: "dividends",
+					title: "Receiving Dividends",
+					text: `Ether can be sent to the Token at any time, and from any source (typically the Treasury). This is called a "Dividend". All Token Holders are credited a share of the dividend relative to their percent ownership at the time the dividend occurs.`,
+					in: () => {
+						$(".tr-dividends").closest(".line").addClass("flow");
+						t.tokenDivsCollected(0, eth);
+
+						var num = (new BigNumber(0));
+						obj.interval = setInterval(()=>{
+							num = num.plus(1e16);
+							t.tokenDivsReceived(num, eth);
+							t.trDividends(num, eth);
+						}, 500);
+					},
+					out: () => {
+						$(".tr-dividends").closest(".line").removeClass("flow");
+						clearInterval(obj.interval);
+					}
+				},{
+					section: "dividends",
+					title: "Dispursing Dividends",
+					text: `Token Holders can collect their owed dividends at any time, even after they transfer tokens. The <a href="/tools/tokenholder.html" target="_blank">Token Holder UI</a> lets you easily collect owed dividends, transfer tokens, or view your token history.`,
+					in: () => {
+						$(".token-total-collected").closest(".line").addClass("flow");
+						const received = toEth(.28);
+						t.tokenDivsReceived(received, eth);
+
+						var collected = new BigNumber(0);
+						obj.interval = setInterval(() => {
+							collected = collected.plus(1e16);
+							t.tokenDivsCollected(collected, eth);
+							if (collected.equals(received)) {
+								$(".token-total-collected").closest(".line").removeClass("flow");
+								clearInterval(obj.interval);
+							}
+						}, 500);
+					},
+					out: () => {
+						$(".token-total-collected").closest(".line").removeClass("flow");
+						clearInterval(obj.interval);
+					}
+				},{
+					section: "dividends",
+					title: "&nbsp;",
+					text: `Curious how tokens are minted? Let's move onto the Comptroller...`
+				},{
+					section: "comptroller",
+					title: "Comptroller",
+					text: `<a href="/status/comptroller.html" target="_blank">The Comptroller</a> is in charge of minting PENNY Tokens.`,
+					in: () => $("#Topology .contract.comptroller").addClass("on"),
+					out: () => $("#Topology .contract.comptroller").removeClass("on")
+				},{
+					section: "comptroller",
+					title: "The CrowdSale",
+					text: `The Comptroller will mint Tokens during the CrowdSale. It will sell tokens, then mint tokens for the owners, to vest over a 600 day period. <br><b>In the end 80% are sold, and 20% are retained.</b>`,
+					in: () => {
+						const $line = $(".line .token-total-supply").closest(".line");
+						t.tokenIsFrozen(true);
+						var num = (new BigNumber(0));
+						function add() {
+							num = num.plus(1.23e18);
+							t.tokenTotalSupply(num, penny);
+							$line.removeClass("flash");
+							setTimeout(()=>$line.addClass("flash"), 50);
+							obj.timeout = setTimeout(add, 3000)
+						}
+						add();
+					},
+					out: () => {
+						$(".line .token-total-supply").closest(".line").removeClass("flow");
+						clearTimeout(obj.timeout);
+					}
+				},{
+					section: "comptroller",
+					title: "The CrowdSale",
+					text: `After the CrowdSale, a percent of the proceeds will go to the Treasury as capital, and the Tokens will be unfrozen.`,
+					in: ()=>{
+						t.tokenTotalSupply(4000e18, eth);
+						t.trCapAvailable(0, eth);
+						t.trCapitalRaised(0, eth);
+						t.tokenIsFrozen(true);
+						sendEth($(".line .tr-capital-raised").closest(".line"), "right").then(()=>{
+							t.trCapAvailable(1000e18, ethDelta);
+							t.trCapitalRaised(1000e18, ethDelta);
+							t.tokenIsFrozen(false, doFlash);
+						});
+					}
+				},{
+					section: "comptroller",
+					title: "The CrowdSale",
+					text: `Once the CrowdSale is complete the<br>Treasury will be funded and ready to go.`,
+				},{
+					section: "treasury",
+					title: "Treasury",
+					text: `<a href="/status/treasury.html" target="_blank">The Treasury</a> has two responsibilities: <b><br>1: Managing Capital<br>2: Managing Profits</b>`,
+					in: () => $("#Topology .contract.treasury").addClass("on"),
+					out: () => $("#Topology .contract.treasury").removeClass("on"),
+				},{
+					section: "treasury",
+					title: "Managing Capital",
+					text: `The Treasury can send capital to Game Controllers in the form of "Bankroll"`,
+					in: () => {
+						$(".line .monarchy-bankrolled").closest(".line").addClass("flow");
+						$(".line .dice-bankrolled").closest(".line").addClass("flow");
+						$(".line .vp-bankrolled").closest(".line").addClass("flow");
+					},
+					out: () => {
+						$(".line .monarchy-bankrolled").closest(".line").removeClass("flow");
+						$(".line .dice-bankrolled").closest(".line").removeClass("flow");
+						$(".line .vp-bankrolled").closest(".line").removeClass("flow");
+					}
+				},{
+					section: "treasury",
+					title: "Managing Capital",
+					text: `The Treasury can also <i>recall</i> Capital from Bankrolled games.`,
+					in: () => {
+						$(".line .monarchy-bankrolled").closest(".line").addClass("flow reverse");
+						$(".line .dice-bankrolled").closest(".line").addClass("flow reverse");
+						$(".line .vp-bankrolled").closest(".line").addClass("flow reverse");
+					},
+					out: () => {
+						$(".line .monarchy-bankrolled").closest(".line").removeClass("flow");
+						$(".line .dice-bankrolled").closest(".line").removeClass("flow");
+						$(".line .vp-bankrolled").closest(".line").removeClass("flow");
+					}
+				},{
+					section: "treasury",
+					title: "Managing Capital > Governance",
+					text: `The only way the Treasury can send or recall capital is by a <b>Governance Request</b>. A Governance Request contains information about how much Capital to send or recall, from which contract, and for what reason.`,
+				},{
+					section: "treasury",
+					title: "Managing Capital > Governance",
+					text: `Once a Governance Request is created, it can be cancelled at any time, or executed after one week. Currently, requests can only be made by the Admin account, but we are working to have this be controlled by a DAO so the Token Holders can collectively be in charge.`,
+				},{
+					section: "treasury",
+					title: "Managing Capital > Governance",
+					text: `Governance ensures transparency with how Capital is used. It also provides a layer of security - should the Admin account be compromised, there is a one week period to change the Admin account and cancel the request.`,
+				},{
+					section: "treasury",
+					title: "Managing Capital > Governance",
+					text: `All Governance requests can be viewed on the <a href="/status/treasury.html" target="_blank">Treasury Status</a> page.`
+				},{
+					section: "treasury",
+					title: "Managing Capital > Example",
+					text: `Let's walk through an example. Assume bankrolling 200 Ether to InstaDice was approved. After one week it can be executed by anyone.`,
+					button: "Execute Request",
+					in: () => t.trNumRequests(1, doFlash)
+				},{
+					section: "treasury",
+					title: "Managing Capital > Example",
+					text: `The Treasury will send some capital, and InstaDice will now have a bankroll to work with. Note that Treasury's available capital decreases.`,
+					in: () => {
+						t.trCapAvailable(1000e18, eth);
+						t.diceBankrolled(0, eth)
+						sendEth($(".line .dice-bankrolled").closest(".line"), "down").then(()=>{
+							t.trCapAvailable(800e18, ethDelta);
+							t.diceBankrolled(200e18, ethDelta)
+						});
+					},
+				},{
+					section: "treasury",
+					title: "Managing Capital > Example",
+					text: `Bankroll can be also recalled by a Governance request. Let's pretend a Governance request to remove 100 Ether of bankroll from InstaDice was created a week ago, and can now be executed.`,
+					button: "Execute Request",
+					in: ()=>{
+						t.trNumRequests(2, doFlash)
+					}
+				}, {
+					section: "treasury",
+					title: "Managing Capital > Example",
+					text: `The Treasury will recall 100 Ether, and its available Capital will increase.`,
+					in: ()=>{
+						t.trCapAvailable(800e18, eth);
+						t.diceBankrolled(200e18, eth);
+						sendEth($(".line .dice-bankrolled").closest(".line"), "up").then(()=>{
+							t.trCapAvailable(900e18, ethDelta);
+							t.diceBankrolled(100e18, ethDelta)
+						});
+					}
+				},{
+					section: "treasury",
+					title: "Managing Profits",
+					text: `Now let's look at how the Treasury handles profits. It's very simple.`
+				},{
+					section: "treasury",
+					title: "Managing Profits",
+					text: `Any Ether the Treasury receives, other than capital, is considered <u>profit</u>. Profit can <u>only</u> be sent directly to the PENNY Token.<br>This behavior is hard-coded and can never change.`,
+					in: () => {
+						$(".line .tr-dividends").closest(".line").addClass("flow");
+						$(".line .monarchy-profits").closest(".line").addClass("flow");
+						$(".line .dice-profits").closest(".line").addClass("flow");
+						$(".line .vp-profits").closest(".line").addClass("flow");
+					},
+					out: () => {
+						$(".line .tr-dividends").closest(".line").removeClass("flow");
+						$(".line .monarchy-profits").closest(".line").removeClass("flow");
+						$(".line .dice-profits").closest(".line").removeClass("flow");
+						$(".line .vp-profits").closest(".line").removeClass("flow");
+					}
+				},{
+					section: "treasury",
+					title: "&nbsp;",
+					text: `That's all for the Treasury.<br>Next, let's look at how the Treasury actually accrues profits.`
+				},{
+					section: "profits",
+					title: "Using Bankroll",
+					text: `When contracts receive Bankroll, they (hopefully) can use that Bankroll to generate profits which eventually get distributed to Token Holders. Let's see how that process works.`
+				},{
+					section: "profits",
+					title: "Example",
+					text: `In this example, InstaDice has received 100 Ether of bankroll.<br>Now that it has Bankroll, the contract can accept bets.`,
+					in: ()=>{
+						t.diceNumRolls(0, ethFlash);
+						t.diceTotalWagered(0, ethFlash);
+						t.diceCurMaxBet(.1e18, ethFlash);
+						t.diceCurProfits(0, ethFlash);
+					}
+				},{
+					section: "profits",
+					title: "Example",
+					text: `As players play, profits will accumulate in the contract.`,
+					in: ()=>{
+						t.diceNumRolls(0, eth);
+						t.diceTotalWagered(0, eth);
+						t.diceCurMaxBet(.1e18, eth);
+						t.diceCurProfits(0, eth);
+						obj.interval = setInterval(()=>{
+							const rolls = parseFloat(t.diceNumRolls()) + 1;
+							const wagered = parseFloat(t.diceTotalWagered()) + Math.random()*.1;
+							const profits = wagered * .01;
+							t.diceNumRolls(rolls);
+							t.diceTotalWagered(toEth(wagered), eth);
+							t.diceCurProfits(toEth(profits), eth);
+						}, 100)
+					},
+					out: ()=>{
+						clearInterval(obj.interval);
+					}
+				}, {
+					section: "profits",
+					title: "Example",
+					text: `Anytime a Bankrolled contract has more balance than its Bankroll, it has profits. InstaDice will send the profits <u>only</u> to the Treasury. This can be triggered at anytime, by anyone.`,
+					button: `Send Profits`,
+					in: ()=>{
+						t.diceNumRolls(1234);
+						t.diceTotalWagered(123.456e18, eth);
+						t.diceCurMaxBet(.1e18, eth);
+
+						const profits = 1.234e18;
+						t.trProfits(0, eth);
+						t.diceProfits(0, eth);
+						t.diceCurProfits(profits, ethFlash);
+					}
+				}, {
+					section: "profits",
+					title: "Issuing Dividends",
+					text: `InstaDice has sent its profits to Treasury, and now has 0 profits. We're back to where we started, except the Treasury has some profits! Now, anyone can tell the Treasury to issue a Dividend.`,
+					button: `Issue Dividend`,
+					in: ()=>{
+						t.diceNumRolls(1234);
+						t.diceTotalWagered(123.456e18, eth);
+						t.diceCurMaxBet(.1e18, eth);
+
+						const profits = 1.234e18;
+						t.trProfits(0, eth);
+						t.diceProfits(0, eth);
+						t.diceCurProfits(profits, eth);
+						sendEth($(".line .dice-profits").closest(".line"), "up").then(()=>{
+							t.trProfits(profits, ethDelta);
+							t.diceProfits(profits, ethDelta);
+							t.diceCurProfits(0, ethDelta);
+						});
+					}
+				}, {
+					section: "profits",
+					title: "Issuing Dividends",
+					text: `Remember: The Treasury can send accumulated profits <u>only</u> to the PENNY Token. This guarantees Token Holders receive all dividend proceeds.`,
+					in: ()=>{
+						const profits = 1.234e18;
+						t.trProfits(profits, eth);
+						t.trDividends(0, eth);
+						t.tokenDivsReceived(0, eth);
+						sendEth($(".tr-dividends").closest(".line"), "left").then(()=>{
+							t.trProfits(0, ethDelta);
+							t.trDividends(profits, ethDelta);
+							t.tokenDivsReceived(profits, ethDelta);
+						})
+					}
+				}, {
+					section: "profits",
+					title: "&nbsp;",
+					text: `Finally, let's take a look at how PennyEther is autonomous.`,
+				}, {
+					section: "tasks",
+					title: "Built-in Autonomy",
+					text: `As mentioned in the previous section, the sending of profits and issuing of dividends can be triggered by anyone, at anytime. However, it costs gas to trigger these operations.`,
+				}, {
+					section: "tasks",
+					title: "Built-in Autonomy",
+					text: `To ensure such tasks are always executed, we've created a "TaskManager" that rewards users for executing tasks. This type of design is called <a href="https://en.wikipedia.org/wiki/Incentive-centered_design" target="_blank">Incentive-centered Design</a>.`,
+					in: () => {
+						$("#Topology .contract.task-manager").addClass("on");
+						$("#Topology .monarchy-send-profits").closest(".line").addClass("on");
+						$("#Topology .dice-send-profits").closest(".line").addClass("on");
+						$("#Topology .vp-send-profits").closest(".line").addClass("on");
+						$("#Topology .tr-issue-dividend").closest(".line").addClass("on");
+					},
+					out: () => {
+						$("#Topology .contract.task-manager").removeClass("on");
+						$("#Topology .monarchy-send-profits").closest(".line").removeClass("on");
+						$("#Topology .dice-send-profits").closest(".line").removeClass("on");
+						$("#Topology .vp-send-profits").closest(".line").removeClass("on");
+						$("#Topology .tr-issue-dividend").closest(".line").removeClass("on");
+					}
+				}, {
+					section: "tasks",
+					title: "Task Example",
+					text: `In this example, assume InstaDice has generated profits. A reward will be available to any user who wishes to execute the "Send Profits" task.`,
+					button: `Execute Task`,
+					in: () => {
+						t.tmBalance(util.toEthStrFixed(toEth(2.345)));
+						t.diceCurProfits(util.toEthStrFixed(1.23e18), doFlash);
+						t.tmSendProfitsReward(".1%", doFlash);
+						t.diceSendProfits(".00123 ETH reward", doFlash);
+					}
+				},{
+					section: "tasks",
+					title: "Task Example",
+					text: `The user executes the task, causing InstaDice to send its profits to Treasury. The user is then rewarded for executing this task.`,
+					in: ()=> {
+						const $taskLine = $("#Topology .dice-send-profits").closest(".line").removeClass("flash");
+						const $rewardLine = $("#Topology .tm-rewards-paid").closest(".line");
+						const $profitLine = $("#Topology .dice-profits").closest(".line");
+
+						// dice and upwards
+						const profits = toEth(1.234);
+						const reward = profits.div(1000);
+						const balance = toEth(2.345);
+						t.trProfits(0, eth);
+						t.diceProfits(0, eth);
+						t.diceCurProfits(profits, eth);
+						// tm and upwards (and leftwards)
+						t.tmBalance(balance, eth);
+						t.tmSendProfitsReward(".1%");
+						t.diceSendProfits(`${util.toEthStrFixed(reward)} reward`);
+						t.tmRewardsPaid(0, eth);
+
+						setTimeout(()=>{ $taskLine.addClass("flash") }, 100);
+						setTimeout(()=>{
+							sendEth($(".line .dice-profits").closest(".line"), "up").then(()=>{
+								t.trProfits(profits, ethDelta);
+								t.diceProfits(profits, ethDelta);
+								t.diceCurProfits(0, ethDelta);
+							}).then(()=>{
+								setTimeout(()=>{
+									sendEth($rewardLine, "left").then(()=>{
+										t.diceSendProfits("Not available.", doFlash);
+										t.tmRewardsPaid(reward, ethDelta);
+										t.tmBalance(balance.minus(reward), ethDelta);
+									});
+								}, 1000)
+							});
+						}, 1000);
+					}
+				},{
+					section: "tasks",
+					title: "TaskManager UI",
+					text: `There are several tasks available, and they can all easily be viewed and executed on the <a href="/status/taskmanager.html" target="_blank">TaskManager Status</a> page.`,
+				}, {
+					section: "tasks",
+					title: "Scalability",
+					text: `If new tasks are required, for example a new game is added, TaskManager can easily be upgraded to offer rewards for those new Tasks. TaskManager has zero state, so upgrading it is trivial.`
+				}, {
+					section: "tasks",
+					title: "Security",
+					text: `Reward amounts are specified by the Admin. There is a limit to the amount of rewards that can be paid in one day. This prevents the Admin from abusing rewards and draining the TaskManager contract.`,
+					in: () => {
+						t.tmPaStartReward(util.toEthStrFixed(toEth(.01)), doFlash);
+						t.tmPaEndReward(util.toEthStrFixed(toEth(.01)), doFlash);
+						t.tmSendProfitsReward(".1%", doFlash);
+						t.tmIssueDividendReward(".05%", doFlash);
+					}
+				},{
+					section: "tasks",
+					title: "&nbsp;",
+					text: `That's all for this demonstration.<br><br>A <i>lot</i> more information can be found in <a href="/ico/whitepaper.html" target="_blank">the whitepaper</a>`,
+					in: () => {
+
+					}
+				}];
+
+				jump(0);
+
+				(function initFlows(){
+					function doFlows() {
+						const $lines = $(".line.flow").toArray();
+						if ($lines.length == 0) {
+							setTimeout(doFlows, 500);
+							return;
+						}
+						// flow an ether every second
+						$lines.forEach(doFlow);
+						setTimeout(doFlows, 500);
+					}
+					setTimeout(doFlows, 0);
+
+					function doFlow(line) {
+						const $line = $(line);
+						const reverse = $line.is(".reverse");
+						var direction;
+						if ($line.is(".horizontal"))
+							direction = $line.find(".arrow").is(".left") && !reverse ? "left" : "right";
+						else if ($line.is(".vertical"))
+							direction = $line.find(".arrow").is(".down") && !reverse ? "down" : "up";
+						else
+							throw new Error(`This line sucks.`);
+						sendEth(line, direction);
+					}
+				}());
+
+				function toEth(n) {
+					return new BigNumber(n.toFixed(10)).mul(1e18);
+				}
+
+				function sendEth(parent, direction) {
+					return new Promise((resolve, reject)=>{
+						const duration = 1000;
+						const $img = $("<img>")
+							.attr("src", "/global/images/ethereum.png")
+							.attr("width", 35)
+							.css({
+								opacity: 0,
+								position: "absolute",
+								background: "rgba(215,255,255,.9)",
+								border: "1px solid #AAA",
+								borderRadius: "40px",
+								boxShadow: "0px 0px 10px 0px rgba(0,0,255,.5)",
+								zIndex: 10
+							})
+							.appendTo(parent);
+
+						var start, stop;
+						(function(){
+							const p_w = $(parent).width();
+							const p_h = $(parent).height();
+							const w = $img.width();
+							const h = $img.height();
+							const left = {x: -w/2, y: p_h/2 - h/2};
+							const top = {x: p_w/2 - w/2, y: -h/2};
+							const right = {x: p_w - w/2, y: p_h/2 - h/2};
+							const bottom = {x: p_w/2 - w/2, y: p_h + h/2};
+							if (direction == "up"){ start = bottom; stop = top; }
+							if (direction == "down"){ start = top; stop = bottom; }
+							if (direction == "left"){ start = right; stop = left; }
+							if (direction == "right"){ start = left; stop = right; }
+						}());
+						
+						const startTime = +new Date();
+						window.requestAnimationFrame(function step(){
+							const pct = Math.min((+new Date() - startTime) / duration, 1);
+							const x = start.x + pct*(stop.x - start.x);
+							const y = start.y + pct*(stop.y - start.y);
+							$img.css({
+								opacity: pct < .5 ? pct*4 : (1-pct)*4,
+								left: Math.round(x),
+								top: Math.round(y)
+							});
+							if (pct < 1) window.requestAnimationFrame(step);
+							else {
+								$img.remove();
+								resolve();
+							}
+						});
+					});
+				}
+			});
+		</script>
+	</head>
+	<body><div id="Content">
+		<div class="tutorial">
+			<div class="sections">
+				<div class="section intro">Intro</div>
+				<div class="section dividends">Dividends</div>
+				<div class="section comptroller">Comptroller</div>
+				<div class="section treasury">Treasury</div>
+				<div class="section profits">Profits</div>
+				<div class="section tasks">Tasks</div>
+			</div>
+			<div class="body">
+				<table width="100%"><tr>
+					<td width="100" valign="center" align="left" style="padding: 5px;">
+						<button class="btn-prev">Back</button>
+					</td>
+					<td>
+						<div class="title"></div>
+						<div class="txt"></div>
+					</td>
+					<td width="100" valign="center" align="right" style="padding: 5px;">
+						<button class="btn-next">Next</button>
+					</td>
+				</tr></table>
+			</div>
+		</div>
+		<div class="topology-ctnr"></div>
+	</div></body>
+</html>
