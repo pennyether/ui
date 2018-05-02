@@ -1,6 +1,9 @@
 (function(){
     var sitemap = [
         {
+            name: "Home",
+            url: "/"
+        }, {
             name: "About",
             url: "/about/mission.html",
             children: [{
@@ -15,6 +18,9 @@
             },{
                 name: "Audits",
                 url: "/about/audits.html"
+            },{
+                name: "Contact",
+                url: "/about/contact.html"
             }]
         }, {
             name: "Status",
@@ -68,9 +74,6 @@
             name: "ICO",
             url: "/ico/whitepaper.html",
             children: [{
-                name: "Intro",
-                url: "/ico/intro.html"
-            },{
                 name: "Whitepaper",
                 url: "/ico/whitepaper.html"
             },{
