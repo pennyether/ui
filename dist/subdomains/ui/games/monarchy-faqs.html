@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/global/javascripts/lib/Loader.js"></script>
+		<script src="/local/load.js"></script>
+	</head>
+	<body><div id="Content">
+		<div style="width: 80%; margin: 30px auto;">
+			<div class="page-section">
+				<div class="head">Monarchy FAQs</div>
+				<div class="body" style="font-size: 90%;">
+					<div class="page-subsection">
+						<div class="head">GamePlay</div>
+						<div class="body">
+							<h3>What is this game?</h3>
+							<p>
+								Monarchy is a king-of-the-hill type of game, fashioned after <a href="https://en.wikipedia.org/wiki/Bidding_fee_auction" target="_blank">Penny Auctions</a>. The rules are simple:
+								<ul>
+									<li>You pay a small fee to "overthrow" the Monarch, and you become the Monarch.</li>
+									<li>If you remain the Monarch for some amount of blocks, you'll win the prize.</li>
+								</ul>
+							</p>
+							<p>
+								What sets Monarchy apart from typical Penny Auctions is the <a href="#fairness">guaranteed fairness</a>. The winner is <i>guaranteed</i> the prize (which is already held by the contract), and "the house" has no advantage, since "the house" is actually a widely distributed set of people. <b>This makes Monarchy the world's first truly-fair king-of-the-hill game.</b>
+							</p>
+
+							<h3>What settings are there for each game?</h3>
+							<p>
+								Each Monarchy game has a few settings. <b>These settings are fixed, and do not change over the course of the game</b>. The settings for each game are visible on the game itself, and you can also click the link at the bottom of each game to see the full details of that game.
+								<ul>
+									<li>
+										<b>Overthrow Fee:</b> How much it costs to overthrow the current Monarch and become the Monarch.
+									</li>
+									<li>
+										<b>Prize Increment:</b> How much the prize will increase (or decrease) on each "overthrow"
+									</li>
+									<li>
+										<b>Reign Blocks:</b> If the Monarchy is not overthrown after this many blocks, they win
+									</li>
+								</ul>
+							</p>
+
+							<h3>How do I win?</h3>
+							<p>
+								There are no hard and fast rules about how to win, otherwise all players would use the same strategy. There are a few things you can try:
+								<ul>
+									<li>
+										Play during times of low activity. If you play against a smaller pool of opponents, you might be more likely to win.
+									</li>
+									<li>
+										Beat your opponents into submission by constantly overthrowing them. They may eventually give up.
+									</li>
+									<li>
+										Disparage your opponents by including an intimidating decree.
+									</li>
+									<li>
+										Try to "snipe" games by only overthrowing at the very last moment.
+									</li>
+								</ul>
+							</p>
+							<p>
+								Although it may seem counter-intuitive, this type of game is actually considered a strategy game. There is no randomness or chance involved, and all information is available to all parties.
+							</p>
+
+							<h3>What is a "decree"?</h3>
+							<p>
+								When overthrowing, you can include a small message for all players to see. It doesn't cost anything extra.
+							</p>
+
+							<h3>How many blocks do I need to reign in order to win?</h3>
+							<p>
+								This varies for each game, but will never change for a given game. The number of blocks needed is visible in the "blocks remaining" section, and by clicking on the "Game Id" at the bottom of each game.
+							</p>
+
+							<h3>Who am I playing against?</h3>
+							<p>
+								Other Ethereum holders. No other information is available, though you can try to slueth around the blockchain to get more details about a player. Keep in mind a single person may have multiple Ethereum addresses.
+							</p>
+							<p>
+								Any particular player's Monarchy history is available by clicking on the link of their address. You can see all past "overthrows", as well as other PennyEther activity.
+							</p>
+
+							<h3>What are alerts?</h3>
+							<p>
+								Alerts will let you know when some actions of interest have occurred by triggering a browser notification. Simply click the bell icon (🔔) and choose which alerts you wish to see.
+							</p>
+							<p>
+								Please note: Notifications are browser specific, and may not work in all browsers and in all modes. Browsing in "private mode" may disable alerts.
+							</p>
+
+							<h3>Why is stuff flashing all the time?</h3>
+							<p>
+								Anytime a value changes (blocks remaining goes down, prize changes, or there is a new Monarch) the game will flash that cell to let you know that something happened.
+							</p>
+						</div>
+					</div>
+
+					<a data-anchor="fairness"></a>
+					<div class="page-subsection">
+						<div class="head">Fairness</div>
+						<div class="body">
+							<h3>Can't the house play the game for free?</h3>
+							<p>
+								No.
+							</p>
+							<p>
+								<b>In Monarchy, the house is distributed</b>. Overthrow fees do not go directly to any one person -- instead each Token Holder gets a small slice. This means <i>nobody</i> can play for free, and <i>nobody</i> has an unfair advantage.
+							</p>
+
+							<h3>But there hasn't been an ICO yet!</h3>
+							<p>
+								All profits get sent to a special contract called the Treasury. Profits can only ever leave the Treasury by being sent to the Token, <u>after</u> the ICO. Prior to the ICO, the profits will remain locked up. The house can certainly play, but unless they win they won't get their overthrow fees back until after the ICO, in which case they will only get back a small percentage.
+							</p>
+
+							<h3>How do I know you'll pay me if I win?</h3>
+							<p>
+								The prize is held in the smart contract, and will only ever leave to pay the winner. Furthermore, games cannot be stopped or halted or cancelled. Once a game has started, the prize will only ever leave to pay the winner.
+							</p>
+
+							<h3>Are there bots?</h3>
+							<p>
+								It's certainly possible to create a smart contract or a program that continually overthrows until it wins. However, such a program would have no real advantage. If two bots faced up against each other, one would end up bankrupt, so it's not really a winning strategy.
+							</p>
+
+							<h3>What if two people overthrow at the same time?</h3>
+							<p>
+								See: <a href="#overthrowing-refund">Overthrowing</a>
+							</p>
+
+							<h3>What if the site goes down?</h3>
+							<p>
+								Firstly, this should never happen:
+								<ul>
+									<li>The site is behind CloudFlare, which should prevent DDoS attacks</li>
+									<li>If the web server breaks, CloudFlare should be able to serve a cached version.</li>
+									<li>Our site should be fully cached by your browser, as well.</li>
+								</ul>
+							</p>
+							<p>
+								Regardless, <a href="https://github.com/pennyether/ui" target="_blank">our UI is open-sourced and really easy to run locally.</a> All games will continue to run even if the website is down.
+							</p>
+						</div>
+					</div>
+
+					<a data-anchor="overthrow-refund"></a>
+					<div class="page-subsection">
+						<div class="head">Overthrowing</div>
+						<div class="body">
+							<h3>What is overthrowing?</h3>
+							<p>
+								Overthrowing is the action of paying a small fee to become the current Monarch. If nobody overthrows you (for some amount of blocks), you'll win the prize.
+							</p>
+
+							<h3>What if two people try to overthrow at the same time?</h3>
+							<p>
+								The first overthrower will get refunded, and the second overthrower will will become the current Monarch. This means when you overthrow you'll either become the Monarch, or you'll get refunded.
+							</p>
+
+							<h3>What if my transaction takes too long?</h3>
+							<p>
+								If your "overthrow" transaction is mined <i>after</i> the game is already over, you'll be refunded, and it will only cost a tiny bit of gas.
+							</p>
+
+							<h3>Can I overthrow myself?</h3>
+							<p>
+								No. You'll receive an error, and only a small amount of gas will be used. Your "reign" will not be reset.
+							</p>
+
+							<h3>How many times can I overthrow?</h3>
+							<p>
+								There is no limit.
+							</p>
+						</div>
+					</div>
+
+					<div class="page-subsection">
+						<div class="head">Claiming the Prize</div>
+						<div class="body">
+							<h3>What happens if I win?</h3>
+							<p>
+								You'll see that you won, and you'll be able to collect the prize by clicking a button.
+							</p>
+
+							<h3>Do I have to claim the prize manually?</h3>
+							<p>
+								Not really. Eventually the game will be restarted, and during this process you'll be sent the prize automatically. Regardless, the prize will never leave the contract until you claim it, so you have all the time in the world.
+							</p>
+						</div>
+					</div>
+
+					<div class="page-subsection">
+						<div class="head">Misc</div>
+						<div class="body">
+							<h3>When do games start?</h3>
+							<p>
+								Currently, the <a href="https://investor.pennyether.com/status/monarchy.html">Monarchy Controller</a> that pre-defines the parameters of a game. Anytime that game is over, it can be restarted (by anyone). "Restarting" a game actually creates an entirely new contract.
+							</p>
+
+							<h3>Can I be the house?</h3>
+							<p>
+								<a href="https://investor.pennyether.com">You most certainly can.</a>
+							</p>
+
+							<h3>I have an idea!</h3>
+							<p>
+								We'd love to hear your feedback! The best place to share your ideas is on <a href="https://www.reddit.com/r/PennyEther">our subreddit</a>.
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div></body>
+</html>

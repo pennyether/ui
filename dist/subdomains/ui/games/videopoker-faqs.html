@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/global/javascripts/lib/Loader.js"></script>
+		<script src="/local/load.js"></script>
+	</head>
+	<body><div id="Content">
+		<div style="width: 80%; margin: 30px auto;">
+			<div class="page-section">
+				<div class="head">VideoPoker FAQs</div>
+				<div class="body" style="font-size: 90%;">
+					<div class="page-subsection">
+						<div class="head">GamePlay</div>
+						<div class="body">
+							<h3>What is VideoPoker?</h3>
+							<p>
+								<a href="https://en.wikipedia.org/wiki/Video_poker#Jacks_or_Better">Video Poker</a> is a classic casino game based on five-card draw poker.
+							</p>
+							<p>
+								Your goal is to end up with a 5-card hand of the highest rank (royal flush, four of a kind, full house, etc). You start with 5 cards, and can replace any number of those cards. After being dealt your replacement cards, your hand is ranked and you are paid out accordingly.
+							</p>
+
+							<h3>What PayTable do you use?</h3>
+							<p>
+								The current paytable is visible in the UI. We use the generous 6/9 pay table, which results in 99.5% odds given optimal play. Once your bet is placed, you are locked into that pay table, and for your security we cannot change the pay table.
+							</p>
+
+							<h3>How are random numbers chosen?</h3>
+							<p>
+								We use a hash of your game id and the blockhash of the block your transactions take place on. Since we don't use an Oracle, our transaction costs are extremely low, and we can offer you the best house odds and extremely low minimum wagers.
+							</p>
+
+							<h3>How instant are the results?</h3>
+							<p>
+								As soon as your initial bet is mined, you'll see your initial hand. After you submit which cards you want to draw, and this transaction is mined, you'll see your final hand. If you choose to draw 0 cards, you'll see your final hand immediately.
+							</p>
+
+							<h3>How much gas does it cost?</h3>
+							<p>
+								Not much. Around 53,000 for your initial hand, and 38,000 to draw cards. If you win, it will cost an additional 60,000 gas to claim your winnings, or 100,000 gas to claim + play again. Basically an entire hand costs around 90,000 on a loss and 140,000 on a win.
+							</p>
+
+							<h3>Can I bet multiple times?</h3>
+							<p>
+								Yes. You can open up multiple "machines" and play multiple hands at once. Your hands will never be "lost". If you close the browser and reopen it, your in-progress hands will come back (even if you clear your cache).
+							</p>
+
+							<h3>What happens if there is an error?</h3>
+							<p>
+								Your bet will be refunded and hardly any gas will be used.
+							</p>
+							<p>
+								An error can occur if:
+								<ul>
+									<li>You bypass the UI and bet too much or too little, or submit invalid input.</li>
+								</ul>
+							</p>
+
+							<h3>How are you ranking hands?</h3>
+							<p>
+								The contract ranks and generates hands on the blockchain. We've thoroughly tested it against hundreds of thousands of hands for accuracy and randomness, and are having it audited. However, if you find a bug (duplicate cards, incorrect ranking, etc), please <a href="https://www.reddit.com/r/PennyEther">let us know</a> and you'll be rewarded with a bounty.
+							</p>
+						</div>
+					</div>
+
+					<div class="page-subsection">
+						<div class="head">Winning</div>
+						<div class="body">
+							<h3>How do I get paid?</h3>
+							<p>
+								If you see that you've won, you can claim your winnings, rebet, or both. Your winnings will be added to your "credits", which can be cashed out at any time.
+							</p>
+
+							<h3>Why the 256 block limit?</h3>
+							<p>
+								If you see that you've won, you'll have 256 blocks to either play again, or to claim your winnings. This is due to a limitation in Ethereum where the contract can only see the last 256 blockhashes. Since your hand is determined using the blockhash, the contract must be made aware that you've won within 256 blocks.
+							</p>
+							<p>
+								The only way to prevent this 256 block warning would be for us to use an Oracle. This would cost you a lot more gas, would require a much higher minimum transaction, would not guarantee randomness, and it would take at least twice as long to see your results.
+							</p>
+
+							<h3>What are credits?</h3>
+							<p>
+								Credits are Ether that the contract is holding on to on your behalf. Instead of paying you Ether back on each win, and you sending it to us for each new hand, we use credits. This saves gas costs and simplifies the game play.
+							</p>
+							<p>
+								You can cash out your credits at any time.
+							</p>
+
+							<h3>How do I know you'll pay me?</h3>
+							<p>
+								Credits are held securely and can only ever leave the contract to pay users when they cash out.
+							</p>
+							<p>
+								The contract will not take a bet unless it can pay out at least two royal flushes of the maximum bet size, within 256 blocks. The likelihood of this occuring is a statistical near-impossibility. Regardless, the contract will likely have enough bankroll to pay out even 10 times that. You can check the <a href="https://investor.pennyether.com/status/videopoker.html">contract status here</a>.
+							</p>
+
+							<h3>I didn't claim my winnings in time!</h3>
+							<p>
+								Mistakes happen. If you were unable to claim your winnings in time, please send a message on <a href="https://www.reddit.com/r/PennyEther">reddit</a> or <a href="#">discord</a>. Include your Game ID, and we'll be happy to send the winnings to originating account.
+							</p>
+						</div>
+					</div>
+
+					<div class="page-subsection">
+						<div class="head">Misc</div>
+						<div class="body">
+							<h3>Can I be the house?</h3>
+							<p>
+								<a href="https://investor.pennyether.com">You most certainly can.</a>
+							</p>
+
+							<h3>I have an idea!</h3>
+							<p>
+								We'd love to hear your feedback! The best place to share your ideas is on <a href="https://www.reddit.com/r/PennyEther">our subreddit</a>.
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div></body>
+</html>

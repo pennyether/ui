@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/global/javascripts/lib/Loader.js"></script>
+		<script src="/local/load.js"></script>
+	</head>
+	<body><div id="Content">
+		<div style="width: 80%; margin: 30px auto;">
+			<div class="page-section">
+				<div class="head">InstaDice FAQs</div>
+				<div class="body" style="font-size: 90%;">
+					<div class="page-subsection">
+						<div class="head">GamePlay</div>
+						<div class="body">
+							<h3>What is InstaDice?</h3>
+							<p>
+								InstaDice is a random number game. A random number between 1 and 100 (inclusive) will be drawn, and if the number you choose is greater than or equal to the random number, you win.
+							</p>
+							<p>
+								The lower the number you choose, the less odds you have of winning, but the more you will win.
+							</p>
+
+							<h3>How are random numbers chosen?</h3>
+							<p>
+								We use a hash of your roll id and the blockhash of the block your transaction took place on. Since we don't use an Oracle, our transaction costs are extremely low, and we can offer you the best house odds and extremely low minimum wagers.
+							</p>
+
+							<h3>How instant are the results?</h3>
+							<p>
+								As soon as your transaction is mined, you'll see the results. The speed at which your transaction is mined is determined by the gas price you set.
+							</p>
+
+							<h3>How much gas does it cost?</h3>
+							<p>
+								Extremely little. About 43,000 gas if you are rolling after a loss, and 50,000 gas if you are rolling after a win. For comparison, all other dice games we've seen use at least 150,000 gas.
+							</p>
+
+							<h3>Can I bet multiple times?</h3>
+							<p>
+								Not in the same block. This restriction keeps gas costs low.
+							</p>
+
+							<h3>What happens if there is an error?</h3>
+							<p>
+								Your bet will be refunded and hardly any gas will be used.
+							</p>
+							<p>
+								Errors can occur if:
+								<ul>
+									<li>You bypass the UI and bet too much, too little, or an invalid number.</li>
+									<li>You try to roll multiple times in the same block.</li>
+								</ul>
+							</p>
+
+							<h3>What is the House Fee?</h3>
+							<p>
+								The House Fee is a small "edge" that the house gets. For example, if you choose the number 50 (50% odds of winning), you'll win slightly less than 2x.
+							</p>
+							<p>
+								The House Fee is factored into the Payout you see, and can be viewed on the <a href="https://investors.pennyether.com/status/instadice.html">InstaDice Status page</a>.
+							</p>
+						</div>
+					</div>
+
+					<div class="page-subsection">
+						<div class="head">Winning</div>
+						<div class="body">
+							<h3>How do I get paid?</h3>
+							<p>
+								If you see that you've won, you can either roll again, or claim the prize by clicking a button.
+								<br>
+								<b>Please note you will have to either roll again or claim your winnings within 256 blocks (~1 hour)</b>
+							</p>
+
+							<h3>Why the 256 block limit?</h3>
+							<p>
+								If you see that you've won, you'll have 256 blocks to either roll again, or to manually claim your winnings. This is due to a limitation in Ethereum where the contract can only see the last 256 blockhashes. Since the winning number is determined using the blockhash, the contract must be made aware that you've won within 256 blocks.
+							</p>
+							<p>
+								The only way to prevent this 256 block warning would be for us to use an Oracle. This would cost you a lot more gas, would require a much higher minimum transaction, would not guarantee randomness, and it would take at least twice as long to see your results.
+							</p>
+
+							<h3>How do I know you'll pay me?</h3>
+							<p>
+								Payout is coded into the smart contract. As long as the contract has Ether, it will pay you.
+							</p>
+							<p>
+								The contract will not take a bet unless it can pay out at least 10 times the maximum win. This means in order for you to not get paid, ten players would have to win the maximum bet (with the lowest odds), with no players losing, all within 256 blocks -- this is a statistical near-impossibility.
+							</p>
+							<p>
+								Regardless, the contract will likely have enough bankroll to pay out even 100 times that. You can check the <a href="https://investor.pennyether.com/status/instadice.html">contract status here</a>.
+							</p>
+
+							<h3>I didn't claim my winnings in time!</h3>
+							<p>
+								Mistakes happen. If you were unable to claim your winnings in time, please send a message on <a href="https://www.reddit.com/r/PennyEther">reddit</a> or <a href="#">discord</a>. Include your Roll ID, and we'll be happy to send the winnings to originating account.
+							</p>
+						</div>
+					</div>
+
+					<div class="page-subsection">
+						<div class="head">Misc</div>
+						<div class="body">
+							<h3>Can I be the house?</h3>
+							<p>
+								<a href="https://investor.pennyether.com">You most certainly can.</a>
+							</p>
+
+							<h3>I have an idea!</h3>
+							<p>
+								We'd love to hear your feedback! The best place to share your ideas is on <a href="https://www.reddit.com/r/PennyEther">our subreddit</a>.
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div></body>
+</html>

@@ -7,7 +7,7 @@
                 name: "Play!",
                 url: "/games/monarchy.html"
             },{
-                name: "How to Play",
+                name: "FAQs",
                 url: "/games/monarchy-faqs.html"
             },{
                 name: "View Recent Games",
@@ -23,7 +23,7 @@
                 name: "Play!",
                 url: "/games/instadice.html"
             },{
-                name: "How to Play",
+                name: "FAQs",
                 url: "/games/instadice-faqs.html"
             },{
                 name: "View Past Rolls",
@@ -39,7 +39,7 @@
                 name: "Play!",
                 url: "/games/videopoker.html"
             },{
-                name: "How to Play",
+                name: "FAQs",
                 url: "/games/videopoker-faqs.html"
             },{
                 name: "View Past Hands",
