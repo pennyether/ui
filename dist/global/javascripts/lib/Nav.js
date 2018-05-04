@@ -148,17 +148,17 @@
                 : `#${rollId}`;
             return $("<a class='roll-link' target='_blank'></a>")
                 .text(str)
-                .attr("href", `/games/view-instadice-roll.html#${rollId}`);
+                .attr("href", `/view/instadice-rolls.html#${rollId}`);
         };
         this.$getMonarchyGameLink = function(addr) {
             return $("<a class='monarchy-game-link' target='_blank'></a>")
                 .text(addr.slice(0, 6) + "..." + addr.slice(-4))
-                .attr("href", `/games/view-monarchy-game.html#${addr}`);
+                .attr("href", `/view/monarchy-games.html#${addr}`);
         };
         this.$getVpGameLink = function(id) {
             return $("<a class='videopoker-game-link' target='_blank'></a>")
                 .text(`Game #${id}`)
-                .attr("href", `/games/view-videopoker-hand.html#${id}`);
+                .attr("href", `/view/videopoker-hands.html#${id}`);
         };
         this.$getPlayerLink = function(addr, forceAddr) {
             const $el = $("<div class='player-link'></div>");

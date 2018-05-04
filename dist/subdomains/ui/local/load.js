@@ -11,7 +11,7 @@
                 url: "/games/monarchy-faqs.html"
             },{
                 name: "View Recent Games",
-                url: "/games/view-monarchy-game.html"
+                url: "/view/monarchy-games.html"
             },{
                 name: "Contract Info",
                 url: "/about/contracts-games.html#monarchy-game"
@@ -27,7 +27,7 @@
                 url: "/games/instadice-faqs.html"
             },{
                 name: "View Past Rolls",
-                url: "/games/view-instadice-roll.html"
+                url: "/view/instadice-rolls.html"
             },{
                 name: "Contract Info",
                 url: "/about/contracts-games.html#instadice"
@@ -43,7 +43,7 @@
                 url: "/games/videopoker-faqs.html"
             },{
                 name: "View Past Hands",
-                url: "/games/view-videopoker-hand.html"
+                url: "/view/videopoker-hands.html"
             },{
                 name: "Contract Info",
                 url: "/about/contracts-games.html#video-poker"

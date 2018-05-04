@@ -638,7 +638,7 @@ Loader.require("dice")
 
                     const $txLink = util.$getTxLink(dateStr, txId);
                     const $rollLink = $("<a target='_blank'></a>")
-                        .attr("href", `/games/view-instadice-roll.html#${rollId}`)
+                        .attr("href", `/view/instadice-rolls.html#${rollId}`)
                         .text(`Roll #${rollId}`);
                     const $e = $(".mini-roll.template")
                         .clone()
