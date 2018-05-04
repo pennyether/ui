@@ -2,6 +2,7 @@ Loader.require("monarchy", "monarchy-factory")
 .then(function(monarchy, mf){
 	ethUtil.onStateChanged((state)=>{
 		if (!state.isConnected) return;
+		refreshGames();
 		refreshGame();
 	});
 
@@ -10,28 +11,118 @@ Loader.require("monarchy", "monarchy-factory")
 	const _$loadBtn = $("#LoadButton").click(changeAddress);
 
 	if (window.location.hash) {
-		_address = window.location.hash.substring(1)
-		_$address.val(_address);
+		_$address.val(window.location.hash.substring(1));
 		_$loadBtn.click();
 	}
 
+	function error(msg) {
+		const $e = $(".cell.select .error");
+		if (!msg) $e.hide();
+		else $e.show().text(msg);
+	}
+
 	function changeAddress(){
-		_address = _$address.val();
-		window.location.hash = `#${_address}`;
-		if (!_address)
-			return alert("Please enter a valid address.");
-		if (!(_address.toLowerCase().startsWith("0x")))
-			return alert("Address must start with '0x'");
-		if (!(_address.length=="42"))
-			return alert("Address should be 42 characters long.");
+		const addr = _$address.val();
+		window.location.hash = `#${addr}`;
+
+		_address = null;
+		if (!addr) {
+			error("Please enter a valid address.");
+		} else if (!(addr.toLowerCase().startsWith("0x"))) {
+			error("Address must start with '0x'");
+		} else if (!(addr.length=="42")){
+			error("Address should be 42 characters long.");
+		} else {
+			error("");
+			_address = addr;
+		}
 
 		refreshGame();
 		initLogs();
 	};
 
+	function refreshGames() {
+		const $e = $(".cell.games");
+		function getGames(addrs) {
+			return Promise.all(addrs.map(addr => {
+				const inst = MonarchyGame.at(addr);
+				return Promise.obj({
+					address: addr,
+					initialPrize: inst.initialPrize(),
+					fee: inst.fee(),
+					prizeIncr: inst.prizeIncr(),
+					reignBlocks: inst.reignBlocks(),
+					monarch: inst.monarch(),
+					numOverthrows: inst.numOverthrows(),
+					blocksRemaining: inst.getBlocksRemaining()
+				});
+			}));
+		}
+		// get active games
+		function getActiveGames(){
+			return monarchy.numDefinedGames().then(num => {
+                const promises = [];
+                for (var i=1; i<=num; i++) {
+                    let id = i;
+                    promises.push(
+                    	monarchy.definedGames([id]).then(arr => {
+                        	return arr[0] == ethUtil.NO_ADDRESS
+                        		? null
+                        		: arr[0];
+                        })
+                    );
+                }
+                return Promise.all(promises).then(addrs => {
+                	return getGames(addrs.filter(addr => !!addr));
+                });
+            });
+		}
+		// get ended games
+		function getEndedGames(){
+			return monarchy.recentlyEndedGames([5]).then(addrs => {
+                return getGames(addrs);
+            });
+		}
+
+		// <td>Game</td>
+		// <td>Initial Prize</td>
+		// <td>Overthrow Fee</td>
+		// <td>Prize Increment</td>
+		// <td>Reign Blocks</td>
+		// <td>Current Monarch</td>
+		// <td>Num Overthrows</td>
+		// <td>Blocks Remaining</td>
+		Promise.obj({
+			active: getActiveGames(),
+			ended: getEndedGames()
+		}).then(obj => {
+			const games = obj.active.concat(obj.ended);
+			const $tbody = $e.find("tbody").empty();
+			console.log(games);
+			games.forEach(game => {
+				$tr = $("<tr></tr>");
+				const $link = nav.$getMonarchyGameLink(game.address).click(e => {
+					e.preventDefault();
+					$("#Address").val(game.address);
+					$("#LoadButton").click();
+				});
+				$("<td></td>").append($link).appendTo($tr);
+				$("<td></td>").text(util.toEthStrFixed(game.initialPrize)).appendTo($tr);
+				$("<td></td>").text(util.toEthStrFixed(game.fee)).appendTo($tr);
+				$("<td></td>").text(util.toEthStrFixed(game.prizeIncr)).appendTo($tr);
+				$("<td></td>").text(game.reignBlocks).appendTo($tr);
+				$("<td></td>").append(nav.$getPlayerLink(game.monarch)).appendTo($tr);
+				$("<td></td>").text(game.numOverthrows).appendTo($tr);
+				const endedStr = game.blocksRemaining.gt(0) ? game.blocksRemaining : "ENDED";
+				$("<td></td>").text(endedStr).appendTo($tr);
+				$tr.appendTo($tbody);
+			})
+		})
+	}
+
 	function refreshGame() {
 		if (!_address) {
-			$(".field .value").text("No address provided.");
+			$(".field .value").text("--");
 			return;
 		}
 
@@ -50,7 +141,7 @@ Loader.require("monarchy", "monarchy-factory")
 
 		// load game and show address.
 		const game = MonarchyGame.at(_address);
-		$(".field.address .value").empty().append(util.$getAddrLink(_address));
+		$(".field.address .value").empty().append(util.$getShortAddrLink(_address));
 
 		// find transaction it was created on, verify there was a Factory event.
 		$(".verified .value").text("Loading...");
@@ -131,6 +222,10 @@ Loader.require("monarchy", "monarchy-factory")
 	function initOverthrows(){
 		const $ctnr = $(".overthrows .body").text("Loading...");
         if (!MonarchyUtil) throw new Error(`MonarchyUtil is required.`);
+        if (!_address) {
+			$ctnr.text("No address provided.");
+			return;
+		}
 
         const game = MonarchyGame.at(_address);
         game.getEvents("Started").then(evs => {
@@ -167,6 +262,10 @@ Loader.require("monarchy", "monarchy-factory")
 
 	function initEvents(){
 		const $ctnr = $(".events .body").text("Loading...");
+		if (!_address) {
+			$ctnr.text("No address provided.");
+			return;
+		}
 
         const game = MonarchyGame.at(_address);
         game.getEvents("Started").then(evs => {

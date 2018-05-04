@@ -10,12 +10,11 @@
                 name: "How to Play",
                 url: "/games/monarchy-faqs.html"
             },{
-                name: "Contract Status",
-                url: "/status/monarchy.html"
-            },{
-                hide: true,
-                name: "View Game",
+                name: "Recent Games",
                 url: "/games/view-monarchy-game.html"
+            },{
+                name: "Contract Info",
+                url: "/about/contracts-games.html#monarchy-game"
             }]
         },{
             name: "🎲 InstaDice",
@@ -27,12 +26,11 @@
                 name: "How to Play",
                 url: "/games/instadice-faqs.html"
             },{
-                name: "Contract Status",
-                url: "/status/instadice.html"
-            },{
-                hide: true,
-                name: "View Roll",
+                name: "Recent Rolls",
                 url: "/games/view-instadice-roll.html"
+            },{
+                name: "Contract Info",
+                url: "/about/contracts-games.html#instadice"
             }]
         },{
             name: "🃏 Video Poker",
@@ -44,12 +42,11 @@
                 name: "How to Play",
                 url: "/games/videopoker-faqs.html"
             },{
-                name: "Contract Status",
-                url: "/status/videopoker.html"
-            },{
-                hide: true,
-                name: "View Hand",
+                name: "Recent Hands",
                 url: "/games/view-videopoker-hand.html"
+            },{
+                name: "Contract Info",
+                url: "/about/contracts-games.html#video-poker"
             }]
         },{
             name: "About",

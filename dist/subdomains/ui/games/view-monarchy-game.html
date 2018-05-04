@@ -5,32 +5,45 @@
 		<script src="/local/load.js"></script>
 		<script src="/global/javascripts/shared/MonarchyUtil.js"></script>
 		<script src="/javascripts/games/view-monarchy-game.js"></script>
+		<link rel="stylesheet" type="text/css" href="/global/styles/status.css"/>
 		<style>
-			.enterAddress {
+			.cell.select .load-ctnr {
 				width: 80%;
 				margin: 0px auto;
 				text-align: center;
 			}
-			.enterAddress input {
+			.cell.select .load-ctnr input {
 				font-size: 120%;
 				width: 470px;
 			}
-			.enterAddress button {
+			.cell.select .load-ctnr button {
 				font-size: 120%;
 				margin-left: 10px;
 			}
+			.cell.select .error {
+				display: inline-block;
+				margin: 5px auto;
+				padding: 5px 10px;
+				background: rgba(255,0,0,.3);
+				border-radius: 3px;
+			}
+
 			.body .field {
 				padding: 3px 0px;
+				display: table-row;
 			}
 			.body .field .label {
+				display: table-cell;
+				padding: 3px;
+				min-width: 150px;
 				vertical-align: top;
-				display: inline-block;
-				width: 170px;
+				white-space: nowrap;
 			}
 			.body .field .value {
-				display: inline-block;
+				display: table-cell;
+				padding: 3px;
 			}
-			.head .info {
+			.info {
 				display: inline-block;
 				color: gray;
 				font-style: italic;
@@ -47,10 +60,163 @@
 	<div id="Content">
 		<div class="page-header">
 			<div class="title">
-				PennyAuction Details
+				MonarchyGame Details
 			</div>
 		</div>
-		<div class="section enterAddress">
+		<div class="statusRow">
+			<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+				<td width="100%"><div class="cell games">
+					<div class="titleBar">Recent Games</div>
+					<div class="body">
+						<table width="100%" class="table">
+							<thead>
+								<tr>
+									<td>Game</td>
+									<td>Initial Prize</td>
+									<td>Overthrow Fee</td>
+									<td>Prize Increment</td>
+									<td>Reign Blocks</td>
+									<td>Current Monarch</td>
+									<td>Num Overthrows</td>
+									<td>Blocks Remaining</td>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+				</div></td>
+			</tr></table>
+		</div>
+		<div class="statusRow">
+			<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+				<td width="100%"><div class="cell select">
+					<div class="titleBar">Select Monarchy Game</div>
+					<div class="body">
+						<div class="load-ctnr" style="text-align: center;">
+							<div>
+								<input type=text id="Address" placeholder="auction address"><button id="LoadButton">Load</button>
+							</div>
+							<div class="error" style="display: none;"></div>
+						</div>
+					</div>
+				</div></td>
+			</tr></table>
+		</div>
+		<div class="statusRow valid">
+			<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+				<td width="50%"><div class="cell settings">
+					<div class="titleBar">Game Settings</div>
+					<div class="body">
+						<div class="field address">
+							<div class="label" title="The address of the auction." data-tippy-placement="left">
+								Address:
+							</div>
+							<div class="value"></div>
+						</div>
+						<div class="field verified">
+							<div class="label" title="Shows the transaction that created this contract, and that it was created by PennyEther." data-tippy-placement="left">
+								Verified:
+							</div>
+							<div class="value"></div>
+						</div>
+						<div class="field collector">
+							<div class="label" title="The address to which fees are sent. This should always be the Monarch controller." data-tippy-placement="left">
+								Collector:
+							</div>
+							<div class="value"></div>
+						</div>
+						<hr>
+						<div class="field initialPrize">
+							<div class="label" title="The initial prize that the game was staked with." data-tippy-placement="left">
+								Initial Prize:
+							</div>
+							<div class="value"></div>
+						</div>
+						<div class="field fee">
+							<div class="label" title="The amount it costs to overthrow the Monarch." data-tippy-placement="left">
+								Overthrow Fee:
+							</div>
+							<div class="value"></div>
+						</div>
+						<div class="field prizeIncr">
+							<div class="label" title="The amount the prize will increase by (or, if negative, decrease by) each time the Monarch is overthrown." data-tippy-placement="left">
+								Prize Increment:
+							</div>
+							<div class="value"></div>
+						</div>
+						<div class="field reignBlocks">
+							<div class="label" title="The number of blocks the Monarch must consecutively reign, without being overthrown, to win." data-tippy-placement="left">
+								Reign Blocks:
+							</div>
+							<div class="value"></div>
+						</div>
+					</div>
+				</div></td>
+				<td width="50%"><div class="cell contract-data">
+					<div class="titleBar">Contract Data</div>
+					<div class="body">
+						<div class="field prize">
+							<div class="label" title="The current prize of the auction. The Monarch will win this if they are not overthrown." data-tippy-placement="left">
+								Current Prize:
+							</div>
+							<div class="value"></div>
+						</div>
+						<div class="field monarch">
+							<div class="label" title="The current Monarch." data-tippy-placement="left">
+								Current Monarch:
+							</div>
+							<div class="value"></div>
+						</div>
+						<div class="field currentReign">
+							<div class="label" title="Information on the Monarch's reign." data-tippy-placement="left">
+								Current Reign:
+							</div>
+							<div class="value"></div>
+						</div>
+						<div class="field numOverthrows">
+							<div class="label" title="The total number of overthrows." data-tippy-placement="left">
+								Overthrows:
+							</div>
+							<div class="value"></div>
+						</div>
+						<div class="field isPaidStr">
+							<div class="label" title="Whether or not the Monarch was paid the prize. Will be false if the game is ongoing." data-tippy-placement="left">
+								Is Paid:
+							</div>
+							<div class="value"></div>
+						</div>
+						<hr>
+						<div class="field collectedFees">
+							<div class="label tipLeft" title="The amount of Ether accrued as revenue." data-tippy-placement="left">
+								Collected Fees:
+							</div>
+							<div class="value"></div>
+						</div>
+						<div class="field uncollectedFees">
+							<div class="label tipLeft" title="The amount of Ether that can be sent to the Monarch controller as revenue." data-tippy-placement="left">
+								Uncollected Fees:
+							</div>
+							<div class="value"></div>
+						</div>
+					</div>
+				</div></td>
+			</tr></table>
+		</div>
+		<div class="statusRow valid">
+			<table width="100%"" cellpadding="0" cellspacing="0"><tr>
+				<td width="50%"><div class="cell overthrows">
+					<div class="titleBar">Overthrows</div>
+					<div class="body"></div>
+				</div></td>
+				<td width="50%"><div class="cell events">
+					<div class="titleBar">Events</div>
+					<div class="body">
+						
+					</div>
+				</div></td>
+			</tr></table>
+		</div>
+		<!-- <div class="section enterAddress">
 			<div style="display: inline-block;">
 				<div class="head" style="text-align: left;">Auction Address</div>
 				<div class="body">
@@ -174,7 +340,7 @@
 				</div>
 				<div class="body"></div>
 			</div>
-		</div>
+		</div> -->
 	</div>
 	</body>
 </html>
