@@ -2,8 +2,8 @@ Loader.require("vp")
 .then(function(vp){
 	const _$txtGame = $(".cell.select .txt-game");
 	const _$btnLoad = $(".cell.select .btn-load").click(changeGame);
-	const _$status = $(".cell.select .status");
-	const _$error = $(".cell.select .error");
+	const _$status = $(".cell.select .status").hide();
+	const _$error = $(".cell.select .error").hide();
 	const _$refunded = $(".refunded").hide();
 	const _$notRefunded = $(".not-refunded");
 	var _gameId;

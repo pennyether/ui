@@ -2,8 +2,8 @@ Loader.require("dice")
 .then(function(dice){
 	const _$roll = $("#Roll");
 	const _$loadBtn = $("#LoadButton").click(changeRoll);
-	const _$status = $(".cell.select .status");
-	const _$error = $(".cell.select .error");
+	const _$status = $(".cell.select .status").hide();
+	const _$error = $(".cell.select .error").hide();
 	const _$refunded = $(".refunded");
 	var _rollId;
 	var _rollTx;

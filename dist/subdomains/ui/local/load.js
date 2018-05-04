@@ -10,7 +10,7 @@
                 name: "How to Play",
                 url: "/games/monarchy-faqs.html"
             },{
-                name: "Recent Games",
+                name: "View Recent Games",
                 url: "/games/view-monarchy-game.html"
             },{
                 name: "Contract Info",
@@ -26,7 +26,7 @@
                 name: "How to Play",
                 url: "/games/instadice-faqs.html"
             },{
-                name: "Recent Rolls",
+                name: "View Past Rolls",
                 url: "/games/view-instadice-roll.html"
             },{
                 name: "Contract Info",
@@ -42,7 +42,7 @@
                 name: "How to Play",
                 url: "/games/videopoker-faqs.html"
             },{
-                name: "Recent Hands",
+                name: "View Past Hands",
                 url: "/games/view-videopoker-hand.html"
             },{
                 name: "Contract Info",
@@ -62,7 +62,7 @@
                 url: "https://blog.pennyether.com/"
             },{
                 name: "Investors",
-                url: "https://investors.pennyether.com/"
+                url: "https://investor.pennyether.com/"
             }]
         }
     ];

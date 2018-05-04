@@ -132,7 +132,7 @@
 			.then(function(dice, vp, monarchy){
 				$(".dice-addr").append(util.$getAddrLink(dice.address));
 				$(".vp-addr").append(util.$getAddrLink(vp.address));
-				$(".reg-addr").append(util.$getAddrLink(reg.address));
+				$(".monarchy-addr").append(util.$getAddrLink(monarchy.address));
 			});
 		</script>
 	</head>
@@ -184,15 +184,21 @@
 				</div>
 				<div class="fieldList">
 					<div class="field">
+						<div class="label">Address:</div>
+						<div class="value monarchy-addr"></div>
+					</div>
+					<div class="field">
 						<div class="label">Status:</div>
 						<div class="value">
-							<a href="/status/monarchy.html" target="_blank">Monarchy Status</a>
+							<a href="https://investor.pennyether.com/status/monarchy.html" target="_blank">Monarchy Status</a>
+							<br>
+							<a href="/games/view-instadice-roll.html">View Recent Games</a>
 						</div>
 					</div>
 					<div class="field">
 						<div class="label">More Info:</div>
 						<div class="value">
-							<a href="/ico/whitepaper.html#monarchy">Whitepaper</a>
+							<a href="https://investor.pennyether.com/ico/whitepaper.html#monarchy">Whitepaper</a>
 							<br>
 							<a href="https://github.com/pennyether/contracts#monarchy" target="_blank">Technical Documentation</a>
 						</div>
@@ -221,9 +227,15 @@
 				</div>
 				<div class="fieldList">
 					<div class="field">
+						<div class="label">Recent Games:</div>
+						<div class="value">
+							<a href="/games/view-instadice-roll.html">View Recent Games</a>
+						</div>
+					</div>
+					<div class="field">
 						<div class="label">More Info:</div>
 						<div class="value">
-							<a href="/ico/whitepaper.html#monarchy">Whitepaper</a>
+							<a href="https://investor.pennyether.com//ico/whitepaper.html#monarchy">Whitepaper</a>
 							<br>
 							<a href="https://github.com/pennyether/contracts#monarchy" target="_blank">Technical Documentation</a>
 						</div>
@@ -258,15 +270,15 @@
 					<div class="field">
 						<div class="label">Status:</div>
 						<div class="value">
-							<a href="/status/instadice.html">InstaDice Status</a>
+							<a href="https://investor.pennyether.com/status/instadice.html">InstaDice Status</a>
 							<br>
-							<a href="/games/view-instadice-roll.html#1">View Roll</a>
+							<a href="/games/view-instadice-roll.html">View Past Rolls</a>
 						</div>
 					</div>
 					<div class="field">
 						<div class="label">More Info:</div>
 						<div class="value">
-							<a href="/ico/whitepaper.html#games-instadice">Whitepaper</a>
+							<a href="https://investor.pennyether.com/ico/whitepaper.html#games-instadice">Whitepaper</a>
 							<br>
 							<a href="https://github.com/pennyether/contracts#instadice" target="_blank">Technical Documentation</a>
 						</div>
@@ -303,7 +315,7 @@
 						<div class="value">
 							<a href="/status/videopoker.html">VideoPoker Status</a>
 							<br>
-							<a href="/games/view-videopoker-hand.html#1">View Hand</a>
+							<a href="/games/view-videopoker-hand.html">View Past Hands</a>
 						</div>
 					</div>
 					<div class="field">
