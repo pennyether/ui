@@ -49,9 +49,12 @@
                 url: "/about/contracts-games.html#video-poker"
             }]
         },{
-            name: "About",
+            name: "More",
             url: "/about/mission.html",
             children: [{
+                name: "Player History",
+                url: "/tools/player.html"
+            },{
                 name: "Our Mission",
                 url: "/about/mission.html"
             },{
