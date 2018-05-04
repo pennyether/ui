@@ -1,15 +1,22 @@
 Loader.require("dice")
 .then(function(dice){
 	const _$roll = $("#Roll");
-	const _$loadBtn = $("#LoadButton").click(findRoll);
+	const _$loadBtn = $("#LoadButton").click(changeRoll);
 	const _$status = $(".cell.select .status");
 	const _$error = $(".cell.select .error");
 	const _$refunded = $(".refunded");
+	var _rollId;
+	var _rollTx;
+
+	ethUtil.onStateChanged((state)=>{
+		if (!state.isConnected) return;
+		refreshRoll();
+	});
 
 	if (window.location.hash) {
 		const roll = window.location.hash.substring(1)
 		_$roll.val(roll);
-		findRoll();
+		changeRoll();
 	}
 
 	(function initRecentRolls(){
@@ -48,9 +55,9 @@ Loader.require("dice")
 	            blocksPerSearch: Math.round(60*60*3 / 15),
 	            valueFn: (event) => {
 	                const $e = DiceUtil.$getEventSummary(event, true);
-	                $e.find(".roll-link").removeAttr("target").click(e => {
+	                $e.on("click", ".roll-link", e => {
 	                	e.preventDefault();
-	                	const id = $(e.currentTarget).text().slice(1);
+	                	const id = $(e.currentTarget).text().match(/\d+/)[0];
 	                	_$roll.val(id);
 	                	_$loadBtn.click();
 	                });
@@ -68,55 +75,58 @@ Loader.require("dice")
 		else _$error.show().text(msg);
 	}
 
-	function findRoll(){
+	function changeRoll(){
 		doScrolling($(".cell.select"), 500);
+		_gameId = null;
+		refreshRoll();
 		_$status.empty();
-		const val = _$roll.val();
-		window.location.hash = `#${val}`;
-		refreshRoll(null);
+		const input = _$roll.val();
+		window.location.hash = `#${input}`;
 
-		var rollId, txHash;
-		if (!val) {
-			return error("Please enter a Roll Id or a transaction hash.");
-		} else if (Number.isNaN(val) || Number(val)>1e18){
-			if (!(val.toLowerCase().startsWith("0x"))){
-				return error("If providing a transaction hash, it must start with 0x");
-			}
-			if (!(val.length==66)){
+		var rollTx, rollId;
+		if (!input || Number.isNaN(Number(input))){
+			return error(`Please enter a txId (starting with "0x"), or a RollId integer.`);
+		} else if (input.toLowerCase().startsWith("0x")) {
+			if (!(input.length==66))
 				return error("A transaction hash should be 66 characters long.");
-			}
-			txHash = val;
+			txId = input;
 		} else {
-			rollId = Number(val);
+			rollId = Number(input);
 			if (!Number.isInteger(rollId)){
-				return error("Roll Id must be an integer.");
+				return error("RollId must be an integer.");
 			} else if (rollId <= 0){
-				return error("Roll Id must be greater than 0.");
+				return error("RollId must be greater than 0.");
+			} else if (rollId >= 2**32) {
+				return error("RollId is too large.");
 			}
 		}
 
 		error("");
 		if (rollId){
-			refreshRoll(rollId);
+			_rollId = rollId;
+			refreshRoll();
 			return;
 		}
+
 		_$status.empty().text("Finding roll from transaction...");
-		ethUtil.getTxReceipt(txHash, false).then(res=>{
+		ethUtil.getTxReceipt(rollTx, false).then(res=>{
 			const events = dice._getNiceWeb3().decodeEvents(res.logs, dice.abi);
 			const event = events.find((e)=>e.name=="RollWagered" || e.name=="RollRefunded");
 			if (!event) {
-				_$status.empty().text(`No InstaDice event was found in the transaction receipt.`);
+				_$error.empty().text(`No "InstaDice" events found in transaction receipt: `).append(util.$getTxLink(txId)).show();
 				return;
 			}
-			_$status.empty().text(`Found an InstaDice event in the transaction receipt.`);
 			if (event.name=="RollRefunded") {
-				refreshRefundedRoll(event);
+				_$status.empty().text(`Roll was refunded in this transaction.`);
+				setRefundedRoll(event);
 			} else {
-				refreshRoll(event.args.id);	
+				_rollId = event.args.id;
+				_$status.empty().text(`Roll #${_rollId} was created in this transaction.`);
+				refreshRoll();
 			}
 		}).catch((e)=>{
 			console.error(e);
-			_$status.empty().text(`Unable to load a receipt for this Transaction Id.`);
+			_$status.empty().text(`Unable to load a receipt for txId: `).append(util.$getTxLink(txId));
 		})
 	}
 
@@ -128,8 +138,8 @@ Loader.require("dice")
 			.append(util.$getTxLink(event.transactionHash));
 	}
 
-	function refreshRefundedRoll(event) {
-		$(".contractData .field .value").text("");
+	function setRefundedRoll(event) {
+		$(".roll-data .field .value").text("");
 		const bet = event.args.bet;
 		const number = event.args.number
 
@@ -143,24 +153,24 @@ Loader.require("dice")
 		$(".field.payout .value").append(`n/a`);
 	}
 
-	function refreshRoll(rollId) {
-		if (!rollId) {
-			$(".field .value").text("--");
+	function refreshRoll() {
+		if (!_rollId) {
+			$(".cell.roll-data .field .value").text("--");
 			return;
 		}
 		_$refunded.hide();
 
 		// load all events, display roll.
-		$(".field .value").text("Loading...");
+		$(".cell.roll-data .field .value").text("Loading...");
 		Promise.all([
-			dice.getEvents("RollWagered", {id: rollId}),
-			dice.getEvents("RollFinalized", {id: rollId})
+			dice.getEvents("RollWagered", {id: _rollId}),
+			dice.getEvents("RollFinalized", {id: _rollId})
 		]).then(arr=>{
 			const wagered = arr[0].length ? arr[0][0] : null;
 			const finalized = arr[1].length ? arr[1][0] : null;
 
 			if (!wagered) {
-				error(`Unable to find the "RollWagered" event of roll: ${rollId}`);
+				error(`Unable to find the "RollWagered" event of roll: ${_rollId}`);
 				$(".field .value").text("--");
 				return;
 			} else {
@@ -172,7 +182,7 @@ Loader.require("dice")
 			$(".field.number .value").append(`${wagered.args.number} or below.`);
 			$(".field.payout .value").append(util.toEthStrFixed(wagered.args.payout));
 
-			const computedResult = DiceUtil.computeResult(wagered.blockHash, rollId);
+			const computedResult = DiceUtil.computeResult(wagered.blockHash, _rollId);
 			const isWinner = !computedResult.gt(wagered.args.number);
 			// update initial transaction and result.
 			$(".field.transaction .value").append($getTxLink(wagered));

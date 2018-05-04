@@ -1,45 +1,81 @@
 Loader.require("vp")
 .then(function(vp){
-	const _$txtGame = $(".top .txt-game");
-	const _$btnLoad = $(".top .btn-load").click(findGame);
-	const _$status = $(".top .status");
+	const _$txtGame = $(".cell.select .txt-game");
+	const _$btnLoad = $(".cell.select .btn-load").click(changeGame);
+	const _$status = $(".cell.select .status");
+	const _$error = $(".cell.select .error");
 	const _$refunded = $(".refunded").hide();
-	const _$notRefunded = $(".not-refunded").hide();
+	const _$notRefunded = $(".not-refunded");
+	var _gameId;
+
+	ethUtil.onStateChanged((state)=>{
+		if (!state.isConnected) return;
+		refreshGame();
+	});
 
 	if (window.location.hash) {
 		const hash = window.location.hash.substring(1)
 		_$txtGame.val(hash);
-		findGame();
+		changeGame();
 	}
 
-	function findGame(){
-		_$status.empty().removeClass("error");
-		_$refunded.hide();
-		_$notRefunded.hide();
+	(function initRecentHands(){
+		const $e = $(".cell.hands");
+		if (!PokerUtil) throw new Error(`PokerUtil is required.`);
+		const $ctnr = $e.find(".log-viewer");
 
+		vp.getEvents("Created").then(arr => {
+            return arr[0].blockNumber;
+        }).then(creationBlockNum => {
+	        const ghv = new PokerUtil.GameHistoryViewer(vp, 5760, true);
+	        ghv.setUser(null);
+	        ghv.setMinBlock(creationBlockNum);
+	        ghv.$e.appendTo($e.find(".log-viewer"));
+	        $e.on("click", ".videopoker-game-link", e => {
+	        	e.preventDefault();
+            	const id = $(e.currentTarget).text().match(/\d+/)[0];
+            	_$txtGame.val(id);
+            	_$btnLoad.click();
+	        });
+        });
+	}());
+
+	function error(msg) {
+		if (!msg) _$error.hide();
+		else _$error.show().text(msg);
+	}
+
+	function changeGame(){
+		doScrolling($(".cell.select"), 500);
+		_gameId = null;
+		refreshGame();
+		_$status.empty();
 		const input = _$txtGame.val();
 		window.location.hash = `#${input}`;
 
 		var gameId, txId;
-		if (!input)
-			return _$status.text("Please enter a Game Id or a transaction hash.").addClass("error");
-		if (Number.isNaN(input) || Number(input)>1e18){
-			if (!(input.toLowerCase().startsWith("0x")))
-				return _$status.text("If providing a transaction hash, it must start with 0x").addClass("error");
+		if (!input || Number.isNaN(Number(input))){
+			return error(`Please enter a txId (starting with "0x"), or a GameId integer.`);
+		} else if (input.toLowerCase().startsWith("0x")) {
 			if (!(input.length==66))
-				return _$status.text("A transaction hash should be 66 characters long.").addClass("error");
+				return error("A transaction hash should be 66 characters long.");
 			txId = input;
 		} else {
 			gameId = Number(input);
-			if (!Number.isInteger(gameId))
-				return _$status.text("Game Id must be an integer.").addClass("error");
-			if (gameId <= 0)
-				return _$status.text("Game Id must be greater than 0.").addClass("error");
+			if (!Number.isInteger(gameId)){
+				return error("GameId must be an integer.");
+			} else if (gameId <= 0){
+				return error("GameId must be greater than 0.");
+			} else if (gameId >= 2**32) {
+				return error("GameId is too large.");
+			}
 		}
 
 		// if we think input was an ID, load it.
+		error("");
 		if (gameId){
-			refreshGame(gameId);
+			_gameId = gameId;
+			refreshGame();
 			return;
 		}
 
@@ -49,19 +85,19 @@ Loader.require("vp")
 			const events = niceWeb3.decodeEvents(res.logs, vp.abi);
 			const event = events.find(ev => ev.name=="BetSuccess" || ev.name=="BetFailure");
 			if (!event) {
-				_$status.empty().text(`No VideoPoker event was found in the transaction receipt.`).addClass("error");
+				_$error.empty().text(`No "VideoPoker" events found in transaction receipt: `).append(util.$getTxLink(txId)).show();
 				return;
 			}
 			if (event.name=="BetSuccess") {
 				_$status.text(`Bet was refunded in this transaction.`);
 				refreshRefundedGame(event);
 			} else {
-				const gameId = event.args.id;
-				_$status.text(`Game #${gameId} was created in this transaction.`);
-				refreshGame(event.args.id);	
+				_gameId = event.args.id;
+				_$status.text(`Game #${_gameId} was created in this transaction.`);
+				refreshGame();	
 			}
 		}).catch((e)=>{
-			_$status.text(`Unable to load a receipt for txId: ${txId}`).addClass("error");
+			_$error.empty().text(`Unable to load a receipt for txId: `).append(util.$getTxLink(txId)).show();
 		});
 	}
 
@@ -81,10 +117,15 @@ Loader.require("vp")
 		_$refunded.find(".reason .value").text(event.args.msg);
 	}
 
-	function refreshGame(gameId) {
+	function refreshGame() {
+		const gameId = _gameId;
+		if (!gameId) {
+			$(".cell.history .field .value").text("--");
+			return;
+		}
 		PokerUtil.getGame(vp, gameId).then(game => {
 			if (game.iBlock.equals(0)) {
-				_$status.text(`VideoPoker has no details for game #${gameId}.`).addClass("error");
+				error(`VideoPoker has no details for game #${gameId}.`);
 				return;
 			} else {
 				_$status.text(`Loaded VideoPoker game #${gameId}.`);
@@ -174,7 +215,7 @@ Loader.require("vp")
 					$(".history .credits-added > .value").text("No 'CreditsAdded' event occurred.");
 				}
 			}).catch(e => {
-				_$status.text(e.message).addClass("error");
+				error(e.message);
 			});
 		});
 	}

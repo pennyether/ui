@@ -5,35 +5,51 @@
 		<script src="/local/load.js"></script>
 		<script src="/global/javascripts/shared/PokerUtil.js"></script>
 		<script src="/javascripts/games/view-videopoker-hand.js"></script>
+		<link rel="stylesheet" type="text/css" href="/global/styles/status.css"/>
 		<style>
-			.top input {
+			.cell.select {
+				text-align: center;
+			}
+			.cell.select input {
 				font-size: 120%;
 				width: 470px;
 			}
-			.top button {
+			.cell.select button {
 				font-size: 120%;
 				margin-left: 10px;
 			}
-			.top .status {
+			.cell.select .status {
 				margin-top: 10px;
 				color: gray;
 			}
-			.top .status.error {
-				color: red;
+			.cell.select .error {
+				display: inline-block;
+				margin: 5px auto;
+				padding: 5px 10px;
+				background: rgba(255,0,0,.3);
+				border-radius: 3px;
 			}
 
-			.field {
+			.cell .field {
 				padding: 3px 0px;
+				display: table-row;
 			}
-			.field .label {
-				display: inline-block;
-				width: 170px;
+			.cell .field .label {
+				display: table-cell;
+				padding: 3px;
+				min-width: 150px;
+				vertical-align: top;
+				white-space: nowrap;
 			}
-			.field .value {
-				display: inline-block;
+			.cell .field .value {
+				display: table-cell;
+				padding: 3px;
 			}
-			.field .params {
+			.cell .field .params {
+				border-left: 1px dotted rgba(0,0,0,.1);
 				margin-left: 20px;
+				padding-left: 20px;
+				white-space: nowrap;
 			}
 			hr {
 				opacity: .3;
@@ -53,7 +69,185 @@
 				<a href="">Etherscan Link</a>
 			</div>
 		</div>
-		<div class="page-section top">
+		<div class="statusRow">
+			<div class="cell hands">
+				<div class="titleBar">Recent Hands</div>
+				<div class="body">
+					<div class="log-viewer"></div>
+				</div>
+			</div>
+		</div>
+		<div class="statusRow">
+			<div class="cell select">
+				<div class="titleBar">Select Hand</div>
+				<div class="body">
+					<div>
+						<input type=text class="txt-game" placeholder="gameId or transaction">
+						<button class="btn-load">Load</button>
+					</div>
+					<div class="error"></div>
+					<div class="status"></div>
+				</div>
+			</div>
+		</div>
+		<div class="statusRow refunded">
+			<div class="cell refund-data">
+				<div class="titleBar">Refund Information</div>
+				<div class="body">
+					<div class="refunded" style="display: none;">
+						<div class="field refund-event">
+							<div class="label" title="An event indicating the bet was refunded." data-tippy-placement="left">
+								Refund Event:
+							</div>
+							<div class="value"></div>
+						</div>
+						<div class="field bet">
+							<div class="label" title="The wager size." data-tippy-placement="left">
+								Bet Size:
+							</div>
+							<div class="value"></div>
+						</div>
+						<div class="field reason">
+							<div class="label" title="The reason why the bet was refunded" data-tippy-placement="left">
+								Reason:
+							</div>
+							<div class="value"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="statusRow not-refunded">
+			<div class="cell history">
+				<div class="titleBar">Hand History</div>
+				<div class="body">
+					<div class="field credits-used">
+						<div class="label" title="This event is trigged if the user bet using credits." data-tippy-placement="left">
+							Credits Used:
+						</div>
+						<div class="value"></div>
+						<div class="params">
+							<div class="field amount">
+								<div class="label" title="The amount of credits used." data-tippy-placement="left">
+									Amount:
+								</div>
+								<div class="value"></div>
+							</div>
+						</div>
+					</div>
+					<hr>
+					<div class="field bet-success">
+						<div class="label" title="This event is trigged when the bet is successful. The user can immediately see a hand based on the blockhash of the result." data-tippy-placement="left">
+							Bet Success:
+						</div>
+						<div class="value"></div>
+						<div class="params">
+							<div class="field bet">
+								<div class="label" title="The amount that was bet" data-tippy-placement="left">
+									Bet:
+								</div>
+								<div class="value"></div>
+							</div>
+							<div class="field paytable-id">
+								<div class="label" title="The PayTable ID that this hand will use to calculate payouts." data-tippy-placement="left">
+									PayTable ID:
+								</div>
+								<div class="value"></div>
+							</div>
+							<div class="field local-hand">
+								<div class="label" title="The hand dealt, as displayed to the user. The player must either finalize or draw within 255 blocks, or this hand is forfeited." data-tippy-placement="left">
+									[Local Hand]:
+								</div>
+								<div class="value">note: show blocks left</div>
+							</div>
+						</div>
+					</div>
+					<hr>
+					<div class="field draw-success">
+						<div class="label" title="This event is triggered when the user wants to draw cards. It may be skipped if the user keeps their entire initial hand." data-tippy-placement="left">
+							Hand Drawn:
+						</div>
+						<div class="value"></div>
+						<div class="params">
+							<div class="field i-hand">
+								<div class="label" title="The initial hand that was resolved. If the Draw event occurred after 255 blocks of the Deal event, this will be 0." data-tippy-placement="left">
+									Initial Hand:
+								</div>
+								<div class="value"></div>
+							</div>
+							<div class="field draws">
+								<div class="label" title="Which cards the user wants replaced." data-tippy-placement="left">
+									Draws:
+								</div>
+								<div class="value"></div>
+							</div>
+							<div class="field warn-code">
+								<div class="label" title="An associated warning code.<br>1: Initial hand no longer available" data-tippy-placement="left">
+									Warn Code:
+								</div>
+								<div class="value"></div>
+							</div>
+							<div class="field local-hand">
+								<div class="label" title="The hand after draws, as calculated locally. The player must finalize within 255 blocks, or their initial hand is used." data-tippy-placement="left">
+									[Local Hand]:
+								</div>
+								<div class="value">note: show blocks left</div>
+							</div>
+						</div>
+					</div>
+					<hr>
+					<div class="field finalize-success">
+						<div class="label" title="This event is triggered if the user has a winning hand and wishes to get credited for it. It may be skipped if the hand is a losing hand." data-tippy-placement="left">
+							Hand Finalized:
+						</div>
+						<div class="value"></div>
+						<div class="params">
+							<div class="field final-hand">
+								<div class="label" title="The final hand that was resolved. This should be a combination of the Initial Hand, plus the draws." data-tippy-placement="left">
+									Final Hand:
+								</div>
+								<div class="value"></div>
+							</div>
+							<div class="field hand-rank">
+								<div class="label" title="The rank of the hand, and the corresponding name." data-tippy-placement="left">
+									Hand Rank:
+								</div>
+								<div class="value"></div>
+							</div>
+							<div class="field payout">
+								<div class="label" title="The payout of the hand. This will correspond with the pay table used for this hand." data-tippy-placement="left">
+									Payout:
+								</div>
+								<div class="value"></div>
+							</div>
+							<div class="field warn-code">
+								<div class="label" title="Any warnings associated with the finalization. This can occur if the user took too long between drawing and finalizing.<br>2: Drawn cards no longer available (using initial hand).<br>3: No cards available." data-tippy-placement="left">
+									Warn Code:
+								</div>
+								<div class="value"></div>
+							</div>
+						</div>
+					</div>
+					<hr>
+					<div class="field credits-added">
+						<div class="label" title="This event is trigged if the user was given credits for winning this game." data-tippy-placement="left">
+							Credits Added:
+						</div>
+						<div class="value"></div>
+						<div class="params">
+							<div class="field amount">
+								<div class="label" title="The amount of credits given." data-tippy-placement="left">
+									Amount:
+								</div>
+								<div class="value"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<!-- <div class="page-section top">
 			<div class="head">Game ID</div>
 			<div class="body">
 				<input type=text class="txt-game" placeholder="gameId or transaction">
@@ -242,7 +436,7 @@
 					</div>
 				</div>
 			</div>
-		</div>
+		</div> -->
 	</div>
 	</body>
 </html>
