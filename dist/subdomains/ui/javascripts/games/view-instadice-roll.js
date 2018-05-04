@@ -2,10 +2,9 @@ Loader.require("dice")
 .then(function(dice){
 	const _$roll = $("#Roll");
 	const _$loadBtn = $("#LoadButton").click(findRoll);
-	const _$status = $(".roll .status");
+	const _$status = $(".cell.select .status");
+	const _$error = $(".cell.select .error");
 	const _$refunded = $(".refunded");
-	const _$resultSection = $(".rollResult");
-	const _$historySection = $(".rollHistory");
 
 	if (window.location.hash) {
 		const roll = window.location.hash.substring(1)
@@ -13,28 +12,90 @@ Loader.require("dice")
 		findRoll();
 	}
 
+	(function initRecentRolls(){
+		const $e = $(".cell.rolls");
+		if (!DiceUtil) throw new Error(`DiceUtil is required.`);
+		const $ctnr = $e.find(".log-viewer");
+
+		dice.getEvents("Created").then(arr => {
+            return arr[0].blockNumber;
+        }).then(startBlock => {
+	        const events = [{
+	            instance: dice,
+	            name: "RollWagered",
+	            label: "Roll",
+	            selected: true
+	        },{
+	            instance: dice,
+	            name: "RollRefunded",
+	            label: "Roll Refunded",
+	            selected: false 
+	        },{
+	            instance: dice,
+	            name: "RollFinalized",
+	            label: "Roll Finalized",
+	            selected: false 
+	        },{
+	            instance: dice,
+	            name: "PayoutError",
+	            label: "Payout Error",
+	            selected: false
+	        }];
+	        var lv = util.getLogViewer({
+	            events: events,
+	            order: "newest",
+	            minBlock: startBlock,
+	            blocksPerSearch: Math.round(60*60*3 / 15),
+	            valueFn: (event) => {
+	                const $e = DiceUtil.$getEventSummary(event, true);
+	                $e.find(".roll-link").removeAttr("target").click(e => {
+	                	e.preventDefault();
+	                	const id = $(e.currentTarget).text().slice(1);
+	                	_$roll.val(id);
+	                	_$loadBtn.click();
+	                });
+	                return $e;
+	            }
+	        });
+	        lv.$e.appendTo($ctnr);
+	    }).catch(e => {
+	    	$ctnr.text(`Unable to find recent rolls: ${e.message}`)
+	    })
+	}());
+
+	function error(msg) {
+		if (!msg) _$error.hide();
+		else _$error.show().text(msg);
+	}
+
 	function findRoll(){
+		doScrolling($(".cell.select"), 500);
 		_$status.empty();
 		const val = _$roll.val();
 		window.location.hash = `#${val}`;
+		refreshRoll(null);
 
 		var rollId, txHash;
-		if (!val)
-			return alert("Please enter a Roll Id or a transaction hash.");
-		if (Number.isNaN(val) || Number(val)>1e18){
-			if (!(val.toLowerCase().startsWith("0x")))
-				return alert("If providing a transaction hash, it must start with 0x");
-			if (!(val.length==66))
-				return alert("A transaction hash should be 66 characters long.");
+		if (!val) {
+			return error("Please enter a Roll Id or a transaction hash.");
+		} else if (Number.isNaN(val) || Number(val)>1e18){
+			if (!(val.toLowerCase().startsWith("0x"))){
+				return error("If providing a transaction hash, it must start with 0x");
+			}
+			if (!(val.length==66)){
+				return error("A transaction hash should be 66 characters long.");
+			}
 			txHash = val;
 		} else {
 			rollId = Number(val);
-			if (!Number.isInteger(rollId))
-				return alert("Roll Id must be an integer.");
-			if (rollId <= 0)
-				return alert("Roll Id must be greater than 0.");
+			if (!Number.isInteger(rollId)){
+				return error("Roll Id must be an integer.");
+			} else if (rollId <= 0){
+				return error("Roll Id must be greater than 0.");
+			}
 		}
 
+		error("");
 		if (rollId){
 			refreshRoll(rollId);
 			return;
@@ -72,8 +133,6 @@ Loader.require("dice")
 		const bet = event.args.bet;
 		const number = event.args.number
 
-		_$historySection.hide();
-		_$resultSection.hide();
 		_$refunded.show();
 		$(".refundReason").show().text(event.args.msg);
 		$(".field.id .value").text(`Roll was not created.`);
@@ -85,13 +144,14 @@ Loader.require("dice")
 	}
 
 	function refreshRoll(rollId) {
-		$(".contractData .field .value").text("Loading...");
-		_$historySection.show();
-		_$resultSection.show();
+		if (!rollId) {
+			$(".field .value").text("--");
+			return;
+		}
 		_$refunded.hide();
 
 		// load all events, display roll.
-		$(".field .value").text("");
+		$(".field .value").text("Loading...");
 		Promise.all([
 			dice.getEvents("RollWagered", {id: rollId}),
 			dice.getEvents("RollFinalized", {id: rollId})
@@ -100,8 +160,11 @@ Loader.require("dice")
 			const finalized = arr[1].length ? arr[1][0] : null;
 
 			if (!wagered) {
-				_$status.empty().text(`Unable to find the "RollWagered" event of roll: ${rollId}`);
+				error(`Unable to find the "RollWagered" event of roll: ${rollId}`);
+				$(".field .value").text("--");
 				return;
+			} else {
+				$(".field .value").empty();
 			}
 			$(".field.id .value").text(`${wagered.args.id}`);
 			$(".field.user .value").append(nav.$getPlayerLink(wagered.args.user));

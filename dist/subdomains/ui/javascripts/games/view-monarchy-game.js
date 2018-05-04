@@ -15,13 +15,14 @@ Loader.require("monarchy", "monarchy-factory")
 		_$loadBtn.click();
 	}
 
-	function error(msg) {
-		const $e = $(".cell.select .error");
-		if (!msg) $e.hide();
-		else $e.show().text(msg);
-	}
-
 	function changeAddress(){
+		function error(msg) {
+			const $e = $(".cell.select .error");
+			if (!msg) $e.hide();
+			else $e.show().text(msg);
+		}
+
+		doScrolling($(".cell.select"), 500);
 		const addr = _$address.val();
 		window.location.hash = `#${addr}`;
 
@@ -98,7 +99,6 @@ Loader.require("monarchy", "monarchy-factory")
 		}).then(obj => {
 			const games = obj.active.concat(obj.ended);
 			const $tbody = $e.find("tbody").empty();
-			console.log(games);
 			games.forEach(game => {
 				$tr = $("<tr></tr>");
 				const $link = nav.$getMonarchyGameLink(game.address).click(e => {

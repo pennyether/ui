@@ -372,7 +372,7 @@ function doScrolling(end, duration) {
     //     ? document.body.scrollHeight - window.innerHeight
     //     : elementY
     if (typeof end !== "number") {
-        end = $(end).position().top;
+        end = $(end).position().top - ($("#Nav").height() + 10);
     }
     const start = window.pageYOffset;
     var diff = end - start;
