@@ -164,7 +164,7 @@ Loader.require("vp")
 					$(".history .credits-used .amount .value").text(util.toEthStrFixed(creditsUsed.args.amount));	
 				} else {
 					$(".history .credits-used > .value").append("No 'CreditsUsed' event found. The user bet with Ether.");	
-					$(".history .credits-used .value").text("--");
+					$(".history .credits-used .amount .value").text("--");
 				}
 				
 				if (betSuccess) {
