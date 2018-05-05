@@ -31,19 +31,20 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
                 </div>
                 <fieldset class="is-admin">
                     <div class="whitelist">
-                        <table>
-                            <tr>
-                                <td><input type="text" class="txt-new-addr"></td>
-                                <td><button class="btn-add-whitelist">Add</td></td>
-                                <td></td>
-                            </tr>
-                        </table>
+                        <center>
+                            <table class="table">
+                                <tr>
+                                    <td><input type="text" class="txt-new-addr address"></td>
+                                    <td><button class="btn-add-whitelist">Add</td></td>
+                                </tr>
+                            </table>
+                        </center>
                     </div>
                 </div>
                 <div class="header">
                     Add Bankroll
                 </div>
-                <div>
+                <div style="text-align: center;">
                     <input type="text" class="txt-bankroll">ETH <button class="btn-add-bankroll">Add</button>
                 </div>
             </div>
@@ -53,47 +54,103 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
         const $btnAddBankroll = $e.find(".btn-add-bankroll");
         const $txtBankroll = $e.find(".txt-bankroll");
 
-        makeTxButton($btnAddWhitelist, (obj)=>{
-            const addr = $txtNewAddr.val();
-            const promise = instance.addToWhitelist({_addr: addr}, {gasPrice: obj.gasPrice});
-            $btnAddWhitelist.attr("disabled", "disabled");
-            return util.$getTxStatus(promise, {
-                waitTimeMs: obj.waitTimeS * 1000,
-                onSuccess: (res, txStatus) => {
-                    const ev = res.events.find(ev => ev.name=="AddedToWhitelist");
-                    if (ev) {
-                        const addr = ev.args.addr;
-                        txStatus.addSuccessMsg(`Added ${addr} to whitelist.`);
-                    } else {
-                        txStatus.addFailureMsg(`Did not add anything (already added?)`);
-                    }
-                },
-                onClear: () => {
-                    $btnAddWhitelist.removeAttr("disabled");
+        instance.whitelist().then(addr => {
+            const wl = AddressSet.at(addr);
+            wl.addresses().then(arr => {
+                const $table = $e.find(".whitelist table");
+                if (arr.length == 0) {
+                    $table.prepend($("<tr><td colspan=2>No Entries (all addresses whitelisted)</td></tr>"));
+                    return;
                 }
+                arr.forEach(addr => {
+                    const $tr = $(`
+                        <tr>
+                            <td class="address"></td>
+                            <td><button>Remove</button></td>
+                        </tr>`
+                    ).prependTo($table);
+                    $tr.find(".address").append(Loader.linkOf(addr));
+                    const $button = $tr.find("button");
+                    makeTxButton($button, (obj)=>{
+                        return removeFromWhitelist(obj, addr, $button);
+                    });
+                });
             });
+        })
+
+        function removeFromWhitelist(obj, addr, $btn) {
+            try {
+                const promise = instance.removeFromWhitelist({_addr: addr}, {gasPrice: obj.gasPrice});
+                $btn.attr("disabled", "disabled");
+                return util.$getTxStatus(promise, {
+                    waitTimeMs: obj.waitTimeS * 1000,
+                    onSuccess: (res, txStatus) => {
+                        const ev = res.events.find(ev => ev.name=="RemovedFromWhitelist");
+                        if (ev) {
+                            const addr = ev.args.addr;
+                            txStatus.addSuccessMsg(`Removed ${addr} from whitelist.`);
+                        } else {
+                            txStatus.addFailureMsg(`Did not add anything (already added?)`);
+                        }
+                    },
+                    onClear: () => {
+                        $btn.removeAttr("disabled");
+                    }
+                });
+            } catch (e) {
+                return $("<div></div>").text(`Error: ${e.message}`);
+            }
+        }
+
+        makeTxButton($btnAddWhitelist, (obj)=>{
+            try {
+                const addr = $txtNewAddr.val();
+                const promise = instance.addToWhitelist({_addr: addr}, {gasPrice: obj.gasPrice});
+                $btnAddWhitelist.attr("disabled", "disabled");
+                return util.$getTxStatus(promise, {
+                    waitTimeMs: obj.waitTimeS * 1000,
+                    onSuccess: (res, txStatus) => {
+                        const ev = res.events.find(ev => ev.name=="AddedToWhitelist");
+                        if (ev) {
+                            const addr = ev.args.addr;
+                            txStatus.addSuccessMsg(`Added ${addr} to whitelist.`);
+                        } else {
+                            txStatus.addFailureMsg(`Did not add anything (already added?)`);
+                        }
+                    },
+                    onClear: () => {
+                        $btnAddWhitelist.removeAttr("disabled");
+                    }
+                });
+            } catch (e) {
+                return $("<div></div>").text(`Error: ${e.message}`);
+            }
         });
 
         makeTxButton($btnAddBankroll, (obj)=>{
-            const val = (new BigNumber($txtBankroll.val())).mul(1e18);
-            const promise = instance.addBankroll([], {value: val, gasPrice: obj.gasPrice});
-            $btnAddBankroll.attr("disabled", "disabled");
-            return util.$getTxStatus(promise, {
-                waitTimeMs: obj.waitTimeS * 1000,
-                onSuccess: (res, txStatus) => {
-                    // event BankrollAdded(uint time, address indexed bankroller, uint amount, uint bankroll);
-                    const ev = res.events.find(ev => ev.name=="BankrollAdded");
-                    if (ev) {
-                        const ethStr = util.toEthStrFixed(ev.args.amount);
-                        txStatus.addSuccessMsg(`Added ${ethStr} to bankroll.`);
-                    } else {
-                        txStatus.addFailureMsg(`Did not add anything.`);
+            try {
+                const val = (new BigNumber($txtBankroll.val())).mul(1e18);
+                const promise = instance.addBankroll([], {value: val, gasPrice: obj.gasPrice});
+                $btnAddBankroll.attr("disabled", "disabled");
+                return util.$getTxStatus(promise, {
+                    waitTimeMs: obj.waitTimeS * 1000,
+                    onSuccess: (res, txStatus) => {
+                        // event BankrollAdded(uint time, address indexed bankroller, uint amount, uint bankroll);
+                        const ev = res.events.find(ev => ev.name=="BankrollAdded");
+                        if (ev) {
+                            const ethStr = util.toEthStrFixed(ev.args.amount);
+                            txStatus.addSuccessMsg(`Added ${ethStr} to bankroll.`);
+                        } else {
+                            txStatus.addFailureMsg(`Did not add anything.`);
+                        }
+                    },
+                    onClear: () => {
+                        $btnAddBankroll.removeAttr("disabled");
                     }
-                },
-                onClear: () => {
-                    $btnAddBankroll.removeAttr("disabled");
-                }
-            });
+                });
+            } catch (e) {
+                return $("<div></div>").text(`Error: ${e.message}`);
+            }
         });
 
         return $e;
@@ -112,6 +169,7 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
         const $e = $(".cell.governance");
 
         makeTxButton($e.find(".btn-create"), create);
+        makeTxButton($e.find(".btn-add-capital"), addCapital);
 
         function getPendingRequests() {
             return tr.numPendingRequests().then(num => {
@@ -162,7 +220,7 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
             });
             $ctnr.find(".btn-cancel").toArray().forEach(btn => {
                 const $btn = $(btn);
-                makeTxButton($(btn), obj => cancel(btn, obj))
+                makeTxButton($btn, obj => cancel(btn, obj))
             });
             if (obj.requests.length == 0) {
                 $ctnr.append("<div style='text-align:center'>There are no pending requests.</div>");
@@ -173,7 +231,7 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
             const $button = $(btn);
             const $request = $button.closest("request");
             const params = {
-                _id: $button.closest(".request").data("request-id")
+                _id: $request.data("request-id")
             };
 
             // append statusRow to this row.
@@ -201,7 +259,7 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
             const $button = $(btn);
             const $request = $button.closest("request");
             const params = {
-                _id: $button.closest(".request").data("request-id"),
+                _id: $request.data("request-id"),
                 _msg: $button.closest("td").find(".cancel-msg").val()
             };
 
@@ -249,6 +307,32 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
                     $e.find(".btn-create").removeAttr("disabled");
                 }
             });
+        }
+        function addCapital(obj) {
+            try {
+                const $btn = $e.find(".btn-add-capital");
+                const val = (new BigNumber($e.find(".txt-capital").val())).mul(1e18);
+                const promise = tr.addCapital([], {value: val, gasPrice: obj.gasPrice});
+                $btn.attr("disabled", "disabled");
+                return util.$getTxStatus(promise, {
+                    waitTimeMs: obj.waitTimeS * 1000,
+                    onSuccess: (res, txStatus) => {
+                        //event CapitalAdded(uint time, address indexed sender, uint amount);
+                        const ev = res.events.find(ev => ev.name=="CapitalAdded");
+                        if (ev) {
+                            const ethStr = util.toEthStrFixed(ev.args.amount);
+                            txStatus.addSuccessMsg(`Added ${ethStr} to Treasury Capital.`);
+                        } else {
+                            txStatus.addFailureMsg(`Did not add anything.`);
+                        }
+                    },
+                    onClear: () => {
+                        $btn.removeAttr("disabled");
+                    }
+                });
+            } catch (e) {
+                return $("<div></div>").text(`Error: ${e.message}`);
+            }
         }
     }
 
@@ -597,7 +681,7 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
                     $row.append($("<td></td>").text(name));
 
                     row.forEach((val, ptId) => {
-                        const $cell = $("<td></td>")
+                        $("<td></td>")
                             .text(`${val} x`)
                             .addClass(`paytable-${ptId}`)
                             .appendTo($row);

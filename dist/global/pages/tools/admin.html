@@ -74,7 +74,7 @@
 			}
 
 			.cell .header {
-				margin: 5px auto;
+				margin: 20px auto 10px auto;
 				text-align: center;
 				color: gray;
 				font-weight: bold;
@@ -82,6 +82,10 @@
 				padding: 2px 0px;
 				border-bottom: 1px dotted rgba(0,0,0,.2);
 				width: 80%;
+			}
+
+			.cell .finances .whitelist input.address {
+				width: 200px;
 			}
 		</style>
 	</head>
@@ -96,7 +100,7 @@
 				<div class="cell governance">
 					<div class="titleBar">
 						<span>
-							Governance
+							Capital Management
 						</span>
 					</div>
 					<div class="body">
@@ -105,7 +109,7 @@
 						</div>
 						<fieldset class="is-admin">
 							<div class="header">
-								Pending Requests
+								Pending Governance Requests
 							</div>
 							<div class="requests-ctnr">
 								<div class="request template hide">
@@ -133,7 +137,7 @@
 										<tr>
 											<td colspan="2" style="text-align: center;">
 												<button class="btn-execute">Execute</button>
-												<br>
+												-or-
 												<input type="text" class="cancel-msg">
 												<button class="btn-cancel">Cancel</button>
 											</td>
@@ -141,8 +145,8 @@
 									</table>
 								</div>
 							</div>
-							<div class="header" style="margin-top: 20px;">
-								New Request
+							<div class="header">
+								New Governance Request
 							</div>
 							<div class="create-request">
 								<table class="fields" style="margin: 0px auto;">
@@ -201,6 +205,12 @@
 								</table>
 							</div>
 						</fieldset>
+						<div class="header">
+								Add Capital
+						</div>
+						<div class="add-capital" style="text-align: center;">
+							<input type="text" class="txt-capital">ETH <button class="btn-add-capital">Add</button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -448,7 +458,7 @@
 									</td>
 								</tr>
 							</table>
-							<div class="header" style="margin-top: 20px;">
+							<div class="header">
 								Pay Tables
 							</div>
 							<table class="pay-tables" style="margin: 0px auto;">

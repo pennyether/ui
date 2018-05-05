@@ -39,6 +39,7 @@
 
             "Bankrollable": true,
             "Ledger": true,
+            "AddressSet": true,
             "MonarchyGame": true,
 
             "AJAX": true,

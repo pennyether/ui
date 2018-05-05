@@ -72,7 +72,8 @@ var filenames = [
     "Treasury.json",
     "VideoPoker.json",
     "Ledger.json",
-    "Bankrollable.json"
+    "Bankrollable.json",
+    "AddressSet.json",
 ];
 
 // only pluck out the requested contracts
