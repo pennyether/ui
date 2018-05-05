@@ -42,10 +42,12 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
                     </div>
                 </div>
                 <div class="header">
-                    Add Bankroll
+                    Bankroll
                 </div>
                 <div style="text-align: center;">
                     <input type="text" class="txt-bankroll">ETH <button class="btn-add-bankroll">Add</button>
+                    <br>
+                    <input type="text" class="txt-bankroll-rm">ETH <button class="btn-remove-bankroll">Remove</button>
                 </div>
             </div>
         `);
@@ -53,6 +55,15 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
         const $txtNewAddr = $e.find(".txt-new-addr");
         const $btnAddBankroll = $e.find(".btn-add-bankroll");
         const $txtBankroll = $e.find(".txt-bankroll");
+        const $btnRemoveBankroll = $e.find(".btn-remove-bankroll");
+        const $txtBankrollRm = $e.find(".txt-bankroll-rm");
+
+        const account = ethUtil.getCurrentAccount();
+        if (account) {
+            instance.bankrolledBy([account]).then(amt => {
+                $txtBankrollRm.val(amt.div(1e18));
+            });
+        }
 
         instance.whitelist().then(addr => {
             const wl = AddressSet.at(addr);
@@ -80,7 +91,7 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
 
         function removeFromWhitelist(obj, addr, $btn) {
             try {
-                const promise = instance.removeFromWhitelist({_addr: addr}, {gasPrice: obj.gasPrice});
+                const promise = instance.removeFromWhitelist({_addr: addr}, {gasPrice: obj.gasPrice, gas: 50000});
                 $btn.attr("disabled", "disabled");
                 return util.$getTxStatus(promise, {
                     waitTimeMs: obj.waitTimeS * 1000,
@@ -152,6 +163,31 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
                 return $("<div></div>").text(`Error: ${e.message}`);
             }
         });
+
+        makeTxButton($btnRemoveBankroll, obj => {
+            try {
+                const val = (new BigNumber($txtBankrollRm.val())).mul(1e18);
+                const promise = instance.removeBankroll([val, ""], {gasPrice: obj.gasPrice});
+                $btnAddBankroll.attr("disabled", "disabled");
+                return util.$getTxStatus(promise, {
+                    waitTimeMs: obj.waitTimeS * 1000,
+                    onSuccess: (res, txStatus) => {
+                        const ev = res.events.find(ev => ev.name=="BankrollRemoved");
+                        if (ev) {
+                            const ethStr = util.toEthStrFixed(ev.args.amount);
+                            txStatus.addSuccessMsg(`Removed ${ethStr} from bankroll.`);
+                        } else {
+                            txStatus.addFailureMsg(`Did not add anything.`);
+                        }
+                    },
+                    onClear: () => {
+                        $btnAddBankroll.removeAttr("disabled");
+                    }
+                });
+            } catch (e) {
+                return $("<div></div>").text(`Error: ${e.message}`);
+            }
+        })
 
         return $e;
     }
