@@ -149,7 +149,7 @@ Loader.require("comp", "tr")
 			const bonusCap = obj.bonusCap;
 			const capitalPct = obj.capitalPct.div(10000);
 
-			if (hardCap.equals(0) && false) {
+			if (hardCap.equals(0)) {
 				$e.find(".na").show();
 				return;
 			} else {

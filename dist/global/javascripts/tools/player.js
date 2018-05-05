@@ -26,7 +26,6 @@ Loader.require("monarchy", "dice", "vp")
         // use current account if none provided
         if (!$addressInput.getValue()) {
             $addressInput.setValue(ethUtil.getCurrentAccount());
-            _resetAll();
         }
 
         // get start blocks for controllers, init event viewers, and reset them.
@@ -38,7 +37,7 @@ Loader.require("monarchy", "dice", "vp")
             _initMonarchy(obj.monarchyStart);
             _initDice(obj.diceStart);
             _initVp(obj.vpStart);
-        });
+        }).then(_resetAll);
     });
 
     function _resetAll() {
@@ -80,7 +79,7 @@ Loader.require("monarchy", "dice", "vp")
         });
         lv.$e.appendTo($ctnr);
 
-        _resetCallbacks.push(() => lv.reset(false));
+        _resetCallbacks.push(() => lv.reset(true));
 
         // get all overthrow, refund, and sendprize events for _curAccount
         function buildEvents() {
@@ -138,7 +137,7 @@ Loader.require("monarchy", "dice", "vp")
         });
         lv.$e.appendTo($ctnr);
 
-        _resetCallbacks.push(() => lv.reset(false));
+        _resetCallbacks.push(() => lv.reset(true));
 
         // get all overthrow, refund, and sendprize events for _curAccount
         function buildEvents() {
@@ -174,7 +173,10 @@ Loader.require("monarchy", "dice", "vp")
         ghv.setUser(_curAccount);
         ghv.setMinBlock(startBlock);
         ghv.$e.appendTo($(".cell.videopoker .log-viewer-ctnr"));
-        _resetCallbacks.push(() => ghv.setUser(_curAccount));
+        _resetCallbacks.push(() => {
+            ghv.setUser(_curAccount);
+            ghv.reset(true);
+        });
     }
     
 });

@@ -92,6 +92,11 @@
                 color: gray;
                 background: rgba(0,0,0,.1);
             }
+                .GameHistoryViewer .empty {
+                    color: black;
+                    margin-bottom: 5px;
+                    font-size: 120%;
+                }
                 .GameHistoryViewer .loaded {
                     display: inline-block;
                     color: gray;
@@ -326,6 +331,7 @@
                     <tbody>
                         <tr class='status'>
                             <td colspan=8>
+                                <div class='empty'>No results found.</div>
                                 <div class='loaded'></div>
                                 <div class='load-more'>load more...</div>
                             </td>
@@ -336,6 +342,7 @@
         `);
         const _$statusRow = _$e.find(".status").detach();
         const _$loadMore = _$statusRow.find(".load-more").click(_loadNext);
+        const _$empty = _$statusRow.find(".empty").hide();
         const _$loaded = _$statusRow.find(".loaded");
         const _$tbody = _$e.find("tbody");
         const _$headers = _$e.find("thead td").click((e) => {
@@ -370,19 +377,21 @@
         }());
 
         this.$e = _$e;
-        this.reset = function(){
+        this.reset = function(doLoad){
             const curBlockNum = ethUtil.getCurrentStateSync().latestBlock.number;
             _isDone = false;
             _nextToBlock = curBlockNum;
             _nextFromBlock = Math.max(curBlockNum - _numBlocks, _minBlock);
             _maxBlockLoaded = curBlockNum;
             _gameStates = [];
+            _$empty.hide();
             if (!_enabled) {
                 _$loadMore.hide();
                 _$loaded.text(_disabledMsg);
             } else {
                 _$loadMore.show();
                 _$loaded.text("No results loaded.");
+                if (doLoad) _$loadMore.click();
             }
             _redraw();
         };
@@ -546,6 +555,8 @@
                 }());
             });
             _$tbody.append(_$statusRow);
+            if (_$tbody.find(".GameHistory").length==0) _$empty.show();
+            else _$empty.hide();
             _$e.find("table").append(_$tbody);
         }
 
