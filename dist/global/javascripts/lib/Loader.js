@@ -78,13 +78,13 @@
             name = name[0].toUpperCase() + name.toLowerCase().slice(1);
             name = name.replace(/_([a-z])/g, (m, w)=>w.toUpperCase())
             const href = ({
-                "Treasury": "/status/treasury.html",
-                "Comptroller": "/status/comptroller.html",
-                "PennyToken": "/status/token.html",
-                "TaskManager": "/status/taskmanager.html",
-                "MonarchyController": "/status/monarchy.html",
-                "InstaDice": "/status/instadice.html",
-                "VideoPoker": "/status/videopoker.html"
+                "Treasury": "https://investor.pennyether.com/status/treasury.html",
+                "Comptroller": "https://investor.pennyether.com/status/comptroller.html",
+                "PennyToken": "https://investor.pennyether.com/status/token.html",
+                "TaskManager": "https://investor.pennyether.com/status/taskmanager.html",
+                "MonarchyController": "https://investor.pennyether.com/status/monarchy.html",
+                "InstaDice": "https://investor.pennyether.com/status/instadice.html",
+                "VideoPoker": "https://investor.pennyether.com/status/videopoker.html"
             }[name]);
             if (!href) return util.$getAddrLink(name, addr);
             return $(`<a href="${href}" target="_blank"></a>`).text(name);

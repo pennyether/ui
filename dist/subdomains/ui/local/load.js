@@ -14,7 +14,7 @@
                 url: "/view/monarchy-games.html"
             },{
                 name: "Contract Info",
-                url: "/about/contracts-games.html#monarchy-game"
+                url: "/about/game-contracts.html#monarchy-game"
             }]
         },{
             name: "🎲 InstaDice",
@@ -30,7 +30,7 @@
                 url: "/view/instadice-rolls.html"
             },{
                 name: "Contract Info",
-                url: "/about/contracts-games.html#instadice"
+                url: "/about/game-contracts.html#instadice"
             }]
         },{
             name: "🃏 Video Poker",
@@ -46,20 +46,20 @@
                 url: "/view/videopoker-hands.html"
             },{
                 name: "Contract Info",
-                url: "/about/contracts-games.html#video-poker"
+                url: "/about/game-contracts#video-poker"
             }]
         },{
             name: "More",
-            url: "/about/mission.html",
+            url: "/about/player-mission.html",
             children: [{
-                name: "Player History",
-                url: "/tools/player.html"
-            },{
                 name: "Our Mission",
-                url: "/about/mission.html"
+                url: "/about/player-mission.html"
             },{
                 name: "Contracts",
-                url: "/about/contracts-games.html"
+                url: "/about/game-contracts.html"
+            },{
+                name: "Player History",
+                url: "/tools/player.html"
             },{
                 name: "Blog",
                 url: "https://blog.pennyether.com/"

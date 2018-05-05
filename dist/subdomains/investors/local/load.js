@@ -5,10 +5,10 @@
             url: "/"
         }, {
             name: "About",
-            url: "/about/mission.html",
+            url: "/about/investor-mission.html",
             children: [{
                 name: "Our Mission",
-                url: "/about/mission.html"
+                url: "/about/investor-mission.html"
             },{
                 name: "Overview",
                 url: "/about/overview.html"

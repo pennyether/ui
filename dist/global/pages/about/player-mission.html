@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/global/javascripts/lib/Loader.js"></script>
+		<script src="/local/load.js"></script>
+		<style>
+			#Title .title {
+				color: white;
+				text-shadow: 4px 4px 2px black !important;
+			} 
+			#Title .tagline{
+				color: #DDD;
+				border-radius: 2px;
+				text-shadow: none;
+				padding: 2px 4px;
+				background: rgba(40,40,40,.7);
+			}
+			#Leader .background {
+				background-image: url(/global/images/pennies.jpg);
+				filter: saturate(60%);
+			}
+			#Leader .banner {
+				margin-top: 30px;
+				margin-bottom: 40px;
+			}
+				#Leader .banner .blurb-ctnr {
+					margin: 10px auto 0px auto;
+					text-align: center;
+					width: 78%;
+				}
+				#Leader .banner .blurb {
+					text-align: left;
+					display: inline-block;
+					padding: 5px 10px;
+					background: rgba(0,0,0,.2);
+					border-radius: 3px;
+				}
+				#Leader .items {
+					text-align: center;
+					padding: 20px 0px;
+				}
+					#Leader .items .item {
+						display: inline-block;
+						padding: 5px 10px;
+						cursor: pointer;
+
+						color: black;
+						text-decoration: none;
+						font-size: 120%;
+						font-variant: small-caps;
+						letter-spacing: .15em;
+
+						background: rgba(0,128,255,.2);
+						border-radius: 2px;
+						box-shadow: 2px 2px 2px 0px rgba(0,0,0,.5);
+						transition: background .3s, transform .3s;
+					}
+					#Leader .items .item:not(:last-child) {
+						margin-right: 15px;
+					}
+					#Leader .items .item:hover {
+						background: rgba(0,128,255,.4);
+						transform: scale(1.1);
+					}
+
+			.note {
+				margin: 20px 20px 60px 20px;
+				background: linear-gradient(to top, rgba(0,128,0,.4) 0%, rgba(0,255,0,.2) 100%);
+				padding: 10px;
+				border-radius: 5px;
+				text-align: center;
+				box-shadow: 3px 3px 3px 0px rgba(0,0,0,.1);
+			}
+
+			h3 {
+				/*font-size: 150%;*/
+				color: black;
+			}
+			.subsection {
+				color: #333;
+			}
+
+			li {
+				margin: 5px 0px;
+			}
+			.page-subsection .body b {
+				font-weight: normal;
+				background: rgba(0,128,255,.1);
+			}
+		</style>
+	</head>
+	<body><div id="Content">
+		<div id="Leader">
+			<div class="background"></div>
+			<div class="foreground">
+				<div id="Title">
+					<div class="title">Our Mission</div>
+					<div class="tagline">the funnest and fairest games, on a game-changing platform</div>
+				</div>
+				<div class="banner">
+					<div class="blurb-ctnr">
+						<div class="blurb">
+							PennyEther's mission is to deliver <b>the next generation of blockchain gaming</b>. We're creating a fully autonous Ethereum gaming platform, owned by Token Holders, open to developers, and launching with most interactive and exciting games on the Ethereum blockchain. Much more information can be found in <a href="/ico/whitepaper.html">our whitepaper</a>.
+						</div>
+					</div>
+					<div class="items">
+						<a class="item" href="#fairness">Fairness</a>
+						<a class="item" href="#transparency">Transparency</a>
+						<a class="item" href="#security">Security</a>
+						<a class="item" href="#user-experience">User Experience</a>
+						<a class="item" href="#innovation">Innovation</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div style="width: 90%; margin: 50px auto;">
+			<a data-anchor="fairness"></a>
+			<div class="page-subsection" style="margin-top: 10px;">
+				<div class="head">Fairness</div>
+				<div class="body">
+					<p>
+						All of <a href="/about/game-contracts.html">our game contracts</a> are <b>open sourced</b>, <b>independantly audited</b>, and <b>provably fair</b>. Here are a few other ways we go above and beyond to ensure we're treating our customers right:
+						<ul>
+							<li>
+								<b>Distributed ownership</b> ensures that there's no "insider" that is able to play games for free. All proceeds of all games get distributed to Token Holders.
+							</li>
+							<li>
+								Our games <b>guarantee full payment</b> on any bet. Our contracts will not accept a bet unless they have Ether to back up multiple times the maximum win amount.
+							</li>
+							<li>
+								<b>We trust no one but the blockchain</b>. No oracles. No off-chain random number generators.
+							</li>
+							<li>
+								Our games are extremely <b>gas efficient</b>. On top of that, for most errors we'll log an event rather than consume all of the gas of the transaction.
+							</li>
+							<li>
+								<b>Our UI is resilient</b> against blockchain re-orgs. If your transaction results "change", we'll show you the latest results.
+							</li>
+						</ul>
+						
+						<h3>Monarchy Features</h3>
+						<ul>
+							<li>
+								<b>There can be no cheating.</b> All fees collected get distributed to Token Holders, thus the scenario where the owner can participate for free is <u>eliminated</u>. Monarchy is the world's first provably-fair king-of-the-hill game.
+							</li>
+							<li>
+								<b>The prize is held in the contact and can only be sent to the winner</b>. It's redeemable the moment the game has ended. There's nothing in the world, short of Ethereum going down, that can change this behavior.
+							</li>
+							<li>
+								Overthrow fees are never wasted -- your fee will be refunded (and gas saved) if it doesn't result in you becoming the Monarch. This includes the following situations:
+								<ul>
+									<li>
+										Somebody else overthrows <i>you</i> in the same block
+									</li>
+									<li>
+										The games ends before your overthrow is mined
+									</li>
+									<li>
+										You are already the current Monarch
+									</li>
+									<li>
+										You send the wrong amount
+									</li>
+								</ul>
+							</li>
+						</ul>
+						<p>
+							More information can be found in the <a href="/games/monarchy-faqs.html">Monarchy FAQs</a>.
+						</p>
+						
+						<h3>InstaDice Features</h3>
+						<ul>
+							<li>
+								We use the blockchain for randomness. No third party or oracles are used.
+							</li>
+							<li>
+								Wagers will never be taken unless they can be paid on a win.
+							</li>
+							<li>
+								Each roll uses only 50,000 gas.
+							</li>
+							<li>
+								Extremely low house fee of just 1%
+							</li>
+						</ul>
+						<p>
+							More information can be found in the <a href="/games/instadice-faqs.html">InstaDice FAQs</a>.
+						</p>
+						
+						<h3>VideoPoker Features</h3>
+						<ul>
+							<li>
+								We use the blockchain for randomness. No third party or oracles are used.
+							</li>
+							<li>
+								Wagers will never be taken unless they can be paid on a win.
+							</li>
+							<li>
+								Play a full hand for about 100,000 gas.
+							</li>
+							<li>
+								Generous 9/6 PayTable provides 99.5% payback if played optimally.
+							</li>
+							<li>
+								Protection against <a href="/games/videopoker-faqs.html#blockchain-reorg">blockchain re-orgs</a>.
+							</li>
+						</ul>
+						<p>
+							More information can be found in the <a href="/games/videopoker-faqs.html">VideoPoker FAQs</a>.
+						</p>
+					</p>
+				</div>
+			</div>
+
+			<a data-anchor="transparency"></a>
+			<div class="page-subsection">
+				<div class="head">Transparency</div>
+				<div class="body">
+					<p>
+						We're open about how we operate and everything that goes on in our platform. 
+						<ul>
+							<li>
+								<a href="/about/game-contracts.html">Our contracts</a> are open sourced, tested, and audited.
+							</li>
+							<li>
+								<a href="/tools/player.html">View all of your activity.</a>
+							</li>
+							<li>
+								<a href="/view/instadice-rolls.html">View results of prior rolls.</a>
+							</li>
+							<li>
+								<a href="/view/monarchy-games.html">View results of Monarchy games.</a>
+							</li>
+							<li>
+								<a href="/view/videopoker-hands.html">View the results of VideoPoker hands.</a>
+							</li>
+							<li>
+								<a href="https://investor.pennyether.com/">Read about who we are and why we're doing this.</a>
+							</li>
+							<li>
+								<a href="https://investor.pennyether.com/status/overview.html">View the realtime status of our entire system.</a>
+							</li>
+						</ul>
+					</p>
+				</div>
+			</div>
+
+			<a data-anchor="security"></a>
+			<div class="page-subsection">
+				<div class="head">Security</div>
+				<div class="body">
+					<p>
+						We've worked hard to provide a gaming experience that requires essentially zero trust.
+						<ul>
+							<li>
+								<b>No deposit is needed.</b> We don't require that you trust us with your funds.
+							</li>
+							<li>
+								<b>No account is needed.</b> Simply use your Ethereum wallet from MetaMask. We'll never ask you for any information about yourself.
+							</li>
+							<li>
+								<b>No tokens are needed.</b> We don't require that you exchange your Ether for Tokens. Just use your Ether to play!
+							</li>
+							<li>
+								<b>We're entirely on the blockchain.</b> We have no database or any point of failure.
+							</li>
+							<li>
+								<b>Our UI is open source.</b> Should somebody attempt to DDoS our domain to prevent you from playing, <a href="#">it's quite easy to run the UI on your own computer.</a>.
+							</li>
+							<li>
+								<b>Our UI contains no 3rd party dependancies.</b> All code in our UI is served locally. There's no way for a 3rd party library to secretly change web3 transaction requests.
+							</li>
+						</ul>
+					</p>
+				</div>
+			</div>
+
+
+			<a data-anchor="user-experience"></a>
+			<div class="page-subsection">
+				<div class="head">User Experience</div>
+				<div class="body">
+					<p>
+						We started PennyEther because we were underwhelmed with the state of blockchain gaming, and wanted to create games that we would actually play.
+					</p>
+					<p>
+						<b>We'll never release a game unless it meets our standards</b>:
+						<ul>
+							<li>
+								<b>No Signup</b>: Why should you need to provide any information to play?
+							</li>
+							<li>
+								<b>Wager in Ether</b>: There's no need to exchange Ether for tokens.
+							</li>
+							<li>
+								<b>Interactive UI</b>: The UI will show you what's going on every step of the way -- from your transaction being mined, to the results.
+							</li>
+							<li>
+								<b>Function first, looks second</b>: We'll never sacrifice useful features just to make the UI look cooler. We want to provide our gamers with the information they need to make informed decisions.
+							</li>
+							<li>
+								<b>Smart Gas Prices</b>: Every time you create a transaction, we'll show you a slider to help you choose your Gas Price. It uses data generously provided by <a href="https://ethgasstation.info/">EthGasStation</a>.
+							</li>
+							<li>
+								<b>Resilient against blockchain re-orgs</b>: Just because you get a transaction receipt doesn't mean the results are set in stone. Blockchain re-orgs can cause your transaction to have different results entirely. Our UI will always show you the most up-to-date data from your provider, even if it changes.
+							</li>
+						</ul>
+					</p>
+				</div>
+			</div>
+
+			<a data-anchor="innovation"></a>
+			<div class="page-subsection">
+				<div class="head">Innovation</div>
+				<div class="body">
+					<p>
+						We're pretty proud of what we've built, and we're just getting started.
+					</p>
+					<p>
+						<ul>
+							<li>
+								<b>Easily choose your Gas Price</b> before every transaction using data from <a href="https://ethgasstation.info">EthGasStation</a>'s realtime block data.
+							</li>
+							<li>
+								<b>See the full details of every transaction</b>. From a mining status bar, to confirmation messages, you'll never be wondering what's going on. The upper-right "status" area shows your account information and any current transactions, including the function names, parameters, and comments.
+							</li>
+							<li>
+								Monarchy is <b>the world's first provably fair king-of-the-hill game</b>, made possible by the <a href="https://investor.pennyether.com/">PENNY Token</a> which distributes realtime dividends.
+							</li>
+							<li>
+								InstaDice is <b>Ethereum's only instant dice game</b>. All other "blockchain dice" games either take twice as long (and cost more gas), or are not actually based on the blockchain at all.
+							</li>
+							<li>
+								VideoPoker is the world's first <b>Video Poker smart contract</b>. All other "blockchain poker" games are not actually smart contracts and do guarantee payout.
+							</li>
+							<li>
+								<b>Blockchain Resilience</b> ensures you'll also see the most up-to-date information about the state of your games. In case there's a blockchain re-org, we've got you covered -- any games that may be affected by this, <a href="/games/videopoker-faqs.html#blockchain-reorg">like VideoPoker</a>, will double-check to ensure you don't accidentally submit a transaction against an unexpected game state.
+							</li>
+						</ul>
+					</p>
+				</div>
+			</div>
+		</div>
+	</div></body>
+</html>

@@ -5,7 +5,7 @@
             url: "/index.html",
         }, {
             name: "Our Mission",
-            url: "/about/mission.html",
+            url: "/about/player-mission.html",
         }, {
             name: "Contact",
             url: "/about/contact.html",

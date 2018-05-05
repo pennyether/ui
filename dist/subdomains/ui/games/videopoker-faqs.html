@@ -64,6 +64,36 @@
 					</div>
 
 					<div class="page-subsection">
+						<div class="head">Handling Errors</div>
+						<div class="body">
+							<a data-anchor="blockchain-reorg"></a>
+							<h3>What if there's a blockchain reorg?</h3>
+							<p>
+								A blockchain re-org is when your provider shows you data about the blockchain, but then this information changes. For VideoPoker, this could have dire consequences.
+							</p>
+							<p>
+								Here's an example:  You place a bet, and are dealt two pair. You decide to replace just one card, and submit your transaction. However, after you submit your transaction, there's a blockchain re-org and now your hand is entirely different -- it's a flush! Without any protection, your "draw one card" transaction will get mined and your flush may be ruined.
+							</p>
+							<p>
+								Fortunately, we protect you against this scenario. The VideoPoker contract will double-check that you are drawing against your expected hand, and if it sees the hand on the blockchain is actually different, it will log an error and refund most of your gas. The UI will show you the error, and you can draw different cards (or no cards at all).
+							</p>
+
+							<h3>What if I don't draw within 256 blocks?</h3>
+							<p>
+								When you are dealt a hand, you have 256 blocks to draw cards (or to finalize the hand). This is due to a limitation in Ethereum where only the past 256 blockhashes are available to the contract.
+							</p>
+							<p>
+								If you fail to draw any cards within 256 blocks, your initial hand will become unavailable, and VideoPoker will draw you 5 new cards. We really wish there was a way around this, but there's not -- if we used an Oracle the gas prices would be substantially higher and the game would be at least twice as slow.
+							</p>
+
+							<h3>What if I draw, but don't claim within 256 blocks?</h3>
+							<p>
+								Similar to the above situation, you must claim your winnings within 256 blocks so that the contract can "see" your final hand. Failure to do so will result in the VideoPoker contract paying out based on your initial hand.
+							</p>
+						</div>
+					</div>
+
+					<div class="page-subsection">
 						<div class="head">Winning</div>
 						<div class="body">
 							<h3>How do I get paid?</h3>
