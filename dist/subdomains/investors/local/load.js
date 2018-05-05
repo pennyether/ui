@@ -14,7 +14,7 @@
                 url: "/about/overview.html"
             },{
                 name: "Contracts",
-                url: "/about/contracts.html",
+                url: "/about/all-contracts.html",
             },{
                 name: "Audits",
                 url: "/about/audits.html"

@@ -1,6 +1,7 @@
 Loader.require("dice")
 .then(function(dice){
     if (!BankrollableUtil) throw new Error("This requires BankrollableUtil to be loaded.");
+    $(".links .etherscan").attr("href", util.$getAddrLink(dice.address).attr("href"));
 
     ethUtil.getCurrentState().then(() => {
         _refreshAll();

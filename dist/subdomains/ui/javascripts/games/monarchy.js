@@ -300,7 +300,7 @@ Loader.require("monarchy")
                 else _$reignBlocks.show();
                 // update monarch and price
                 _$monarch.empty().append(_$getMonarch(monarch));
-                _$prize.text(`${ethUtil.toEth(prize)}`);
+                _$prize.text(`${util.toEthStrFixed(prize)}`);
 
                 // update stuff that uses _blocktime
                 if (isNewBlock) {
@@ -646,7 +646,7 @@ Loader.require("monarchy")
                 _reignBlocks = obj.reignBlocks;
 
                 // update static DOM elements (bid price, reign blocks, prizeIncr)
-                _$bidPrice.text(`${ethUtil.toEth(_fee)}`);
+                _$bidPrice.text(`${util.toEthStrFixed(_fee)}`);
                 _$reignBlocks
                     .text(`of ${_reignBlocks}`)
                     .attr("title", `The Monarch will win if they reign for ${_reignBlocks} blocks without getting overthrown.
@@ -847,7 +847,7 @@ Loader.require("monarchy")
                     html: $tip.show()[0],
                     onShow: function(){
                         gps.refresh();
-                        $prize.text(ethUtil.toEthStr(_curPrize));
+                        $prize.text(util.toEthStrFixed(_curPrize));
                     },
                     onHidden: function(){
                         // fix firefox bug where tip won't reshow

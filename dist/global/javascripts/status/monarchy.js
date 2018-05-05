@@ -1,6 +1,7 @@
 Loader.require("monarchy")
 .then(function(monarchy){
     if (!BankrollableUtil) throw new Error("This requires BankrollableUtil to be loaded.");
+    $(".links .etherscan").attr("href", util.$getAddrLink(monarchy.address).attr("href"));
 
     ethUtil.getCurrentState().then(() => {
         _refreshAll();

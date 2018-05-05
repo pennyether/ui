@@ -46,7 +46,7 @@
                 url: "/view/videopoker-hands.html"
             },{
                 name: "Contract Info",
-                url: "/about/game-contracts#video-poker"
+                url: "/about/game-contracts.html#video-poker"
             }]
         },{
             name: "More",

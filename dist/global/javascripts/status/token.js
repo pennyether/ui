@@ -1,5 +1,7 @@
 Loader.require("token")
 .then(function(token){
+	$(".links .etherscan").attr("href", util.$getAddrLink(token.address).attr("href"));
+
 	ethUtil.getCurrentState().then(() => {
 		_refreshAll();
 	});
@@ -56,7 +58,7 @@ Loader.require("token")
 			const $eComptroller = $e.find(".comptroller-info");
 			$(`<a href="/status/comptroller.html" target="_blank">status</a>`).appendTo($eComptroller);
 			util.$getAddrLink("etherscan", obj.comptroller).appendTo($eComptroller.append(" "));
-			$(`<a href="/about/contracts.html#comptroller" target="_blank">info</a>`).appendTo($eComptroller.append(" "));
+			$(`<a href="/about/all-contracts.html#comptroller" target="_blank">info</a>`).appendTo($eComptroller.append(" "));
 
 			$e.find(".is-frozen").text(obj.isFrozen);
 		}

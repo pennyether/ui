@@ -1,5 +1,7 @@
 Loader.require("reg", "comp", "tr", "token")
 .then(function(reg, comp, tr, token){
+    $(".links .etherscan").attr("href", util.$getAddrLink(tr.address).attr("href"));
+
     _initGovernance();
     _initProfits();
 

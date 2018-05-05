@@ -1,5 +1,6 @@
 Loader.require("vp")
 .then(function(vp){
+    $(".links .etherscan").attr("href", util.$getAddrLink(vp.address).attr("href"));
     if (!BankrollableUtil) throw new Error("This requires BankrollableUtil to be loaded.");
     if (!PokerUtil) throw new Error(`This requires PokerUtil to be loaded.`);
 

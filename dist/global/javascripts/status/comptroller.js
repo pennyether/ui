@@ -1,5 +1,7 @@
 Loader.require("comp", "tr")
 .then(function(comp, tr){
+	$(".links .etherscan").attr("href", util.$getAddrLink(comp.address).attr("href"));
+	
 	ethUtil.getCurrentState().then(() => {
 		_refreshAll();	
 	});
@@ -39,21 +41,21 @@ Loader.require("comp", "tr")
 		function doRefresh(obj) {
 			const $eWallet = $e.find(".cell.wallet-info");
 			util.$getAddrLink("etherscan", obj.wallet).appendTo($eWallet);
-			$(`<a href="/about/contracts.html#wallet" target="_blank">info</a>`).appendTo($eWallet.append(" "));
+			$(`<a href="/about/all-contracts.html#wallet" target="_blank">info</a>`).appendTo($eWallet.append(" "));
 
 			const $eTreasury = $e.find(".treasury-info");
 			$(`<a href="/status/treasury.html" target="_blank">status</a>`).appendTo($eTreasury);
 			util.$getAddrLink("etherscan", obj.treasury).appendTo($eTreasury.append(" "));
-			$(`<a href="/about/contracts.html#treasury" target="_blank">info</a>`).appendTo($eTreasury.append(" "));
+			$(`<a href="/about/all-contracts.html#treasury" target="_blank">info</a>`).appendTo($eTreasury.append(" "));
 
 			const $eToken = $e.find(".token-info");
 			$(`<a href="/status/token.html" target="_blank">status</a>`).appendTo($eToken);
 			util.$getAddrLink("etherscan", obj.token).appendTo($eToken.append(" "));
-			$(`<a href="/about/contracts.html#penny-token" target="_blank">info</a>`).appendTo($eToken.append(" "));
+			$(`<a href="/about/all-contracts.html#penny-token" target="_blank">info</a>`).appendTo($eToken.append(" "));
 
 			const $eLocker = $e.find(".locker-info");
 			util.$getAddrLink("etherscan", obj.locker).appendTo($eLocker);
-			$(`<a href="/about/contracts.html#dividend-token-locker" target="_blank">info</a>`).appendTo($eLocker.append(" "));
+			$(`<a href="/about/all-contracts.html#dividend-token-locker" target="_blank">info</a>`).appendTo($eLocker.append(" "));
 		}
 	}
 

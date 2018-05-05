@@ -1,5 +1,6 @@
 Loader.require("tm", "token")
 .then(function(tm, token){
+    $(".links .etherscan").attr("href", util.$getAddrLink(tm.address).attr("href"));
     // run this once
     _initTasks();
     ethUtil.onStateChanged(()=>{

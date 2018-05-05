@@ -115,78 +115,22 @@
 				<div class="head">Fairness</div>
 				<div class="body">
 					<p>
-						All of <a href="/about/game-contracts.html">our game contracts</a> are <b>open sourced</b>, <b>independantly audited</b>, and <b>provably fair</b>. Here are a few other ways we go above and beyond to ensure we're treating our customers right:
+						PennyEther was designed to give our Token Holders real ownership and a stake in our success, and to <a href="/ico/whitepaper.html#owner-alignment">align the PennyEther Team with investors</a>:
 						<ul>
 							<li>
-								<b>Distributed ownership</b> ensures that there's no "insider" that is able to play games for free. All proceeds of all games get distributed to Token Holders.
+								<a href="/about/all-contracts#penny-token">The PENNY Token</a> distributes any Ether received to all Token Holders, proportional to their ownership percentage at the time the Ether is received.
 							</li>
 							<li>
-								Our games <b>guarantee full payment</b> on any bet. Our contracts will not accept a bet unless they have Ether to back up multiple times the maximum win amount.
+								The PENNY Token gets 100% of all profits earned by the entire platform, on a continual basis. There are no distribution periods, and owed dividends can be collected at any time, forever.
 							</li>
 							<li>
-								<b>We trust no one but the blockchain</b>. No oracles. No off-chain random number generators.
+								After the ICO, the PennyEther Team will own only 20% of all tokens, which will <a href="/about/all-contracts#dividend-token-locker">vest over a period of 600 days</a>. This incentivizes the team to boost revenues, but also gives our investors the lion's share of profits.
 							</li>
 							<li>
-								Our games are extremely <b>gas efficient</b>. On top of that, for most errors we'll log an event rather than consume all of the gas of the transaction.
+								We're working hard to get a <a href="/about/all-contracts#dao">DAO contract</a> running that will replace the PennyEther Team's ownership role. This means Token Holders will call the shots by voting to alter all aspects of PennyEther, from game settings to how Capital is allocated across games.
 							</li>
 							<li>
-								<b>Our UI is resilient</b> against blockchain re-orgs. If your transaction results "change", we'll show you the latest results.
-							</li>
-						</ul>
-						
-						<h3>Monarchy Features</h3>
-						<ul>
-							<li>
-								<b>There can be no cheating.</b> All fees collected get distributed to Token Holders, thus the scenario where the owner can participate for free is <u>eliminated</u>. Monarchy is the world's first provably-fair king-of-the-hill game.
-							</li>
-							<li>
-								<b>The prize is held in the contact and can only be sent to the winner</b>. It's redeemable the moment the game has ended. There's nothing in the world, short of Ethereum going down, that can change this behavior.
-							</li>
-							<li>
-								Overthrow fees are never wasted -- your fee will be refunded (and gas saved) if it doesn't result in you becoming the Monarch. This includes the following situations:
-								<ul>
-									<li>
-										Somebody else overthrows <i>you</i> in the same block
-									</li>
-									<li>
-										The games ends before your overthrow is mined
-									</li>
-									<li>
-										You are already the current Monarch
-									</li>
-									<li>
-										You send the wrong amount
-									</li>
-								</ul>
-							</li>
-						</ul>
-						
-						<h3>InstaDice Features</h3>
-						<ul>
-							<li>
-								We use the blockchain for randomness. No third party or oracles are used.
-							</li>
-							<li>
-								Wagers will never be taken unless they can be paid on a win.
-							</li>
-							<li>
-								Each roll uses only 50,000 gas.
-							</li>
-						</ul>
-						
-						<h3>VideoPoker Features</h3>
-						<ul>
-							<li>
-								We use the blockchain for randomness. No third party or oracles are used.
-							</li>
-							<li>
-								Wagers will never be taken unless they can be paid on a win.
-							</li>
-							<li>
-								Play a full hand for about 100,000 gas.
-							</li>
-							<li>
-								You are protected against blockchain re-orgs that could cause undesirable behavior. Here's an exmaple:  You are dealt a two pair, and submit a transaction to draw just one card. However, your dealt hand <i>has changed due to a blockchain reorg</i>, and your hand is <i>actually</i> a flush. In this scenario our contract will detect the difference and will not draw your card (which would ruin your flush). Your transaction will instead exit early, consuming little gas, and emit an error. The UI will show your <i>actual</i> cards as soon as your provider syncs.
+								We actually <i>require</i> distributed ownership to be able to run <a href="/ico/whitepaper.html#monarchy">Monarchy</a>, the world's only provably fair king-of-the-hill game. Without a diverse base of Token Holders, Monarchy players would not be assured the game is fair.
 							</li>
 						</ul>
 					</p>
@@ -198,30 +142,19 @@
 				<div class="head">Transparency</div>
 				<div class="body">
 					<p>
-						We're open about how we operate and everything that goes on in our platform. 
-						<br><br>
-						<b>For Gamers:</b>
+						We're very open about how PennyEther operates, the system's health, and the technical details. We want others to get involved!
 						<ul>
 							<li>
-								<a href="/about/contracts.html">Our contracts</a> are open sourced, tested, and audited
+								<a href="/status/overview.html">View the realtime status</a> of all contracts. Click on any one contract to get a full visual overview, with graphs and all event logs.
 							</li>
 							<li>
-								<a href="/tools/player.html">View all of a user's activity</a>
+								<a href="/about/overview.html">View a tutorial</a> of how PennyEther works.
 							</li>
 							<li>
-								<a href="/view/instadice-rolls.html">View results of prior rolls.</a>
+								<a href="/ico/whitepaper.html">Read our whitepaper</a>, which contains a wealth of information.
 							</li>
 							<li>
-								<a href="/view/monarchy-games.html">View results of Monarchy games.</a>
-							</li>
-							<li>
-								<a href="/view/videopoker-games.html">View the results of VideoPoker game.</a>
-							</li>
-						</ul>
-						<b>For Investors:</b>
-						<ul>
-							<li>
-								<a href="/status/overview.html#">View the realtime status of all contracts.</a>
+								<a href="/about/all-contracts.html">All information about our contracts</a>, including source code, tests, test results, and audit results.
 							</li>
 						</ul>
 					</p>
@@ -233,45 +166,22 @@
 				<div class="head">Security</div>
 				<div class="body">
 					<p>
-						PennyEther has many different layers of security.
-						<br><br>
-						<b>For Gamers:</b>
+						We've implemented <a href="/ico/whitepaper.html#security-autonomy">several layers of security</a> to protect all the funds in PennyEther.
 						<ul>
 							<li>
-								<b>No deposit is needed.</b> We don't require that you trust us with your funds.
+								We've done our best to thoroughly document, test, and audit all of our contracts. We've made available all contract code, tests, test results, and audit results. <a href="/about/all-contracts.html">Read more here.</a>
 							</li>
 							<li>
-								<b>No account is needed.</b> Simply use your Ethereum wallet from MetaMask. We'll never ask you for any information about yourself.
+								<b>The Treasury</b> holds all PennyEther funds. Profits are only ever sent to the DividendToken; this is hard-coded and immutable behavior.  Capital can only be moved via <b>Governance</b> requests, which in the future will be controlled by a DAO. <a href="/about/all-contracts.html#dao">Read more here.</a>
 							</li>
 							<li>
-								<b>No tokens are needed.</b> We don't require that you exchange your Ether for Tokens. Just use your Ether to play!
+								<b>The Owner Wallet</b> is a special smart contract that is owned by a cold-storage wallet. A <i>Custodian</i> can make calls on behalf of the owner, but can be changed should it be compromised. This protects the PennyEther system, ensuring that even if the Custodian account is compromised, everything is recoverable. <a href="/about/contracts#owner">Read more here.</a>
 							</li>
 							<li>
-								<b>We're entirely on the blockchain.</b> We have no database or any point of failure.
+								<b>The Admin Account</b> can change certain configurations of PennyEther, but cannot cause funds to leave the Treasury nor can it deplete funds of Game Contracts. Since this contract is frequently used, it's most likely to be compromised -- but we've severly limited what it can do. <a href="/about/all-contracts.html#roles">Read more here.</a>
 							</li>
 							<li>
-								<b>Our UI is open source.</b> Should somebody attempt to DDoS our domain to prevent you from playing, <a href="">it's quite easy to run the UI on your own computer.</a>.
-							</li>
-							<li>
-								<b>Our UI contains no 3rd party dependancies.</b> All code in our UI is served locally. There's no way for a 3rd party library to secretly change web3 transaction requests.
-							</li>
-						</ul>
-						<b>For Investors:</b>
-						<ul>
-							<li>
-								We've done our best to thoroughly document, test, and audit all of our contracts. We've made available all contract code, tests, test results, and audit results. <a href="/about/contracts.html">Read more here.</a>
-							</li>
-							<li>
-								<b>The Treasury</b> holds all PennyEther funds. Profits are only ever sent to the DividendToken; this is hard-coded and immutable behavior.  Capital can only be moved via <b>Governance</b> requests, which in the future will be controlled by a DAO. <a href="/about/contracts.html#dao">Read more here.</a>
-							</li>
-							<li>
-								<b>The Owner Wallet</b> is a special smart contract that is owned by a cold-storage wallet. A <i>Custodian</i> can make calls on behalf of the owner, but can be changed should it be compromised. <a href="/about/contracts#owner">Read more here.</a>
-							</li>
-							<li>
-								<b>The Admin Account</b> can change certain configurations of PennyEther, but cannot cause funds to leave the Treasury nor can it deplete funds of Game Contracts. <a href="/about/contracts.html#roles">Read more here.</a>
-							</li>
-							<li>
-								<b>Autonomy</b> ensures you're never at the whim of the Owners taking action. We actually <i>pay the community</i> to keep our system running - from dispersal of dividends to the restarting of Monarchy games. <a href="/about/contracts.html#task-manager">Read more here.</a>
+								<b>Autonomy</b> ensures investors are never at the whim of the Owners taking action. We actually <i>pay the community</i> to keep our system running - from dispersal of dividends to the restarting of Monarchy games. Dividends should always flow, and games should always run. <a href="/about/all-contracts.html#task-manager">Read more here.</a>
 							</li>
 						</ul>
 					</p>
@@ -284,38 +194,13 @@
 				<div class="head">User Experience</div>
 				<div class="body">
 					<p>
-						We started PennyEther because we were underwhelmed with the state of blockchain gaming.
-						<br>
-						<br>
-						<b>We'll never release a game unless it meets our standards</b>:
-						<ul>
-							<li>
-								<b>No Signup</b>: Why should you need to provide any information to play?
-							</li>
-							<li>
-								<b>Wager in Ether</b>: There's no need to exchange Ether for tokens.
-							</li>
-							<li>
-								<b>Interactive UI</b>: The UI will show you what's going on every step of the way -- from your transaction being mined, to the results.
-							</li>
-							<li>
-								<b>Function first, looks second</b>: We'll never sacrifice useful features just to make the UI look cooler. We want to provide our gamers with the information they need to make informed decisions.
-							</li>
-							<li>
-								<b>Smart Gas Prices</b>: Every time you create a transaction, we'll show you a slider to help you choose your Gas Price. It uses data generously provided by <a href="https://ethgasstation.info/">EthGasStation</a>.
-							</li>
-							<li>
-								<b>Resilient against blockchain re-orgs</b>: Just because you get a transaction receipt doesn't mean the results are set in stone. Blockchain re-orgs can cause your transaction to have different results entirely. Our UI protects you against this in several different ways -- the least of which being that you will <i>always</i> see the most up-to-date state of whatever game you are playing.
-							</li>
-						</ul>
-						<br>
-						<b>For Investors:</b>
+						We started PennyEther because we were underwhelmed with the state of blockchain gaming, and the what it means to hold a Token. We want the PENNY Token to actually mean something, and we want to make it easy to interact with.
 						<ul>
 							<li>
 								<b>Mind the business</b> by viewing the <a href="/status/overview.html">in-depth status of all contracts</a> (including charts, full event logs, and more).
 							</li>
 							<li>
-								<b>Manage your Tokens</b> via the <a href="/tools/token.html">Token UI</a>. View and claim your dividends, transfer, and more.
+								<b>Manage your Tokens</b> via the <a href="/tools/tokenholder.html">Token UI</a>. View and claim your dividends, transfer, and more.
 							</li>
 						</ul>
 					</p>
@@ -330,10 +215,10 @@
 						We're pretty proud of what we've built. We've broken new ground on pretty much every part of the Ethereum stack, and we're just getting started...
 						<ul>
 							<li>
-								<b>ERC20 DividendToken</b>, <a href="https://medium.com/@weka/dividend-bearing-tokens-on-ethereum-42d01c710657" target="_blank">first posited by Nick Johnson here</a>, was <a href="/about/contracts.html#penny-token">fully implemented and tested</a> by us. Quite frankly, we think automated dividends should be the new standard.
+								<b>ERC20 DividendToken</b>, <a href="https://medium.com/@weka/dividend-bearing-tokens-on-ethereum-42d01c710657" target="_blank">first posited by Nick Johnson here</a>, was <a href="/about/all-contracts.html#penny-token">fully implemented and tested</a> by us. Quite frankly, we think automated dividends should be the new standard.
 							</li>
 							<li>
-								<b>Our Test Framework</b>, as best we can tell, allows us to write the most thorough Ethereum tests ever. We <a href="/about/contracts.html">invite you to take a look for yourself</a>.
+								<b>Our Test Framework</b>, as best we can tell, allows us to write the most thorough Solidity tests ever. We <a href="/about/all-contracts.html">invite you to take a look for yourself</a>.
 							</li>
 							<li>
 								<b>Our UI</b> contains countless innovations. From allowing you to choose your gas price, to showing you full annotated details about every transaction, we're creating the dApp we've always wanted to use.
