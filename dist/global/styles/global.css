@@ -123,10 +123,16 @@ input:disabled {
 		letter-spacing: .3em;
 		display: inline-block;
 		padding: 2px 2px 2px 4px;
-		background: linear-gradient(to bottom, rgba(0,0,128,.5) 0%, rgba(0,0,128,.8) 100%);
-		color: rgba(255,255,255,.9);
 		border-radius: 2px;
 		font-size: 70%;
+	}
+	#Top .left .subdomain .txt.investor {
+		background: linear-gradient(to bottom, rgba(0,0,128,.5) 0%, rgba(0,0,128,.8) 100%);
+		color: rgba(255,255,255,.9);
+	}
+	#Top .left .subdomain .txt.blog {
+		background: linear-gradient(to bottom, rgba(0,128,0,.5) 0%, rgba(0,128,0,.8) 100%);
+		color: rgba(255,255,255,.9);
 	}
 
 #Top .menu-item {
@@ -345,6 +351,76 @@ input:disabled {
 		padding: 0px 5px;
 		height: 20px;
 	}
+
+#TOC {
+	font-size: 85%;
+	position: fixed;
+	padding: 0px 0px 0px 0px;
+	width: 200px;
+	background: #F0F0F0;
+	height: 100%;
+	border-right: 1px solid #AAA;
+}
+#TOC .header {
+	text-align: center;
+	font-weight: bold;
+	padding: 2px 4px;
+	margin-top: 15px;
+	margin-bottom: 0px;
+}
+#TOC a {
+	color: black;
+	text-decoration: none;
+}
+	#TOC .section .title {	
+		overflow: hidden;
+		text-align: center;
+		text-transform: uppercase;
+		font-size: 70%;
+		letter-spacing: .2em;
+		font-weight: bold;
+		color: #AAA;
+		margin: 10px 0px 4px 0px;
+	}
+	#TOC .section .title:before,
+	#TOC .section .title:after {
+		position: relative;
+		display: inline-block;
+		vertical-align: middle;
+		width: 50%;
+		top: -1px;
+		height: 1px;
+		border-top: 1px solid rgba(0,0,0,.2);
+		content: "";
+	}
+	#TOC .section .title:before {
+		right: 0em;
+		margin-left: -50%;
+	}
+	#TOC .section .title:after {
+	 	left: 0em;
+	 	margin-right: -50%;
+	}
+
+	#TOC .inpage-item .head {
+		padding: 2px 0px 2px 15px;
+		margin-top: 2px;
+		transition: background .2s;
+	}
+		#TOC .inpage-item .head:hover {
+			background: #DDD;
+			transition: background .2s;
+		}
+		#TOC .inpage-item.on .head {
+			font-weight: bold;
+			text-shadow: 1px 1px 0px rgba(255, 255, 255, .4);
+			background: #CCC;
+			transition: background .2s;
+		}
+#TOC + .content {
+	padding-left: 220px;
+	padding-right: 20px;
+}
 
 /***********************************************/
 /** Nav generated links ************************/

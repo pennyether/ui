@@ -49,8 +49,11 @@
         const _$status = _$e.find(".right");
         const _$breadcrumb = _$e.find(".breadcrumb");
         const _$network = _$e.find(".left .network");
-        if (subdomain) _$e.find(".left .subdomain .txt").text(subdomain);
-        else _$e.find(".left .subdomain").hide();
+        if (subdomain) {
+            _$e.find(".left .subdomain .txt").text(subdomain).addClass(subdomain);
+        } else {
+            _$e.find(".left .subdomain").hide();
+        }
         const _$footer = _$e.find("#Footer").detach();
 
         function _initSitemap() {

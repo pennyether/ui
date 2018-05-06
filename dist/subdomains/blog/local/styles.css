@@ -1,0 +1,21 @@
+.post {
+	border: 1px solid black;
+}
+.post .head {
+	padding: 5px;
+	border-bottom: 1px solid gray;
+}
+
+.post .head .title {
+
+}
+.post .head .date {
+
+}
+.post .summary {
+
+}
+
+.blog-tip {
+	border-bottom: 1px dotted gray;
+}
