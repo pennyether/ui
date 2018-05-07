@@ -68,7 +68,7 @@
 					</div>
 					<div class="tags">
 						<div class="head">Filed Under:</div>
-						<a class="tag" href="/tags/tech.html">Tech</a>
+						<a class="tag" href="/tag/tech.html">Tech</a>
 					</div>
 				</div>
 				<div class="body" style="font-size: 90%;">
@@ -78,7 +78,7 @@
 						You may already be aware that some dApps <i>do</i> entitle you to receive dividends. However, there are a few problems: 
 						<ul>
 							<li>
-								Distributions occur in "periods" which may or may not be autonomous. That is, an "owner" controls the amount of dividends to distributed, and how often to distribute them.
+								Distributions occur in "periods" which may or may not be autonomous. That is, an "owner" controls the amount of dividends to distribute, and how often to distribute them.
 							</li>
 							<li>
 								The tokens are frozen during the distribution period, meaning they cannot be transferred.
@@ -86,16 +86,19 @@
 							<li>
 								Worst of all, if you do not collect your dividends within that distribution period your dividends are forfeited.
 							</li>
+							<li>
+								From a developer perspective, it requires a lot of work and testing to create a separate "Dividend" contract.
+							</li>
 						</ul>
 					</p>
 					<p>
-						Fortunately, there's a much easier way to manage dividends: through the Token itself.
+						Fortunately, there's a much easier way to manage dividends: <b>through the Token itself</b>.
 					</p>
 					<p>
 						<b>A Realtime Dividend Token provides a simple, secure, and standardized means for distributing profits of dApps</b>: just send Ether to the Token contract, and the rest is taken care of. The only thing a Token Holder needs to scrutinize is that profits deterministically make their way to the token, which is either a question of "do I trust the owners" or "do the contracts guarantee this".
 					</p>
 					<p>
-						In the context of a Token representing ownership of a DAO, the realtime aspect of dividends is also important. Tokens may be minted or burned or transferred -- all of this can effect a Token Holder's ownership percentage. Thus, <b>the more frequently dividends are issued, the more accurately the Token represents ownership</b>. With a Dividend Token, sending Ether to a Token contract is rather easy, and can happen very frequently.
+						In the context of a Token representing ownership of a DAO, the realtime aspect of dividends is also important. Tokens may be minted or burned or transferred -- all of this can effect a Token Holder's ownership percentage. Thus, the more frequently dividends are issued, the more accurately the Token represents ownership. With a Dividend Token, sending Ether to a Token contract is rather easy, and can happen very frequently.
 					</p>
 					<p>
 						Before going over the technical details, let's first go over the motivation and use-case for why a realtime dividend bearing token should exist. If you're here for the technical implementation, you can <a href="#the-token">skip this next bit</a>.
@@ -153,49 +156,71 @@
 					<a data-anchor="how-it-works"></a>
 					<h3>How it Works</h3>
 					<p>
-						The idea for this type of token come from Nick Johnson, but we haven't yet seen it in the wild, nor tested, and certainly not actually implemented for the use-case of creating a DAO. We recommend you first read his article for an understanding of the math behind the concept. We'll touch over it below.
+						The idea for this type of token come from Nick Johnson. We recommend you first read <a href="https://medium.com/@weka/dividend-bearing-tokens-on-ethereum-42d01c710657" target="_blank">his article</a> for an understanding of the math behind the concept. We'll touch over it below.
 					</p>
 					<p>
 						The most immediate problem with creating a dividend token is in distributing the profits to token holders without having to loop over every single one. Firstly, it's very expensive to keep a list of all current owners. Secondly, it's impossible to loop over all of them, as it could require an infinite amount of gas to loop over an infinite amount of users.
 					</p>
 					<p>
-						Instead, we use amortization. Users will need to "pull" their dividends by sending a request to "collectOwedDividends". So, then, how does the math work that allows us to track each user's owed dividends?
+						Instead, we use <b>amortization</b>. Users will need to "pull" their dividends by sending a request to "collectOwedDividends". So, then, how does the math work that allows us to track each user's owed dividends?
 					</p>
 					<p>
-						First we keep a running total of "dividendsPerToken". Each time a new dividend is sent, we compute how much each token should receive by dividing the dividend by the number of tokens. We then add this to the current "dividendsPerToken". So, "dividendsPerToken" is how much each token should receive for all dividends ever received, even if the supply fluctuates before or after dividends.
+						First we keep a running total of <span class="code">dividendsPerToken</span>. Each time a new dividend is sent, we compute how much each token should receive by dividing the dividend by the number of tokens, <span class="code">totalSupply</span>. We then add this to the current <span class="code">dividendsPerToken</span>:
+					<p> 
+					<pre class="code-block">
+	function () payable public {
+		dividendsPerToken += msg.value / totalSupply;
+	}
+					</pre>
+					So, <span class="code">dividendsPerToken</span> is how much each token should receive for all dividends ever received, even if the supply fluctuates before or after dividends.
 					</p>
+					<hr>
 					<p>
-						Next, and this is the tricky part, we manage crediting each user the proper amount. Before we get into this, let's clear up what we mean by "crediting":
+						Next, and this is the tricky part, we need to figure out how we <i>credit</i> each account. Before we get into this, let's clear up what we mean by "crediting":
 						<ul>
 							<li>
-								"crediting" a user means incrementing some value "credits[user]" for that user. We'll get into how we determine how much to increment "credits" in a moment.
+								<i>Crediting</i> a user means incrementing some value <span class="code">credits[account]</span> for that account. We'll get into how we determine how much to increment <span class="code">credits</span> in a moment.
 							</li>
 							<li>
-								When a user calls "collectOwedDividends()" we send them the value of "credits[user]" in Ether, and set "credits[user]" to 0.
+								When an account calls <span class="code">collectOwedDividends()</span> we will send them the value of <span class="code">credits[account]</span> in Ether, and set <span class="code">credits[account]</span> to 0.
 							</li>
 						</ul>
 					</p>
 					<p>
-						We will "credit" a user in these circumstances:
+						We will <i>credit</i> an account in these circumstances:
 						<ul>
 							<li>
-								just before their balance will change: eg, they send, receive, get minted, or burn tokens.
+								Just before their balance will change: eg, they send, receive, get minted, or burn tokens.
 							</li>
 							<li>
-								just before they want to collect their dividends
+								Just before they want to collect their dividends.
 							</li>
 						</ul>
 					</p>
+					<hr>
 					<p>
-						Crediting works as follows: For each user, we have a variable called "lastDividendsPerToken[user]". This is the value of "dividendsPerToken" at the time they were last credited. When it's time to credit the user again, we compute how much dividends we owe them by simply doing: "(dividendsPerToken - lastDividendsPerToken[user]) * numberOfTokens[user]". We then update "lastDividendsPerToken[user]" to the current value of "dividendsPerToken".
+						<i>Crediting</i> works as follows: For each account, we have a variable called <span class="code">lastDividendsPerToken[account]</span>. This is the value of <span class="code">dividendsPerToken</span> at the time they were last <i>credited</i>. Anytime we need to <i>credit</i> an account, we will increment <span class="code">credits[account]</span> by any dividends we have not yet credited them -- this is simply: <span class="code">(dividendsPerToken - lastDividendsPerToken[account]) * balanceOf[account]</span>. We then update the <span class="code">lastDividendsPerToken[account]</span> to be the current <span class="code">dividendsPerToken</span> and we're all set.
+						<pre>
+	function _creditAccount(address _account) private {
+		// compute the amount of dividends we have not yet credited the account
+		uint _amt = (dividendsPerToken - lastDividendsPerToken[_account]) * balanceOf[_account];
+		// credit the account
+		credits[_account] += _amount;
+		// update the value of lastDividendsPerToken for this account
+		lastDividendsPerToken[_account] = dividendsPerToken;
+	}
+						</pre>
 					</p>
 					<p>
-						That's really all there is too it. It may seem a bit strange that this works, but it does. Basically each time we credit a user, we simply look at the difference in dividends from their last event -- not in absolute terms of the dividends, but in terms of the change of "dividendsPerToken". Since we'll always credit a user before their number of tokens changes, the change in "dividendsPerToken" can be multiplied by their exact amount of tokens.
+						That's really all there is too it. It may seem a bit strange that this works, but it does. Basically each time we credit a user, we simply look at the difference in dividends from the last time they were credited -- not in absolute terms of the dividends, but in terms of the change of <span class="code">dividendsPerToken</span>. Since we'll always credit a user before their number of tokens changes, the change in <span class="code">dividendsPerToken</span> can be multiplied by their exact amount of tokens to get the amount we need to credit them.
+					</p>
+					<p>
+						Bonus: Here's <a href="https://programtheblockchain.com/posts/2018/02/07/writing-a-simple-dividend-token-contract/" target="_blank">a well-written article explaining Dividend Tokens</a> by Todd Proebstring.
 					</p>
 
 					<h3>An important note about crediting</h3>
 					<p>
-						Remember, we need to <b>credit</b> a user just before their balance will change. This ensures that for any given token its owed dividends are credited exactly once. In the case of a transfer, this means both the sender and receiver need to be credited before the transfer occurs. Without crediting the receiver, a user could collect dividends, transfer tokens to another account, collect dividends again, etc. Without crediting the sender a user could be owed a ton of dividends, transfer their tokens, and then never be credited dividends.
+						Remember, we need to credit a user just before their balance will change. This ensures that for any given token its owed dividends are credited exactly once. In the case of a transfer, this means both the sender and receiver need to be credited before the transfer occurs. Without crediting the receiver, a user could collect dividends, transfer tokens to another account, collect dividends again, etc. Without crediting the sender a user could be owed a ton of dividends, transfer their tokens, and then never be credited dividends.
 					</p>
 					<p>
 						With minting and burning, the same is true. We must credit the user before their balance changes. If we don't, we will credit them too much or too little.
@@ -204,19 +229,22 @@
 					<a data-anchor="rounding"></a>
 					<h3>Rounding</h3>
 					<p>
-						The astute reader may have thought to themselves: "Wait, what if only 1e18 wei (1 Ether) is sent, but there are 2e18 Tokens -- won't that mean that that "dividendsPerToken" is increased by 0, since dividends/tokens = 1e18/2e18 = 0?" Yes. So, we do one last thing.
+						The astute reader may have thought to themselves: "Wait, what if only 1e18 wei (1 Ether) is sent, but there are 2e18 Tokens -- won't that mean that that <span class="code">dividendsPerToken</span> is increased by 0, since dividends/tokens = 1e18/2e18 = 0?" Yes. So, we do one last thing.
 					</p>
 					<p>
-						Rather than storing "dividendsPerToken" and "lastDividendsPerToken", we store "pointsPerToken" and "lastPointsPerToken", where a "point" is some tiny fraction of a wei. Let's define 1 wei as 1e32 points.
+						Rather than storing <span class="code">dividendsPerToken</span> and <span class="code">lastDividendsPerToken</span>, we store <span class="code">pointsPerToken</span> and <span class="code">lastPointsPerToken</span>, where a "point" is some tiny fraction of a wei. Let's define 1 wei as 1e32 points.
 					</p>
 					<p>
-						In this case, if we receive a single wei, we've actually received 1e32 points, and "pointsPerToken" will increase by "1e32/<number of tokens>" -- likely a substantial number. Everything works out the same, so long as we convert the "points" to "wei" upon paying the user: `uint _wei = credits[user] / 1e32`.
+						In this case, if we receive a single wei, we've actually received 1e32 points, and <span class="code">pointsPerToken</span> will increase by <span class="code">1e32/totalSupply</span> -- likely a substantial number. Everything works out the same, so long as we convert the "points" to "wei" upon paying the user: <span class="code">uint _wei = credits[user] / 1e32</span>.
 					</p>
 					<p>
 						Interestingly, we don't really need to worry about overflows, even with a rather large precision of 1e32:
 					</p>
 					<p>
-						`pointsPerToken += (dividend * 1e32) / numTokens` will not overflow 1e77 (the 256-bit limit) unless the dividend is over 1e45 wei (1e27 Ether, or a hundred billion billion Ether), or we've cumulatively received that amount of dividends. Similarly, when we compute credits there's no risk of overflow either as it's practically impossible for a user's owed dividends to be 1e45 wei.
+						<span class="code">pointsPerToken += (dividend * 1e32) / totalSupply</span> will not overflow 1e77 (the 256-bit limit) unless the dividend is over 1e45 wei (1e27 Ether, or a hundred billion billion Ether), or we've cumulatively received that amount of dividends. Similarly, when we compute credits there's no risk of overflow either as it's practically impossible for a user's owed dividends to be 1e45 wei.
+					</p>
+					<p>
+						Todd Proebsting also covers rounding in <a href="https://programtheblockchain.com/posts/2018/02/13/writing-a-robust-dividend-token-contract/" target="_blank">this article</a>.
 					</p>
 
 					<a data-anchor="shortcomings"></a>
@@ -237,7 +265,7 @@
 						There's one real problem with this type of Token -- it's very strict about paying only the <i>owner</i> dividends. For example, if you transfer your token to an exchange, then the exchange will be entitled to the dividends since it technically owns the token.  This really only becomes a problem for users that leave their tokens in exchanges for prolonged periods of time, but it's still something to consider.
 					</p>
 					<p>
-						There <i>is</i> a simple solution to leakage, but it requires the custodian (eg, the exchange) to implement its own Contract to proxy dividends to the "lender". Our <a href="">DAO Contract</a> does this:
+						There <i>is</i> a simple solution to leakage, but it requires the custodian (eg, the exchange) to implement its own Contract to proxy dividends to the "lender". Our <a href="https://investor.pennyether.com/about/all-contracts.html#dao" target="_blank">DAO Contract</a> does this:
 						<ul>
 							<li>
 								There exists a Dividend Token: DT
@@ -246,10 +274,7 @@
 								You can transfer your token to the Custodian and receive a non-transferrable Custodian Token (CT). This is just a different Dividend Token contract instance.
 							</li>
 							<li>
-								You can transfer your token to the Custodian and receive a non-transferrable Custodian Token (CT). This is just a different Dividend Token contract instance.
-							</li>
-							<li>
-								The Custodian will collect dividends of all the DT it owns, and pipe those dividends directly to the CT contract.
+								Before issuing any new DT, the Custodian will collect dividends of all the DT it owns, and send those dividends directly to the CT contract.
 							</li>
 							<li>
 								You can then collect dividends on your CT.
@@ -260,16 +285,16 @@
 						</ul>
 					</p>
 					<p>
-						Basically, the Custodian collects dividends from all of the Dividend Tokens it is holding, and sends them directly to the Custodian Token contract. The total number of DT should equal the total number of CT, so dividends will be distributed proportionally. The Custodian needs to collect dividends frequently to assure they match up as best as possible, but it's a good approximation, and it's easy to implement.
+						Basically, the Custodian collects dividends from all of the Dividend Tokens it is holding, and sends them directly to the Custodian Token contract. The total number of DT should equal the total number of CT, so dividends will be distributed correctly accross all accounts.
 					</p>
 
 					<a data-anchor="the-contract"></a>
 					<h3>The Contract</h3>
 					<p>
-						We've open-sourced our implementation of the Dividend Token. It also implements ERC667, which includes "transferAndCall" to make Custodial contracts more easily implemented.  We've put it through a gauntlet of tests and so far it's performed perfectly.
+						We've open-sourced <a href="https://investor.pennyether.com/about/all-contracts#penny-token">our implementation of the Dividend Token</a>. The token implements ERC667, which includes the <span class="code">transferAndCall()</span> method to make Custodial contracts more easily implemented.  We've also created <a href="https://investor.pennyether.com/tools/tokenholder.html">a UI for it</a>. Finally, we've put it through <a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/DividendToken.test.js.html">a gauntlet of tests</a>.
 					</p>
 					<p>
-						We really hope to see Dividend Tokens being used in future dApps!
+						We feel the Realtime Dividend Token is a big step forward in achieving a pure DAO where owning a Token actually means owning a share of a dApp. We hope to see it implemented in other projects.
 					</p>
 					<div style="margin-bottom: 200px"></div>
 				</div>

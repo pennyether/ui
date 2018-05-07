@@ -1,21 +1,103 @@
-.post {
-	border: 1px solid black;
+.body a {
+	color: rgba(0,50,255,.9);
+	text-decoration: none;
+	text-shadow: 1px 1px 1px rgba(0,0,0,.1);
+	border-bottom: 1px solid transparent;
+	transition: color .5s, border .5s;
 }
-.post .head {
+.body a:hover {
+	color: blue;
+	border-bottom: 1px solid blue;
+}
+
+.post-preview {
+	border-radius: 3px;
+	overflow: hidden;
+}
+.post-preview a {
+	color: navy;
+	text-shadow: 1px 1px 0px rgba(255,255,255,.2);
+	text-decoration: none;
+	border-bottom: 1px dotted rgba(0,0,255,.1);
+	transition: color .5s, border-bottom .5s;
+}
+.post-preview a:hover {
+	color: blue;
+	border-bottom: 1px dotted rgba(0,0,255,1);
+}
+
+.post-preview .head {
+	position: relative;
+	padding: 10px;
+	border-bottom: 1px dotted rgba(0,0,0,.1);
+	background: linear-gradient(to bottom, rgba(0,128,0,.4) 0%, rgba(0,128,0,.7) 100%);
+}
+.post-preview .head .title {
+	font-size: 120%;
+}
+.post-preview .head .date {
+	position: absolute;
+	top: 2px;
+	right: 0px;
+	padding: 10px;
+}
+.post-preview .summary {
+	font-size: 90%;
+	padding: 10px;
+	background: linear-gradient(to bottom, rgba(0,0,0,.1) 0%, rgba(0,0,0,.2) 100%);
+}
+.post-preview .more {
+	text-align: right;
+}
+
+.post-info {
+	position: relative;
 	padding: 5px;
-	border-bottom: 1px solid gray;
+	background: rgba(0,0,0,.1);
+	font-size: 80%;
+}
+.post-info .date {
+	letter-spacing: .2em;
+}
+.post-info .tags {
+	position: absolute;
+	top: 3px;
+	right: 0px;
+	font-size: 90%;
+}
+.post-info .tags .head {
+	display: inline-block;
+	letter-spacing: .2em;
+}
+.post-info .tags .tag {
+	display: inline-block;
+	padding: 3px;
+	background: rgba(0,128,0,.4);
+	border-radius: 3px;
+	margin-right: 5px;
+	color: white;
+	text-decoration: none;
+	transition: background .5s;
+}
+.post-info .tags .tag:hover {
+	background: rgba(0,128,0,.8);
+	color: white;
 }
 
-.post .head .title {
-
-}
-.post .head .date {
-
-}
-.post .summary {
-
-}
-
+/*<div class="post-info">
+	<div class="date">
+		May 7th, 2018
+	</div>
+	<div class="tags">
+		<div class="head">Filed Under:</div>
+		<a class="tag" href="/tags/tech.html">Tech</a>
+	</div>
+</div>*/
 .blog-tip {
 	border-bottom: 1px dotted gray;
+}
+
+.code {
+	background: rgba(0,0,0,.1);
+	font-family: courier;
 }
