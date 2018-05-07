@@ -28,7 +28,7 @@
                 url: "https://www.pennyether.com",
             }, {
                 name: "Investors",
-                url: "https://invest.pennyether.com",
+                url: "https://investor.pennyether.com",
             }]
         }
     ];

@@ -13,9 +13,12 @@
 .post-preview {
 	border-radius: 3px;
 	overflow: hidden;
+	margin-bottom: 20px;
+	border: 1px solid rgba(0,0,0,.5);
+	box-shadow: 3px 3px 10px 0px rgba(0,0,0,.2);
 }
 .post-preview a {
-	color: navy;
+	color: blue;
 	text-shadow: 1px 1px 0px rgba(255,255,255,.2);
 	text-decoration: none;
 	border-bottom: 1px dotted rgba(0,0,255,.1);
@@ -32,7 +35,8 @@
 	border-bottom: 1px dotted rgba(0,0,0,.1);
 	background: linear-gradient(to bottom, rgba(0,128,0,.4) 0%, rgba(0,128,0,.7) 100%);
 }
-.post-preview .head .title {
+.post-preview .head .title a {
+	color: navy;
 	font-size: 120%;
 }
 .post-preview .head .date {
