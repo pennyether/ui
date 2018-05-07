@@ -272,6 +272,7 @@
                         }
                     }
                     $(window).on("scroll", activateLastItemScrolledTo);
+                    setTimeout(activateLastItemScrolledTo, 100);
                 }());
 
                 // Attach Tippies
