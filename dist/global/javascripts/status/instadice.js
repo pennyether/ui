@@ -76,8 +76,8 @@ Loader.require("dice")
 
         function doRefresh(obj) {
             $e.find(".blob .fee-pct").text(`${obj.feeBips.div(100).toFixed(3)}%`);
-            $e.find(".blob .min-bet").text(util.toEthStrFixed(obj.minBet, 3, ""));
-            $e.find(".blob .max-bet").text(util.toEthStrFixed(obj.maxBet, 3, ""));
+            $e.find(".blob .min-bet").text(util.toEthStrFixed(obj.minBet, 5, ""));
+            $e.find(".blob .max-bet").text(util.toEthStrFixed(obj.maxBet, 5, ""));
             $e.find(".blob .min-number").text(obj.minNumber);
             $e.find(".blob .min-number").siblings(".eth").text(`${(100/obj.minNumber).toFixed(2)}x payout`);
             $e.find(".blob .max-number").text(obj.maxNumber);

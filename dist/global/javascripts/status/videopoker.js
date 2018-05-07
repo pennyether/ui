@@ -85,8 +85,8 @@ Loader.require("vp")
         });
 
         function doRefresh(obj) {
-            $e.find(".blob .min-bet").text(util.toEthStrFixed(obj.minBet, 3, ""));
-            $e.find(".blob .max-bet").text(util.toEthStrFixed(obj.maxBet, 3, ""));
+            $e.find(".blob .min-bet").text(util.toEthStrFixed(obj.minBet, 5, ""));
+            $e.find(".blob .max-bet").text(util.toEthStrFixed(obj.maxBet, 5, ""));
             //
             const $thead = $e.find(".pay-tables thead tr");
             const $tbody = $e.find(".pay-tables tbody");
