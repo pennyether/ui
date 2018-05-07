@@ -123,7 +123,13 @@
             });
             _$footer.find(".penny-ether").detach().appendTo(_$footer.find("tr"));
 
-            document.title = breadcrumb.map(x=>x.name).join(" > ");
+            (function setTitle(){
+                const ucFirst = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+                const domainStr = subdomain ? ` ${ucFirst(subdomain)}` : ``;
+                const home = [`PennyEther${domainStr}`];
+                const bc = breadcrumb.map(x=>x.name);
+                document.title = home.concat(bc).join(" » ");
+            }());
             _$breadcrumb.empty();
             const $breadcrumb = $("<div></div>").appendTo(_$breadcrumb);
             while (breadcrumb.length) {
