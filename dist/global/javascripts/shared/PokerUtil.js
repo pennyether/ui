@@ -451,6 +451,9 @@
                     .stableSort(_cmp);
                 _redraw();
 
+                if (_$tbody.find(".GameHistory").length==0) _$empty.show();
+                else _$empty.hide();
+
                 // update status, reshow loadMore (unless was last)
                 _$loaded.text(`Showing games started within blocks ${fromBlock} and ${_maxBlockLoaded}`);
                 if (fromBlock <= _minBlock) _isDone = true;
@@ -555,8 +558,6 @@
                 }());
             });
             _$tbody.append(_$statusRow);
-            if (_$tbody.find(".GameHistory").length==0) _$empty.show();
-            else _$empty.hide();
             _$e.find("table").append(_$tbody);
         }
 
