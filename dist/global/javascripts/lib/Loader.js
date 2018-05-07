@@ -165,16 +165,15 @@
                 // Get the current network, and set up _web3
                 const networkPromise = ethUtil.getCurrentState(true).then(state => {
                     // Load network name
-                    const mappings = {1: "main", 3: "ropsten", 42: "kovan"};
-                    _network = state.networkId > 42
-                        ? "local"
-                        : mappings[state.networkId] || "unknown";
+                    const mappings = {1: "main", 3: "ropsten", 4: "rinkeby", 42: "kovan"};
+                    _network = mappings[state.networkId] || "local/unknown";
                     console.log(`Detected network: ${_network} [id: ${state.networkId}]`);
 
                     // Create a backup _web3, since MetaMask's web3 is... um... "beta".
                     const providerUrl = ({
                         "main": "https://mainnet.infura.io/",
                         "ropsten": "https://ropsten.infura.io/",
+                        "rinkeby": "https://rinkeby.infura.io/",
                         "kovan": "https://kovan.infura.io/",
                         "local": "http://localhost:8545/"
                     })[_network];
@@ -185,11 +184,11 @@
 
                     // Load registry depending on web3 network name
                     const registryAddr = ({
-                        "ropsten": "0xdf2e6681d22aeb322c4c8c7213a6aea8f053dd15",
-                        "kovan": "0x169b7dd0c039ff69a8a1bf8fdddaef7485876558",
+                        "ropsten": "0x0a619582135f4474e1fb6d64d8b1dd7ba15894b9",
+                        "kovan": "0x4b961847dbfed4e2eb2c69f20cb3149a5c1de249",
                         "local": "0xc4a1282aedb7397d10b8baa89639cfdaff2ee428"
                     })[_network];
-                    _registry = Registry.at(registryAddr || "0x0");
+                    _registry = Registry.at(registryAddr || ethUtil.NO_ADDRESS);
                     console.log(`Registry for ${_network} is ${registryAddr}`);
 
                     // Load all registry mappings

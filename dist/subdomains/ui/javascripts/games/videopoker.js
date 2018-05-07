@@ -481,7 +481,7 @@ function Game(vp) {
 
     // state of the currentGame
     var _txId = null;
-    var _gameState = {};
+    var _gameState = {state: "betting"};
     var _isSkippingDrawing = false;
     var _isTransacting = false;
     var _isError = false;

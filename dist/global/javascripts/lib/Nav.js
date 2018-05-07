@@ -34,10 +34,10 @@
                                     <a class="sub-item investors" href="https://investor.pennyether.com">Investors</a>
                                 </div>
                                 <div class="icons">
-                                    <a href="#"><img src="/global/images/reddit-icon-32.ico"></a>
+                                    <a href="https://www.reddit.com/r/PennyEther"><img src="/global/images/reddit-icon-32.ico"></a>
                                     <a href="#"><img src="/global/images/discord-icon-32.ico"></a>
                                     <a href="#"><img src="/global/images/twitter-icon-32.ico"></a>
-                                    <a href="#"><img src="/global/images/github-icon-32.ico"></a>
+                                    <a href="https://www.github.com/PennyEther/"><img src="/global/images/github-icon-32.ico"></a>
                                 </div>
                             </div>
                         </td>

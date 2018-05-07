@@ -23,6 +23,15 @@ Loader.require("comp", "tr", "token", "tm", "monarchy", "dice", "vp")
         topology.tokenTotalCollected(token.dividendsCollected(), eth);
         topology.tmRewardsPaid(tm.totalRewarded(), eth);
 
+        // balances
+        topology.compBalance(ethUtil.getBalance(comp), eth);
+        topology.trBalance(ethUtil.getBalance(tr), eth);
+        topology.tokenBalance(ethUtil.getBalance(token), eth);
+        topology.monarchyBalance(ethUtil.getBalance(token), eth);
+        topology.diceBalance(ethUtil.getBalance(dice), eth);
+        topology.vpBalance(ethUtil.getBalance(vp), eth);
+        topology.tmBalance(ethUtil.getBalance(tm), eth);
+
         // bankrolled amounts
         tr.capitalLedger().then(ledgerAddr => {
             topology.monarchyBankrolled(tr.capitalAllocatedTo([monarchy.address]), eth);
@@ -136,7 +145,6 @@ Loader.require("comp", "tr", "token", "tm", "monarchy", "dice", "vp")
         });
 
         // Task Manager
-        topology.tmBalance(ethUtil.getBalance(tm), eth);
         topology.tmIssueDividendReward(tm.issueDividendRewardBips().then(val=>{
             return `${val.div(100).toFixed(2)}%`
         }), str);

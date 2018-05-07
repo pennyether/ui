@@ -130,6 +130,7 @@
 					}
 					if (name == "dividends") {
 						t.clearAll();
+						t.tokenBalance(0, eth);
 						t.tokenDivsReceived(0, eth);
 						t.trDividends(0, eth);
 						t.tokenDivsCollected(0, eth);
@@ -137,6 +138,8 @@
 					}
 					if (name == "comptroller") {
 						t.clearAll();
+						t.compBalance(0, eth);
+						t.tokenBalance(0, eth);
 						t.tokenIsFrozen(false);
 						t.trCapitalRaised(0, eth);
 						t.trCapAvailable(0, eth);
@@ -144,27 +147,39 @@
 					}
 					if (name == "treasury") {
 						t.clearAll();
+						t.compBalance(0, eth);
 						t.tokenTotalSupply(4000e18, penny);
 						t.tokenIsFrozen(false);
+						t.trBalance(1000e18, eth);
 						t.trCapitalRaised(1000e18, eth);
 						t.trCapAvailable(1000e18, eth);
 					}
 					if (name == "profits") {
 						t.clearAll();
+						t.compBalance(0, eth);
+						t.tokenBalance(0, eth);
 						t.tokenTotalSupply(4000e18, penny);
 						t.tokenIsFrozen(false);
+						t.trBalance(1000e18, eth);
 						t.trCapitalRaised(1000e18, eth);
 						t.trCapAvailable(900e18, eth);
-						t.diceBankrolled(100e18, eth)
+
+						t.diceBalance(100e18, eth);
+						t.diceBankrolled(100e18, eth);
+						t.diceCurMaxBet(.1e18, eth);
 					}
 					if (name == "tasks") {
 						t.clearAll();
+						t.compBalance(0, eth);
+						t.tokenBalance(0, eth);
 						t.tokenTotalSupply(4000e18, penny);
 						t.tokenIsFrozen(false);
+						t.trBalance(900e18, eth);
 						t.trCapitalRaised(1000e18, eth);
 						t.trCapAvailable(900e18, eth);
 						t.diceBankrolled(100e18, eth)
 
+						t.diceBalance(100e18, eth);
 						t.diceNumRolls(1234);
 						t.diceTotalWagered(123.456e18, eth);
 						t.diceCurMaxBet(.1e18, eth);
@@ -232,6 +247,7 @@
 						var num = (new BigNumber(0));
 						obj.interval = setInterval(()=>{
 							num = num.plus(1e16);
+							t.tokenBalance(num, eth);
 							t.tokenDivsReceived(num, eth);
 							t.trDividends(num, eth);
 						}, 500);
@@ -247,11 +263,13 @@
 					in: () => {
 						$(".token-total-collected").closest(".line").addClass("flow");
 						const received = toEth(.28);
+						t.tokenBalance(received, eth);
 						t.tokenDivsReceived(received, eth);
 
 						var collected = new BigNumber(0);
 						obj.interval = setInterval(() => {
 							collected = collected.plus(1e16);
+							t.tokenBalance(received.minus(collected), eth);
 							t.tokenDivsCollected(collected, eth);
 							if (collected.equals(received)) {
 								$(".token-total-collected").closest(".line").removeClass("flow");
@@ -283,6 +301,7 @@
 						var num = (new BigNumber(0));
 						function add() {
 							num = num.plus(1.23e18);
+							t.compBalance(num, ethFlash);
 							t.tokenTotalSupply(num, penny);
 							$line.removeClass("flash");
 							setTimeout(()=>$line.addClass("flash"), 50);
@@ -299,11 +318,13 @@
 					title: "The CrowdSale",
 					text: `After the CrowdSale, a percent of the proceeds will go to the Treasury as capital, and the Tokens will be unfrozen.`,
 					in: ()=>{
+						t.compBalance(4000e18, eth);
 						t.tokenTotalSupply(4000e18, eth);
 						t.trCapAvailable(0, eth);
 						t.trCapitalRaised(0, eth);
 						t.tokenIsFrozen(true);
 						sendEth($(".line .tr-capital-raised").closest(".line"), "right").then(()=>{
+							t.compBalance(0, ethFlash);
 							t.trCapAvailable(1000e18, ethDelta);
 							t.trCapitalRaised(1000e18, ethDelta);
 							t.tokenIsFrozen(false, doFlash);
@@ -374,9 +395,11 @@
 					title: "Managing Capital > Example",
 					text: `The Treasury will send some capital, and InstaDice will now have a bankroll to work with. Note that Treasury's available capital decreases.`,
 					in: () => {
+						t.trBalance(1000e18, ethDelta);
 						t.trCapAvailable(1000e18, eth);
 						t.diceBankrolled(0, eth)
 						sendEth($(".line .dice-bankrolled").closest(".line"), "down").then(()=>{
+							t.trBalance(800e18, ethDelta);
 							t.trCapAvailable(800e18, ethDelta);
 							t.diceBankrolled(200e18, ethDelta)
 						});
@@ -394,9 +417,11 @@
 					title: "Managing Capital > Example",
 					text: `The Treasury will recall 100 Ether, and its available Capital will increase.`,
 					in: ()=>{
+						t.trBalance(800e18, eth);
 						t.trCapAvailable(800e18, eth);
 						t.diceBankrolled(200e18, eth);
 						sendEth($(".line .dice-bankrolled").closest(".line"), "up").then(()=>{
+							t.trBalance(900e18, ethDelta);
 							t.trCapAvailable(900e18, ethDelta);
 							t.diceBankrolled(100e18, ethDelta)
 						});
@@ -434,7 +459,8 @@
 					title: "Example",
 					text: `In this example, InstaDice has received 100 Ether of bankroll.<br>Now that it has Bankroll, the contract can accept bets.`,
 					in: ()=>{
-						t.diceNumRolls(0, ethFlash);
+						t.diceBalance(100e18, ethFlash);
+						t.diceNumRolls(0, doFlash);
 						t.diceTotalWagered(0, ethFlash);
 						t.diceCurMaxBet(.1e18, ethFlash);
 						t.diceCurProfits(0, ethFlash);
@@ -444,17 +470,20 @@
 					title: "Example",
 					text: `As players play, profits will accumulate in the contract.`,
 					in: ()=>{
-						t.diceNumRolls(0, eth);
+						var bal = new BigNumber(100e18);
+						t.diceBalance(bal, eth);
+						t.diceNumRolls(0);
 						t.diceTotalWagered(0, eth);
 						t.diceCurMaxBet(.1e18, eth);
 						t.diceCurProfits(0, eth);
 						obj.interval = setInterval(()=>{
 							const rolls = parseFloat(t.diceNumRolls()) + 1;
-							const wagered = parseFloat(t.diceTotalWagered()) + Math.random()*.1;
-							const profits = wagered * .01;
+							const wagered = toEth(parseFloat(t.diceTotalWagered()) + Math.random()*.1);
+							const profits = wagered.mul(.01);
+							t.diceBalance(bal.plus(profits), eth);
 							t.diceNumRolls(rolls);
-							t.diceTotalWagered(toEth(wagered), eth);
-							t.diceCurProfits(toEth(profits), eth);
+							t.diceTotalWagered(wagered, eth);
+							t.diceCurProfits(profits, eth);
 						}, 100)
 					},
 					out: ()=>{
@@ -471,8 +500,10 @@
 						t.diceCurMaxBet(.1e18, eth);
 
 						const profits = 1.234e18;
+						const balance = (new BigNumber(100e18)).plus(profits);
 						t.trProfits(0, eth);
 						t.diceProfits(0, eth);
+						t.diceBalance(balance, eth);
 						t.diceCurProfits(profits, ethFlash);
 					}
 				}, {
@@ -486,12 +517,14 @@
 						t.diceCurMaxBet(.1e18, eth);
 
 						const profits = 1.234e18;
+						const balance = (new BigNumber(100e18)).plus(profits);
 						t.trProfits(0, eth);
 						t.diceProfits(0, eth);
 						t.diceCurProfits(profits, eth);
 						sendEth($(".line .dice-profits").closest(".line"), "up").then(()=>{
 							t.trProfits(profits, ethDelta);
 							t.diceProfits(profits, ethDelta);
+							t.diceBalance(balance.minus(profits), ethDelta);
 							t.diceCurProfits(0, ethDelta);
 						});
 					}
@@ -503,10 +536,12 @@
 						const profits = 1.234e18;
 						t.trProfits(profits, eth);
 						t.trDividends(0, eth);
+						t.tokenBalance(0, eth);
 						t.tokenDivsReceived(0, eth);
 						sendEth($(".tr-dividends").closest(".line"), "left").then(()=>{
 							t.trProfits(0, ethDelta);
 							t.trDividends(profits, ethDelta);
+							t.tokenBalance(profits, ethDelta);
 							t.tokenDivsReceived(profits, ethDelta);
 						})
 					}
@@ -543,6 +578,7 @@
 					button: `Execute Task`,
 					in: () => {
 						t.tmBalance(util.toEthStrFixed(toEth(2.345)));
+						t.diceBalance(util.toEthStrFixed(101.23e18), doFlash);
 						t.diceCurProfits(util.toEthStrFixed(1.23e18), doFlash);
 						t.tmSendProfitsReward(".1%", doFlash);
 						t.diceSendProfits(".00123 ETH reward", doFlash);
@@ -561,6 +597,7 @@
 						const reward = profits.div(1000);
 						const balance = toEth(2.345);
 						t.trProfits(0, eth);
+						t.diceBalance(toEth(100).plus(profits), eth);
 						t.diceProfits(0, eth);
 						t.diceCurProfits(profits, eth);
 						// tm and upwards (and leftwards)
@@ -575,6 +612,7 @@
 								t.trProfits(profits, ethDelta);
 								t.diceProfits(profits, ethDelta);
 								t.diceCurProfits(0, ethDelta);
+								t.diceBalance(100e18, ethDelta);
 							}).then(()=>{
 								setTimeout(()=>{
 									sendEth($rewardLine, "left").then(()=>{
