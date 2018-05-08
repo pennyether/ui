@@ -184,6 +184,7 @@
 
                     // Load registry depending on web3 network name
                     const registryAddr = ({
+                        "main": "0x9c6386aba3907ad0e2177e74684f3ac986070981",
                         "ropsten": "0x0a619582135f4474e1fb6d64d8b1dd7ba15894b9",
                         "kovan": "0x4b961847dbfed4e2eb2c69f20cb3149a5c1de249",
                         "local": "0xc4a1282aedb7397d10b8baa89639cfdaff2ee428"
