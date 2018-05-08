@@ -166,7 +166,7 @@
                 const networkPromise = ethUtil.getCurrentState(true).then(state => {
                     // Load network name
                     const mappings = {1: "main", 3: "ropsten", 4: "rinkeby", 42: "kovan"};
-                    _network = mappings[state.networkId] || "local/unknown";
+                    _network = mappings[state.networkId] || "local";
                     console.log(`Detected network: ${_network} [id: ${state.networkId}]`);
 
                     // Create a backup _web3, since MetaMask's web3 is... um... "beta".

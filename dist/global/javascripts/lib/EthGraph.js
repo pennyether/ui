@@ -732,7 +732,7 @@ function Preview() {
             allowMoving: false,
         });
         _graph.setBounds(_min, _max);
-        _$window.appendTo(_graph.$e.find(".main-ctnr").css("position", "relative"));
+        _$window.appendTo(_graph.$e.find(".main-ctnr"));
         _initDragging();
     };
 
@@ -849,8 +849,8 @@ function SvgGraph() {
                 </div>
             </div>
             <div style="flex-grow: 1; display: flex;">
-                <div class="main-ctnr" style="flex-grow: 1;">
-                    <svg class="graphs" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"></svg>
+                <div class="main-ctnr" style="flex-grow: 1; position: relative;">
+                    <svg class="graphs" style="position: absolute" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"></svg>
                 </div>
                 <div class="y-scale-ctnr" style="flex-shrink: 0;">
                     <svg class="y-scales" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"></svg>
@@ -899,10 +899,10 @@ function SvgGraph() {
     }
 
     function _initScrolling(){
-        _$graphs.bind("wheel mousewheel", function(ev) {
+        _$graphs.bind("wheel", function(ev) {
             ev.preventDefault();
-            var delta = parseInt(ev.originalEvent.wheelDelta || -ev.originalEvent.detail);
             // negative means zoom out.
+            var delta = -1 * ev.originalEvent.deltaY;
             const range = _high - _low;
             const newRange = range * Math.pow(1.001, -delta);
             const deltaRange = newRange - range;
@@ -1225,7 +1225,7 @@ function SvgGraph() {
             }).appendTo($e);
             _$svg("text", {
                 x: xPos, y: 4,
-                "alignment-baseline": "hanging",
+                "dominant-baseline": "hanging",
                 "font-size": "10px",
                 "text-anchor": anchor,
                 fill: color
@@ -1277,7 +1277,7 @@ function SvgGraph() {
 
             _$svg("text", {
                 x: 5, y: yPos,
-                "alignment-baseline": "middle",
+                "dominant-baseline": "middle",
                 "font-size": "10px",
                 fill: color,
                 opacity: .5
@@ -1366,7 +1366,7 @@ function SvgGraph() {
 
         const $text = _$svg("text", {
             x: padding, y: padding,
-            "alignment-baseline": "hanging",
+            "dominant-baseline": "hanging",
             "font-size": props.fontSize,
             fill: props.textColor
         }).text(text).appendTo($g);
