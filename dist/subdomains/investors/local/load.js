@@ -77,6 +77,9 @@
                 name: "CrowdSale",
                 class: "crowdsale",
                 url: "/ico/crowdsale.html"
+            },{
+                name: "FAQs",
+                url: "/ico/faqs.html"
             }]
         }
     ];

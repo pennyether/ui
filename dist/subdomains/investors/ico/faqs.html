@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/global/javascripts/lib/Loader.js"></script>
+		<script src="/local/load.js"></script>
+	</head>
+	<body><div id="Content">
+		<div id="TOC">
+			<div class="section" style="margin-top: 25px">
+				<div class="title">Table of Contents</div>
+				<div class="body">
+					<div class="inpage-item">
+						<a href="#about">
+							<div class="head">About PennyEther</div>
+						</a>
+					</div>
+					<div class="inpage-item">
+						<a href="#dividends">
+							<div class="head">Dividends</div>
+						</a>
+					</div>
+					<div class="inpage-item">
+						<a href="#crowdsale">
+							<div class="head">CrowdSale</div>
+						</a>
+					</div>
+					<div class="inpage-item">
+						<a href="#risks">
+							<div class="head">Risks</div>
+						</a>
+					</div>
+					<div class="inpage-item">
+						<a href="#contact">
+							<div class="head">Contact</div>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="content">
+			<div class="page-section">
+				<div class="head">CrowdSale FAQs</div>
+				<div class="body" style="font-size: 90%;">
+					<a data-anchor="about"></a>
+					<div class="page-subsection">
+						<div class="head">About PennyEther</div>
+						<div class="body">
+							<h3>What is PennyEther?</h3>
+							<p>
+								PennyEther is a blockchain gambling platform built entirely off of smart contracts. All profits are distributed to Token Holders, and once the DAO is instated, Token Holders will have full control of the entire and be able to change settings by creating and voting on propositions. We're trying to build a true DAO.
+							</p>
+							<p>
+								By distributing ownership, we're able to hold the world's first provably fair "all-pay auctions" -- this includes games like Monarchy, lotteries, and raffles. Since ownership is distributed, there can be no cheating by "owners" who would otherwise be able to play for free.
+							</p>
+
+							<h3>When will it be released?</h3>
+							<p>
+								The entire platform is already up and running! View the <a href="/status/overview.html">realtime overview</a> and <a href="/about/overview.html">interactive demo</a> of the platform.
+							</p>
+							<p>
+								We've launched with three games:
+								<ul>
+									<li>
+										<a href="https://www.pennyether.com/games/monarchy.html">Monarchy</a>: The world's first truly fair king-of-the-hill game (aka, Penny Auction).
+									</li>
+									<li>
+										<a href="https://www.pennyether.com/games/instadice.html">InstaDice</a>: Ethereum's only instant dice game. No oracles or state channels means low minimum bets for players, and higher profit margines for the house. View your roll results as soon as your transaction is mined!
+									</li>
+									<li>
+										<a href="https://www.pennyether.com/games/videopoker.html"></a>: The first pure blockchain poker game. View cards as soon as your transactions are mined, and play multiple hands easiliy with our multi-machine UI.
+									</li>
+								</ul>
+							</p>
+
+							<h3>Who is behind PennyEther?</h3>
+							<p>
+								<a href="/ico/whitepaper.html#pennyether-team">We are currently anonymous</a>. This is due to the uncertainty regarding ICOs and the blockchain gambling regulations, as well as to strengthen the security of the platform. More information is available here.
+							</p>
+							<p>
+								We realize this may be a red flag to some investors, and we're OK with that. Either you believe in our vision and what we've built, or you don't. We don't think LinkedIn profiles would change much.
+							</p>
+						</div>
+					</div>
+
+					<a data-anchor="dividends"></a>
+					<div class="page-subsection">
+						<div class="head">Dividends</div>
+						<div class="body">
+							<h3>How do dividends work?</h3>
+							<p>
+								The "Dividends" section of the <a href="/about/overview.html">tutorial</a> explains this best. All profits of games are sent to the Treasury, and the Treasury can issue dividends to the PENNY Token at any time. When a dividend is issued, all Token Holders are credited their relative portion of that dividend.
+							</p>
+
+							<h3>How do I collect my dividends?</h3>
+							<p>
+								You can call the "collectOwedDividends()" method of the PENNY Token contract. Or, you can just use our <a href="/tools/tokenholder.html">Token Holder UI</a> and click a button.
+							</p>
+
+							<h3>When can I collect my dividends?</h3>
+							<p>
+								You can collect your owed dividends at any time, even if you transfer your tokens. There is no "distribution period" -- any owed dividends are held by the contract and will only ever leave it when you collect them.
+							</p>
+
+							<h3>How often are dividends issued?</h3>
+							<p>
+								A dividend can be issued at any time, by anyone, by calling "issueDividend()" on the Treasury contract (assuming it has profits to distribute).
+							</p>
+							<p>
+								However, calling "issueDividend()" costs a little gas, so it may be possible that <i>nobody</i> wants to call it. To counteract this, we've provided a financial incentive via the <a href="/about/all-contracts.html#task-manager">Task Manager</a>: Anybody who calls "issueDividend()" will be rewarded a small percentage of the dividends issued.
+							</p>
+							<p>
+								This means that dividends should realistically be issued all the time, as users will want to claim a reward.
+							</p>
+
+							<h3>If I send my Tokens to an exchange, what happens to the dividends?</h3>
+							<p>
+								Any owed dividends before the transfer will be yours. However, any future dividends will be credited to the exchange. Remember: <i>Once you transfer your tokens to a different account, they are no longer yours.</i>
+							</p>
+						</div>
+					</div>
+
+					<a data-anchor="crowdsale"></a>
+					<div class="page-subsection">
+						<div class="head">CrowdSale</div>
+						<div class="body">
+							<h3>When is the CrowdSale?</h3>
+							<p>
+								The CrowdSale can technically be changed up until it starts. However, we plan on starting the CrowdSale June 1st. For realtime information on the CrowdSale, you can view the <a href="/status/comptroller.html">Comptroller Status</a> or the <a href="/ico/crowdsale.html">CrowdSale website</a>.
+							</p>
+
+							<h3>How many Tokens are being sold?</h3>
+							<p>
+								Currently, between 20,000 and 50,000 PENNY Tokens will be issued. The PennyEther Team will keep 20% of those tokens, and they will vest daily over a 600 day period.
+							</p>
+
+							<h3>What is the Bonus Period?</h3>
+							<p>
+								We're trying to keep our CrowdSale as simple as possible. There is just one bonus period, and it is based on the amount raised. As more Ether is raised, the bonus goes down, linearly.
+							</p>
+							<p>
+								The bonus starts at 50%: for every 1 Ether, the investor gets 1.5 PENNY. The bonus goes down gradually to 0% after 10,000 Ether is rasied. <a href="/ico/whitepaper.html#crowdsale-terms">More information can be found in the whitepaper</a>.
+							</p>
+
+							<h3>What is the SoftCap?</h3>
+							<p>
+								The SoftCap is the minimum amount of Ether required to be raised. If the CrowdSale fails to raise this amount, the CrowdSale is effectively cancelled. All investors will be able to receive a refund by calling ".refund()" on the contract (or by clicking a button on the CrowdSale webpage). 
+							</p>
+
+							<h3>What is the HardCap?</h3>
+							<p>
+								The HardCap is the maximum amount of Ether that can be raised. Once this amount is raised, the CrowdSale contract will end the CrowdSale.
+							</p>
+
+							<h3>When will tokens be unfrozen?</h3>
+							<p>
+								Tokens will be unfrozen once the CrowdSale ends: either if the HardCap is met, or the CrowdSale end date is reached. If the SoftCap is not met, Tokens will remain frozen forever.
+							</p>
+
+							<h3>When will dividends be available?</h3>
+							<p>
+								The Treasury will be able to send dividends once the CrowdSale is completed.
+							</p>
+						</div>
+					</div>
+
+					<a data-anchor="risks"></a>
+					<div class="page-subsection">
+						<div class="head">Risks</div>
+						<div class="body">
+							<h3>Why should I invest?</h3>
+							<p>
+								You should invest if you believe that the profits accrued by PennyEther will be worth purchasing PENNY Tokens. This is purely a judgement call that is up to you. There are some risks involved:
+								<ul>
+									<li>The underlying value of PENNY Tokens may decrease.</li>
+									<li>PennyEther may not make any profits, either due to unpopularity or a contract vulnerability.</li>
+								</ul>
+							</p>
+
+							<h3>What safeguards are in place?</h3>
+							<p>
+								1) <b>The PennyEther team will own 20% of all tokens</b>, and as such, we maintain alignment with all other Token Holders -- we want to generate the most amount of profits, and we want to the PENNY Token to be worth as much as possible.
+							</p>
+							<p>
+								2) <b>The UI was built with security in mind</b>:
+								<ul>
+									<li>There is no back-end server or database. The only point of failure is serving HTML files.</li>
+									<li>It is protected from DDoS via CloudFlare</li>
+									<li>It is fully cacheable - should the server go down CloudFlare will continue to serve the site</li>
+									<li>it is open-source and easily runnable - even if the domain is taken down, all users can still play the games by running the UI locally.</li>
+									<li>We will be migrating to IPFS soon, meaning our website will be "hosted" by the cloud.</li>
+								</ul>
+							</p>
+							<p>
+								3) <b>Exhaustive tests</b>. We've put all of our contracts through <a href="http://htmlpreview.github.io/?https://github.com/pennyether/contracts/blob/master/tests/results/index.html">exhaustive tests</a> -- the most testing we've seen of any dApp.
+							</p>
+							<p>
+								4) <b>Bug Bounties</b>. All of our contracts are open-sourced, and we offer rewards for finding bugs.
+							</p>
+							<p>
+								5) <b>Audits</b>. We're currently having our contracts audited for security flaws that could jeopardize funds.
+							</p>
+							<p>
+								6) <b>DAO Coming Soon</b>. Once the DAO is instated, there will be zero trust requried of the PennyEther Team -- the Token Holders will be the ones running everything. The PennyEther Team would not be able to interfere even if they wanted to.
+							</p>
+						</div>
+					</div>
+
+					<a data-anchor="contact"></a>
+					<div class="page-subsection">
+						<div class="head">Contact</div>
+						<div class="body">
+							<h3>How do I get in touch?</h3>
+							<p>
+								The best way to reach us is via <a href="https://www.reddit.com/r/PennyEther">Reddit</a> or <a href="https://discord.gg/hrrERYZ">Discord</a>.
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div></body>
+</html>

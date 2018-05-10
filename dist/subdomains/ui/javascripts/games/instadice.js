@@ -81,6 +81,7 @@ Loader.require("dice")
                 maxNumber: arr[4],
                 feeBips: arr[5]
             });
+            $(".feature-house-fee").text(arr[5].div(100).toFixed(2));
         });
     }
 

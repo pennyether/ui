@@ -30,13 +30,14 @@
                             <div class="menu-item">
                                 <a class="link" href="https://www.pennyether.com">PennyEther</a>
                                 <div class="sub-menu">
+                                    <a class="sub-item play" href="https://www.pennyether.com">Play!</a>
                                     <a class="sub-item blog" href="https://blog.pennyether.com">Blog</a>
                                     <a class="sub-item investors" href="https://investor.pennyether.com">Investors</a>
                                 </div>
                                 <div class="icons">
                                     <a href="https://www.reddit.com/r/PennyEther"><img src="/global/images/reddit-icon-32.ico"></a>
-                                    <a href="#"><img src="/global/images/discord-icon-32.ico"></a>
-                                    <a href="#"><img src="/global/images/twitter-icon-32.ico"></a>
+                                    <a href="https://discord.gg/hrrERYZ"><img src="/global/images/discord-icon-32.ico"></a>
+                                    <a href="https://twitter.com/PennyEther"><img src="/global/images/twitter-icon-32.ico"></a>
                                     <a href="https://www.github.com/PennyEther/"><img src="/global/images/github-icon-32.ico"></a>
                                 </div>
                             </div>
