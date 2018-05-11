@@ -27,7 +27,7 @@ Loader.require("comp", "tr", "token", "tm", "monarchy", "dice", "vp")
         topology.compBalance(ethUtil.getBalance(comp), eth);
         topology.trBalance(ethUtil.getBalance(tr), eth);
         topology.tokenBalance(ethUtil.getBalance(token), eth);
-        topology.monarchyBalance(ethUtil.getBalance(token), eth);
+        topology.monarchyBalance(ethUtil.getBalance(monarchy), eth);
         topology.diceBalance(ethUtil.getBalance(dice), eth);
         topology.vpBalance(ethUtil.getBalance(vp), eth);
         topology.tmBalance(ethUtil.getBalance(tm), eth);
