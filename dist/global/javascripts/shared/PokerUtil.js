@@ -147,7 +147,7 @@
 
         // Updates _gameStates to contain gameStates of a user in the last numBlocks.
         // Will remove any gameStates that were updated over a block ago.
-        function _refreshGameStates(fromBlock, toBlock) {
+        function _refreshGameStates(fromBlock, toBlock, doReset) {
             if (!fromBlock || !toBlock) throw new Error(`Must provide from and to block`);
 
             const curBlockNum = ethUtil.getCurrentStateSync().latestBlock.number;
@@ -161,7 +161,7 @@
                 // This assumes the provider has an event lag of at most 1 block.
                 Object.keys(_gameStates).forEach(id=>{
                     const gs = _gameStates[id];
-                    if (curBlockNum > gs.blockUpdated) {
+                    if (curBlockNum > gs.blockUpdated || doReset) {
                         delete _gameStates[id];
                     }
                 });
@@ -445,8 +445,10 @@
             const toBlock = _nextToBlock;
             _$loadMore.hide();
             _$loaded.text(`Loading from ${fromBlock} to ${toBlock}...`);
-            return _controller.refreshGameStates(fromBlock, toBlock).then((gameStates) => {
-                _gameStates = _gameStates.concat(gameStates)
+            return _controller.refreshGameStates(fromBlock, toBlock, true).then((gameStates) => {
+                _gameStates = _gameStates
+                    .map(gs => gs.gs)
+                    .concat(gameStates)
                     .map((gs, i) => { return {i: i, gs: gs}; })
                     .stableSort(_cmp);
                 _redraw();
@@ -455,12 +457,11 @@
                 else _$empty.hide();
 
                 // update status, reshow loadMore (unless was last)
-                _$loaded.text(`Showing games started within blocks ${fromBlock} and ${_maxBlockLoaded}`);
                 if (fromBlock <= _minBlock) _isDone = true;
                 else _$loadMore.show();
                 // move down nextTo/From blocks
+                _nextToBlock = _nextFromBlock - 1;
                 _nextFromBlock = Math.max(_nextFromBlock - _numBlocks, _minBlock);
-                _nextToBlock = _nextToBlock - _numBlocks;
                 // return the states for anyone interested
                 return _gameStates;
             });
