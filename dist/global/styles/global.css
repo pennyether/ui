@@ -1078,7 +1078,7 @@ input:disabled {
 			color: lime;
 			margin-top: -5px;
 			margin-bottom: -5px;
-			width: 4em; /* this is set via JS */
+			width: 170px;
 		}
 		.Slider .val-txt:focus {
 			outline: none;

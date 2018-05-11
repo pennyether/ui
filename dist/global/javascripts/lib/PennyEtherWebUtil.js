@@ -1137,10 +1137,6 @@
                 .attr("max", maxRounded)
                 .attr("step", _curStep);
 
-            // set the txtwidth to accommodate number of decimals
-            const numDecimals = _curStep == 0 ? 3 : -1*Math.floor(Math.log10(_curStep));
-            _$txt.css("width", `${numDecimals}em`);
-
             // wagerRange to be positioned correctly relative to value
             var val = _getValue();
             if (val !== null){

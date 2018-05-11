@@ -211,9 +211,6 @@ Loader.require("vp")
         // event BetFailure(uint time, address indexed user, uint bet, string msg);
         // event DrawFailure(uint time, address indexed user, uint32 indexed id, uint8 draws, string msg);
         // event FinalizeFailure(uint time, address indexed user, uint32 indexed id, string msg);
-        // // If _payout = true on finalization
-        // event PayoutSuccess(uint time, address indexed user, uint32 indexed id, uint amount);
-        // event PayoutFailure(uint time, address indexed user, uint32 indexed id, uint amount);
         // // Credits
         // event CreditsAdded(uint time, address indexed user, uint32 indexed id, uint amount);
         // event CreditsUsed(uint time, address indexed user, uint32 indexed id, uint amount);
@@ -244,9 +241,8 @@ Loader.require("vp")
         // define legends, build events from this.
         const labels = {
             "Settings": [true, ["PayTableAdded", "SettingsChanged"]],
-            "Failures": [false, ["BetFailure", "DrawFailure", "FinalizeFailure", "PayoutFailure"]],
+            "Failures": [false, ["BetFailure", "DrawFailure", "FinalizeFailure"]],
             "Credits": [false, ["CreditsAdded", "CreditsUsed", "CreditsCashedout"]],
-            "Payouts": [false, ["PayoutSuccess", "PayoutFailure"]],
             "Finances": [false, ["BankrollAdded", "BankrollRemoved", "ProfitsSent"]]
         }
         Object.keys(labels).forEach(groupName => {
