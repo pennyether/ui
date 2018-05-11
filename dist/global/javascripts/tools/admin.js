@@ -265,7 +265,7 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
 
         function execute(btn, obj) {
             const $button = $(btn);
-            const $request = $button.closest("request");
+            const $request = $button.closest(".request");
             const params = {
                 _id: $request.data("request-id")
             };
@@ -293,7 +293,7 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
         }
         function cancel(btn, obj) {
             const $button = $(btn);
-            const $request = $button.closest("request");
+            const $request = $button.closest(".request");
             const params = {
                 _id: $request.data("request-id"),
                 _msg: $button.closest("td").find(".cancel-msg").val()
