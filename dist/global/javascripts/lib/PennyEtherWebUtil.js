@@ -679,8 +679,9 @@
             _$loading.show().text(`Loading gas data...`);
             _$content.hide();
             return ethUtil.getGasPrices(fresh).then(data => {
-                // create a sorted list of gasPrices
-                // !!! NOTE: all prices are all x 10 (10 = 1 Gwei) !!!
+                // gets a list of all gas prices
+                _gasData = data;
+                console.log(_gasData);
                 const gasPrices = Object.keys(data)
                     .map(n => Number(n))
                     .sort((a,b) => a - b);
@@ -699,14 +700,11 @@
                 auto = auto || max;
 
                 // populate _gasData in terms of gWei
-                _gasData = {};
                 gasPrices.forEach(n => {
                     if (n < min || n > max) return;
-                    _gasData[n / 10] = data[n];
                 });
 
                 // convert min,max,auto to gWei, and set slider
-                min = min / 10; max = max / 10; auto = auto / 10;
                 _$slider.attr("min", min).attr("max", max).attr("step", "0.1");
 
                 // autochoose if we need to, otherwise compress _$slider.val()

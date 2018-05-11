@@ -346,9 +346,11 @@
                 _gasPricePromise = null;
                 const obj = JSON.parse(res);
                 const totalTxs = obj[0].tx_atabove;
-                const formatted = obj.map((o,i)=>{
+
+                const byGWei = {};
+                Object.values(obj).forEach((o,i) => {
                     const nextTxAtAbove = (obj[i+1] ? obj[i+1].tx_atabove : o.tx_atabove);
-                    return {
+                    byGWei[o.gasprice] = {
                         gasPrice: o.gasprice,
                         atOrAbove: o.tx_atabove,
                         numTxs: o.tx_atabove - nextTxAtAbove,
@@ -359,9 +361,9 @@
                 })
                 _lastGasPrices = {
                     timestamp: (+new Date()),
-                    data: formatted
+                    data: byGWei
                 };
-                return formatted;
+                return byGWei;
             },(e)=>{
                 _gasPricePromise = null;
                 e.message = "Could not retrieve gas prices.";
