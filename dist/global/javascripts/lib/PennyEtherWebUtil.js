@@ -681,7 +681,6 @@
             return ethUtil.getGasPrices(fresh).then(data => {
                 // gets a list of all gas prices
                 _gasData = data;
-                console.log(_gasData);
                 const gasPrices = Object.keys(data)
                     .map(n => Number(n))
                     .sort((a,b) => a - b);
