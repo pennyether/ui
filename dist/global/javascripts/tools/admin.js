@@ -243,7 +243,7 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
                 $req.find(".target").append(Loader.linkOf(request.target));
                 $req.find(".value").text(util.toEthStrFixed(request.value));
                 const timeExecutable = request.dateCreated.plus(24*60*60*7);
-                const timeleft = BigNumber.max(obj.blocktime.minus(timeExecutable), 0);
+                const timeleft = BigNumber.max(timeExecutable.minus(obj.blocktime), 0);
                 if (timeleft.gt(0)) {
                     $req.find(".time-left").text(util.toTime(timeleft));
                     // $req.find(".btn-execute").attr("disabled", "disabled");

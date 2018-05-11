@@ -90,6 +90,18 @@
 			.cell .finances .whitelist input.address {
 				width: 200px;
 			}
+
+			.cell.governance .request {
+				display: table;
+				margin: 10px auto;
+				border: 1px dotted rgba(0,0,0,.2);
+				border-radius: 5px;
+				padding: 5px;
+			}
+			.cell.governance .action {
+				border-top: 1px dotted rgba(0,0,0,.1);
+				padding-top: 10px;
+			}
 		</style>
 	</head>
 	<body><div id="Content">
@@ -139,10 +151,12 @@
 										</tr>
 										<tr>
 											<td colspan="2" style="text-align: center;">
-												<button class="btn-execute">Execute</button>
-												-or-
-												<input type="text" class="cancel-msg">
-												<button class="btn-cancel">Cancel</button>
+												<div class="action">
+													<button class="btn-execute">Execute</button>
+													-or-
+													<input type="text" class="cancel-msg">
+													<button class="btn-cancel">Cancel</button>
+												</div>
 											</td>
 										</tr>
 									</table>
