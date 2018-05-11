@@ -351,6 +351,9 @@ input:disabled {
 	#Footer td.penny-ether .sub-item.blog {
 		color: green;
 	}
+	#Footer td.penny-ether .sub-item.play {
+		color: blue;
+	}
 	#Footer td.penny-ether .icons {
 		margin-top: 10px;
 	}
