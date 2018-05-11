@@ -1124,8 +1124,8 @@
             const min = new BigNumber(_curUnit.min);
             const max = new BigNumber(_curUnit.max);
             const difference = max.minus(min);
-            // Round difference down to nearest power of 10, divide by 10.
-            _curStep = _getNiceStep(difference);
+            // Get the current step (gets nice intervals), if possible.
+            _curStep = difference.lte(0) ? 0 : _getNiceStep(difference);
 
             // set the wager inputs accordingly
             let minRounded = min.div(_curStep).ceil().mul(_curStep).toNumber();
@@ -1136,6 +1136,10 @@
             _$txt.attr("min", minRounded)
                 .attr("max", maxRounded)
                 .attr("step", _curStep);
+
+            // set the txtwidth to accommodate number of decimals
+            const numDecimals = _curStep == 0 ? 3 : -1*Math.floor(Math.log10(_curStep));
+            _$txt.css("width", `${numDecimals}em`);
 
             // wagerRange to be positioned correctly relative to value
             var val = _getValue();
@@ -1177,9 +1181,10 @@
             return val;
         }
 
+        // sets the _$txt value, with proper number of decimals (and trailing zeroes)
         function _setTxt(v) {
-            const numDecimals = -1*Math.floor(Math.log10(_curStep));
-            const txt = numDecimals > 1 ? v.toFixed(numDecimals) : v;
+            const numDecimals = _curStep == 0 ? 3 : -1*Math.floor(Math.log10(_curStep));
+            const txt = numDecimals >= 1 ? (new BigNumber(v)).toFixed(numDecimals) : v;
             _$txt.val(txt);
         }
 

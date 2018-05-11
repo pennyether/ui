@@ -1071,13 +1071,14 @@ input:disabled {
 			display: block;
 			box-sizing: border-box;
 			background: transparent;
-			padding-left: 15px; /* makes it look centered */
+			padding-left: 15px;
 			text-align: center;
 			font-size: 300%;
 			border: none;
 			color: lime;
 			margin-top: -5px;
 			margin-bottom: -5px;
+			width: 4em; /* this is set via JS */
 		}
 		.Slider .val-txt:focus {
 			outline: none;

@@ -478,10 +478,11 @@ function Game(vp) {
     // global params, set externally
     const _vp = vp;
     var _curPayTable;
+    var _isUnavailable;
 
     // state of the currentGame
     var _txId = null;
-    var _gameState = {state: "betting"};
+    var _gameState = {state: "new"};
     var _isSkippingDrawing = false;
     var _isTransacting = false;
     var _isError = false;
@@ -499,20 +500,7 @@ function Game(vp) {
     this.setSettings = function(settings) {
         if (!settings) return;
         _curPayTable = settings.curPayTable;
-
-        if (settings.maxBet.equals(0) || settings.maxBet.lt(settings.minBet) && _gameState.state=="betting") {
-            _$e.find("> .not-available").show();
-            _slider.setUnits([{
-                name: "eth",
-                $label: "ETH",
-                min: 0,
-                max: .3,
-            }]);
-            _slider.setValue(.01);
-            return;
-        } else {
-            _$e.find("> .not-available").hide();
-        }
+        _isUnavailable = settings.maxBet.equals(0) || settings.maxBet.lt(settings.minBet);
 
         const units = [{
             name: "eth",
@@ -529,7 +517,6 @@ function Game(vp) {
             });
         }
         _slider.setUnits(units);
-        if (Object.keys(_gameState).length === 0) { _slider.setValue(.01); }
         _refreshDebounce();
     };
 
@@ -594,6 +581,20 @@ function Game(vp) {
             _$msg.text(`Select a bet amount, and press "Deal"`);
             if (!_isTransacting) _slider.freeze(false);
             _refreshHand(null, 31);
+
+            // show as unavailable if no bets are being taken
+            if (_isUnavailable) {
+                _$e.find("> .not-available").show();
+                _slider.setUnits([{
+                    name: "eth",
+                    $label: "ETH",
+                    min: 0,
+                    max: .3,
+                }]);
+                _slider.setValue(.01);
+            } else {
+                _$e.find("> .not-available").hide();
+            }
 
             return;
         }
@@ -994,6 +995,7 @@ function Game(vp) {
         _initDealButton();
         _initDrawButton();
         _initFinalizeButton();
+        _slider.setValue(.01);
     }());
 }
 
