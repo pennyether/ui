@@ -101,7 +101,7 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
                             const addr = ev.args.addr;
                             txStatus.addSuccessMsg(`Removed ${addr} from whitelist.`);
                         } else {
-                            txStatus.addFailureMsg(`Did not add anything (already added?)`);
+                            txStatus.addFailureMsg(`Did not remove anything (already removed?)`);
                         }
                     },
                     onClear: () => {
@@ -177,7 +177,7 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
                             const ethStr = util.toEthStrFixed(ev.args.amount);
                             txStatus.addSuccessMsg(`Removed ${ethStr} from bankroll.`);
                         } else {
-                            txStatus.addFailureMsg(`Did not add anything.`);
+                            txStatus.addFailureMsg(`Did not remove anything.`);
                         }
                     },
                     onClear: () => {
@@ -300,7 +300,7 @@ Loader.require("tm", "dice", "vp", "monarchy", "tr")
             };
 
             // append statusRow to this row.
-            const promise = tr.cancelRequest(params, {gasPrice: obj.gasPrice, gas: 100000});
+            const promise = tr.cancelRequest(params, {gasPrice: obj.gasPrice, gas: 200000});
             $button.closest("td").find("button").attr("disabled", "disabled");
             return util.$getTxStatus(promise, {
                 waitTimeMs: obj.waitTimeS * 1000,

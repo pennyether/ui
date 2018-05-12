@@ -414,6 +414,7 @@ function Tabber() {
 // Game Object that gets it state set externally.
 function Game(vp) {
     const _$e = $(".Game.template").clone().removeClass("template").show();
+    const _$notAvailable = _$e.find("> .not-available").hide();
     const _$payTable = _$e.find(".payTable");
     // better, hand, miniHand
     const _slider = util.getSlider("Bet");
@@ -584,7 +585,7 @@ function Game(vp) {
 
             // show as unavailable if no bets are being taken
             if (_isUnavailable) {
-                _$e.find("> .not-available").show();
+                _$notAvailable.show();
                 _slider.setUnits([{
                     name: "eth",
                     $label: "ETH",
@@ -593,7 +594,7 @@ function Game(vp) {
                 }]);
                 _slider.setValue(.01);
             } else {
-                _$e.find("> .not-available").hide();
+                _$notAvailable.hide();
             }
 
             return;
