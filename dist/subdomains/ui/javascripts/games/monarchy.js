@@ -24,7 +24,7 @@ Loader.require("monarchy")
     function getActiveGames() {
         return monarchy.numDefinedGames().then(num=>{
             const games = [];
-            for (var i=0; i<num; i++){
+            for (var i=1; i<=num; i++){
                 games.push(monarchy.getGame([i]));
             }
             return Promise.all(games);
