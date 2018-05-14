@@ -357,15 +357,15 @@ Loader.require("monarchy")
                         const $link = util.$getTxLink("", ev.transactionHash)
                         txStatus.$e.appendTo(_$txStatus);
                         txStatus.complete($link);
-                        if (ev.name == "OverthrowRefundSuccess" && ev.recipient == account) {
+                        if (ev.name == "OverthrowRefundSuccess" && ev.args.recipient == account) {
                             $link.text("Your overthrow attempt was refunded.");
                             txStatus.addWarningMsg(`You were refunded because:<br>"${ev.args.msg}"`);
                             if (events.length==1) setClass("refunded");
-                        } else if (ev.name == "OverthrowRefundFailure" && ev.recipient == account) {
+                        } else if (ev.name == "OverthrowRefundFailure" && ev.args.recipient == account) {
                             $link.text("Your overthrow could not be refunded.");
                             txStatus.addFailureMsg(`You were unable to be refunded because:<br>"${ev.args.msg}"`);
                             if (events.length==1) setClass("failure");
-                        } else if (ev.name == "OverthrowOccurred" && ev.newMonarch == account) {
+                        } else if (ev.name == "OverthrowOccurred" && ev.args.newMonarch == account) {
                             $link.text("Your overthrow succeeded!");
                             const $msg = $("<div></div>")
                                 .append("You overthrew ")
