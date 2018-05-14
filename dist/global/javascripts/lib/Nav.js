@@ -22,7 +22,29 @@
                     </div>
                 </div>
                 <div id="Bottom">
-                    <div class="breadcrumb"></div>
+                    <table cellpadding="0" cellspacing="0" width="100%"><tr>
+                        <td valign="middle" align="left">
+                            <div class="breadcrumb"></div>
+                        </td>
+                        <td valign="middle" align="right">
+                            <div class="social">
+                                <a class="subdomain play" href="https://www.pennyether.com/">Play</a>
+                                <a class="subdomain invest" href="https://investor.pennyether.com/">Invest</a>
+                                <a class="subdomain blog" href="https://blog.pennyether.com/">Blog</a>
+                                <div class="spacer">&nbsp;</div>
+                                <a href="https://www.reddit.com/r/PennyEther"><img src="/global/images/reddit-icon-32.png"></a>
+                                <a href="https://discord.gg/hrrERYZ"><img src="/global/images/discord-icon-32.ico"></a>
+                                <a href="https://twitter.com/PennyEther"><img src="/global/images/twitter-icon-32.ico"></a>
+                                <a href="https://www.github.com/PennyEther/"><img src="/global/images/github-icon-32.ico"></a>
+                                <div class="spacer">&nbsp;</div>
+                                <a href="https://discord.gg/hrrERYZ">
+                                    <div class="chat">
+                                        Chat
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </tr></table>
                 </div>
                 <div id="Footer">
                     <table width="100%" cellpadding=0 cellspacing=0><tr>
@@ -35,7 +57,7 @@
                                     <a class="sub-item investors" href="https://investor.pennyether.com">Investors</a>
                                 </div>
                                 <div class="icons">
-                                    <a href="https://www.reddit.com/r/PennyEther"><img src="/global/images/reddit-icon-32.ico"></a>
+                                    <a href="https://www.reddit.com/r/PennyEther"><img src="/global/images/reddit-icon-32.png"></a>
                                     <a href="https://discord.gg/hrrERYZ"><img src="/global/images/discord-icon-32.ico"></a>
                                     <a href="https://twitter.com/PennyEther"><img src="/global/images/twitter-icon-32.ico"></a>
                                     <a href="https://www.github.com/PennyEther/"><img src="/global/images/github-icon-32.ico"></a>

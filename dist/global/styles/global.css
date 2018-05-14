@@ -244,28 +244,81 @@ input:disabled {
 	display: block;
 	z-index: -1;
 	font-size: 90%;
-	padding: 5px 0px 5px 20px;
 	background: linear-gradient(to bottom, #FAFAFA 0%, #DDDDDD 100%);
 }
-	#Bottom .item {
-		display: inline-block;
+	#Bottom .breadcrumb {
+		padding: 5px 0px;
+		padding-left: 20px;
 	}
-	#Bottom .item:not(:last-child):after {
-		display: inline-block;
-		content: '»';
-		padding-left: 10px;
-		padding-right: 10px;
-	}
-	#Bottom .item:last-child {
-		font-weight: bold;
-		display: inline-block;
-	}
+		#Bottom .breadcrumb .item {
+			display: inline-block;
+		}
+		#Bottom .breadcrumb .item:not(:last-child):after {
+			display: inline-block;
+			content: '»';
+			padding-left: 10px;
+			padding-right: 10px;
+		}
+		#Bottom .breadcrumb .item:last-child {
+			font-weight: bold;
+			display: inline-block;
+		}
 
-	#Bottom .settings {
-		position: absolute;
-		right: 0px;
-		top: 0px;
+	#Bottom .social {
+		padding: 4px 5px;
+		display: inline-block;
+		opacity: .4;
+		transition: opacity .3s;
 	}
+	#Bottom .social:hover {
+		opacity: 1;
+	}
+		#Bottom .social .spacer {
+			height: 100%;
+			vertical-align: middle;
+			display: inline-block;
+			width: 1px;
+			margin: 0px 4px;
+			background: rgba(0,0,0,.3);
+		}
+		#Bottom .social a.subdomain {
+			text-decoration: none;
+			display: inline-block;
+			vertical-align: middle;
+			text-shadow: none;
+			padding: 2px 4px;
+			border-radius: 2px;
+			color: blue;
+			transition: color .5s, background .5s, box-shadow .5s;
+		}
+		#Bottom .social a.subdomain:hover {
+			/*box-shadow: 2px 2px 0px gray;*/
+			color: white;
+		}
+		#Bottom .social a.play:hover { background: rgba(0,0,255,.8); }
+		#Bottom .social a.invest:hover { background: rgba(0,0,128,.8); }
+		#Bottom .social a.blog:hover { background: rgba(0,128,0,.8); }
+		#Bottom .social img {
+			vertical-align: middle;
+			filter: saturate(20%);
+			padding: 2px;
+			height: 18px;
+			border-radius: 2px;
+			transition: filter .5s, background .5s;
+		}
+		#Bottom .social img:hover {
+			background: rgba(0,0,0,.2);
+			filter: saturate(100%);
+		}
+		#Bottom .social .chat {
+			vertical-align: middle;
+			margin-left: 5px;
+			display: inline-block;
+			padding: 3px 10px;
+			background: linear-gradient(to bottom, rgba(0,128,255,.7) 0%, rgba(0,0,255,.7) 100%);
+			border-radius: 3px;
+			color: white;
+		}
 
 #Footer {
 	position: absolute;

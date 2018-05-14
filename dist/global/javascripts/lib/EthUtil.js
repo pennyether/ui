@@ -44,7 +44,7 @@
                     // for for any differences, and call the callbacks
                     const anyChange = Object.keys(newState).some(state=>{
                         return state=="latestBlock"
-                            ? newState[state].number!==_curState[state].number
+                            ? newState[state].hash!==_curState[state].hash
                             : newState[state]!==_curState[state];
                     })
                     _curState = newState;

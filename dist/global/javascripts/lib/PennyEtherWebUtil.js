@@ -479,7 +479,7 @@
                     $dateTd.append($date);
                     $valueTd.append($value);
                     if (_$prevDateTd && i==0) {
-                        const $lastDate = _dateFn(_prevEvent, prevEvent, nextEvent)
+                        const $lastDate = _dateFn(event, prevEvent, nextEvent);
                         _$prevDateTd.empty().append($lastDate);
                     }
                     _prevEvent = event;
@@ -507,14 +507,18 @@
                 if (_order == 'newest'){
                     // search to where the last chunk started
                     toBlock = _prevFromBlock - 1;
-                    fromBlock = Math.max(_prevToBlock - _blocksPerSearch, _minBlock);
+                    fromBlock = Math.max(toBlock - _blocksPerSearch, _minBlock);
                 } else {
                     // search from where the last chunk ended
                     fromBlock = _prevToBlock + 1;
                     toBlock = Math.min(fromBlock + _blocksPerSearch, _maxBlock);
                 }
             }
-            _isDone = fromBlock <= _minBlock || toBlock >= _maxBlock;
+            _prevToBlock = toBlock;
+            _prevFromBlock = fromBlock;
+            _isDone = _order == "newest"
+                ? fromBlock <= _minBlock
+                : toBlock >= _maxBlock;
 
             // Get which events to load, depending on legend
             var events = _events;
@@ -531,7 +535,7 @@
             });
 
             // show that we're loading, update least/greatest
-            _$status.text(`Scanning blocks: ${fromBlock} - ${toBlock}...`);
+            _$status.text(`Loading for blocks: ${fromBlock} - ${toBlock}...`);
             _leastBlockLoaded = Math.min(_leastBlockLoaded, fromBlock);
             _greatestBlockLoaded = Math.max(_greatestBlockLoaded, toBlock);
 
@@ -546,7 +550,11 @@
                         : a.blockNumber - b.blockNumber;
                 });
                 if (_order=="newest") allEvents.reverse();
-                _$status.text(`Scanned blocks: ${_leastBlockLoaded} - ${_greatestBlockLoaded}.`);
+
+                const statusTxt = _isDone
+                    ? `Loaded all blocks: ${_leastBlockLoaded} - ${_greatestBlockLoaded}.`
+                    : `Loaded blocks: ${_leastBlockLoaded} - ${_greatestBlockLoaded}.`;
+                _$status.text(statusTxt);
 
                 // If there were no events, try to load more
                 // Otherwise, reset _missCount and return.

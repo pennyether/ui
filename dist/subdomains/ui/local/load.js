@@ -60,12 +60,6 @@
             },{
                 name: "Player History",
                 url: "/tools/player.html"
-            },{
-                name: "Blog",
-                url: "https://blog.pennyether.com/"
-            },{
-                name: "Investors",
-                url: "https://investor.pennyether.com/"
             }]
         }
     ];
