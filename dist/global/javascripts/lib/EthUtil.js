@@ -43,9 +43,10 @@
                 }).then(newState => {
                     // for for any differences, and call the callbacks
                     const anyChange = Object.keys(newState).some(state=>{
-                        return state=="latestBlock"
-                            ? newState[state].hash!==_curState[state].hash
-                            : newState[state]!==_curState[state];
+                        if (state == "latestBlock")
+                            return newState[state].hash !== _curState[state].hash
+                        else
+                            return newState[state] !== _curState[state];
                     })
                     _curState = newState;
                     _isInitialized = true;

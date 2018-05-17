@@ -129,6 +129,7 @@ Loader.require("monarchy")
         var _estTimeLeft;
         var _estTimeLeftAt;
         var _curBlocksLeft = null;
+        var _curBlockEnded = null;
         var _curAmWinner = null;
         var _curPrize = null;
         var _curMonarch = null;
@@ -261,7 +262,7 @@ Loader.require("monarchy")
                 initialized: _initialized,
                 prize: _isEnded ? _curPrize : _game.prize(),
                 monarch: _isEnded ? _curMonarch : _game.monarch(),
-                blocksLeft: _isEnded ? new BigNumber(0) : _game.getBlocksRemaining(),
+                blockEnded: _isEnded ? _curBlockEnded : _game.blockEnded().then(n => n.toNumber()),
                 decree: _isEnded ? _curDecree : _game.decree().then(_getDecreeStr),
                 otSuccesses: account ? _game.getEvents("OverthrowOccurred", {newMonarch: account}, block, block) : [],
                 otRefundSuccess: account ? _game.getEvents("OverthrowRefundSuccess", {recipient: account}, block, block) : [],
@@ -270,7 +271,12 @@ Loader.require("monarchy")
                 const prize = obj.prize;
                 const monarch = obj.monarch;
                 const decree = obj.decree;
-                const blocksLeft = obj.blocksLeft.toNumber();
+                const blocksLeft = obj.blockEnded > block
+                    ? obj.blockEnded - block
+                    : 0;
+                const blockEnded = obj.blockEnded > block
+                    ? null
+                    : obj.blockEnded;
                 const blocksReigned = _reignBlocks - blocksLeft;
 
                 // compute useful things, store state
@@ -286,6 +292,7 @@ Loader.require("monarchy")
                 _curPrize = prize;
                 _curAmWinner = amWinner;
                 _curBlocksLeft = blocksLeft;
+                _curBlockEnded = blockEnded;
                 _curMonarch = monarch;
                 _curDecree = decree;
 
@@ -646,7 +653,7 @@ Loader.require("monarchy")
                 _$e.removeClass("initializing");
                 _fee = obj.fee;
                 _prizeIncr = obj.prizeIncr;
-                _reignBlocks = obj.reignBlocks;
+                _reignBlocks = obj.reignBlocks.toNumber();
 
                 // update static DOM elements (bid price, reign blocks, prizeIncr)
                 _$bidPrice.text(`${util.toEthStrFixed(_fee, null, "")}`);
@@ -806,6 +813,7 @@ Loader.require("monarchy")
                     }],
                     order: "newest",
                     minBlock: startBlock,
+                    maxBlock: _curBlockEnded ? _curBlockEnded : null,
                     blocksPerSearch: _reignBlocks * 10,
                     dateFn: (event, prevEvent, nextEvent) => {
                         if (!prevEvent || event.name=="GameStart"){
