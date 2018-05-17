@@ -357,7 +357,7 @@ Loader.require("dice")
 
             tippy(_$e.find(".tip").toArray());
 
-            const gps = util.getGasPriceSlider(5);
+            const gps = util.getGasPriceSlider();
             const $claimTip = $("<div></div>").append(gps.$e);
             (function attachTip(){
                 tippy(_$btnClaim[0], {
@@ -520,7 +520,7 @@ Loader.require("dice")
 
         // roll tip
         (function _initRollButton(){
-            const gps = util.getGasPriceSlider(5);
+            const gps = util.getGasPriceSlider();
             const $rollBtn = _$e.find(".btn-roll");
             const $rollTip = $("<div></div>").append(gps.$e);
             (function attachTip(){

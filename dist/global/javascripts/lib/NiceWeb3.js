@@ -446,6 +446,15 @@
         if (!opts.hasOwnProperty("from") || !opts.from) {
             throw new Error(`'from' option is missing.`);
         }
+        // If gasPrice is provided but is 0 or empty, just remove it.
+        // This allows MetaMask to choose the gasPrice
+        if (opts.hasOwnProperty("gasPrice")) {
+            const gp = opts.gasPrice;
+            if (!gp || (gp.toNumber && gp == 0)){
+                console.warn("No gasPrice provided in tx options. Will unset 'gasPrice' and let wallet decide.");
+                delete opts.gasPrice;
+            }
+        }
         return opts;
     }
 

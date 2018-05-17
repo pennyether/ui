@@ -911,7 +911,7 @@
         button.isGasified = true;
         // create tip with gps in it.
         const $tip = $("<div></div>");
-        const gps = new GasPriceSlider(5, true);
+        const gps = new GasPriceSlider(null, true);
         gps.$e.appendTo($tip);
         
         // bind the tip.

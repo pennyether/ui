@@ -286,8 +286,8 @@
                     Bet was refunded: "<span class='msg'></span>"
                 </div>
             `);
-            $e.find(".roll .value").append($getRollLink(event.transactionHash));
-            $e.find(".user .value").append($getUserLink(event.args.user));
+            $e.find(".roll .value").append(nav.$getRollLink(event.transactionHash));
+            $e.find(".user .value").append(nav.$getPlayerLink(event.args.user));
             $e.find(".bet .value").text(util.toEthStrFixed(event.args.bet));
             $e.find(".number .value").text(event.args.number);
             $e.find(".msg").text(event.args.msg);
