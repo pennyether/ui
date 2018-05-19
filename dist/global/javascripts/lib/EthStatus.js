@@ -113,7 +113,7 @@
         // Keep track of latest block. Init to empty block.
         var _curState = {latestBlock: {}};
         var _timeOfLatestBlock = 0;
-        var _openOnDisconnect = true;
+        var _openOnDisconnect = false;
 
         // on state change, maybe update block - always refresh all.
         _ethUtil.onStateChanged(newState => {
