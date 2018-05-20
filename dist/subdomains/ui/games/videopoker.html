@@ -19,10 +19,18 @@
 			#Title .title { color: white; }
 			#Title .tagline { color: white; }
 
+			/********* VERSION SELECTOR ****************/
+
+			#Version {
+				margin-top: 50px;
+				padding: 10px 0px;
+				text-align: center;
+			}
+
 
 			/******* TABBER / MACHINE STYLING *********/
 			#Machine {
-				margin: 50px 10px;
+				margin: 0px 10px 50px 10px;
 				border: 1px solid black;
 				overflow: hidden;
 				border-radius: 15px;
@@ -657,6 +665,13 @@
 				</div>
 			</div>
 		</div>
+		<div id="Version">
+			Version:
+			<select class="sel-version">
+				<option value="latest" selected>Latest</option>
+				<option value="v1">V1</option>	
+			</select>
+		</div>
 		<div id="Machine">
 			<div class="header">
 				<style>
@@ -706,7 +721,9 @@
 								}
 				</style>
 				<table cellpadding="0" cellspacing="0"><tr>
-					<td width="100%"><div class="tabber-ctnr"></div></td>
+					<td width="100%">
+						<div class="tabber-ctnr"></div>
+					</td>
 					<td id="Credits" valign="top">
 						<div class="ctnr" style="text-align: left;">
 							<table width="100%">

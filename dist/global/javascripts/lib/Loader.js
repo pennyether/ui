@@ -310,7 +310,8 @@
                     "monarchy": [MonarchyController, "MONARCHY_CONTROLLER"],
                     "monarchy-factory": [MonarchyFactory, "MONARCHY_FACTORY"],
                     "dice": [InstaDice, "INSTA_DICE"],
-                    "vp": [VideoPoker, "VIDEO_POKER"]
+                    "vp": [VideoPoker, "VIDEO_POKER"],
+                    "vps": [VideoPoker, ["VIDEO_POKER","VIDEO_POKER_V1"]]
                 };
                 /* eslint-enable no-undef */
                 // For each string, map it to the type at the mapped address.
@@ -319,9 +320,16 @@
                         throw new Error(`Unknown requirement: ${str}`);
                     if (str==="reg") return _registry;
                     const type = requirements[str][0];
-                    const name = requirements[str][1];
-                    const addr = _self.addressOf(name);
-                    return type.at.call(type, addr)
+                    const names = requirements[str][1];
+                    if (Array.isArray(names)) {
+                        return names.map(name => {
+                            const addr = _self.addressOf(name);
+                            return type.at.call(type, addr);
+                        });
+                    } else {
+                        const addr = _self.addressOf(names);
+                        return type.at.call(type, addr);
+                    }
                 });
             });
 

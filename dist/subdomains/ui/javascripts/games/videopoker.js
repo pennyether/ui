@@ -1,5 +1,23 @@
-Loader.require("vp")
-.then(function(vp){
+Loader.require("vps")
+.then(function(vps){
+    // TODO: show dropdown of versions, change dice when new version selected.
+    // changing version should update hashtag, then reload page.
+    var vp;
+    (function initVersion(){
+        var hash = window.location.hash.slice(1);
+        var version = parseInt(hash[1]) || 0;
+        vp = vps[version];
+        console.log(`Using VideoPoker version: ${version || 'latest'}`);
+
+        const $sel = $(".sel-version")
+            .val(hash || "latest")
+            .on("change", function(){
+                window.location.hash = $sel.val();
+                window.location.reload();
+            });
+    }());
+    ///////////////////////////
+
     if (!PokerUtil) throw new Error("This requires PokerUtil to be loaded.");
 
     ethUtil.onStateChanged((state)=>{
